@@ -234,3 +234,150 @@ File.write("out.txt", "content", mode: "a")
 | alias	| 创建方法的别名	| 为（通常比较复杂的）类型定义一个别名
 | $0	| 当前程序的名称	| 前一个正则匹配的内容字符串 (Ruby 中同样的东西是 $&)
 | &.    | 短路运算符		|  block 调用简写形式
+
+
+| abc | def |
+| --- | --- |
+| ghi | jkl |
+
+-------
+
+| _abc_ | セン |
+| ----- | ---- |
+| 1. Block elements inside cells don't work. | |
+| But _**inline elements do**_. | x |
+
+
+---------
+
+| Not enough table | to be considered table |
+
+| Not enough table | to be considered table |
+| Not enough table | to be considered table |
+
+
+-------
+
+| Just enough table | to be considered table |
+| ----------------- | ---------------------- |
+
+--------
+
+| ---- | --- |
+
+|x|
+|-|
+
+
+| xyz |
+| --- |
+
+-------
+
+abc | def
+--- | ---
+xyz | ghi
+
+---------
+Hello!
+
+| _abc_ | セン |
+| ----- | ---- |
+| this row has a space at the end | | 
+| But _**inline elements do**_. | x |
+
+
+-------
+
+aaa | bbb | ccc | ddd | eee
+:-- | --- | :-: | --- | --:
+fff | ggg | hhh | iii | jjj
+
+------
+
+| a | b | c |
+| --- | --- | --- |
+| this | isn't | okay |
+
+
+------
+
+| a | b | c |
+| --- | --- | ---
+| x
+| a | b
+| 1 | 2 | 3 | 4 | 5 |
+
+---
+
+| a | b |
+| --- | --- |
+| Escaped pipes are \|okay\|. | Like \| this. |
+| Within `\|code\| is okay` too. |
+| _**`c\|`**_ \| complex
+| don't **\_reparse\_**
+
+-----
+
+| a |
+--- |
+
+-----
+
+| a | b |
+| --- | --- |
+| \\ | `\\` |
+| \\\\ | `\\\\` |
+| \_ | `\_` |
+| \| | `\|` |
+| \a | `\a` |
+
+\\ `\\`
+
+\\\\ `\\\\`
+
+\_ `\_`
+
+\| `\|`
+
+\a `\a`
+
+------
+
+| a |
+| --- |
+| <strong>hello</strong> |
+| ok <br> sure |
+
+------
+
+Here's a link to [Freedom Planet 2][].
+
+| Here's a link to [Freedom Planet 2][] in a table header. |
+| --- |
+| Here's a link to [Freedom Planet 2][] in a table row. |
+
+[Freedom Planet 2]: http://www.freedomplanet2.com/
+
+
+-------
+
+| a | b | c |
+| --- | --- | --- |
+| d || e |
+
+
+-------
+
+| a | b |
+| --- | --- |
+|***(a)***|
+
+
+-------
+
+123
+456
+| a | b |
+| ---| --- |
+d | e
