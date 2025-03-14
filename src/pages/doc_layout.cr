@@ -39,7 +39,7 @@ abstract class DocLayout
     html lang: "en", class: "-no-dark-theme" do
       mount Shared::LayoutHead, page_title: page_title
 
-      body "hx-boost": true, style: "padding: 0px;" do
+      body style: "padding: 0px;" do
         mount Navbar, current_user: current_user
 
         div class: "sidebar-layout fullscreen" do

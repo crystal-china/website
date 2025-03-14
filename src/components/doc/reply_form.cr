@@ -11,10 +11,9 @@ class Docs::ReplyForm < BaseComponent
 
     if me.nil?
       legend_text = "登录后添加评论"
-      textarea_opt = textarea_opt.merge(disabled: "")
+      # textarea_opt = textarea_opt.merge(disabled: "")
     else
       legend_text = "支持 markdown 格式"
-      textarea_opt = textarea_opt.merge(script: "on change set @style of <#tab-2/> to ''")
     end
 
     # ---------------- page start ----------------
@@ -38,8 +37,7 @@ class Docs::ReplyForm < BaseComponent
           hx_put: "/docs/htmx/markdown_render",
           hx_target: "#markdown-preview",
           hx_include: "[name='_csrf'],#text_area",
-          hx_indicator: "next img.htmx-indicator",
-          style: "pointer-events: none;cursor: not-allowed;"
+          hx_indicator: "next img.htmx-indicator"
         ) do
           text "预览"
         end
