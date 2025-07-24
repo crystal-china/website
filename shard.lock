@@ -65,6 +65,10 @@ shards:
     git: https://github.com/crystal-lang/crystal-db.git
     version: 0.13.1
 
+  debug:
+    git: https://github.com/sija/debug.cr.git
+    version: 2.0.4
+
   dexter:
     git: https://github.com/luckyframework/dexter.git
     version: 0.3.4

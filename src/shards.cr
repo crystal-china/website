@@ -19,3 +19,5 @@ require "simple_captcha"
 require "multi_auth"
 MultiAuth.config("github", ENV["GITHUB_OAUTH_CLIENT_ID"]? || "", ENV["GITHUB_OAUTH_SECRET"]? || "")
 MultiAuth.config("google", ENV["GOOGLE_OAUTH_CLIENT_ID"]? || "", ENV["GOOGLE_OAUTH_SECRET"]? || "")
+
+require "debug"

@@ -58,7 +58,8 @@ development_dependencies:
     version: ~> 0.10.0
   timecop:
     github: crystal-community/timecop.cr
-
+  debug:
+     github: Sija/debug.cr
 
 crystal: '>= 1.14.0'
 

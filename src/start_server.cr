@@ -32,6 +32,8 @@ private def print_running_at
   STDOUT.puts ""
 end
 
+debug! "hello"
+
 print_running_at if LuckyEnv.development?
 
 app_server.listen
