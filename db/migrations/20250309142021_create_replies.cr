@@ -4,6 +4,8 @@ class CreateReplies::V20250309142021 < Avram::Migrator::Migration::V1
       primary_key id : Int64
       add_belongs_to doc : Doc?, on_delete: :cascade
       add_belongs_to user : User, on_delete: :cascade
+      add_belongs_to reply : Reply?, on_delete: :cascade
+      add replies_counter : Int32, default: 0
       add content : String
       add user_name : String
       add user_avatar : String?
