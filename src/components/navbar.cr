@@ -18,7 +18,7 @@ class Navbar < BaseComponent
                 end
               end
             else
-              link "学习文档", to: Docs::Index
+              a "学习文档", href: "/docs/index"
             end
           end
 

@@ -32,7 +32,7 @@ class Me::EditPage < MainLayout
         para class: "f-row align-items:center" do
           submit "保存"
 
-          a "返回", href: previous_url(fallback: Docs::Index)
+          a "返回", href: previous_url(fallback: Home::Index)
         end
       end
     end
