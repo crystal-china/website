@@ -62,10 +62,10 @@ abstract class DocLayout
   def print_doc_info(doc)
     doc_info = "创建于：#{doc.created_at.to_s("%Y年%m月%d日")}"
 
-    timestamp = JSON.parse(File.read("dist/mix-manifest.json"))["/assets/docs/markdowns_timestamps.yml"]?.try do |path|
-    stampfile = "dist#{path}"
-      if File.exists?(stampfile)
-        YAML.parse(File.read(stampfile))[markdown_path]?.try do |date|
+    JSON.parse(File.read("dist/mix-manifest.json"))["/assets/docs/markdowns_timestamps.yml"]?.try do |path|
+      timestamp_file = "dist#{path}"
+      if File.exists?(timestamp_file)
+        YAML.parse(File.read(timestamp_file))[markdown_path]?.try do |date|
           doc_info = "#{doc_info}       最后编辑于: #{Time.unix(date.as_i64).to_local.to_s("%Y年%m月%d日")}"
         end
       end
