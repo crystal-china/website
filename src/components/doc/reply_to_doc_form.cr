@@ -23,6 +23,7 @@ class Docs::ReplyToDocForm < BaseComponent
         script:     "on click set value of next <textarea/> to ''",
         hx_post:    Htmx::Docs::Reply::CreateOrUpdate.path_without_query_params,
         onclick:    "document.getElementById('edit_dialog').close();",
+        flow_id:    "#{html_id}-do_reply",
       }
 
       if me.nil?
