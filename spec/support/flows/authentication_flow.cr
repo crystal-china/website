@@ -75,7 +75,16 @@ class AuthenticationFlow < BaseFlow
   end
 
   def create_reply_to_reply
-    reply = driver.find_xpath("//article[@id='doc_reply-1']//a[text()='删除']").first
+    reply = driver.find_xpath("//article[@id='doc_reply-2']//a[text()='回复']").first
+    reply.click
+    sleep 0.5.seconds
+    text_area = el("textarea#reply_to_reply_text_area")
+    text_area.click
+    text_area.fill("reply to reply test")
+    sleep 0.5.seconds
+    click "@reply_to_reply-preview_reply"
+    sleep 0.5.seconds
+    click "@reply_to_reply-do_reply"
   end
 
   def should_be_signed_in
