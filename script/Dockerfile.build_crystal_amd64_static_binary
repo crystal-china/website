@@ -1,0 +1,60 @@
+# -*- mode: dockerfile-ts; -*-
+
+# 这个镜像使用 mount 将本地项目映射到容器内，编译一个 AMD64 静态链接的 binary
+
+# mirrors.ustc.edu.cn mirrors.tuna.tsinghua.edu.cn
+ARG alpine_mirror=mirrors.ustc.edu.cn
+
+# =============== 这个用官方的 Crystal镜像 build X86_64 静态 binary ===============
+
+FROM crystallang/crystal:1-alpine AS official_release
+
+ARG alpine_mirror
+RUN sed -i "s/dl-cdn.alpinelinux.org/$alpine_mirror/g" /etc/apk/repositories
+
+# 这个必须放在 USER docker:docker 前面，否则会导致下面的错误：
+# Unable to lock database: Permission denied
+RUN --mount=type=cache,target=/var/cache/apk \
+    set -eux; \
+    apk add \
+    --update \
+    sqlite-static \
+    ;
+
+# 下面这一堆，只是为了使用 fixid 处理挂载目录到容器内不同用户权限的问题。
+# 如果使用 podman, 已经帮你处理了权限的问题，爽歪歪, 因此不需要了。
+# RUN addgroup -g 1000 docker && \
+#     adduser -u 1000 -G docker -h /home/docker -s /bin/sh -D docker
+# RUN wget -O - https://github.com/boxboat/fixuid/releases/latest | \
+#     grep -E -o "boxboat/fixuid/releases/tag/[^\"]*\" data-view-component" | \
+#     cut -d'"' -f1 | rev|cut -d'/' -f1 |rev |sed 's#^v##' > fixuid_version
+# RUN wget https://github.com/boxboat/fixuid/releases/download/v$(cat fixuid_version)/fixuid-$(cat fixuid_version)-linux-amd64.tar.gz -O - | tar zxvf - -C /usr/local/bin
+# RUN USER=docker && \
+#     GROUP=docker && \
+#     chown root:root /usr/local/bin/fixuid && \
+#     chmod 4755 /usr/local/bin/fixuid && \
+#     mkdir -p /etc/fixuid && \
+#     printf "user: $USER\ngroup: $GROUP\n" > /etc/fixuid/config.yml
+# USER docker:docker
+
+WORKDIR /app
+
+# ENTRYPOINT ["/bin/sh"]
+
+# 有关 linker 选项：-Wl 之后的所有选项，按照逗号分隔，全部会发送给 linker,
+# 也就是 linux 下的 ld, 详细解释，看 ld --help
+CMD shards build \
+    -Dstrict_multi_assign \
+    -Dno_number_autocast \
+    -Dpreview_overload_order \
+    -Duse_pcre2 \
+    --link-flags=-Wl,-L/app \
+    --link-flags=-s \
+    --link-flags=-pie \
+    --progress \
+    --static \
+    --stats \
+    --time \
+    --no-debug \
+    --production \
+    --release
