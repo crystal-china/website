@@ -293,3 +293,13 @@ ic(1.16.3):004> "abab".matches? /^((.)(?1)\2|.?)$/
 3. /^((.)((.)((.)(?1)\2|.?)\2|.?)\2|.?)$/
 
 作为一个用惯了 Ruby 正则表达式的程序员，会觉得使用 PCRE2 不方便，常常不支持这个，或不支持那个。
+
+## 如何检测一段代码是使用 Ruby 还是 Crystal 运行？
+
+```crystal
+if Array.to_s == "Array(T)"
+  puts "Crystal"
+else
+  puts "Ruby"
+end
+```
