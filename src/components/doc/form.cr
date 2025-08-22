@@ -9,7 +9,7 @@ class Docs::Form < BaseComponent
     div style: "border:0.5px solid gray; padding: 5px;", id: "#{html_id}-form" do
       div class: "tab-frame", style: "margin-top: 5px;text-align: center; min-height: 350px;" do
         input type: "radio", checked: "", name: "#{html_id}", id: "#{html_id}1"
-        label "输入", for: "#{html_id}1", style: "margin-right: 5px;"
+        label "输入", for: "#{html_id}1", style: "margin-right: 5px;", flow_id: "#{html_id}-input_reply"
 
         input(
           type: "radio",
@@ -23,6 +23,7 @@ class Docs::Form < BaseComponent
         label(
           "预览",
           for: "#{html_id}2",
+          flow_id: "#{html_id}-preview_reply",
           script: "on mouseover set x to the value of the next <textarea/>
         then if x == ''
            add @disabled to the previous <input/>

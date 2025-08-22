@@ -14,6 +14,8 @@ end
 # Uncomment this to enable running `LuckyFlow` in a Google Chrome window instead.
 # Be sure to disable for CI.
 #
+
+# 取消注释，可以让测试在本地启动一个正常 chrome 浏览器运行。
 # LuckyFlow.default_driver = "chrome"
 
 # LuckyFlow uses a registry for each driver. By default, chrome, and headless_chrome

@@ -35,6 +35,58 @@ class AuthenticationFlow < BaseFlow
     click "@sign-in-button"
   end
 
+  def open_doc
+    # el("header nav ul > li:first-child > a").click
+    click "@doc_index"
+  end
+
+  def create_two_reply_to_doc
+    textarea = el("textarea#tab_text_area")
+    textarea.click
+    textarea.fill("hello!")
+    click "@tab-preview_reply"
+    click "@tab-do_reply"
+    click "@tab-input_reply"
+    textarea.fill("crystal china!")
+    click "@tab-do_reply"
+    sleep 0.5.seconds
+  end
+
+  def delete_first_reply
+    delete_link = driver.find_xpath("//article[@id='doc_reply-1']//a[text()='删除']").first
+    sleep 0.5.seconds
+    delete_link.click
+    sleep 0.5.seconds
+    accept_alert
+    sleep 0.5.seconds
+  end
+
+  def edit_reply
+    edit_link = driver.find_xpath("//article[@id='doc_reply-2']//a[text()='编辑']").first
+    edit_link.click
+    sleep 0.5.seconds
+    text_area = el("textarea#reply_to_reply_text_area")
+    text_area.click
+    text_area.fill("hello world!")
+    sleep 0.5.seconds
+    click "@reply_to_reply-preview_reply"
+    sleep 0.5.seconds
+    click "@reply_to_reply-do_reply"
+  end
+
+  def create_reply_to_reply
+    reply = driver.find_xpath("//article[@id='doc_reply-2']//a[text()='回复']").first
+    reply.click
+    sleep 0.5.seconds
+    text_area = el("textarea#reply_to_reply_text_area")
+    text_area.click
+    text_area.fill("reply to reply test")
+    sleep 0.5.seconds
+    click "@reply_to_reply-preview_reply"
+    sleep 0.5.seconds
+    click "@reply_to_reply-do_reply"
+  end
+
   def should_be_signed_in
     current_page.should have_element("@sign-out-button")
   end
