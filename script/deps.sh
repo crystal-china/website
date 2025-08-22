@@ -4,11 +4,8 @@
 # 有时候会出现卡死的情况，运行下面的命令可解决
 # podman system renumber
 
-# ROOT=`dirname "$0"`
-# ROOT=`cd "$ROOT/.." &>/dev/null && pwd`
-
-ROOT=${0%/*}
-ROOT=`cd "$ROOT/.." &>/dev/null && pwd`
+ROOT=$(dirname "$0")
+ROOT=$(cd "$ROOT/.." &>/dev/null && pwd)
 
 pod_name=${1-crystal_china}
 

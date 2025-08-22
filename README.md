@@ -5,6 +5,7 @@
 - Crystal
 - pg
 - node (with yarn)
+- podman (or docker)
 
 ## Development
 
@@ -25,9 +26,12 @@ Following is the process for create the static binary:
 
 2. Run `yarn prod` to package assets use laravel mix.
 
-3. To built a static binary use [sb_static](https://github.com/crystal-china/magic-haversack/blob/main/bin/sb_static) script.
-   for more details instructions on building a static binary use zigcc, check [use zig gcc as an an alternative linker](https://github.com/crystal-china/magic-haversack/blob/main/docs/use_zig_cc_as_an_alternative_linker.md)
+3. To build a static binary use `script/build_amd64_static_binary.sh`, you need 
+   install `podman` or `docker`.
 
+   alternatively, you can use [sb_static](https://github.com/crystal-china/magic-haversack/blob/main/bin/sb_static) script with zigcc, for more details 
+   instructions on building a static binary use zigcc, check [use zig gcc as an an alternative linker](https://github.com/crystal-china/magic-haversack/blob/main/docs/use_zig_cc_as_an_alternative_linker.md)
+   
 4. copy the built static binary(`bin/crystal_china`) into remote linux host as `bin/crystal_china`, then 
    set the necessary ENV in file `.env`, check the [.env.sample](/.env.sample) for a example.
    You will have the following directory structure.
