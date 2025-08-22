@@ -63,6 +63,7 @@ class AuthenticationFlow < BaseFlow
 
   def edit_reply
     edit_link = driver.find_xpath("//article[@id='doc_reply-2']//a[text()='编辑']").first
+    sleep 0.5.seconds
     edit_link.click
     sleep 0.5.seconds
     text_area = el("textarea#reply_to_reply_text_area")
@@ -76,6 +77,7 @@ class AuthenticationFlow < BaseFlow
 
   def create_reply_to_reply
     reply = driver.find_xpath("//article[@id='doc_reply-2']//a[text()='回复']").first
+    sleep 0.5.seconds
     reply.click
     sleep 0.5.seconds
     text_area = el("textarea#reply_to_reply_text_area")

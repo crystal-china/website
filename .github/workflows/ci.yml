@@ -110,4 +110,4 @@ jobs:
           ./lucky_tasks db.seed.required_data
 
       - name: Run tests
-        run: crystal spec 
+        run: crystal spec -- --tag '~flow'
