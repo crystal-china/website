@@ -218,6 +218,28 @@ end
 p! foo {|x,y| x + y} # => 3
 ```
 
+## _1, _2 ... 在 Crystal 中就是普通参数。
+
+在 Ruby 2.7 中，引入了位置参数的简写形式，例如：
+
+```ruby
+[[1,2],[3,4]].each { print _1, _2, "\n" } # => # 12
+											   # 34
+```
+
+而在 Crystal 中，_1, _2 就是普通的合法变量, 和普通的变量没有什么不同。
+
+```crystal
+[[1,2],[3,4]].each { print _1, _2, "\n" }# Error: undefined local variable or method '_1' for top-level-
+```
+
+正确的写法如下：
+
+```crystal
+[[1, 2], [3, 4]].each { |(_1, _2)| print _1, _2, "\n" } # => 12
+														# => 34
+```
+
 ## self 含义
 
 在 Crystal 的代码块中，没有自己的 self, 它和代码块被调用时的上下文共享同样的 self。
