@@ -193,12 +193,49 @@ new_folder:lib:/home/zw963/Crystal/bin/../share/crystal/src
 
 可见仍旧满足上面的策略，只不过将 foo 替换为 foo/bar/baz 而已。
 
+这里举一个例子，方便大家理解为何要支持这么复杂的路径。
 
+例如，你写了一个俄罗斯方块 app, 它依赖另一个叫做 [sleepinginsomniac/pixelfaucet](https://github.com/sleepinginsomniac/pixelfaucet) 
+的基于 sdl2 的图形库，当你在 shard.yml 中加入如下内容，并且运行 shard install 成功之后，
+你的项目的 lib 文件夹下会被安装了一个 pixelfaucet 文件夹，大概这个样子（省略一些文件）
+
+├── pixelfaucet
+│   └── src
+│       ├── entity.cr
+│       ├── flags.cr
+│       ├── fps.cr
+│       ├── frame_timer.cr
+│       ├── game.cr
+│       ├── lehmer32.cr
+│       ├── lib_sdl.cr
+│       ├── noise.cr
+│       ├── particle.cr
+│       ├── pixel.cr
+│       ├── shape.cr
+│       ├── sprite.cr
+│       └── version.cr
+
+
+现在你需要用到 pixelfaucet 的 game 库，即：lib/pixelfaucet/src/game.cr
+
+一个办法是，你使用相对路径的 require, 像这个样子： 
+
+```crystl
+require "./lib/pixelfaucet/src/game"
 ```
-注意：require 绝对路径是不支持的。例如：require "/some/aboslote/path"
+
+但是如果你理解 Crystal 是如何查找库的，你可能会尝试：
+
+
+```crystal
+require "pixelfaucet/game"
+```
+
+是的，这样写是完全工作的。（参见上面的 a/b/c 的例子）
+
+__注意__：require 绝对路径是不支持的。例如：require "/some/aboslote/path"
 Crystal 没有类似于 Ruby 中 load 方法的等价物，但是可以通过下面的 
 read_file 宏(macro) 来达到同样的目的
-```
 
 ```crystal
 # 这个 macro 相当于把文件 path.cr 里面的内容物理粘贴到宏调用位置
