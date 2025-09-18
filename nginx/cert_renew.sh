@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
-# /root/.acme.sh/cert_renew.sh "crystal-china.org" "assets.crystal-china.org" "daka.crystal-china.org" "mail.crystal-china.org" "me.crystal-china.org"
+# Usage in crontab, running it every two months, on the first day, at 6:30 in the evening.
+# 30 18 1 */2 * /root/.acme.sh/cert_renew.sh "crystal-china.org" "assets.crystal-china.org" "daka.crystal-china.org" "mail.crystal-china.org" "me.crystal-china.org"
+
+# Need install socat before run this script for standalone mode work.
 
 set -ue
 
