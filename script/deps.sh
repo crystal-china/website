@@ -33,13 +33,13 @@ else
            -e POSTGRES_USER=${DB_USERNAME:-postgres} \
            -e POSTGRES_DB=${DB_NAME:-${pod_name}_development} \
            -e POSTGRES_PASSWORD=${DB_PASSWORD:-postgres} \
-           -d postgres \
-           # -v $ROOT/${pod_name}_data/pg_data:/var/lib/postgresql/data
+           -d postgres
+    # -v $ROOT/${pod_name}_data/pg_data:/var/lib/postgresql/data
 
-           podman run \
-               --pod ${pod_name} \
-               --name ${pod_name}_redis \
-               -d redis
+    podman run \
+           --pod ${pod_name} \
+           --name ${pod_name}_redis \
+           -d redis
 fi
 
 podman ps --pod
