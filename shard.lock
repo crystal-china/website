@@ -149,6 +149,10 @@ shards:
     git: https://github.com/luckyframework/pulsar.git
     version: 0.2.3
 
+  rosetta:
+    git: https://github.com/wout/rosetta.git
+    version: 0.13.1
+
   selenium:
     git: https://github.com/crystal-loot/selenium.cr.git
     version: 0.12.1
@@ -184,6 +188,10 @@ shards:
   tartrazine:
     git: https://github.com/ralsina/tartrazine.git
     version: 0.13.0
+
+  teeplate:
+    git: https://github.com/luckyframework/teeplate.git
+    version: 0.8.5
 
   time_in_words:
     git: https://github.com/crystal-china/time_in_words.git
