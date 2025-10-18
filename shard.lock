@@ -31,7 +31,7 @@ shards:
 
   cache:
     git: https://github.com/crystal-cache/cache.git
-    version: 0.15.1
+    version: 1.0.0
 
   cadmium_transliterator:
     git: https://github.com/cadmiumcr/transliterator.git
@@ -115,7 +115,7 @@ shards:
 
   lucky_router:
     git: https://github.com/luckyframework/lucky_router.git
-    version: 0.6.0
+    version: 0.6.1
 
   lucky_task:
     git: https://github.com/luckyframework/lucky_task.git
@@ -135,7 +135,7 @@ shards:
 
   openssl_ext:
     git: https://github.com/spider-gazelle/openssl_ext.git
-    version: 2.4.4
+    version: 2.6.1
 
   pcf-parser:
     git: https://github.com/l3kn/pcf-parser.git
@@ -151,7 +151,7 @@ shards:
 
   rosetta:
     git: https://github.com/wout/rosetta.git
-    version: 0.13.1
+    version: 0.13.2
 
   selenium:
     git: https://github.com/crystal-loot/selenium.cr.git

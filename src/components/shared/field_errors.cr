@@ -11,6 +11,10 @@ class Shared::FieldErrors(T) < BaseComponent
   end
 
   def label_text : String
-    Wordsmith::Inflector.humanize(attribute.name.to_s)
+    # Wordsmith::Inflector.humanize(attribute.name.to_s)
+    Rosetta.find(
+      "avram.attribute_variants",
+      Wordsmith::Inflector.humanize(attribute.name.to_s)
+    ).t(variant: attribute.name.to_s)
   end
 end
