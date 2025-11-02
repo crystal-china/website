@@ -1,5 +1,5 @@
-@[Rosetta::DefaultLocale(:zh_CN)]
-@[Rosetta::AvailableLocales(:en, :zh_CN)]
+@[Rosetta::DefaultLocale(:"zh-CN")]
+@[Rosetta::AvailableLocales(:en, :"zh-CN")]
 module Rosetta
 end
 

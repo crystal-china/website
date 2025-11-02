@@ -1,4 +1,4 @@
-zh_CN:
+zh-CN:
   example:
     translation: "This is a simple translation."
     interpolation: "Hi %{name}, how are you today?"
