@@ -7,7 +7,7 @@ shards:
 
   avram:
     git: https://github.com/luckyframework/avram.git
-    version: 1.3.0
+    version: 1.4.2
 
   backtracer:
     git: https://github.com/sija/backtracer.cr.git
@@ -27,7 +27,7 @@ shards:
 
   bindata:
     git: https://github.com/spider-gazelle/bindata.git
-    version: 2.1.0
+    version: 2.1.1
 
   cache:
     git: https://github.com/crystal-cache/cache.git
@@ -39,7 +39,7 @@ shards:
 
   carbon:
     git: https://github.com/luckyframework/carbon.git
-    version: 0.6.0
+    version: 0.6.1
 
   carbon_smtp_adapter:
     git: https://github.com/luckyframework/carbon_smtp_adapter.git
@@ -73,6 +73,10 @@ shards:
     git: https://github.com/chenkovsky/docopt.cr.git
     version: 0.2.0+git.commit.620fce4f334ff15d7321e5ecb6665ad258fe9297
 
+  ed25519:
+    git: https://github.com/spider-gazelle/ed25519.git
+    version: 1.1.0
+
   email:
     git: https://github.com/arcage/crystal-email.git
     version: 0.7.1
@@ -95,11 +99,11 @@ shards:
 
   jwt:
     git: https://github.com/crystal-community/jwt.git
-    version: 1.6.1
+    version: 1.7.1
 
   lucky:
     git: https://github.com/luckyframework/lucky.git
-    version: 1.3.0
+    version: 1.4.0
 
   lucky_cache:
     git: https://github.com/luckyframework/lucky_cache.git
@@ -107,7 +111,7 @@ shards:
 
   lucky_env:
     git: https://github.com/luckyframework/lucky_env.git
-    version: 0.2.0
+    version: 0.3.0
 
   lucky_flow:
     git: https://github.com/luckyframework/lucky_flow.git
@@ -135,7 +139,7 @@ shards:
 
   openssl_ext:
     git: https://github.com/spider-gazelle/openssl_ext.git
-    version: 2.6.1
+    version: 2.8.1
 
   pcf-parser:
     git: https://github.com/l3kn/pcf-parser.git
@@ -143,7 +147,7 @@ shards:
 
   pg:
     git: https://github.com/will/crystal-pg.git
-    version: 0.28.0
+    version: 0.29.0
 
   pulsar:
     git: https://github.com/luckyframework/pulsar.git
@@ -151,7 +155,7 @@ shards:
 
   rosetta:
     git: https://github.com/wout/rosetta.git
-    version: 0.13.2
+    version: 1.0.0
 
   selenium:
     git: https://github.com/crystal-loot/selenium.cr.git
@@ -211,7 +215,7 @@ shards:
 
   wordsmith:
     git: https://github.com/luckyframework/wordsmith.git
-    version: 0.4.0
+    version: 0.5.0
 
   xpath2:
     git: https://github.com/naqvis/crystal-xpath2.git
