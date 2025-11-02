@@ -1,39 +1,12 @@
-require "../../tasks/db/seed/hourly_availability"
-
 abstract class DocLayout
   include Lucky::HTMLPage
   include PageHelpers
+  include MarkdownHelpers
 
   # 'needs current_user : User' makes it so that the current_user
   # is always required for pages using MainLayout
   needs current_user : User?
   needs formatter : Tartrazine::Formatter
-
-  def markdown_path
-    name = current_path.sub(%r{/docs/}, "markdowns/")
-
-    "#{name}.md"
-  end
-
-  def content
-    content = File.read(markdown_path)
-
-    regex = /TableScheduler20250703 year: (\d+), month: (\d+)/
-
-    if content.match(regex)
-      year = $1.to_i
-      month = $2.to_i
-
-      Db::Seed::HourlyAvailabilityTask.run(year, month) if HourlyAvailabilityQuery.new.date("#{year}-#{month}-01").none?
-
-      content = content.sub(
-        regex,
-        TableScheduler.new(year: year, month: month, current_user: current_user).render_to_string
-      )
-    end
-
-    raw(MARKDOWN_CACHE.fetch(markdown_path) { markdown content })
-  end
 
   def page_title
     PAGINATION_RELATION_MAPPING.dig?(current_path, :title) || "文档"

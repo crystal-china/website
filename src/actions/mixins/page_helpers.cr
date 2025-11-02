@@ -70,6 +70,12 @@ module PageHelpers
     current_path.sub("/docs", "/htmx/replies/docs")
   end
 
+  private def show_replies_when_revealed
+    div role: "feed", id: "replies", hx_get: current_reply_path, hx_trigger: "revealed", hx_swap: "outerHTML" do
+      mount Shared::Spinner, text: "正在读取评论..."
+    end
+  end
+
   # def asset_host
   #   Lucky::Server.settings.asset_host
   # end
