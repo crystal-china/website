@@ -38,6 +38,12 @@ abstract class RawLayout
               end
             end
 
+            div class: "f-row justify-content:space-between" do
+              doc = find_or_create_doc
+              raw print_doc_info(doc)
+              print_votes(doc)
+            end
+
             content
 
             div id: "form_with_replies" do
