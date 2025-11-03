@@ -52,6 +52,8 @@ abstract class RawLayout
             end
           end
         end
+
+        mount Shared::Common, page_title: page_title
       end
     end
   end
