@@ -13,8 +13,9 @@ class AppServer < Lucky::BaseAppServer
       Lucky::StaticCompressionHandler.new("./dist", file_ext: "br", content_encoding: "br"),
       Lucky::StaticCompressionHandler.new("./dist", file_ext: "gz", content_encoding: "gzip"),
       Lucky::StaticFileHandler.new("./dist", fallthrough: false, directory_listing: false),
+      LuckyEnv.production? ? Lucky::StaticFileHandler.new("./public", fallthrough: false, directory_listing: false) : nil,
       Lucky::RouteNotFoundHandler.new,
-    ] of HTTP::Handler
+    ].select(HTTP::Handler)
   end
 
   def protocol
