@@ -8,7 +8,7 @@ class Docs::RepliesMore < BaseComponent
     pagination[:replies].each do |reply|
       id = reply.id
 
-      article class: "box f-col #{reply.reply_id ? "ok" : ""}", id: fragment_id(id) do
+      article class: "box f-col #{reply.reply_id ?"ok" : ""}", id: fragment_id(id) do
         render_avatar_name_and_time(reply)
 
         hr style: "border: none; border-top: 1px solid darkgray;"
@@ -100,7 +100,7 @@ const dialog = document.getElementById('edit_dialog');
 dialog.showModal();
 setTimeout(function() {
   dialog.querySelector('textarea').focus();
-}, 500)
+}, 50)
 ",
         }
 
@@ -115,7 +115,7 @@ setTimeout(function() {
             if reply.replies_counter == 0 # 如果回复有了回复，就不再允许删除
               a(
                 "删除",
-                class: "chip bad color border",
+                class: "border chip bad color",
                 hx_delete: Htmx::Docs::Reply::Delete.with(id: reply.id, user_id: me.id).path,
                 hx_target: "closest article.box",
                 hx_swap: "outerHTML swap:1s",
