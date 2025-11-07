@@ -98,9 +98,7 @@ HEREDOC
           onclick:    "
 const dialog = document.getElementById('edit_dialog');
 dialog.showModal();
-setTimeout(function() {
-  dialog.querySelector('textarea').focus();
-}, 50)
+dialog.querySelector('textarea').focus();
 ",
         }
 
