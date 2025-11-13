@@ -70,6 +70,56 @@ module PageHelpers
     current_path.sub("/docs", "/htmx/replies/docs")
   end
 
+  private def find_or_create_doc
+    doc = DocQuery.new.path_index(current_path).first?
+    doc = SaveDoc.create!(path_index: current_path) if doc.nil?
+
+    doc
+  end
+
+  def print_doc_info(doc)
+    doc_info = "创建于：#{doc.created_at.to_s("%Y年%m月%d日")}"
+
+    JSON.parse(File.read("dist/mix-manifest.json"))["/assets/docs/markdowns_timestamps.yml"]?.try do |path|
+      timestamp_file = "dist#{path}"
+      if File.exists?(timestamp_file)
+        YAML.parse(File.read(timestamp_file))[markdown_path]?.try do |date|
+          doc_info = "#{doc_info}       最后编辑于: #{Time.unix(date.as_i64).to_local.to_s("%Y年%m月%d日")}"
+        end
+      end
+    end
+
+    doc_info = "#{doc_info}  | #{doc.view_count}次阅读" if doc.view_count > 0
+
+    "<blockquote>#{doc_info}</blockquote>"
+  end
+
+  def print_votes(doc)
+    me = current_user
+
+    voted_types = if me.nil?
+                    [] of String
+                  else
+                    VoteQuery.new.user_id(me.id).doc_id(doc.id).map &.vote_type
+                  end
+
+    div class: "f-row", style: "margin-bottom: 0px;" do
+      mount(
+        Shared::VoteButton,
+        votes: Hash(String, Int32).from_json(doc.votes.to_json),
+        doc_id: doc.id,
+        current_user: me,
+        voted_types: voted_types
+      )
+    end
+  end
+
+  private def show_replies_when_revealed
+    div role: "feed", id: "replies", hx_get: current_reply_path, hx_trigger: "revealed", hx_swap: "outerHTML" do
+      mount Shared::Spinner, text: "正在读取评论..."
+    end
+  end
+
   # def asset_host
   #   Lucky::Server.settings.asset_host
   # end

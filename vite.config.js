@@ -97,7 +97,7 @@ export default defineConfig(({ command, mode }) => {
                     const publicDir = path.resolve(__dirname, "public");
                     const outputDir = path.resolve(__dirname, outDir);
                     const compressibleFileTypes =
-                        /\.(svg|png|jpg|json|js|css|webp|yml)/;
+                        /\.(svg|png|jpg|json|js|css|yml)/;
 
                     // 遍历打包后的文件
                     for (const [fileName, fileInfo] of Object.entries(bundle)) {

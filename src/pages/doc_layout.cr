@@ -1,79 +1,15 @@
-require "../../tasks/db/seed/hourly_availability"
-
 abstract class DocLayout
   include Lucky::HTMLPage
   include PageHelpers
+  include MarkdownHelpers
 
   # 'needs current_user : User' makes it so that the current_user
   # is always required for pages using MainLayout
   needs current_user : User?
   needs formatter : Tartrazine::Formatter
 
-  def markdown_path
-    name = current_path.sub(%r{/docs/}, "markdowns/")
-
-    "#{name}.md"
-  end
-
-  def content
-    content = File.read(markdown_path)
-
-    regex = /TableScheduler20250703 year: (\d+), month: (\d+)/
-
-    if content.match(regex)
-      year = $1.to_i
-      month = $2.to_i
-
-      Db::Seed::HourlyAvailabilityTask.run(year, month) if HourlyAvailabilityQuery.new.date("#{year}-#{month}-01").none?
-
-      content = content.sub(
-        regex,
-        TableScheduler.new(year: year, month: month, current_user: current_user).render_to_string
-      )
-    end
-
-    raw(MARKDOWN_CACHE.fetch(markdown_path) { markdown content })
-  end
-
   def page_title
     PAGINATION_RELATION_MAPPING.dig?(current_path, :title) || "文档"
-  end
-
-  def print_votes(doc)
-    me = current_user
-
-    voted_types = if me.nil?
-                    [] of String
-                  else
-                    VoteQuery.new.user_id(me.id).doc_id(doc.id).map &.vote_type
-                  end
-
-    div class: "f-row", style: "margin-bottom: 0px;" do
-      mount(
-        Shared::VoteButton,
-        votes: Hash(String, Int32).from_json(doc.votes.to_json),
-        doc_id: doc.id,
-        current_user: me,
-        voted_types: voted_types
-      )
-    end
-  end
-
-  def print_doc_info(doc)
-    doc_info = "创建于：#{doc.created_at.to_s("%Y年%m月%d日")}"
-
-    JSON.parse(File.read("dist/mix-manifest.json"))["/assets/docs/markdowns_timestamps.yml"]?.try do |path|
-      timestamp_file = "dist#{path}"
-      if File.exists?(timestamp_file)
-        YAML.parse(File.read(timestamp_file))[markdown_path]?.try do |date|
-          doc_info = "#{doc_info}       最后编辑于: #{Time.unix(date.as_i64).to_local.to_s("%Y年%m月%d日")}"
-        end
-      end
-    end
-
-    doc_info = "#{doc_info}  | #{doc.view_count}次阅读" if doc.view_count > 0
-
-    "<blockquote>#{doc_info}</blockquote>"
   end
 
   def sub_title
@@ -144,12 +80,6 @@ abstract class DocLayout
     end
   end
 
-  private def show_replies_when_revealed
-    div role: "feed", id: "replies", hx_get: current_reply_path, hx_trigger: "revealed", hx_swap: "outerHTML" do
-      mount Shared::Spinner, text: "正在读取评论..."
-    end
-  end
-
   private def doc_search_dialog
     dialog(
       id: "doc_search_dialog",
@@ -164,12 +94,5 @@ padding-bottom: 0;") do
         div data_stork: "docs-output", class: "stork-output"
       end
     end
-  end
-
-  private def find_or_create_doc
-    doc = DocQuery.new.path_index(current_path).first?
-    doc = SaveDoc.create!(path_index: current_path) if doc.nil?
-
-    doc
   end
 end

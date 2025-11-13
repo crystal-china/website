@@ -7,7 +7,7 @@ class Docs::Markdowns < DocAction
 
       html Docs::MarkdownsPage
     else
-      head 404
+      html Raw::MarkdownsPage
     end
   end
 end
