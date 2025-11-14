@@ -220,7 +220,7 @@ new_folder:lib:/home/zw963/Crystal/bin/../share/crystal/src
 
 一个办法是，你使用相对路径的 require, 像这个样子： 
 
-```crystl
+```crystal
 require "./lib/pixelfaucet/src/game"
 ```
 
