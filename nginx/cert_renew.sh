@@ -7,6 +7,17 @@
 
 set -ue
 
+# If apply cert for *.crystal-china.org, will need set namesilo api key.
+# Then run like this
+# acme.sh --issue -d crystal-china.org  -d "*.crystal-china.org" --dns dns_namesilo --dnssleep 900
+export Namesilo_Key=""
+
+if [ "$Namesilo_Key" ]; then
+    dns_arg="--dns dns_namesilo"
+else
+    dns_arg=""
+fi
+
 acme=~/.acme.sh/acme.sh
 
 systemctl stop nginx
@@ -22,7 +33,7 @@ for i in "${domain_names[@]}"; do
     args+=" -d $i"
 done
 
-$acme --issue --standalone --force $args
+$acme --issue --standalone --force $dns_arg $args
 
 mkdir -p /etc/ssl/$main_domain_name
 
