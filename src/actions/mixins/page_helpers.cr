@@ -115,7 +115,9 @@ module PageHelpers
   end
 
   private def show_replies_when_revealed
-    div role: "feed", id: "replies", hx_get: current_reply_path, hx_trigger: "revealed", hx_swap: "outerHTML" do
+    trigger = context.request.headers["Referer"]? ? "revealed" : "load"
+
+    div role: "feed", id: "replies", hx_get: current_reply_path, hx_trigger: trigger, hx_swap: "outerHTML" do
       mount Shared::Spinner, text: "正在读取评论..."
     end
   end
