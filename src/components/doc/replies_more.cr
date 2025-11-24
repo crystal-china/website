@@ -8,7 +8,9 @@ class Docs::RepliesMore < BaseComponent
     pagination[:replies].each do |reply|
       id = reply.id
 
-      article class: "box f-col #{reply.reply_id ?"ok" : ""}", id: fragment_id(id) do
+      box_type = reply.reply_id ? "ok" : ""
+
+      article class: "box f-col #{box_type}", id: fragment_id(id) do
         render_avatar_name_and_time(reply)
 
         hr style: "border: none; border-top: 1px solid darkgray;"
