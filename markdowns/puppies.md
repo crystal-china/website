@@ -58,7 +58,6 @@
 
 <img src="/puppies/6.webp" alt="" style="transform: rotate(180deg);display: block; margin: 0 auto;">
 
-
 ## 现在我们也有自己的宝宝啦！
 
 2025年 10 月 30 日早上出生的一窝萌新的柴犬（标体柴，赤柴，非豆柴），一母五公，
