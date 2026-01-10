@@ -150,22 +150,6 @@ Fiber 可以被设计为一个独立于线程的纤程，它可以在某个线�
 这个实现，不必是一个类似于 go 提案的，一个支持 work stealing 的单个 MT 环境，代之，
 在运行时，在运行时可以动态创建新的环境。
 
-## 执行上下文(Execution contexts)
-
-一个执行上下文，创建并管理一个专门的 pool （池中其中可以一个或多个线程）
-上下文主要负责管理如何运行，挂起，以及 fiber 在内部线程中的交换。
-
-应用程序可以并行的创建任意多个执行上下文，它们彼此之间是隔离的，但是仍然可能通过
-常见的线程安全的同步原语(synchronization primitives**, 例如：Channel,Mutex 来通讯。
-
-换个说法：一个执行上下文管理一组 fiber，是一个比线程更加高级的抽象，fiber 只是与 
-execution contexts 关联，而与具体运行时所属的线程解耦，当 spawn 一个新的 fiber, 
-fiber 默认会入队到当前运行 fiber 所在的execution context, 所有子纤程（Child fibers）
-	都会在父纤程所在的 execution context 之上运行。（除非明确指定其他 context）
-
-我们可以 send 一个纤程到其他 execution context 去执行，但是一个已经派生的 fiber，
-resume 重新入队时，只能是原来的执行上下文。
-
 ## 执行上下文的分类
 
 下面是标准库中实现的执行上下文:

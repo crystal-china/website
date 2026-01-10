@@ -153,45 +153,10 @@ Fiber 安全做好准备。
 
 但是，作为新的 Fiber 多线程支持的一部分，版本 1.15.0 开始，为 UNIX 兼容的系统
 引入了一个[新的 Event Loop 实现（已合并）](https://crystal-lang.org/2024/11/05/lifetime-event-loop), 它几乎完全重写，允许编写并发(concurrency)
-的代码，并实际并行(parallel)的方式运行，而操作系统线程(Thread) 的概念，则完全被抽象
-为实现细节
+的代码，并实际并行(parallel)的方式运行，而操作系统线程(Thread) 的概念，则完全被
+隐藏了起来，成为了实现细节。
 
-### ExecutionContext::Concurrent 
-
-这是当前默认模式
-
-```crystal
-Fiber::ExecutionContext.default.class # => Fiber::ExecutionContext::Concurrent
-```
-
-Fiber 只会按照并发(concurrency)方式运行, 并不会并行(parallel)，即，任意时间，只会有
-一个 Fiber 正在运行。它们可以在内部使用更简单、更快的同步原语（无需原子操作，线程安全）。
-
-与不同的 context 的 Fiber 进行通讯，需要使用线程安全原语，如果一个 Fiber 非常繁忙， 
-占用整个线程资源，将会阻塞整个线程以及该上下文中的其他 Fiber.
-(例如，加入你正在执行繁忙的数学计算，你想同时在命令行打印一个滚动条，是无法做到的。)
-
-### ExecutionContext::Parallel
-
-类似于 golang 的 [M:N concurrency](https://pauldigian.com/advanced-go-goroutines-the-basics#mn-concurrency) 的完整实现, 从 Crystal 角度来说，会同时启动
-N 个操作系统线程，然后有 M 个 Fiber 在其上并行(parallel)执行。
-
-- 一个 Fiber 在整个运行期间，可能被属于同一个 execution context 的不同的操作系统线程 suspend/resume
-- 多个 Fiber 可以在不同的操作系统线程之上并行(parallel)的同时运行 (无论是否属于同一个 context)
-- Schedulers steal（不知如何翻译）也是工作的，并行度会动态地扩展和缩小。
-
-使用这种模式运行需要开启编译参数： -Dpreview_mt -Dexecution_context
-
-在 Crystal 2.0，将会和 golang 一样，ExecutionContext::Parallel 作为默认。
-
-### ExecutionContext::Isolated
-
-只允许一个 Fiber 在一个线程中执行，没有切换，无需调度，这特别适合那种高 CPU 负载，
-（CPU heavy computation），或运行很长时间的任务，例如: GUI main loop, game loop。
-
-当 Fiber sleep 之后，整个线程会暂停，因为它是 Thread 唯一的 Fiber
-
-当需要和其他 execution context 通讯时，需要线程安全原语。
+详情见 []
 
 ## Windows 支持
 
