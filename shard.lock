@@ -15,7 +15,7 @@ shards:
 
   baked_file_system: # Overridden
     git: https://github.com/schovi/baked_file_system.git
-    version: 0.11.0
+    version: 0.13.0
 
   baked_file_system_mounter:
     git: https://github.com/crystal-china/baked_file_system_mounter.git
@@ -35,7 +35,11 @@ shards:
 
   cadmium_transliterator:
     git: https://github.com/cadmiumcr/transliterator.git
-    version: 0.1.0+git.commit.46c4c14594057dbcfaf27e7e7c8c164d3f0ce3f1
+    version: 0.1.0+git.commit.0dcedb98cbac7dd5827f204a0714b62f25c6515a
+
+  captcha:
+    git: https://github.com/crystal-china/captcha.git
+    version: 0.2.0
 
   carbon:
     git: https://github.com/luckyframework/carbon.git
@@ -44,6 +48,10 @@ shards:
   carbon_smtp_adapter:
     git: https://github.com/luckyframework/carbon_smtp_adapter.git
     version: 0.5.0
+
+  crimage:
+    git: https://github.com/naqvis/crimage.git
+    version: 1.0.4+git.commit.3ac45b04ed06d5cfc8e508c4b6c7303c652aba0e
 
   cron_parser:
     git: https://github.com/kostya/cron_parser.git
@@ -70,8 +78,8 @@ shards:
     version: 0.3.4
 
   docopt:
-    git: https://github.com/chenkovsky/docopt.cr.git
-    version: 0.2.0+git.commit.620fce4f334ff15d7321e5ecb6665ad258fe9297
+    git: https://github.com/ralsina/docopt.cr.git
+    version: 0.3.1
 
   ed25519:
     git: https://github.com/spider-gazelle/ed25519.git
@@ -95,7 +103,7 @@ shards:
 
   html5:
     git: https://github.com/naqvis/crystal-html5.git
-    version: 0.5.0
+    version: 0.5.1
 
   jwt:
     git: https://github.com/crystal-community/jwt.git
@@ -139,11 +147,7 @@ shards:
 
   openssl_ext:
     git: https://github.com/spider-gazelle/openssl_ext.git
-    version: 2.8.1
-
-  pcf-parser:
-    git: https://github.com/l3kn/pcf-parser.git
-    version: 0.1.1
+    version: 2.8.3
 
   pg:
     git: https://github.com/will/crystal-pg.git
@@ -155,7 +159,7 @@ shards:
 
   rosetta:
     git: https://github.com/wout/rosetta.git
-    version: 1.0.0
+    version: 1.0.1
 
   selenium:
     git: https://github.com/crystal-loot/selenium.cr.git
@@ -165,33 +169,17 @@ shards:
     git: https://github.com/luckyframework/shell-table.cr.git
     version: 0.9.3
 
-  simple_captcha:
-    git: https://github.com/crystal-china/simple_captcha.git
-    version: 0.1.0+git.commit.b014357256e86e0b481659cc8431d6c216de2268
-
   sixteen:
     git: https://github.com/ralsina/sixteen.git
-    version: 0.5.2
+    version: 0.6.3
 
   splay_tree_map:
     git: https://github.com/wyhaines/splay_tree_map.cr.git
     version: 0.3.0
 
-  stumpy_core:
-    git: https://github.com/stumpycr/stumpy_core.git
-    version: 1.9.1
-
-  stumpy_png:
-    git: https://github.com/stumpycr/stumpy_png.git
-    version: 5.0.1
-
-  stumpy_utils:
-    git: https://github.com/stumpycr/stumpy_utils.git
-    version: 0.5.1
-
   tartrazine:
     git: https://github.com/ralsina/tartrazine.git
-    version: 0.13.0
+    version: 0.20.0
 
   teeplate:
     git: https://github.com/luckyframework/teeplate.git
