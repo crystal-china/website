@@ -3,11 +3,11 @@ version: 2.0
 shards:
   authentic:
     git: https://github.com/luckyframework/authentic.git
-    version: 1.0.2
+    version: 0.1.0
 
   avram:
     git: https://github.com/luckyframework/avram.git
-    version: 1.4.2
+    version: 0.22.0
 
   backtracer:
     git: https://github.com/sija/backtracer.cr.git
@@ -33,25 +33,21 @@ shards:
     git: https://github.com/crystal-cache/cache.git
     version: 1.0.0
 
-  cadmium_transliterator:
-    git: https://github.com/cadmiumcr/transliterator.git
-    version: 0.1.0+git.commit.0dcedb98cbac7dd5827f204a0714b62f25c6515a
-
   captcha:
     git: https://github.com/crystal-china/captcha.git
     version: 0.2.0
 
   carbon:
     git: https://github.com/luckyframework/carbon.git
-    version: 0.6.1
+    version: 0.2.1
 
   carbon_smtp_adapter:
     git: https://github.com/luckyframework/carbon_smtp_adapter.git
-    version: 0.5.0
+    version: 0.2.0
 
   crimage:
     git: https://github.com/naqvis/crimage.git
-    version: 1.0.4+git.commit.3ac45b04ed06d5cfc8e508c4b6c7303c652aba0e
+    version: 1.0.4+git.commit.b65f67df27f4cb8807a34d94a90dfd4162acf45a
 
   cron_parser:
     git: https://github.com/kostya/cron_parser.git
@@ -71,7 +67,7 @@ shards:
 
   db:
     git: https://github.com/crystal-lang/crystal-db.git
-    version: 0.13.1
+    version: 0.10.1
 
   dexter:
     git: https://github.com/luckyframework/dexter.git
@@ -87,11 +83,11 @@ shards:
 
   email:
     git: https://github.com/arcage/crystal-email.git
-    version: 0.7.1
+    version: 0.6.4
 
   exception_page:
     git: https://github.com/crystal-loot/exception_page.git
-    version: 0.5.0
+    version: 0.2.2
 
   fnv:
     git: https://github.com/naqvis/crystal-fnv.git
@@ -111,7 +107,7 @@ shards:
 
   lucky:
     git: https://github.com/luckyframework/lucky.git
-    version: 1.4.0
+    version: 0.29.0+git.commit.4cb2108f3e05acaadc6c948a07b2838154e8871a
 
   lucky_cache:
     git: https://github.com/luckyframework/lucky_cache.git
@@ -127,15 +123,11 @@ shards:
 
   lucky_router:
     git: https://github.com/luckyframework/lucky_router.git
-    version: 0.6.1
+    version: 0.5.2
 
   lucky_task:
     git: https://github.com/luckyframework/lucky_task.git
-    version: 0.3.0
-
-  lucky_template:
-    git: https://github.com/luckyframework/lucky_template.git
-    version: 0.2.0
+    version: 0.1.1
 
   markd:
     git: https://github.com/zw963/markd.git
@@ -151,7 +143,7 @@ shards:
 
   pg:
     git: https://github.com/will/crystal-pg.git
-    version: 0.29.0
+    version: 0.24.0
 
   pulsar:
     git: https://github.com/luckyframework/pulsar.git
@@ -171,7 +163,7 @@ shards:
 
   sixteen:
     git: https://github.com/ralsina/sixteen.git
-    version: 0.6.3
+    version: 0.7.0
 
   splay_tree_map:
     git: https://github.com/wyhaines/splay_tree_map.cr.git
@@ -179,7 +171,7 @@ shards:
 
   tartrazine:
     git: https://github.com/ralsina/tartrazine.git
-    version: 0.20.0
+    version: 0.20.1
 
   teeplate:
     git: https://github.com/luckyframework/teeplate.git
@@ -203,7 +195,7 @@ shards:
 
   wordsmith:
     git: https://github.com/luckyframework/wordsmith.git
-    version: 0.5.0
+    version: 0.3.0
 
   xpath2:
     git: https://github.com/naqvis/crystal-xpath2.git
