@@ -5,7 +5,6 @@ class Me::Update < BrowserAction
     UpdateUser.update(me, params) do |op, _user|
       if op.saved?
         flash.success = "更新成功！"
-        # redirect_back fallback: Home::Index
         redirect Home::Index
       else
         build_failed_flash(op)
