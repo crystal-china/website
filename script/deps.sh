@@ -13,9 +13,9 @@ pod_name=${1-crystal_china}
 
 [ -f .env ] && source .env
 
-DB_USERNAME=${DB_USERNAME-$(echo $DATABASE_URL |rev |cut -d / -f1 |rev)}
+DB_NAME=${DB_NAME-$(echo $DATABASE_URL |rev |cut -d / -f1 |rev)}
 common_part=$(echo $DATABASE_URL |grep -o '://[^@]*' |rev |cut -d / -f1 |rev)
-DB_NAME=${DB_NAME-$(echo $common_part |cut -d : -f1)}
+DB_USERNAME=${DB_USERNAME-$(echo $common_part |cut -d : -f1)}
 DB_PASSWORD=${DB_PASSWORD-$(echo $common_part |cut -d : -f2)}
 
 set -eu
