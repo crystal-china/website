@@ -54,3 +54,4 @@ podman ps --pod
 # podman generate systemd  --name crystal_china_pod --new  --file
 
 # sudo loginctl enable-linger $(whoami)
+

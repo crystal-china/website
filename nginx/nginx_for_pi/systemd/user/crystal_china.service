@@ -1,0 +1,15 @@
+[Unit]
+Description=crystal-china
+Requires=pod-crystal_china.service
+After=pod-crystal_china.service
+
+[Service]
+LimitNOFILE=1048576
+Type=simple
+WorkingDirectory=/home/pi/apps/crystal_china_production
+Environment="LD_LIBRARY_PATH=/home/pi/apps/crystal_china_production/lib"
+ExecStart=/home/pi/apps/crystal_china_production/bin/crystal_china
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
