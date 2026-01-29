@@ -3,6 +3,7 @@ Description=crystal-china
 After=nginx.service
 
 [Service]
+LimitNOFILE=1048576
 Type=simple
 User=crystal_china
 WorkingDirectory=/home/crystal_china/apps/website_production
