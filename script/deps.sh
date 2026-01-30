@@ -9,8 +9,6 @@ ROOT=$(cd "$ROOT/.." &>/dev/null && pwd)
 
 pod_name=${1-crystal_china}
 
-# mkdir -p $ROOT/${pod_name}_data/pg_data
-
 [ -f .env ] && source .env
 
 DB_NAME=${DB_NAME-$(echo $DATABASE_URL |rev |cut -d / -f1 |rev)}
@@ -19,6 +17,12 @@ DB_USERNAME=${DB_USERNAME-$(echo $common_part |cut -d : -f1)}
 DB_PASSWORD=${DB_PASSWORD-$(echo $common_part |cut -d : -f2)}
 
 set -eu
+
+if podman volume exists crystal_china_pgdata; then
+    echo "crystal_china_pgdata volume exists"
+else
+    podman volume create crystal_china_pgdata
+fi
 
 if podman pod exists $pod_name; then
     podman pod start $pod_name
@@ -33,8 +37,8 @@ else
            -e POSTGRES_USER=${DB_USERNAME:-postgres} \
            -e POSTGRES_DB=${DB_NAME:-${pod_name}_development} \
            -e POSTGRES_PASSWORD=${DB_PASSWORD:-postgres} \
+           -v crystal_china_pgdata:/var/lib/postgresql/data \
            -d postgres
-    # -v $ROOT/${pod_name}_data/pg_data:/var/lib/postgresql/data
 
     podman run \
            --pod ${pod_name} \
@@ -54,4 +58,3 @@ podman ps --pod
 # podman generate systemd  --name crystal_china_pod --new  --file
 
 # sudo loginctl enable-linger $(whoami)
-
