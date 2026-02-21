@@ -3,18 +3,19 @@
 一部分内容翻译自 https://crystal-lang.org/reference/latest/guides/concurrency.html
 有可能一部分信息已经过时了，会随时更正。
 
-
 我们经常会谈起并行(in parallel)和并发（concurrent），他们其实是两个不同的东西。
 
 一个并发的系统，是指能够处理多个任务的系统，虽然，不一定是同时执行的。
 
 你可以想象自己在厨房做菜，你切一个洋葱，放到油锅里炸的同时，你再切一份番茄。
 但是你并没有在同一时间做所有事情，你需要分配你的时间来做上面不同的事情，这是并发。
+
 而并行，则是在同一时间，左手炸洋葱，右手切番茄。
 
 截至这篇文章写作日期(2025年六月)，Crystal 已经完成了 execution context 的 
 RFC 大部分开发，在 Crystal 1.16.3 中，已经可以直接使用类似于 golang 的 M:N 混合线程模型，
 但是默认并没有开启，需要通过打开 -Dpreview_mt -Dexecution_context 编译时标记来开启。
+我们计划在 1.20 版本中默认启用该功能！
 
 在当前 1.X 版本 Crystal 中，除了语言的 GC（[Boehm GC](https://en.wikipedia.org/wiki/Boehm_garbage_collector)）使用单独的一个线程之外，
 默认总是使用单线程模式执行，在未来的 2.X 版本中，会默认开启多线程模式。
@@ -30,7 +31,7 @@ Fiber 的概念，类似于 Erlang/Elixir, go 中轻量级用户线程, 不同�
 断一个线程并开始执行另一个线程
 
 - `轻量`，是因为它可以轻易创建成千上万，而相比较操作系统线程，非常少的开销，它虽然
-  拥有一个与之关联的 8M 堆栈内存空间（和线程一样的），但是其初始只实际占用 4K 内存空间。
+  拥有一个与之关联的 8M 堆栈内存空间（和线程一样的），但是刚创建时，实际只占用 4K 内存空间。
 
 - `用户线程`，是因为它被程序语言自己管理，而不是由操作系统管理它。
 
@@ -56,7 +57,7 @@ event loop 与 IO 操作相关，当事件循环等待慢速的操作（例如�
 
 但是，作为新的 Fiber 多线程支持的一部分，版本 1.15.0 开始，为 UNIX 兼容的系统
 引入了一个[新的 Event Loop 实现](https://crystal-lang.org/2024/11/05/lifetime-event-loop), 自从 [this](https://github.com/crystal-lang/crystal/pull/14996) PR 被合并之后，的实现直接集成了
-UNIX 的 systems selectors（Linux/Android 使用 epool，BSD/macOS 使用 kqueue）
+UNIX 的 systems selectors（Linux/Android 使用 epool，BSD/macOS 使用 kqueue，linux 的 io_uring 也在集成中）
 因此 libevent 不再作为外部依赖。
 
 ## The Runtime Scheduler
@@ -64,9 +65,15 @@ UNIX 的 systems selectors（Linux/Android 使用 epool，BSD/macOS 使用 kqueu
 Scheduler 有一个队列，负责：
 
 1. 检查那些 fiber 需要被执行
-2. 
+2. 在一个单独的 Fiber 中，运行事件循环
+3. 处理 Fiber 的主动请求等待，例如，通过 `Fiber.yield` 让出资源，可以理解为：
+   “我可以继续执行，但如果其他协程想执行，你可以先运行它们”。
 
-1. Fibers ready to be executed: for example when you spawn a fiber, it's ready to be executed.
+## 使用 Channel 进行数据通讯
+
+一旦语言开启 parallelism，在多个 Fiber 中访问或修改一个实例变量，将变得不再安全。
+建议的数据通讯方式是，使用 Channel 发送消息。一个 Channnel 内部实现了所有的锁机制
+来避免 race 竞争
 
 ## 执行上下文(Execution Contexts)
 

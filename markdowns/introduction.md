@@ -143,7 +143,7 @@ thread2.join
 thread3.join
 ```
 
-这里指的多线程其实是说 `允许 Fibers 在多个线程之上同时执行`.
+这里指的多线程其实是指的 Fiber，并且 `允许 Fibers 在多个线程之上同时执行`.
 
 Crystal [早在 2019 年](https://crystal-lang.org/2019/09/06/parallelism-in-crystal/)，就实现了一个简单的基于多线程的 Fiber 实现，
 但是其实现方式只是使用非常简单的轮询(round-robin fashion)方式，标准库也未完全为
@@ -156,7 +156,7 @@ Fiber 安全做好准备。
 的代码，并实际并行(parallel)的方式运行，而操作系统线程(Thread) 的概念，则完全被
 隐藏了起来，成为了实现细节。
 
-详情见 []
+详情见 [concurrency](concurrency.md)
 
 ## Windows 支持
 
