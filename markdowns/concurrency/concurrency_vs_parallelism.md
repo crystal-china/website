@@ -169,7 +169,7 @@ result = Atomic.new(0) # 因为是 parallel, 所以必须使用 Atomic 避免数
   consumers.spawn name: "fiber-#{i}" do # 新建一个 fiber, 并且加入到 consumers 这个 EC
 
     if sch = Fiber::ExecutionContext::Scheduler.current?
-	  # 打印 debug 信息，看看到底有启动几个 scheduler
+      # 打印 debug 信息，看看到底有启动几个 scheduler
       puts "Fibers: [#{Fiber.current.name}] scheduler=#{sch.name} status=#{sch.status}"
     end
 
@@ -193,7 +193,7 @@ wg.wait  # (2) wait for all workers to be done
 
 # after wait: size=8, capacity=8，size 是变化的，但是和 after produce 完全一致
 #  因为 size 表示启动过(started)的线程，虽然活已经干完了，但这些线程/对应 scheduler 还没有被销毁，甚至可能只是空闲/暂停
-puts "after wait: size=#{consumers.size}, capacity=#{consumers.capacity}" 
+puts "after wait: size=#{consumers.size}, capacity=#{consumers.capacity}"
 
 p result.get # => 523776，从 0 加 到 1023 的结果
 ```
@@ -202,76 +202,233 @@ p result.get # => 523776，从 0 加 到 1023 的结果
 
 producer -> buffered channel -> many consumers
 
+## 高级技巧
+每一个干活的 worker 中的 fiber 的数量（这里称作batch） 一般不要很大，
+如果 batch 很大，一个先启动的 worker 一拿到活，就会长时间埋头算：
 
-初始状态：
+拿一个大块 -> 高 CPU 任务算很久 -> 很久以后才回来拿下一个
 
-scheduler0  (thread running)
-scheduler1  (paused)
-scheduler2  (paused)
-scheduler3  (paused)
+例如：下面的代码可能会让你意外，因为大多数情况下，它只能用满一个核
 
-负载上升：
+```crystal
+consumers = Fiber::ExecutionContext::Parallel.new("consumers", 8)
+require "wait_group"
 
-scheduler0  (thread running)
-scheduler1  (thread running)
-scheduler2  (paused)
-scheduler3  (paused)
+def collatz(seed : Int64)
+  steps = 0_i64
 
-再上升：
+  while seed > 1
+    while seed % 2 == 0
+      steps &+= 1
+      seed //= 2
+    end
 
-scheduler0  (thread running)
-scheduler1  (thread running)
-scheduler2  (thread running)
-scheduler3  (paused)
+    if seed > 1
+      steps &+= 1
+      seed = seed &* 3 &+ 1
+    end
+  end
 
-负载下降：
+  steps
+end
 
-scheduler0  running
-scheduler1  running
-scheduler2  paused
-scheduler3  paused
+def calculate(total_seeds, batch_size, worker_size, batches)
+  channel = Channel({Int64, Int64}).new(batches + 1)
+  wg = WaitGroup.new(worker_size)
 
-例如：scheduler 0 queue empty，steal fiber from scheduler 1
+  p! batch_size
+  p! batches
 
-scheduler0: [f1 f2 f3]
-scheduler1: []
+  mt = Fiber::ExecutionContext::Parallel.new("test", maximum: worker_size)
 
-变成：
+  worker_size.times do |i|
+    mt.spawn(name: "WORKER-#{i}") do
+      while (r = channel.receive?)
+        (r[0]...r[1]).each do |seed|
+          steps = collatz(seed)
 
-scheduler0: [f2 f3]
-scheduler1: [f1]
+          if seed % 1_000_000 == 0
+            print "Seed: #{seed} Steps: #{steps}\r"
+          end
+        end
+      end
+    ensure
+      wg.done
+    end
+  end
 
+  start = Time.measure do
+    r0 = 0_i64
 
+    batches.times do
+      r1 = r0 &+ batch_size
+      channel.send({r0, r1})
+      r0 = r1
+    end
 
-例如：
+    if total_seeds - batch_size &* batches > 0
+      channel.send({r0, total_seeds})
+    end
 
-初始：
+    channel.close
+    wg.wait
+  end
 
-thread0 running scheduler0
+  puts "\ncollatz took: #{start}"
+end
 
-负载增加：
+total_seeds = 1_000_000_000_i64
+worker_size = ENV.fetch("CRYSTAL_WORKERS").to_i
 
-thread0 running scheduler0
-thread1 running scheduler1
+p! total_seeds
+p! worker_size
 
-再过一会儿：
+batches = worker_size
+batch_size = (total_seeds // batches).to_i32
+calculate(total_seeds, batch_size, worker_size, batches)
+```
 
-thread1 idle -> 停止
+原因是，第一个 worker 启动之后（mt.spawn），当它获取到数据（称其为 batch_size) 是一个很大的数字，
+(r[0]...r[1]**.each.size 是 62500000，而 each 里面运行的代码是 high CPU usage 的任务，
+Fiber 没有机会切出去，在这段时间，其他 workers 已经启动，也只能干等，可能等很久之后才有机会拿到下一个任务。
 
-之后 runtime 可能：
+如果每个块更小，例如将 batches = worker_size * 32，batch_size 变成了 1953125，
+相比前一个，它会在更短的时间内完成，所以会更频繁地出现“重新领取任务”的机会；
+而这些额外的领取机会，能让后来才真正跑起来其他核也参与进来，从而把剩余工作摊到更多核上。
 
-thread2 start
-scheduler1 -> thread2 # 此时 scheduler1 关联的 thread2 而不是 thread1
+因此，将 batches 数量改大，让每一个 scheduler 中的 Fiber 数量变小，你会观察到，
+大多数情况，都可以用满所有的核。
 
-为什么 runtime 这样设计？
+当然，小块会带来频繁切换的开销，但是，这些开销，比起能利用多核，还是微不足道的。
 
-scheduler pause
-=> thread 必须存在
+换句话说，真正决定差距的更像是“并行度爬升速度”，能解释这种量级差异的，
+通常是“整个程序大部分时间到底是在用 3～4 个核，还是 12～16 个核”。
+提高 batches 并减少每一个 batch 里面的 Fiber 数量，能显著提高多核的利用率。
 
-现在可以：
+## 更高效地写法
 
-scheduler idle
-=> thread 直接退出
+在目前版本中，一个可能的 bug 或者 limit，从主 Fiber 创建新的 Fiber 并加入一个新的 EC 
+（跨 EC 加入 Fiber）似乎无法很快的分配到多核，见 [issue](https://github.com/crystal-lang/crystal/issues/16707#issuecomment-4016612442)， 尤其是针对高 CPU 负载任务，
+
+代之，如果先启动一个 EC，然后在这个 EC 下面，创建 Fiber (此时创建的 Fiber 都属于新的 EC)，
+能够更快地散步在多核。
+
+因此上面的代码目前可能更高效地的写法是：
+
+```crystal
+require "wait_group"
+
+total_seeds = 51200000_i64
+worker_size = ENV.fetch("CRYSTAL_WORKERS").to_i
+batches = worker_size
+batch_size = (total_seeds // batches).to_i32
+
+p calculate(total_seeds, batch_size, worker_size, batches)
+
+def calculate(total_seeds, batch_size, worker_size, batches)
+  p! batch_size
+  p! batches
+
+  consumers = Fiber::ExecutionContext::Parallel.new("consumers", worker_size)
+
+  channel = Channel(Int64).new(64)
+  wg = WaitGroup.new(1)
+
+  result = Atomic.new(0_i64)
+
+  consumers.spawn do
+    WaitGroup.wait do |wg|
+      batches.times do |i|
+        wg.spawn name: "fiber-#{i}" do
+          while (value = channel.receive?)
+            result.add(value)
+          end
+        end
+      end
+    end
+  ensure
+    wg.done
+  end
+
+  total_seeds.times { |i| channel.send(i) }
+
+  channel.close
+
+  wg.wait
+
+  result.get
+end
+```
+
+但是上面的代码，虽然可以很好的用满所有的核，但是受制于算法的限制（加下一个数字之前，
+必须先得到之前数字的和），因此，必须使用 Atomic 来限制多个核之间的调度降级为 concurrency
+这对于高 CPU 任务来说，甚至不如全部在一个核上运行，
+
+在我的电脑上，它的运行时间最快为 20 秒 (大部分时候，运行耗时会长得多)
+
+下面是一个完全利用多核的并行版本，运行时间只需要 0.004秒，__相差 5000 倍___！
+
+```crystal
+require "wait_group"
+
+total_seeds = 51200000_i64
+worker_size = ENV.fetch("CRYSTAL_WORKERS").to_i
+batches = worker_size
+batch_size = (total_seeds // batches).to_i32
+
+p calculate(total_seeds, batch_size, worker_size, batches)
+
+def calculate(total_seeds, batch_size, worker_size, batches)
+  p! batch_size
+  p! batches
+
+  consumers = Fiber::ExecutionContext::Parallel.new("consumers", worker_size)
+  channel = Channel({Int64, Int64}).new(batches + 1)
+  collector = Channel(Int64).new
+  wg = WaitGroup.new(1)
+
+  consumers.spawn do
+    batches.times do |i|
+      spawn name: "Worker-#{i}" do
+        result = 0_i64
+
+        while (r = channel.receive?)
+          (r[0]...r[1]).each do |seed|
+            result = result &+ seed
+          end
+        end
+
+        collector.send(result)
+      end
+    end
+  ensure
+    wg.done
+  end
+
+  puts "before spawn: size=#{consumers.size}, capacity=#{consumers.capacity}" # before spawn: size=0, capacity=8
+
+  r0 = 0_i64
+
+  batches.times do
+    r1 = r0 &+ batch_size
+    channel.send({r0, r1})
+    r0 = r1
+  end
+
+  if total_seeds - batch_size &* batches > 0
+    channel.send({r0, total_seeds})
+  end
+
+  channel.close
+  wg.wait
+
+  value = 0_i64
+
+  worker_size.times {|i| value = value &+ collector.receive }
+
+  value
+end
+```
 
 目前计划在 1.20 版本中默认开启
 
