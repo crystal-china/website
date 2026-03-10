@@ -37,7 +37,7 @@ else
            -e POSTGRES_USER=${DB_USERNAME:-postgres} \
            -e POSTGRES_DB=${DB_NAME:-${pod_name}_development} \
            -e POSTGRES_PASSWORD=${DB_PASSWORD:-postgres} \
-           -v crystal_china_pgdata:/var/lib/postgresql/data \
+           -v crystal_china_pgdata:/var/lib/postgresql \
            -d postgres
 
     podman run \
