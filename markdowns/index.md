@@ -54,8 +54,8 @@ Crystal 是一门受 Ruby 高度启发的计算机程序语言，并且最终编
 
 ## 本站如何部署
 
-本站部署机器是 azure HK v2ts（1c/2g）, 低负载情况下，内存占用在 35M 左右, 包含 
-(共享内存 11M + 独占物理内存 24M)，因为资源占用很低，同时部署了好几个站点。
+本站部署在一个树莓派5B (16G) 上，通过家里的 5G 网络（CPE + 广电流量卡）, 所以网速可能不太好。
+使用静态编译，低负载情况下，内存占用在 43M 左右，因为资源占用很低，同时部署了好几个站点。
 
 部署流程相较于 Ruby 也简单到爆！见项目 [README](https://github.com/crystal-china/website/blob/master/README.md) 以及有关 [交叉编译](https://crystal-china.org/docs/cross_compile) 的说明。
 
@@ -68,11 +68,11 @@ Crystal 是一门受 Ruby 高度启发的计算机程序语言，并且最终编
 5. 复制 patchfile 到服务器，并应用。（相较于文件覆盖，服务器无需停止，既可以打 patch）
 6. 成功后，本地做一个刚刚部署版本的备份
 
-此网站编译后的 binary 大小大约 15M 左右（包含所有 assets 文件），修改不多的情况下，
+此网站编译后的 binary 大小大约 21M 左右（包含所有 assets 文件），修改不多的情况下，
 生成的 patch 文件大小在 500K 左右, 大部分部署时间花在了编译 release 版本的静态 binary。
 
 ```bash
-sb_static --production --no-debug --link-flags="-s" --link-flags="-pie" --release crystal_china
+sb_static_arm64 --production --no-debug --link-flags="-s" --link-flags="-pie" --release crystal_china
 ```
 
 如果还处在开发过程中，可以暂时移除 --release 参数，前者其实等价于： `-O3 --single-module`
