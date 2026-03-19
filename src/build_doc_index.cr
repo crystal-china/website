@@ -33,7 +33,7 @@ map = {} of String => Int64
 Dir["markdowns/**/*.md"].each do |file|
   date = `git --no-pager log -1 --format=%ct #{file}`.chomp
 
-  map[file] = date.to_i64
+  map[file] = date.to_i64 if date.presence
 end
 
 File.write("public/assets/docs/markdowns_timestamps.yml", map.to_yaml)
