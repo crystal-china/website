@@ -1,15 +1,17 @@
 {
-  "scripts": {
-    "heroku-postbuild": "bun run prod",
-    "dev": "bun ./lib/lucky/src/bun/bake.js --dev",
-    "build": "bun ./lib/lucky/src/bun/bake.js",
-    "prod": "bun ./lib/lucky/src/bun/bake.js --prod"
-  },
+  "license": "UNLICENSED",
+  "private": true,
+  "type": "module",
   "dependencies": {
     "firebase": "^11.9.1",
     "htmx.org": "^2.0.5",
     "hyperscript.org": "^0.9.14",
     "missing.css": "^1.1.3",
     "modern-normalize": "^3.0.1"
+  },
+  "scripts": {
+    "build": "bun lib/lucky/src/bun/bake.js",
+    "dev": "bun run build --dev",
+    "prod": "bun run build --prod"
   }
 }
