@@ -9,4 +9,6 @@
 /tmp
 /.tool-versions
 /dist
+/public/assets
+/public/bun-manifest.json
 /*.custom.gz

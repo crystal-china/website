@@ -80,8 +80,8 @@ module PageHelpers
   def print_doc_info(doc)
     doc_info = "创建于：#{doc.created_at.to_s("%Y年%m月%d日")}"
 
-    JSON.parse(File.read("dist/mix-manifest.json"))["/assets/docs/markdowns_timestamps.yml"]?.try do |path|
-      timestamp_file = "dist#{path}"
+    Lucky::AssetHelpers::ASSET_MANIFEST["docs/markdowns_timestamps.yml"]?.try do |path|
+      timestamp_file = "public#{path}"
       if File.exists?(timestamp_file)
         YAML.parse(File.read(timestamp_file))[markdown_path]?.try do |date|
           doc_info = "#{doc_info}       最后编辑于: #{Time.unix(date.as_i64).to_local.to_s("%Y年%m月%d日")}"

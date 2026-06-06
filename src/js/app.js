@@ -1,6 +1,52 @@
 /* eslint no-console:0 */
 
+import { initializeApp } from "firebase/app";
+import { getAnalytics, logEvent } from "firebase/analytics";
+import htmx from "htmx.org";
+import _hyperscript from "hyperscript.org";
+
+import copyCodeButton from "./copyCodeButton.js";
+import pasteImage from "./pasteImage.js";
+import stork from "./stork.js";
+import Viewer3D from "./viewer3d.js";
+
 _hyperscript.browserInit();
+
+const frontendConfig = JSON.parse(
+    document.getElementById("app-config")?.textContent ?? "{}",
+);
+const assetHost = frontendConfig.assetHost ?? "";
+const firebaseConfig = frontendConfig.firebaseConfig ?? {};
+
+let assetManifestPromise;
+
+function loadAssetManifest() {
+    if (assetManifestPromise == null) {
+        assetManifestPromise = fetch("/bun-manifest.json", {
+            cache: "no-store",
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(
+                        `Failed to load bun-manifest.json: ${response.status}`,
+                    );
+                }
+
+                return response.json();
+            })
+            .catch((error) => {
+                console.warn(error);
+                return {};
+            });
+    }
+
+    return assetManifestPromise;
+}
+
+async function assetUrl(logicalPath, fallback = `/assets/${logicalPath}`) {
+    const manifest = await loadAssetManifest();
+    return `${assetHost}${manifest[logicalPath] ?? fallback}`;
+}
 
 // import * as AsciinemaPlayer from 'asciinema-player';
 // AsciinemaPlayer.create('/demo.cast', document.getElementById('demo'));
@@ -12,11 +58,12 @@ function init(eventElt) {
     //     }
     // };
 
-    const firebaseConfig = __FIREBASE_CONFIG__;
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-    window.analytics = analytics;
-    window.logEvent = logEvent;
+    if (firebaseConfig.apiKey != null) {
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        window.analytics = analytics;
+        window.logEvent = logEvent;
+    }
 
     window.scrollToElementById = scrollToElementById;
 
@@ -30,7 +77,7 @@ function init(eventElt) {
 
     // 确保下面的函数，只在 body 重新改变时才触发
     if (eventElt.nodeName == "BODY") {
-        initStork();
+        void initStork();
     }
 
     // 让 data-tooltip 属性可以显示中文
@@ -50,7 +97,7 @@ function init(eventElt) {
     // 此时重复执行 js 的 callback 会引起问题，例如，render Logo 动画两次。
     // 为了避免重复执行，做一个判断。（不确定是不是总是有效）
     if (!eventElt.className.includes("htmx-settling")) {
-        setupLogo(eventElt);
+        void setupLogo(eventElt);
         setupPasteImage(eventElt);
         setupCopyCodeButton(eventElt);
         setupStork(eventElt);
@@ -80,7 +127,7 @@ document.body.addEventListener("htmx:beforeHistorySave", function (event) {
     document.getElementById("logo-canvas")?.setAttribute("running", "false");
 });
 
-function setupLogo(eventElt) {
+async function setupLogo(eventElt) {
     const canvas = document.getElementById("logo-canvas");
 
     if (canvas != null && canvas.getAttribute("running") === "false") {
@@ -94,7 +141,7 @@ function setupLogo(eventElt) {
         // startLogoAnimation
         var model = new Viewer3D(canvas);
         model.shader("flat", 255, 255, 255);
-        model.insertModel("/assets/icosahedron.xml");
+        model.insertModel(await assetUrl("models/icosahedron.xml"));
         model.contrast(0.9);
         canvas.setAttribute("running", "true");
     }
@@ -107,16 +154,9 @@ function setupStork(eventElt) {
     }
 }
 
-function initStork() {
-    const assetHost = IS_WATCH_MODE ? "" : "https://assets.crystal-china.org";
-
-    stork.initialize(
-        `${assetHost}${mixManifest["/assets/docs/stork.wasm"] ?? "/assets/docs/stork.wasm"}`,
-    );
-    stork.downloadIndex(
-        "docs",
-        `${assetHost}${mixManifest["/assets/docs/index.st"] ?? "/assets/docs/index.st"}`,
-    );
+async function initStork() {
+    stork.initialize(await assetUrl("docs/stork.wasm"));
+    stork.downloadIndex("docs", await assetUrl("docs/index.st"));
 }
 
 function setupCopyCodeButton(eventElt) {

@@ -1,0 +1,26 @@
+{
+  "entryPoints": {
+    "js": ["src/js/app.js"],
+    "css": ["src/css/app.css"]
+  },
+  "watchDirs": [
+    "src/js",
+    "src/css",
+    "public/docs",
+    "public/models",
+    "public/puppies",
+    "public/svgs"
+  ],
+  "watchExtensions": {
+    "css": ["scss"]
+  },
+  "staticDirs": [
+    "public/docs",
+    "public/models",
+    "public/puppies",
+    "public/svgs"
+  ],
+  "outDir": "public/assets",
+  "publicPath": "/assets",
+  "manifestPath": "public/bun-manifest.json"
+}

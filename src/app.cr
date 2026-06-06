@@ -13,9 +13,7 @@ require "./shards"
 # 先 mount dist/mix-manifest.json, 再读取它
 require "../config/backed_file_system_mounter"
 
-# Load the asset manifest
-Lucky::AssetHelpers.load_manifest "dist/mix-manifest.json"
-# Lucky::AssetHelpers.load_manifest("public/manifest.json", use_vite: true)
+Lucky::AssetHelpers.load_manifest
 
 require "./utils/**"
 require "../config/server"
