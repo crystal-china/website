@@ -4,14 +4,14 @@
 
 - Crystal
 - pg
-- node (with yarn)
+- bun
 - podman (or docker)
 
 ## Development
 
 1. First, install Crystal. You can check out the instructions here: https://crystal-lang.org/install/
 
-3. Run `script/setup`, Just make sure you’ve got `pg` and `yarn` installed before running this.
+3. Run `script/setup`, Just make sure you’ve got `pg` and `bun` installed before running this.
 
 4. Finally, run `lucky dev`, and you're all set!
 
@@ -22,9 +22,9 @@ one static binary with all assets baked into it, and will auto mount when runnin
 
 Following is the process for create the static binary:
 
-1. Run `shards run index` to create a index for all markdowns docs into `public/assets/docs/index.st`, use bin/stork.
+1. Run `shards run index` to create an index for all markdown docs into `public/docs/index.st`, using `bin/stork`.
 
-2. Run `yarn prod` to package assets use laravel mix.
+2. Run `bun run prod` to build and precompress assets into `public/assets`.
 
 3. To build a static binary use `script/build_amd64_static_binary.sh`, you need 
    install `podman` or `docker`.
