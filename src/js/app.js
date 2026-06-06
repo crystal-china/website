@@ -16,6 +16,7 @@ const frontendConfig = JSON.parse(
     document.getElementById("app-config")?.textContent ?? "{}",
 );
 const assetHost = frontendConfig.assetHost ?? "";
+const assetBasePath = frontendConfig.assetBasePath ?? "/assets";
 const firebaseConfig = frontendConfig.firebaseConfig ?? {};
 
 let assetManifestPromise;
@@ -45,7 +46,11 @@ function loadAssetManifest() {
 
 async function assetUrl(logicalPath, fallback = `/assets/${logicalPath}`) {
     const manifest = await loadAssetManifest();
-    return `${assetHost}${manifest[logicalPath] ?? fallback}`;
+    const manifestPath = manifest[logicalPath];
+    const resolvedPath =
+        manifestPath == null ? fallback : `${assetBasePath}/${manifestPath}`;
+
+    return `${assetHost}${resolvedPath}`;
 }
 
 // import * as AsciinemaPlayer from 'asciinema-player';

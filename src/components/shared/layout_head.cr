@@ -25,6 +25,7 @@ class Shared::LayoutHead < BaseComponent
   private def frontend_config
     {
       assetHost: Lucky::Server.settings.asset_host,
+      assetBasePath: "/assets",
       firebaseConfig: {
         apiKey: ENV["VITE_FIREBASE_API_KEY"]?,
         authDomain: ENV["VITE_FIREBASE_AUTH_DOMAIN"]?,
