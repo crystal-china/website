@@ -1,0 +1,327 @@
+{
+  "lockfileVersion": 1,
+  "configVersion": 0,
+  "workspaces": {
+    "": {
+      "dependencies": {
+        "firebase": "^11.9.1",
+        "htmx.org": "^2.0.5",
+        "hyperscript.org": "^0.9.14",
+        "missing.css": "^1.1.3",
+        "modern-normalize": "^3.0.1",
+      },
+      "devDependencies": {
+        "sass-embedded": "^1.100.0",
+      },
+    },
+  },
+  "packages": {
+    "@bufbuild/protobuf": ["@bufbuild/protobuf@2.12.0", "https://registry.npmmirror.com/@bufbuild/protobuf/-/protobuf-2.12.0.tgz", {}, "sha512-B/XlCaFIP8LOwzo+bz5uFzATYokcwCKQcghqnlfwSmM5eX/qTkvDBnDPs+gXtX/RyjxJ4DRikECcPJbyALA8FA=="],
+
+    "@firebase/ai": ["@firebase/ai@1.4.0", "https://registry.npmmirror.com/@firebase/ai/-/ai-1.4.0.tgz#27107ee8503069619c13a33ce086932eff4d472c", { "dependencies": { "@firebase/app-check-interop-types": "0.3.3", "@firebase/component": "0.6.17", "@firebase/logger": "0.4.4", "@firebase/util": "1.12.0", "tslib": "^2.1.0" } }, "sha512-wvF33gtU6TXb6Co8TEC1pcl4dnVstYmRE/vs9XjUGE7he7Sgf5TqSu+EoXk/fuzhw5tKr1LC5eG9KdYFM+eosw=="],
+
+    "@firebase/analytics": ["@firebase/analytics@0.10.16", "https://registry.npmmirror.com/@firebase/analytics/-/analytics-0.10.16.tgz#516f211465060008538fed46c7f78f0ea14dd549", { "dependencies": { "@firebase/component": "0.6.17", "@firebase/installations": "0.6.17", "@firebase/logger": "0.4.4", "@firebase/util": "1.12.0", "tslib": "^2.1.0" } }, "sha512-cMtp19He7Fd6uaj/nDEul+8JwvJsN8aRSJyuA1QN3QrKvfDDp+efjVurJO61sJpkVftw9O9nNMdhFbRcTmTfRQ=="],
+
+    "@firebase/analytics-compat": ["@firebase/analytics-compat@0.2.22", "https://registry.npmmirror.com/@firebase/analytics-compat/-/analytics-compat-0.2.22.tgz#5ec880cf719642c233742ad805ba95e5b4dad999", { "dependencies": { "@firebase/analytics": "0.10.16", "@firebase/analytics-types": "0.8.3", "@firebase/component": "0.6.17", "@firebase/util": "1.12.0", "tslib": "^2.1.0" } }, "sha512-VogWHgwkdYhjWKh8O1XU04uPrRaiDihkWvE/EMMmtWtaUtVALnpLnUurc3QtSKdPnvTz5uaIGKlW84DGtSPFbw=="],
+
+    "@firebase/analytics-types": ["@firebase/analytics-types@0.8.3", "https://registry.npmmirror.com/@firebase/analytics-types/-/analytics-types-0.8.3.tgz#d08cd39a6209693ca2039ba7a81570dfa6c1518f", {}, "sha512-VrIp/d8iq2g501qO46uGz3hjbDb8xzYMrbu8Tp0ovzIzrvJZ2fvmj649gTjge/b7cCCcjT0H37g1gVtlNhnkbg=="],
+
+    "@firebase/app": ["@firebase/app@0.13.1", "https://registry.npmmirror.com/@firebase/app/-/app-0.13.1.tgz#f821eee478d03224e70612d2632d7ba351c98a77", { "dependencies": { "@firebase/component": "0.6.17", "@firebase/logger": "0.4.4", "@firebase/util": "1.12.0", "idb": "7.1.1", "tslib": "^2.1.0" } }, "sha512-0O33PKrXLoIWkoOO5ByFaLjZehBctSYWnb+xJkIdx2SKP/K9l1UPFXPwASyrOIqyY3ws+7orF/1j7wI5EKzPYQ=="],
+
+    "@firebase/app-check": ["@firebase/app-check@0.10.0", "https://registry.npmmirror.com/@firebase/app-check/-/app-check-0.10.0.tgz#dc833ead2b31930eee13b5c9eb028091c630d21b", { "dependencies": { "@firebase/component": "0.6.17", "@firebase/logger": "0.4.4", "@firebase/util": "1.12.0", "tslib": "^2.1.0" } }, "sha512-AZlRlVWKcu8BH4Yf8B5EI8sOi2UNGTS8oMuthV45tbt6OVUTSQwFPIEboZzhNJNKY+fPsg7hH8vixUWFZ3lrhw=="],
+
+    "@firebase/app-check-compat": ["@firebase/app-check-compat@0.3.25", "https://registry.npmmirror.com/@firebase/app-check-compat/-/app-check-compat-0.3.25.tgz#03d1941dba78626bdacf544f9d1d48b451dbb49c", { "dependencies": { "@firebase/app-check": "0.10.0", "@firebase/app-check-types": "0.5.3", "@firebase/component": "0.6.17", "@firebase/logger": "0.4.4", "@firebase/util": "1.12.0", "tslib": "^2.1.0" } }, "sha512-3zrsPZWAKfV7DVC20T2dgfjzjtQnSJS65OfMOiddMUtJL1S5i0nAZKsdX0bOEvvrd0SBIL8jYnfpfDeQRnhV3w=="],
+
+    "@firebase/app-check-interop-types": ["@firebase/app-check-interop-types@0.3.3", "https://registry.npmmirror.com/@firebase/app-check-interop-types/-/app-check-interop-types-0.3.3.tgz#ed9c4a4f48d1395ef378f007476db3940aa5351a", {}, "sha512-gAlxfPLT2j8bTI/qfe3ahl2I2YcBQ8cFIBdhAQA4I2f3TndcO+22YizyGYuttLHPQEpWkhmpFW60VCFEPg4g5A=="],
+
+    "@firebase/app-check-types": ["@firebase/app-check-types@0.5.3", "https://registry.npmmirror.com/@firebase/app-check-types/-/app-check-types-0.5.3.tgz#38ba954acf4bffe451581a32fffa20337f11d8e5", {}, "sha512-hyl5rKSj0QmwPdsAxrI5x1otDlByQ7bvNvVt8G/XPO2CSwE++rmSVf3VEhaeOR4J8ZFaF0Z0NDSmLejPweZ3ng=="],
+
+    "@firebase/app-compat": ["@firebase/app-compat@0.4.1", "https://registry.npmmirror.com/@firebase/app-compat/-/app-compat-0.4.1.tgz#be643edfcd0831fc12e4ba4b6301d0c0778f5620", { "dependencies": { "@firebase/app": "0.13.1", "@firebase/component": "0.6.17", "@firebase/logger": "0.4.4", "@firebase/util": "1.12.0", "tslib": "^2.1.0" } }, "sha512-9VGjnY23Gc1XryoF/ABWtZVJYnaPOnjHM7dsqq9YALgKRtxI1FryvELUVkDaEIUf4In2bfkb9ZENF1S9M273Dw=="],
+
+    "@firebase/app-types": ["@firebase/app-types@0.9.3", "https://registry.npmmirror.com/@firebase/app-types/-/app-types-0.9.3.tgz#8408219eae9b1fb74f86c24e7150a148460414ad", {}, "sha512-kRVpIl4vVGJ4baogMDINbyrIOtOxqhkZQg4jTq3l8Lw6WSk0xfpEYzezFu+Kl4ve4fbPl79dvwRtaFqAC/ucCw=="],
+
+    "@firebase/auth": ["@firebase/auth@1.10.7", "https://registry.npmmirror.com/@firebase/auth/-/auth-1.10.7.tgz#5130bbfa5374f2371a765db148cb76f6dae7638c", { "dependencies": { "@firebase/component": "0.6.17", "@firebase/logger": "0.4.4", "@firebase/util": "1.12.0", "tslib": "^2.1.0" } }, "sha512-77o0aBKCfchdL1gkahARdawHyYefh+wRYn7o60tbwW6bfJNq2idbrRb3WSYCT4yBKWL0+9kKdwxBHPZ6DEiB+g=="],
+
+    "@firebase/auth-compat": ["@firebase/auth-compat@0.5.27", "https://registry.npmmirror.com/@firebase/auth-compat/-/auth-compat-0.5.27.tgz#f20d2081945e401a7664cab4a87f29ff0b41af41", { "dependencies": { "@firebase/auth": "1.10.7", "@firebase/auth-types": "0.13.0", "@firebase/component": "0.6.17", "@firebase/util": "1.12.0", "tslib": "^2.1.0" } }, "sha512-axZx/MgjNO7uPA8/nMQiuVotGCngUFMppt5w0pxFIoIPD0kac0bsFdSEh5S2ttuEE0Aq1iUB6Flzwn+wvMgXnQ=="],
+
+    "@firebase/auth-interop-types": ["@firebase/auth-interop-types@0.2.4", "https://registry.npmmirror.com/@firebase/auth-interop-types/-/auth-interop-types-0.2.4.tgz#176a08686b0685596ff03d7879b7e4115af53de0", {}, "sha512-JPgcXKCuO+CWqGDnigBtvo09HeBs5u/Ktc2GaFj2m01hLarbxthLNm7Fk8iOP1aqAtXV+fnnGj7U28xmk7IwVA=="],
+
+    "@firebase/auth-types": ["@firebase/auth-types@0.13.0", "https://registry.npmmirror.com/@firebase/auth-types/-/auth-types-0.13.0.tgz#ae6e0015e3bd4bfe18edd0942b48a0a118a098d9", {}, "sha512-S/PuIjni0AQRLF+l9ck0YpsMOdE8GO2KU6ubmBB7P+7TJUCQDa3R1dlgYm9UzGbbePMZsp0xzB93f2b/CgxMOg=="],
+
+    "@firebase/component": ["@firebase/component@0.6.17", "https://registry.npmmirror.com/@firebase/component/-/component-0.6.17.tgz#6cef28dbe6de80ce393f97147bf3f1ea0a5453ec", { "dependencies": { "@firebase/util": "1.12.0", "tslib": "^2.1.0" } }, "sha512-M6DOg7OySrKEFS8kxA3MU5/xc37fiOpKPMz6cTsMUcsuKB6CiZxxNAvgFta8HGRgEpZbi8WjGIj6Uf+TpOhyzg=="],
+
+    "@firebase/data-connect": ["@firebase/data-connect@0.3.9", "https://registry.npmmirror.com/@firebase/data-connect/-/data-connect-0.3.9.tgz#9fe2f30d73c4013367b8ddd7ad57387d0438dce1", { "dependencies": { "@firebase/auth-interop-types": "0.2.4", "@firebase/component": "0.6.17", "@firebase/logger": "0.4.4", "@firebase/util": "1.12.0", "tslib": "^2.1.0" } }, "sha512-B5tGEh5uQrQeH0i7RvlU8kbZrKOJUmoyxVIX4zLA8qQJIN6A7D+kfBlGXtSwbPdrvyaejcRPcbOtqsDQ9HPJKw=="],
+
+    "@firebase/database": ["@firebase/database@1.0.19", "https://registry.npmmirror.com/@firebase/database/-/database-1.0.19.tgz#2d52e731407431bdc1581990d99b533784700fc6", { "dependencies": { "@firebase/app-check-interop-types": "0.3.3", "@firebase/auth-interop-types": "0.2.4", "@firebase/component": "0.6.17", "@firebase/logger": "0.4.4", "@firebase/util": "1.12.0", "faye-websocket": "0.11.4", "tslib": "^2.1.0" } }, "sha512-khE+MIYK+XlIndVn/7mAQ9F1fwG5JHrGKaG72hblCC6JAlUBDd3SirICH6SMCf2PQ0iYkruTECth+cRhauacyQ=="],
+
+    "@firebase/database-compat": ["@firebase/database-compat@2.0.10", "https://registry.npmmirror.com/@firebase/database-compat/-/database-compat-2.0.10.tgz#5cfe487b5fdb68752ded5ad17dabd99e763ba152", { "dependencies": { "@firebase/component": "0.6.17", "@firebase/database": "1.0.19", "@firebase/database-types": "1.0.14", "@firebase/logger": "0.4.4", "@firebase/util": "1.12.0", "tslib": "^2.1.0" } }, "sha512-3sjl6oGaDDYJw/Ny0E5bO6v+KM3KoD4Qo/sAfHGdRFmcJ4QnfxOX9RbG9+ce/evI3m64mkPr24LlmTDduqMpog=="],
+
+    "@firebase/database-types": ["@firebase/database-types@1.0.14", "https://registry.npmmirror.com/@firebase/database-types/-/database-types-1.0.14.tgz#454a33f55da46c243302d6b420b8b319ab80c6ce", { "dependencies": { "@firebase/app-types": "0.9.3", "@firebase/util": "1.12.0" } }, "sha512-8a0Q1GrxM0akgF0RiQHliinhmZd+UQPrxEmUv7MnQBYfVFiLtKOgs3g6ghRt/WEGJHyQNslZ+0PocIwNfoDwKw=="],
+
+    "@firebase/firestore": ["@firebase/firestore@4.7.17", "https://registry.npmmirror.com/@firebase/firestore/-/firestore-4.7.17.tgz#c1e1cc998e642857c5026909430959b0b539ef6b", { "dependencies": { "@firebase/component": "0.6.17", "@firebase/logger": "0.4.4", "@firebase/util": "1.12.0", "@firebase/webchannel-wrapper": "1.0.3", "@grpc/grpc-js": "~1.9.0", "@grpc/proto-loader": "^0.7.8", "tslib": "^2.1.0" } }, "sha512-YhXWA7HlSnekExhZ5u4i0e+kpPxsh/qMrzeNDgsAva71JXK8OOuOx+yLyYBFhmu3Hr5JJDO2fsZA/wrWoQYHDg=="],
+
+    "@firebase/firestore-compat": ["@firebase/firestore-compat@0.3.52", "https://registry.npmmirror.com/@firebase/firestore-compat/-/firestore-compat-0.3.52.tgz#aaf714dd88bf5a9af7348903179284e637354fb7", { "dependencies": { "@firebase/component": "0.6.17", "@firebase/firestore": "4.7.17", "@firebase/firestore-types": "3.0.3", "@firebase/util": "1.12.0", "tslib": "^2.1.0" } }, "sha512-nzt3Sag+EBdm1Jkw/FnnKBPk0LpUUxOlMHMADPBXYhhXrLszxn1+vb64nJsbgRIHfsCn+rg8gyGrb+8frzXrjg=="],
+
+    "@firebase/firestore-types": ["@firebase/firestore-types@3.0.3", "https://registry.npmmirror.com/@firebase/firestore-types/-/firestore-types-3.0.3.tgz#7d0c3dd8850c0193d8f5ee0cc8f11961407742c1", {}, "sha512-hD2jGdiWRxB/eZWF89xcK9gF8wvENDJkzpVFb4aGkzfEaKxVRD1kjz1t1Wj8VZEp2LCB53Yx1zD8mrhQu87R6Q=="],
+
+    "@firebase/functions": ["@firebase/functions@0.12.8", "https://registry.npmmirror.com/@firebase/functions/-/functions-0.12.8.tgz#c2e42b4ba82746142c9fe1e120c3f71f0464aa3d", { "dependencies": { "@firebase/app-check-interop-types": "0.3.3", "@firebase/auth-interop-types": "0.2.4", "@firebase/component": "0.6.17", "@firebase/messaging-interop-types": "0.2.3", "@firebase/util": "1.12.0", "tslib": "^2.1.0" } }, "sha512-p+ft6dQW0CJ3BLLxeDb5Hwk9ARw01kHTZjLqiUdPRzycR6w7Z75ThkegNmL6gCss3S0JEpldgvehgZ3kHybVhA=="],
+
+    "@firebase/functions-compat": ["@firebase/functions-compat@0.3.25", "https://registry.npmmirror.com/@firebase/functions-compat/-/functions-compat-0.3.25.tgz#9022df60d7471c7111766789f05991966ab692f0", { "dependencies": { "@firebase/component": "0.6.17", "@firebase/functions": "0.12.8", "@firebase/functions-types": "0.6.3", "@firebase/util": "1.12.0", "tslib": "^2.1.0" } }, "sha512-V0JKUw5W/7aznXf9BQ8LIYHCX6zVCM8Hdw7XUQ/LU1Y9TVP8WKRCnPB/qdPJ0xGjWWn7fhtwIYbgEw/syH4yTQ=="],
+
+    "@firebase/functions-types": ["@firebase/functions-types@0.6.3", "https://registry.npmmirror.com/@firebase/functions-types/-/functions-types-0.6.3.tgz#f5faf770248b13f45d256f614230da6a11bfb654", {}, "sha512-EZoDKQLUHFKNx6VLipQwrSMh01A1SaL3Wg6Hpi//x6/fJ6Ee4hrAeswK99I5Ht8roiniKHw4iO0B1Oxj5I4plg=="],
+
+    "@firebase/installations": ["@firebase/installations@0.6.17", "https://registry.npmmirror.com/@firebase/installations/-/installations-0.6.17.tgz#f184e49fcf3053ba25015b0509d9de28db99db77", { "dependencies": { "@firebase/component": "0.6.17", "@firebase/util": "1.12.0", "idb": "7.1.1", "tslib": "^2.1.0" } }, "sha512-zfhqCNJZRe12KyADtRrtOj+SeSbD1H/K8J24oQAJVv/u02eQajEGlhZtcx9Qk7vhGWF5z9dvIygVDYqLL4o1XQ=="],
+
+    "@firebase/installations-compat": ["@firebase/installations-compat@0.2.17", "https://registry.npmmirror.com/@firebase/installations-compat/-/installations-compat-0.2.17.tgz#5d61fb652658432e43ca82b8f91a17d5d21a459b", { "dependencies": { "@firebase/component": "0.6.17", "@firebase/installations": "0.6.17", "@firebase/installations-types": "0.5.3", "@firebase/util": "1.12.0", "tslib": "^2.1.0" } }, "sha512-J7afeCXB7yq25FrrJAgbx8mn1nG1lZEubOLvYgG7ZHvyoOCK00sis5rj7TgDrLYJgdj/SJiGaO1BD3BAp55TeA=="],
+
+    "@firebase/installations-types": ["@firebase/installations-types@0.5.3", "https://registry.npmmirror.com/@firebase/installations-types/-/installations-types-0.5.3.tgz#cac8a14dd49f09174da9df8ae453f9b359c3ef2f", {}, "sha512-2FJI7gkLqIE0iYsNQ1P751lO3hER+Umykel+TkLwHj6plzWVxqvfclPUZhcKFVQObqloEBTmpi2Ozn7EkCABAA=="],
+
+    "@firebase/logger": ["@firebase/logger@0.4.4", "https://registry.npmmirror.com/@firebase/logger/-/logger-0.4.4.tgz#29e8379d20fd1149349a195ee6deee4573a86f48", { "dependencies": { "tslib": "^2.1.0" } }, "sha512-mH0PEh1zoXGnaR8gD1DeGeNZtWFKbnz9hDO91dIml3iou1gpOnLqXQ2dJfB71dj6dpmUjcQ6phY3ZZJbjErr9g=="],
+
+    "@firebase/messaging": ["@firebase/messaging@0.12.21", "https://registry.npmmirror.com/@firebase/messaging/-/messaging-0.12.21.tgz#05d76039133c3d2a33208416699a3d3ebd2c0012", { "dependencies": { "@firebase/component": "0.6.17", "@firebase/installations": "0.6.17", "@firebase/messaging-interop-types": "0.2.3", "@firebase/util": "1.12.0", "idb": "7.1.1", "tslib": "^2.1.0" } }, "sha512-bYJ2Evj167Z+lJ1ach6UglXz5dUKY1zrJZd15GagBUJSR7d9KfiM1W8dsyL0lDxcmhmA/sLaBYAAhF1uilwN0g=="],
+
+    "@firebase/messaging-compat": ["@firebase/messaging-compat@0.2.21", "https://registry.npmmirror.com/@firebase/messaging-compat/-/messaging-compat-0.2.21.tgz#8d4c5b9557ed9890a774fba2ea7e5459860a901b", { "dependencies": { "@firebase/component": "0.6.17", "@firebase/messaging": "0.12.21", "@firebase/util": "1.12.0", "tslib": "^2.1.0" } }, "sha512-1yMne+4BGLbHbtyu/VyXWcLiefUE1+K3ZGfVTyKM4BH4ZwDFRGoWUGhhx+tKRX4Tu9z7+8JN67SjnwacyNWK5g=="],
+
+    "@firebase/messaging-interop-types": ["@firebase/messaging-interop-types@0.2.3", "https://registry.npmmirror.com/@firebase/messaging-interop-types/-/messaging-interop-types-0.2.3.tgz#e647c9cd1beecfe6a6e82018a6eec37555e4da3e", {}, "sha512-xfzFaJpzcmtDjycpDeCUj0Ge10ATFi/VHVIvEEjDNc3hodVBQADZ7BWQU7CuFpjSHE+eLuBI13z5F/9xOoGX8Q=="],
+
+    "@firebase/performance": ["@firebase/performance@0.7.6", "https://registry.npmmirror.com/@firebase/performance/-/performance-0.7.6.tgz#36376130c725d8f6df492be4da32c1d1f9a605f8", { "dependencies": { "@firebase/component": "0.6.17", "@firebase/installations": "0.6.17", "@firebase/logger": "0.4.4", "@firebase/util": "1.12.0", "tslib": "^2.1.0", "web-vitals": "^4.2.4" } }, "sha512-AsOz74dSTlyQGlnnbLWXiHFAsrxhpssPOsFFi4HgOJ5DjzkK7ZdZ/E9uMPrwFoXJyMVoybGRuqsL/wkIbFITsA=="],
+
+    "@firebase/performance-compat": ["@firebase/performance-compat@0.2.19", "https://registry.npmmirror.com/@firebase/performance-compat/-/performance-compat-0.2.19.tgz#f817a82037285b2240c4c55cc03eb1943ae932d6", { "dependencies": { "@firebase/component": "0.6.17", "@firebase/logger": "0.4.4", "@firebase/performance": "0.7.6", "@firebase/performance-types": "0.2.3", "@firebase/util": "1.12.0", "tslib": "^2.1.0" } }, "sha512-4cU0T0BJ+LZK/E/UwFcvpBCVdkStgBMQwBztM9fJPT6udrEUk3ugF5/HT+E2Z22FCXtIaXDukJbYkE/c3c6IHw=="],
+
+    "@firebase/performance-types": ["@firebase/performance-types@0.2.3", "https://registry.npmmirror.com/@firebase/performance-types/-/performance-types-0.2.3.tgz#5ce64e90fa20ab5561f8b62a305010cf9fab86fb", {}, "sha512-IgkyTz6QZVPAq8GSkLYJvwSLr3LS9+V6vNPQr0x4YozZJiLF5jYixj0amDtATf1X0EtYHqoPO48a9ija8GocxQ=="],
+
+    "@firebase/remote-config": ["@firebase/remote-config@0.6.4", "https://registry.npmmirror.com/@firebase/remote-config/-/remote-config-0.6.4.tgz#30610bf52452639a127f1b40a94de096ac6cf43a", { "dependencies": { "@firebase/component": "0.6.17", "@firebase/installations": "0.6.17", "@firebase/logger": "0.4.4", "@firebase/util": "1.12.0", "tslib": "^2.1.0" } }, "sha512-ZyLJRT46wtycyz2+opEkGaoFUOqRQjt/0NX1WfUISOMCI/PuVoyDjqGpq24uK+e8D5NknyTpiXCVq5dowhScmg=="],
+
+    "@firebase/remote-config-compat": ["@firebase/remote-config-compat@0.2.17", "https://registry.npmmirror.com/@firebase/remote-config-compat/-/remote-config-compat-0.2.17.tgz#d91583dfdd85ddb3e8cdd9c0e433d38f02095f1e", { "dependencies": { "@firebase/component": "0.6.17", "@firebase/logger": "0.4.4", "@firebase/remote-config": "0.6.4", "@firebase/remote-config-types": "0.4.0", "@firebase/util": "1.12.0", "tslib": "^2.1.0" } }, "sha512-KelsBD0sXSC0u3esr/r6sJYGRN6pzn3bYuI/6pTvvmZbjBlxQkRabHAVH6d+YhLcjUXKIAYIjZszczd1QJtOyA=="],
+
+    "@firebase/remote-config-types": ["@firebase/remote-config-types@0.4.0", "https://registry.npmmirror.com/@firebase/remote-config-types/-/remote-config-types-0.4.0.tgz#91b9a836d5ca30ced68c1516163b281fbb544537", {}, "sha512-7p3mRE/ldCNYt8fmWMQ/MSGRmXYlJ15Rvs9Rk17t8p0WwZDbeK7eRmoI1tvCPaDzn9Oqh+yD6Lw+sGLsLg4kKg=="],
+
+    "@firebase/storage": ["@firebase/storage@0.13.13", "https://registry.npmmirror.com/@firebase/storage/-/storage-0.13.13.tgz#ccac2b27b870401dc01df4f913b10ba52474f60a", { "dependencies": { "@firebase/component": "0.6.17", "@firebase/util": "1.12.0", "tslib": "^2.1.0" } }, "sha512-E+MTNcBgpoAynicgVb2ZsHCuEOO4aAiUX5ahNwe/1dEyZpo2H4DwFqKQRNK/sdAIgBbjBwcfV2p0MdPFGIR0Ew=="],
+
+    "@firebase/storage-compat": ["@firebase/storage-compat@0.3.23", "https://registry.npmmirror.com/@firebase/storage-compat/-/storage-compat-0.3.23.tgz#57903374442eb173a30f6a1af76f829345d02e4a", { "dependencies": { "@firebase/component": "0.6.17", "@firebase/storage": "0.13.13", "@firebase/storage-types": "0.8.3", "@firebase/util": "1.12.0", "tslib": "^2.1.0" } }, "sha512-B/ufkT/R/tSvc2av+vP6ZYybGn26FwB9YVDYg/6Bro+5TN3VEkCeNmfnX3XLa2DSdXUTZAdWCbMxW0povGa4MA=="],
+
+    "@firebase/storage-types": ["@firebase/storage-types@0.8.3", "https://registry.npmmirror.com/@firebase/storage-types/-/storage-types-0.8.3.tgz#2531ef593a3452fc12c59117195d6485c6632d3d", {}, "sha512-+Muk7g9uwngTpd8xn9OdF/D48uiQ7I1Fae7ULsWPuKoCH3HU7bfFPhxtJYzyhjdniowhuDpQcfPmuNRAqZEfvg=="],
+
+    "@firebase/util": ["@firebase/util@1.12.0", "https://registry.npmmirror.com/@firebase/util/-/util-1.12.0.tgz#202e96cfd832f8dde551232e4868861681b8b89a", { "dependencies": { "tslib": "^2.1.0" } }, "sha512-Z4rK23xBCwgKDqmzGVMef+Vb4xso2j5Q8OG0vVL4m4fA5ZjPMYQazu8OJJC3vtQRC3SQ/Pgx/6TPNVsCd70QRw=="],
+
+    "@firebase/webchannel-wrapper": ["@firebase/webchannel-wrapper@1.0.3", "https://registry.npmmirror.com/@firebase/webchannel-wrapper/-/webchannel-wrapper-1.0.3.tgz#a73bab8eb491d7b8b7be2f0e6c310647835afe83", {}, "sha512-2xCRM9q9FlzGZCdgDMJwc0gyUkWFtkosy7Xxr6sFgQwn+wMNIWd7xIvYNauU1r64B5L5rsGKy/n9TKJ0aAFeqQ=="],
+
+    "@grpc/grpc-js": ["@grpc/grpc-js@1.9.15", "https://registry.npmmirror.com/@grpc/grpc-js/-/grpc-js-1.9.15.tgz#433d7ac19b1754af690ea650ab72190bd700739b", { "dependencies": { "@grpc/proto-loader": "^0.7.8", "@types/node": ">=12.12.47" } }, "sha512-nqE7Hc0AzI+euzUwDAy0aY5hCp10r734gMGRdU+qOPX0XSceI2ULrcXB5U2xSc5VkWwalCj4M7GzCAygZl2KoQ=="],
+
+    "@grpc/proto-loader": ["@grpc/proto-loader@0.7.15", "https://registry.npmmirror.com/@grpc/proto-loader/-/proto-loader-0.7.15.tgz#4cdfbf35a35461fc843abe8b9e2c0770b5095e60", { "dependencies": { "lodash.camelcase": "^4.3.0", "long": "^5.0.0", "protobufjs": "^7.2.5", "yargs": "^17.7.2" }, "bin": { "proto-loader-gen-types": "build/bin/proto-loader-gen-types.js" } }, "sha512-tMXdRCfYVixjuFK+Hk0Q1s38gV9zDiDJfWL3h1rv4Qc39oILCu1TRTDt7+fGUI8K4G1Fj125Hx/ru3azECWTyQ=="],
+
+    "@jridgewell/gen-mapping": ["@jridgewell/gen-mapping@0.3.8", "https://registry.npmmirror.com/@jridgewell/gen-mapping/-/gen-mapping-0.3.8.tgz#4f0e06362e01362f823d348f1872b08f666d8142", { "dependencies": { "@jridgewell/set-array": "^1.2.1", "@jridgewell/sourcemap-codec": "^1.4.10", "@jridgewell/trace-mapping": "^0.3.24" } }, "sha512-imAbBGkb+ebQyxKgzv5Hu2nmROxoDOXHh80evxdoXNOrvAnVx7zimzc1Oo5h9RlfV4vPXaE2iM5pOFbvOCClWA=="],
+
+    "@jridgewell/resolve-uri": ["@jridgewell/resolve-uri@3.1.2", "https://registry.npmmirror.com/@jridgewell/resolve-uri/-/resolve-uri-3.1.2.tgz#7a0ee601f60f99a20c7c7c5ff0c80388c1189bd6", {}, "sha512-bRISgCIjP20/tbWSPWMEi54QVPRZExkuD9lJL+UIxUKtwVJA8wW1Trb1jMs1RFXo1CBTNZ/5hpC9QvmKWdopKw=="],
+
+    "@jridgewell/set-array": ["@jridgewell/set-array@1.2.1", "https://registry.npmmirror.com/@jridgewell/set-array/-/set-array-1.2.1.tgz#558fb6472ed16a4c850b889530e6b36438c49280", {}, "sha512-R8gLRTZeyp03ymzP/6Lil/28tGeGEzhx1q2k703KGWRAI1VdvPIXdG70VJc2pAMw3NA6JKL5hhFu1sJX0Mnn/A=="],
+
+    "@jridgewell/source-map": ["@jridgewell/source-map@0.3.6", "https://registry.npmmirror.com/@jridgewell/source-map/-/source-map-0.3.6.tgz#9d71ca886e32502eb9362c9a74a46787c36df81a", { "dependencies": { "@jridgewell/gen-mapping": "^0.3.5", "@jridgewell/trace-mapping": "^0.3.25" } }, "sha512-1ZJTZebgqllO79ue2bm3rIGud/bOe0pP5BjSRCRxxYkEZS8STV7zN84UBbiYu7jy+eCKSnVIUgoWWE/tt+shMQ=="],
+
+    "@jridgewell/sourcemap-codec": ["@jridgewell/sourcemap-codec@1.5.0", "https://registry.npmmirror.com/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.5.0.tgz#3188bcb273a414b0d215fd22a58540b989b9409a", {}, "sha512-gv3ZRaISU3fjPAgNsriBRqGWQL6quFx04YMPW/zD8XMLsU32mhCCbfbO6KZFLjvYpCZ8zyDEgqsgf+PwPaM7GQ=="],
+
+    "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.25", "https://registry.npmmirror.com/@jridgewell/trace-mapping/-/trace-mapping-0.3.25.tgz#15f190e98895f3fc23276ee14bc76b675c2e50f0", { "dependencies": { "@jridgewell/resolve-uri": "^3.1.0", "@jridgewell/sourcemap-codec": "^1.4.14" } }, "sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ=="],
+
+    "@parcel/watcher": ["@parcel/watcher@2.5.6", "https://registry.npmmirror.com/@parcel/watcher/-/watcher-2.5.6.tgz", { "dependencies": { "detect-libc": "^2.0.3", "is-glob": "^4.0.3", "node-addon-api": "^7.0.0", "picomatch": "^4.0.3" }, "optionalDependencies": { "@parcel/watcher-android-arm64": "2.5.6", "@parcel/watcher-darwin-arm64": "2.5.6", "@parcel/watcher-darwin-x64": "2.5.6", "@parcel/watcher-freebsd-x64": "2.5.6", "@parcel/watcher-linux-arm-glibc": "2.5.6", "@parcel/watcher-linux-arm-musl": "2.5.6", "@parcel/watcher-linux-arm64-glibc": "2.5.6", "@parcel/watcher-linux-arm64-musl": "2.5.6", "@parcel/watcher-linux-x64-glibc": "2.5.6", "@parcel/watcher-linux-x64-musl": "2.5.6", "@parcel/watcher-win32-arm64": "2.5.6", "@parcel/watcher-win32-ia32": "2.5.6", "@parcel/watcher-win32-x64": "2.5.6" } }, "sha512-tmmZ3lQxAe/k/+rNnXQRawJ4NjxO2hqiOLTHvWchtGZULp4RyFeh6aU4XdOYBFe2KE1oShQTv4AblOs2iOrNnQ=="],
+
+    "@parcel/watcher-android-arm64": ["@parcel/watcher-android-arm64@2.5.6", "https://registry.npmmirror.com/@parcel/watcher-android-arm64/-/watcher-android-arm64-2.5.6.tgz", { "os": "android", "cpu": "arm64" }, "sha512-YQxSS34tPF/6ZG7r/Ih9xy+kP/WwediEUsqmtf0cuCV5TPPKw/PQHRhueUo6JdeFJaqV3pyjm0GdYjZotbRt/A=="],
+
+    "@parcel/watcher-darwin-arm64": ["@parcel/watcher-darwin-arm64@2.5.6", "https://registry.npmmirror.com/@parcel/watcher-darwin-arm64/-/watcher-darwin-arm64-2.5.6.tgz", { "os": "darwin", "cpu": "arm64" }, "sha512-Z2ZdrnwyXvvvdtRHLmM4knydIdU9adO3D4n/0cVipF3rRiwP+3/sfzpAwA/qKFL6i1ModaabkU7IbpeMBgiVEA=="],
+
+    "@parcel/watcher-darwin-x64": ["@parcel/watcher-darwin-x64@2.5.6", "https://registry.npmmirror.com/@parcel/watcher-darwin-x64/-/watcher-darwin-x64-2.5.6.tgz", { "os": "darwin", "cpu": "x64" }, "sha512-HgvOf3W9dhithcwOWX9uDZyn1lW9R+7tPZ4sug+NGrGIo4Rk1hAXLEbcH1TQSqxts0NYXXlOWqVpvS1SFS4fRg=="],
+
+    "@parcel/watcher-freebsd-x64": ["@parcel/watcher-freebsd-x64@2.5.6", "https://registry.npmmirror.com/@parcel/watcher-freebsd-x64/-/watcher-freebsd-x64-2.5.6.tgz", { "os": "freebsd", "cpu": "x64" }, "sha512-vJVi8yd/qzJxEKHkeemh7w3YAn6RJCtYlE4HPMoVnCpIXEzSrxErBW5SJBgKLbXU3WdIpkjBTeUNtyBVn8TRng=="],
+
+    "@parcel/watcher-linux-arm-glibc": ["@parcel/watcher-linux-arm-glibc@2.5.6", "https://registry.npmmirror.com/@parcel/watcher-linux-arm-glibc/-/watcher-linux-arm-glibc-2.5.6.tgz", { "os": "linux", "cpu": "arm" }, "sha512-9JiYfB6h6BgV50CCfasfLf/uvOcJskMSwcdH1PHH9rvS1IrNy8zad6IUVPVUfmXr+u+Km9IxcfMLzgdOudz9EQ=="],
+
+    "@parcel/watcher-linux-arm-musl": ["@parcel/watcher-linux-arm-musl@2.5.6", "https://registry.npmmirror.com/@parcel/watcher-linux-arm-musl/-/watcher-linux-arm-musl-2.5.6.tgz", { "os": "linux", "cpu": "arm" }, "sha512-Ve3gUCG57nuUUSyjBq/MAM0CzArtuIOxsBdQ+ftz6ho8n7s1i9E1Nmk/xmP323r2YL0SONs1EuwqBp2u1k5fxg=="],
+
+    "@parcel/watcher-linux-arm64-glibc": ["@parcel/watcher-linux-arm64-glibc@2.5.6", "https://registry.npmmirror.com/@parcel/watcher-linux-arm64-glibc/-/watcher-linux-arm64-glibc-2.5.6.tgz", { "os": "linux", "cpu": "arm64" }, "sha512-f2g/DT3NhGPdBmMWYoxixqYr3v/UXcmLOYy16Bx0TM20Tchduwr4EaCbmxh1321TABqPGDpS8D/ggOTaljijOA=="],
+
+    "@parcel/watcher-linux-arm64-musl": ["@parcel/watcher-linux-arm64-musl@2.5.6", "https://registry.npmmirror.com/@parcel/watcher-linux-arm64-musl/-/watcher-linux-arm64-musl-2.5.6.tgz", { "os": "linux", "cpu": "arm64" }, "sha512-qb6naMDGlbCwdhLj6hgoVKJl2odL34z2sqkC7Z6kzir8b5W65WYDpLB6R06KabvZdgoHI/zxke4b3zR0wAbDTA=="],
+
+    "@parcel/watcher-linux-x64-glibc": ["@parcel/watcher-linux-x64-glibc@2.5.6", "https://registry.npmmirror.com/@parcel/watcher-linux-x64-glibc/-/watcher-linux-x64-glibc-2.5.6.tgz", { "os": "linux", "cpu": "x64" }, "sha512-kbT5wvNQlx7NaGjzPFu8nVIW1rWqV780O7ZtkjuWaPUgpv2NMFpjYERVi0UYj1msZNyCzGlaCWEtzc+exjMGbQ=="],
+
+    "@parcel/watcher-linux-x64-musl": ["@parcel/watcher-linux-x64-musl@2.5.6", "https://registry.npmmirror.com/@parcel/watcher-linux-x64-musl/-/watcher-linux-x64-musl-2.5.6.tgz", { "os": "linux", "cpu": "x64" }, "sha512-1JRFeC+h7RdXwldHzTsmdtYR/Ku8SylLgTU/reMuqdVD7CtLwf0VR1FqeprZ0eHQkO0vqsbvFLXUmYm/uNKJBg=="],
+
+    "@parcel/watcher-win32-arm64": ["@parcel/watcher-win32-arm64@2.5.6", "https://registry.npmmirror.com/@parcel/watcher-win32-arm64/-/watcher-win32-arm64-2.5.6.tgz", { "os": "win32", "cpu": "arm64" }, "sha512-3ukyebjc6eGlw9yRt678DxVF7rjXatWiHvTXqphZLvo7aC5NdEgFufVwjFfY51ijYEWpXbqF5jtrK275z52D4Q=="],
+
+    "@parcel/watcher-win32-ia32": ["@parcel/watcher-win32-ia32@2.5.6", "https://registry.npmmirror.com/@parcel/watcher-win32-ia32/-/watcher-win32-ia32-2.5.6.tgz", { "os": "win32", "cpu": "ia32" }, "sha512-k35yLp1ZMwwee3Ez/pxBi5cf4AoBKYXj00CZ80jUz5h8prpiaQsiRPKQMxoLstNuqe2vR4RNPEAEcjEFzhEz/g=="],
+
+    "@parcel/watcher-win32-x64": ["@parcel/watcher-win32-x64@2.5.6", "https://registry.npmmirror.com/@parcel/watcher-win32-x64/-/watcher-win32-x64-2.5.6.tgz", { "os": "win32", "cpu": "x64" }, "sha512-hbQlYcCq5dlAX9Qx+kFb0FHue6vbjlf0FrNzSKdYK2APUf7tGfGxQCk2ihEREmbR6ZMc0MVAD5RIX/41gpUzTw=="],
+
+    "@protobufjs/aspromise": ["@protobufjs/aspromise@1.1.2", "https://registry.npmmirror.com/@protobufjs/aspromise/-/aspromise-1.1.2.tgz#9b8b0cc663d669a7d8f6f5d0893a14d348f30fbf", {}, "sha512-j+gKExEuLmKwvz3OgROXtrJ2UG2x8Ch2YZUxahh+s1F2HZ+wAceUNLkvy6zKCPVRkU++ZWQrdxsUeQXmcg4uoQ=="],
+
+    "@protobufjs/base64": ["@protobufjs/base64@1.1.2", "https://registry.npmmirror.com/@protobufjs/base64/-/base64-1.1.2.tgz#4c85730e59b9a1f1f349047dbf24296034bb2735", {}, "sha512-AZkcAA5vnN/v4PDqKyMR5lx7hZttPDgClv83E//FMNhR2TMcLUhfRUBHCmSl0oi9zMgDDqRUJkSxO3wm85+XLg=="],
+
+    "@protobufjs/codegen": ["@protobufjs/codegen@2.0.4", "https://registry.npmmirror.com/@protobufjs/codegen/-/codegen-2.0.4.tgz#7ef37f0d010fb028ad1ad59722e506d9262815cb", {}, "sha512-YyFaikqM5sH0ziFZCN3xDC7zeGaB/d0IUb9CATugHWbd1FRFwWwt4ld4OYMPWu5a3Xe01mGAULCdqhMlPl29Jg=="],
+
+    "@protobufjs/eventemitter": ["@protobufjs/eventemitter@1.1.0", "https://registry.npmmirror.com/@protobufjs/eventemitter/-/eventemitter-1.1.0.tgz#355cbc98bafad5978f9ed095f397621f1d066b70", {}, "sha512-j9ednRT81vYJ9OfVuXG6ERSTdEL1xVsNgqpkxMsbIabzSo3goCjDIveeGv5d03om39ML71RdmrGNjG5SReBP/Q=="],
+
+    "@protobufjs/fetch": ["@protobufjs/fetch@1.1.0", "https://registry.npmmirror.com/@protobufjs/fetch/-/fetch-1.1.0.tgz#ba99fb598614af65700c1619ff06d454b0d84c45", { "dependencies": { "@protobufjs/aspromise": "^1.1.1", "@protobufjs/inquire": "^1.1.0" } }, "sha512-lljVXpqXebpsijW71PZaCYeIcE5on1w5DlQy5WH6GLbFryLUrBD4932W/E2BSpfRJWseIL4v/KPgBFxDOIdKpQ=="],
+
+    "@protobufjs/float": ["@protobufjs/float@1.0.2", "https://registry.npmmirror.com/@protobufjs/float/-/float-1.0.2.tgz#5e9e1abdcb73fc0a7cb8b291df78c8cbd97b87d1", {}, "sha512-Ddb+kVXlXst9d+R9PfTIxh1EdNkgoRe5tOX6t01f1lYWOvJnSPDBlG241QLzcyPdoNTsblLUdujGSE4RzrTZGQ=="],
+
+    "@protobufjs/inquire": ["@protobufjs/inquire@1.1.0", "https://registry.npmmirror.com/@protobufjs/inquire/-/inquire-1.1.0.tgz#ff200e3e7cf2429e2dcafc1140828e8cc638f089", {}, "sha512-kdSefcPdruJiFMVSbn801t4vFK7KB/5gd2fYvrxhuJYg8ILrmn9SKSX2tZdV6V+ksulWqS7aXjBcRXl3wHoD9Q=="],
+
+    "@protobufjs/path": ["@protobufjs/path@1.1.2", "https://registry.npmmirror.com/@protobufjs/path/-/path-1.1.2.tgz#6cc2b20c5c9ad6ad0dccfd21ca7673d8d7fbf68d", {}, "sha512-6JOcJ5Tm08dOHAbdR3GrvP+yUUfkjG5ePsHYczMFLq3ZmMkAD98cDgcT2iA1lJ9NVwFd4tH/iSSoe44YWkltEA=="],
+
+    "@protobufjs/pool": ["@protobufjs/pool@1.1.0", "https://registry.npmmirror.com/@protobufjs/pool/-/pool-1.1.0.tgz#09fd15f2d6d3abfa9b65bc366506d6ad7846ff54", {}, "sha512-0kELaGSIDBKvcgS4zkjz1PeddatrjYcmMWOlAuAPwAeccUrPHdUqo/J6LiymHHEiJT5NrF1UVwxY14f+fy4WQw=="],
+
+    "@protobufjs/utf8": ["@protobufjs/utf8@1.1.0", "https://registry.npmmirror.com/@protobufjs/utf8/-/utf8-1.1.0.tgz#a777360b5b39a1a2e5106f8e858f2fd2d060c570", {}, "sha512-Vvn3zZrhQZkkBE8LSuW3em98c0FwgO4nxzv6OdSxPKJIEKY2bGbHn+mhGIPerzI4twdxaP8/0+06HBpwf345Lw=="],
+
+    "@types/node": ["@types/node@24.0.7", "https://registry.npmmirror.com/@types/node/-/node-24.0.7.tgz#ee580f7850c7eabaeef61ef96b8d8c04fdf94f53", { "dependencies": { "undici-types": "~7.8.0" } }, "sha512-YIEUUr4yf8q8oQoXPpSlnvKNVKDQlPMWrmOcgzoduo7kvA2UF0/BwJ/eMKFTiTtkNL17I0M6Xe2tvwFU7be6iw=="],
+
+    "acorn": ["acorn@8.15.0", "https://registry.npmmirror.com/acorn/-/acorn-8.15.0.tgz#a360898bc415edaac46c8241f6383975b930b816", { "bin": { "acorn": "bin/acorn" } }, "sha512-NZyJarBfL7nWwIq+FDL6Zp/yHEhePMNnnJ0y3qfieCrmNvYct8uvtiV41UvlSe6apAfk0fY1FbWx+NwfmpvtTg=="],
+
+    "ansi-regex": ["ansi-regex@5.0.1", "https://registry.npmmirror.com/ansi-regex/-/ansi-regex-5.0.1.tgz#082cb2c89c9fe8659a311a53bd6a4dc5301db304", {}, "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ=="],
+
+    "ansi-styles": ["ansi-styles@4.3.0", "https://registry.npmmirror.com/ansi-styles/-/ansi-styles-4.3.0.tgz#edd803628ae71c04c85ae7a0906edad34b648937", { "dependencies": { "color-convert": "^2.0.1" } }, "sha512-zbB9rCJAT1rbjiVDb2hqKFHNYLxgtk8NURxZ3IZwD3F6NtxbXZQCnnSi1Lkx+IDohdPlFp222wVALIheZJQSEg=="],
+
+    "buffer-from": ["buffer-from@1.1.2", "https://registry.npmmirror.com/buffer-from/-/buffer-from-1.1.2.tgz#2b146a6fd72e80b4f55d255f35ed59a3a9a41bd5", {}, "sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ=="],
+
+    "chokidar": ["chokidar@5.0.0", "https://registry.npmmirror.com/chokidar/-/chokidar-5.0.0.tgz", { "dependencies": { "readdirp": "^5.0.0" } }, "sha512-TQMmc3w+5AxjpL8iIiwebF73dRDF4fBIieAqGn9RGCWaEVwQ6Fb2cGe31Yns0RRIzii5goJ1Y7xbMwo1TxMplw=="],
+
+    "cliui": ["cliui@8.0.1", "https://registry.npmmirror.com/cliui/-/cliui-8.0.1.tgz#0c04b075db02cbfe60dc8e6cf2f5486b1a3608aa", { "dependencies": { "string-width": "^4.2.0", "strip-ansi": "^6.0.1", "wrap-ansi": "^7.0.0" } }, "sha512-BSeNnyus75C4//NQ9gQt1/csTXyo/8Sb+afLAkzAptFuMsod9HFokGNudZpi/oQV73hnVK+sR+5PVRMd+Dr7YQ=="],
+
+    "color-convert": ["color-convert@2.0.1", "https://registry.npmmirror.com/color-convert/-/color-convert-2.0.1.tgz#72d3a68d598c9bdb3af2ad1e84f21d896abd4de3", { "dependencies": { "color-name": "~1.1.4" } }, "sha512-RRECPsj7iu/xb5oKYcsFHSppFNnsj/52OVTRKb4zP5onXwVF3zVmmToNcOfGC+CRDpfK/U584fMg38ZHCaElKQ=="],
+
+    "color-name": ["color-name@1.1.4", "https://registry.npmmirror.com/color-name/-/color-name-1.1.4.tgz#c2a09a87acbde69543de6f63fa3995c826c536a2", {}, "sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA=="],
+
+    "colorjs.io": ["colorjs.io@0.5.2", "https://registry.npmmirror.com/colorjs.io/-/colorjs.io-0.5.2.tgz", {}, "sha512-twmVoizEW7ylZSN32OgKdXRmo1qg+wT5/6C3xu5b9QsWzSFAhHLn2xd8ro0diCsKfCj1RdaTP/nrcW+vAoQPIw=="],
+
+    "commander": ["commander@2.20.3", "https://registry.npmmirror.com/commander/-/commander-2.20.3.tgz#fd485e84c03eb4881c20722ba48035e8531aeb33", {}, "sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ=="],
+
+    "detect-libc": ["detect-libc@2.1.2", "https://registry.npmmirror.com/detect-libc/-/detect-libc-2.1.2.tgz", {}, "sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ=="],
+
+    "emoji-regex": ["emoji-regex@8.0.0", "https://registry.npmmirror.com/emoji-regex/-/emoji-regex-8.0.0.tgz#e818fd69ce5ccfcb404594f842963bf53164cc37", {}, "sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A=="],
+
+    "escalade": ["escalade@3.2.0", "https://registry.npmmirror.com/escalade/-/escalade-3.2.0.tgz#011a3f69856ba189dffa7dc8fcce99d2a87903e5", {}, "sha512-WUj2qlxaQtO4g6Pq5c29GTcWGDyd8itL8zTlipgECz3JesAiiOKotd8JU6otB3PACgG6xkJUyVhboMS+bje/jA=="],
+
+    "faye-websocket": ["faye-websocket@0.11.4", "https://registry.npmmirror.com/faye-websocket/-/faye-websocket-0.11.4.tgz#7f0d9275cfdd86a1c963dc8b65fcc451edcbb1da", { "dependencies": { "websocket-driver": ">=0.5.1" } }, "sha512-CzbClwlXAuiRQAlUyfqPgvPoNKTckTPGfwZV4ZdAhVcP2lh9KUxJg2b5GkE7XbjKQ3YJnQ9z6D9ntLAlB+tP8g=="],
+
+    "firebase": ["firebase@11.9.1", "https://registry.npmmirror.com/firebase/-/firebase-11.9.1.tgz#687306923e570f99f9fb5abe40bfe162708bee1f", { "dependencies": { "@firebase/ai": "1.4.0", "@firebase/analytics": "0.10.16", "@firebase/analytics-compat": "0.2.22", "@firebase/app": "0.13.1", "@firebase/app-check": "0.10.0", "@firebase/app-check-compat": "0.3.25", "@firebase/app-compat": "0.4.1", "@firebase/app-types": "0.9.3", "@firebase/auth": "1.10.7", "@firebase/auth-compat": "0.5.27", "@firebase/data-connect": "0.3.9", "@firebase/database": "1.0.19", "@firebase/database-compat": "2.0.10", "@firebase/firestore": "4.7.17", "@firebase/firestore-compat": "0.3.52", "@firebase/functions": "0.12.8", "@firebase/functions-compat": "0.3.25", "@firebase/installations": "0.6.17", "@firebase/installations-compat": "0.2.17", "@firebase/messaging": "0.12.21", "@firebase/messaging-compat": "0.2.21", "@firebase/performance": "0.7.6", "@firebase/performance-compat": "0.2.19", "@firebase/remote-config": "0.6.4", "@firebase/remote-config-compat": "0.2.17", "@firebase/storage": "0.13.13", "@firebase/storage-compat": "0.3.23", "@firebase/util": "1.12.0" } }, "sha512-nbQbQxNlkHHRDn4cYwHdAKHwJPeZ0jRXxlNp6PCOb9CQx8Dc6Vjve97R34r1EZJnzOsPYZ3+ssJH7fkovDjvCw=="],
+
+    "get-caller-file": ["get-caller-file@2.0.5", "https://registry.npmmirror.com/get-caller-file/-/get-caller-file-2.0.5.tgz#4f94412a82db32f36e3b0b9741f8a97feb031f7e", {}, "sha512-DyFP3BM/3YHTQOCUL/w0OZHR0lpKeGrxotcHWcqNEdnltqFwXVfhEBQ94eIo34AfQpo0rGki4cyIiftY06h2Fg=="],
+
+    "has-flag": ["has-flag@4.0.0", "https://registry.npmmirror.com/has-flag/-/has-flag-4.0.0.tgz", {}, "sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ=="],
+
+    "htmx.org": ["htmx.org@2.0.5", "https://registry.npmmirror.com/htmx.org/-/htmx.org-2.0.5.tgz#88e8d89078b3059d74ac4eb653d80451c144820c", {}, "sha512-ocgvtHCShWFW0DvSV1NbJC7Y5EzUMy2eo5zeWvGj2Ac4LOr7sv9YKg4jzCZJdXN21fXACmCViwKSy+cm6i2dWQ=="],
+
+    "http-parser-js": ["http-parser-js@0.5.10", "https://registry.npmmirror.com/http-parser-js/-/http-parser-js-0.5.10.tgz#b3277bd6d7ed5588e20ea73bf724fcbe44609075", {}, "sha512-Pysuw9XpUq5dVc/2SMHpuTY01RFl8fttgcyunjL7eEMhGM3cI4eOmiCycJDVCo/7O7ClfQD3SaI6ftDzqOXYMA=="],
+
+    "hyperscript.org": ["hyperscript.org@0.9.14", "https://registry.npmmirror.com/hyperscript.org/-/hyperscript.org-0.9.14.tgz#0462551dc5030c812b2b848b69c3aaa5ed9d2d0f", { "dependencies": { "markdown-it-deflist": "^2.1.0", "terser": "^5.14.1" }, "bin": { "_hyperscript": "src/node-hyperscript.js" } }, "sha512-ugmojsQQUMmXcnwaXYiYf8L3GbeANy/m59EmE/0Z6C5eQ52fOuSrvFkuEIejG9BdpbYB4iTtoYGqV99eYqDVMA=="],
+
+    "idb": ["idb@7.1.1", "https://registry.npmmirror.com/idb/-/idb-7.1.1.tgz#d910ded866d32c7ced9befc5bfdf36f572ced72b", {}, "sha512-gchesWBzyvGHRO9W8tzUWFDycow5gwjvFKfyV9FF32Y7F50yZMp7mP+T2mJIWFx49zicqyC4uefHM17o6xKIVQ=="],
+
+    "immutable": ["immutable@5.1.6", "https://registry.npmmirror.com/immutable/-/immutable-5.1.6.tgz", {}, "sha512-q1swsS8K7L8usSHuOqF2TAoCCkonYz0SG38wLAggaa4Wml70zixIvt2ql4coQ2C2B3hTjltJry4r6bULwgAXLQ=="],
+
+    "is-extglob": ["is-extglob@2.1.1", "https://registry.npmmirror.com/is-extglob/-/is-extglob-2.1.1.tgz", {}, "sha512-SbKbANkN603Vi4jEZv49LeVJMn4yGwsbzZworEoyEiutsN3nJYdbO36zfhGJ6QEDpOZIFkDtnq5JRxmvl3jsoQ=="],
+
+    "is-fullwidth-code-point": ["is-fullwidth-code-point@3.0.0", "https://registry.npmmirror.com/is-fullwidth-code-point/-/is-fullwidth-code-point-3.0.0.tgz#f116f8064fe90b3f7844a38997c0b75051269f1d", {}, "sha512-zymm5+u+sCsSWyD9qNaejV3DFvhCKclKdizYaJUuHA83RLjb7nSuGnddCHGv0hk+KY7BMAlsWeK4Ueg6EV6XQg=="],
+
+    "is-glob": ["is-glob@4.0.3", "https://registry.npmmirror.com/is-glob/-/is-glob-4.0.3.tgz", { "dependencies": { "is-extglob": "^2.1.1" } }, "sha512-xelSayHH36ZgE7ZWhli7pW34hNbNl8Ojv5KVmkJD4hBdD3th8Tfk9vYasLM+mXWOZhFkgZfxhLSnrwRr4elSSg=="],
+
+    "lodash.camelcase": ["lodash.camelcase@4.3.0", "https://registry.npmmirror.com/lodash.camelcase/-/lodash.camelcase-4.3.0.tgz#b28aa6288a2b9fc651035c7711f65ab6190331a6", {}, "sha512-TwuEnCnxbc3rAvhf/LbG7tJUDzhqXyFnv3dtzLOPgCG/hODL7WFnsbwktkD7yUV0RrreP/l1PALq/YSg6VvjlA=="],
+
+    "long": ["long@5.3.2", "https://registry.npmmirror.com/long/-/long-5.3.2.tgz#1d84463095999262d7d7b7f8bfd4a8cc55167f83", {}, "sha512-mNAgZ1GmyNhD7AuqnTG3/VQ26o760+ZYBPKjPvugO8+nLbYfX6TVpJPseBvopbdY+qpZ/lKUnmEc1LeZYS3QAA=="],
+
+    "markdown-it-deflist": ["markdown-it-deflist@2.1.0", "https://registry.npmmirror.com/markdown-it-deflist/-/markdown-it-deflist-2.1.0.tgz#50d7a56b9544cd81252f7623bd785e28a8dcef5c", {}, "sha512-3OuqoRUlSxJiuQYu0cWTLHNhhq2xtoSFqsZK8plANg91+RJQU1ziQ6lA2LzmFAEes18uPBsHZpcX6We5l76Nzg=="],
+
+    "missing.css": ["missing.css@1.1.3", "https://registry.npmmirror.com/missing.css/-/missing.css-1.1.3.tgz#625a6f1c943e0e93c563e2cf59ee7c1f995a0624", {}, "sha512-dkGzliE9Zcv9tGPvuIHy1lpMc4Y5QAc+svF7Nqi+EMl4taRC5HfjARg55YC2jC9cbqOwX0qOUltUxqn57YIQiw=="],
+
+    "modern-normalize": ["modern-normalize@3.0.1", "https://registry.npmmirror.com/modern-normalize/-/modern-normalize-3.0.1.tgz#4e2dc8da282ab854d53d70d7155a8027f59fbed6", {}, "sha512-VqlMdYi59Uch6fnUPxnpijWUQe+TW6zeWCvyr6Mb7JibheHzSuAAoJi2c71ZwIaWKpECpGpYHoaaBp6rBRr+/g=="],
+
+    "node-addon-api": ["node-addon-api@7.1.1", "https://registry.npmmirror.com/node-addon-api/-/node-addon-api-7.1.1.tgz", {}, "sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ=="],
+
+    "picomatch": ["picomatch@4.0.4", "https://registry.npmmirror.com/picomatch/-/picomatch-4.0.4.tgz", {}, "sha512-QP88BAKvMam/3NxH6vj2o21R6MjxZUAd6nlwAS/pnGvN9IVLocLHxGYIzFhg6fUQ+5th6P4dv4eW9jX3DSIj7A=="],
+
+    "protobufjs": ["protobufjs@7.5.3", "https://registry.npmmirror.com/protobufjs/-/protobufjs-7.5.3.tgz#13f95a9e3c84669995ec3652db2ac2fb00b89363", { "dependencies": { "@protobufjs/aspromise": "^1.1.2", "@protobufjs/base64": "^1.1.2", "@protobufjs/codegen": "^2.0.4", "@protobufjs/eventemitter": "^1.1.0", "@protobufjs/fetch": "^1.1.0", "@protobufjs/float": "^1.0.2", "@protobufjs/inquire": "^1.1.0", "@protobufjs/path": "^1.1.2", "@protobufjs/pool": "^1.1.0", "@protobufjs/utf8": "^1.1.0", "@types/node": ">=13.7.0", "long": "^5.0.0" } }, "sha512-sildjKwVqOI2kmFDiXQ6aEB0fjYTafpEvIBs8tOR8qI4spuL9OPROLVu2qZqi/xgCfsHIwVqlaF8JBjWFHnKbw=="],
+
+    "readdirp": ["readdirp@5.0.0", "https://registry.npmmirror.com/readdirp/-/readdirp-5.0.0.tgz", {}, "sha512-9u/XQ1pvrQtYyMpZe7DXKv2p5CNvyVwzUB6uhLAnQwHMSgKMBR62lc7AHljaeteeHXn11XTAaLLUVZYVZyuRBQ=="],
+
+    "require-directory": ["require-directory@2.1.1", "https://registry.npmmirror.com/require-directory/-/require-directory-2.1.1.tgz#8c64ad5fd30dab1c976e2344ffe7f792a6a6df42", {}, "sha512-fGxEI7+wsG9xrvdjsrlmL22OMTTiHRwAMroiEeMgq8gzoLC/PQr7RsRDSTLUg/bZAZtF+TVIkHc6/4RIKrui+Q=="],
+
+    "rxjs": ["rxjs@7.8.2", "https://registry.npmmirror.com/rxjs/-/rxjs-7.8.2.tgz", { "dependencies": { "tslib": "^2.1.0" } }, "sha512-dhKf903U/PQZY6boNNtAGdWbG85WAbjT/1xYoZIC7FAY0yWapOBQVsVrDl58W86//e1VpMNBtRV4MaXfdMySFA=="],
+
+    "safe-buffer": ["safe-buffer@5.2.1", "https://registry.npmmirror.com/safe-buffer/-/safe-buffer-5.2.1.tgz#1eaf9fa9bdb1fdd4ec75f58f9cdb4e6b7827eec6", {}, "sha512-rp3So07KcdmmKbGvgaNxQSJr7bGVSVk5S9Eq1F+ppbRo70+YeaDxkw5Dd8NPN+GD6bjnYm2VuPuCXmpuYvmCXQ=="],
+
+    "sass": ["sass@1.100.0", "https://registry.npmmirror.com/sass/-/sass-1.100.0.tgz", { "dependencies": { "chokidar": "^5.0.0", "immutable": "^5.1.5", "source-map-js": ">=0.6.2 <2.0.0" }, "optionalDependencies": { "@parcel/watcher": "^2.4.1" }, "bin": { "sass": "sass.js" } }, "sha512-B5j0rYMlinhhOo9tjQebMVVn0TfyXAF+wB3b2ggZUuJ/is/Y+7+JGjirAMxHZ9Z3hIP98NPfamlAkBHa1lAaXQ=="],
+
+    "sass-embedded": ["sass-embedded@1.100.0", "https://registry.npmmirror.com/sass-embedded/-/sass-embedded-1.100.0.tgz", { "dependencies": { "@bufbuild/protobuf": "^2.5.0", "colorjs.io": "^0.5.0", "immutable": "^5.1.5", "rxjs": "^7.4.0", "supports-color": "^8.1.1", "sync-child-process": "^1.0.2", "varint": "^6.0.0" }, "optionalDependencies": { "sass-embedded-all-unknown": "1.100.0", "sass-embedded-android-arm": "1.100.0", "sass-embedded-android-arm64": "1.100.0", "sass-embedded-android-riscv64": "1.100.0", "sass-embedded-android-x64": "1.100.0", "sass-embedded-darwin-arm64": "1.100.0", "sass-embedded-darwin-x64": "1.100.0", "sass-embedded-linux-arm": "1.100.0", "sass-embedded-linux-arm64": "1.100.0", "sass-embedded-linux-musl-arm": "1.100.0", "sass-embedded-linux-musl-arm64": "1.100.0", "sass-embedded-linux-musl-riscv64": "1.100.0", "sass-embedded-linux-musl-x64": "1.100.0", "sass-embedded-linux-riscv64": "1.100.0", "sass-embedded-linux-x64": "1.100.0", "sass-embedded-unknown-all": "1.100.0", "sass-embedded-win32-arm64": "1.100.0", "sass-embedded-win32-x64": "1.100.0" }, "bin": { "sass": "dist/bin/sass.js" } }, "sha512-Ut8wlQSk19tm7jMK6mz6cF1+e+E7tUnW2tM02zQDPnOTcVbV8qCQG8UWxZkkNlY50+hV3hqP24OOkUlMz8xBpw=="],
+
+    "sass-embedded-all-unknown": ["sass-embedded-all-unknown@1.100.0", "https://registry.npmmirror.com/sass-embedded-all-unknown/-/sass-embedded-all-unknown-1.100.0.tgz", { "dependencies": { "sass": "1.100.0" }, "cpu": [ "!arm", "!x64", "!arm64", ] }, "sha512-auFtXY/kwYILmSVjtBDwyj0axcLbYYiffOKWoaXHnI5bsYwiRbBh3EneR1rpbX2ZIZCrwX93i5pxKLTZF/662Q=="],
+
+    "sass-embedded-android-arm": ["sass-embedded-android-arm@1.100.0", "https://registry.npmmirror.com/sass-embedded-android-arm/-/sass-embedded-android-arm-1.100.0.tgz", { "os": "android", "cpu": "arm" }, "sha512-70f3HgX2pFNmzpGQ86n5e6QfWn2fP4QUQGfFQK0P1XH73ZLIzLo2YqygrGKGKeeqtc5eU2Wl1/xQzhzuKnO4kw=="],
+
+    "sass-embedded-android-arm64": ["sass-embedded-android-arm64@1.100.0", "https://registry.npmmirror.com/sass-embedded-android-arm64/-/sass-embedded-android-arm64-1.100.0.tgz", { "os": "android", "cpu": "arm64" }, "sha512-W+Ru9JwTnfU0UX3jSZcbqFdtKFMcYdfFwytc57h2DgnqCOIiAqI2E06mABZBZC+r3LwXCBuS5GbXAGeVgvVDkA=="],
+
+    "sass-embedded-android-riscv64": ["sass-embedded-android-riscv64@1.100.0", "https://registry.npmmirror.com/sass-embedded-android-riscv64/-/sass-embedded-android-riscv64-1.100.0.tgz", { "os": "android", "cpu": "none" }, "sha512-icU3o0V/uCSytSpf+tX5Lf51BvyQEbLzDUJfUi9etSauYBGHpPKkdtdZH0si4v98phq11Kl8rSV1SggksxF1Hg=="],
+
+    "sass-embedded-android-x64": ["sass-embedded-android-x64@1.100.0", "https://registry.npmmirror.com/sass-embedded-android-x64/-/sass-embedded-android-x64-1.100.0.tgz", { "os": "android", "cpu": "x64" }, "sha512-mevF9VQk6gEYByy8+jusaHGmd7Usb2ytX/DsEOd0JtOGCtcf1kh575xJ6OUBDIcJ15uLnbau/0iy1eP6WVBvWA=="],
+
+    "sass-embedded-darwin-arm64": ["sass-embedded-darwin-arm64@1.100.0", "https://registry.npmmirror.com/sass-embedded-darwin-arm64/-/sass-embedded-darwin-arm64-1.100.0.tgz", { "os": "darwin", "cpu": "arm64" }, "sha512-1PVlYi61POo93IT/FfrG1mc1tAHxeSTyUALF2aOFmXGWjVXr3bQzEQiBGCOvQbj/ix+5hNyXFXcEMEyKvtUJJA=="],
+
+    "sass-embedded-darwin-x64": ["sass-embedded-darwin-x64@1.100.0", "https://registry.npmmirror.com/sass-embedded-darwin-x64/-/sass-embedded-darwin-x64-1.100.0.tgz", { "os": "darwin", "cpu": "x64" }, "sha512-x97o3JnGyImZNCIVs9wQHJUE5QCvmVIKaH1cwrz/5dK7OT1FpeNiW+u9TUomP9hG6Ekjd8EL8NBHpxTfIhdjmg=="],
+
+    "sass-embedded-linux-arm": ["sass-embedded-linux-arm@1.100.0", "https://registry.npmmirror.com/sass-embedded-linux-arm/-/sass-embedded-linux-arm-1.100.0.tgz", { "os": "linux", "cpu": "arm" }, "sha512-9Ul7O1eKrc5YlhwWjkp8tZPSe3UEwSZ1uwUZOQom1HL0pRlBA6F/IlGZYFTLwnHMIP1fc77MMNaBRfc05mKMpw=="],
+
+    "sass-embedded-linux-arm64": ["sass-embedded-linux-arm64@1.100.0", "https://registry.npmmirror.com/sass-embedded-linux-arm64/-/sass-embedded-linux-arm64-1.100.0.tgz", { "os": "linux", "cpu": "arm64" }, "sha512-Dwjmj8Z6VRy7rAi53JAdEwIyUjpfl7PhpSc2/LpQPQx+aO5Dp7Spaipkax0ufJl1SoDUdchCsM4y/88YaluorQ=="],
+
+    "sass-embedded-linux-musl-arm": ["sass-embedded-linux-musl-arm@1.100.0", "https://registry.npmmirror.com/sass-embedded-linux-musl-arm/-/sass-embedded-linux-musl-arm-1.100.0.tgz", { "os": "linux", "cpu": "arm" }, "sha512-sl0JgbGloPyJg66XXx5UDSDScZ0oU85DpMQU4JU/sCUCFj1Z8zZ69SJWKTCNE4/jwnce7WI2zPCV5AG+RHOZJw=="],
+
+    "sass-embedded-linux-musl-arm64": ["sass-embedded-linux-musl-arm64@1.100.0", "https://registry.npmmirror.com/sass-embedded-linux-musl-arm64/-/sass-embedded-linux-musl-arm64-1.100.0.tgz", { "os": "linux", "cpu": "arm64" }, "sha512-XpACJB2KjSLjf2e9uuvGVdOURsoNrFqgRiihhXyUHK9W0t3LIHb7z5MA/7XGPIT9bWSOO2zyw+rH/FHtDV/Yrg=="],
+
+    "sass-embedded-linux-musl-riscv64": ["sass-embedded-linux-musl-riscv64@1.100.0", "https://registry.npmmirror.com/sass-embedded-linux-musl-riscv64/-/sass-embedded-linux-musl-riscv64-1.100.0.tgz", { "os": "linux", "cpu": "none" }, "sha512-ShvI0Kx04mwoCARwZ0UjiT97isQvzO80tAt91zmFyHLN9kelc/IrQi940farSm2xQVPCKdeVyeG0ekBsokSpYQ=="],
+
+    "sass-embedded-linux-musl-x64": ["sass-embedded-linux-musl-x64@1.100.0", "https://registry.npmmirror.com/sass-embedded-linux-musl-x64/-/sass-embedded-linux-musl-x64-1.100.0.tgz", { "os": "linux", "cpu": "x64" }, "sha512-TDBCRWNuS4RDLQXvRc1gjZlWiWTWaWGp0Bwu/IKwJxov81lsvrCs3TihTyNXtW7V5aoN4Ky3r0QOkNb3mwmBnA=="],
+
+    "sass-embedded-linux-riscv64": ["sass-embedded-linux-riscv64@1.100.0", "https://registry.npmmirror.com/sass-embedded-linux-riscv64/-/sass-embedded-linux-riscv64-1.100.0.tgz", { "os": "linux", "cpu": "none" }, "sha512-j4ENJGOheO+fm3j/yorLxCjBP6/XskrZx7dTLlT+lXYwN/qqCqoA/gsNLI0McS3DFM6GBwPiffzWsdWS8t6sEQ=="],
+
+    "sass-embedded-linux-x64": ["sass-embedded-linux-x64@1.100.0", "https://registry.npmmirror.com/sass-embedded-linux-x64/-/sass-embedded-linux-x64-1.100.0.tgz", { "os": "linux", "cpu": "x64" }, "sha512-0vUSN8j0WGtCJIOPh//EmUvYGHW0QOe5iul8qyhPk50MAcw49MA0r34AhftjDdx94ILPF6vApFs0gwHPQRlpVA=="],
+
+    "sass-embedded-unknown-all": ["sass-embedded-unknown-all@1.100.0", "https://registry.npmmirror.com/sass-embedded-unknown-all/-/sass-embedded-unknown-all-1.100.0.tgz", { "dependencies": { "sass": "1.100.0" }, "os": [ "!linux", "!win32", "!darwin", "!android", ] }, "sha512-c+naBgWId4MIpToXcI0DgqetjdAkwTTAxFAuOaBz7HUXLdyG1oZRrEvSsbe41nEdQOKH0vgofVFCeSQgoXOG9A=="],
+
+    "sass-embedded-win32-arm64": ["sass-embedded-win32-arm64@1.100.0", "https://registry.npmmirror.com/sass-embedded-win32-arm64/-/sass-embedded-win32-arm64-1.100.0.tgz", { "os": "win32", "cpu": "arm64" }, "sha512-iE+yxj+hUXwwbqpHkXxgAWTzeRfcWxJ7SSTQEPMk48lwq3oCrWLlz5sQuWHbuTK/i0GKQfROdP+hOmPi89yjUg=="],
+
+    "sass-embedded-win32-x64": ["sass-embedded-win32-x64@1.100.0", "https://registry.npmmirror.com/sass-embedded-win32-x64/-/sass-embedded-win32-x64-1.100.0.tgz", { "os": "win32", "cpu": "x64" }, "sha512-qI4F8MI7/KYoy9NdjJfhSspG42WPkADSNDvwEV7qWvCSFC83koJssRsKO2/PfY+niZz6BG65Ic/D+A11h959hw=="],
+
+    "source-map": ["source-map@0.6.1", "https://registry.npmmirror.com/source-map/-/source-map-0.6.1.tgz#74722af32e9614e9c287a8d0bbde48b5e2f1a263", {}, "sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g=="],
+
+    "source-map-js": ["source-map-js@1.2.1", "https://registry.npmmirror.com/source-map-js/-/source-map-js-1.2.1.tgz", {}, "sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA=="],
+
+    "source-map-support": ["source-map-support@0.5.21", "https://registry.npmmirror.com/source-map-support/-/source-map-support-0.5.21.tgz#04fe7c7f9e1ed2d662233c28cb2b35b9f63f6e4f", { "dependencies": { "buffer-from": "^1.0.0", "source-map": "^0.6.0" } }, "sha512-uBHU3L3czsIyYXKX88fdrGovxdSCoTGDRZ6SYXtSRxLZUzHg5P/66Ht6uoUlHu9EZod+inXhKo3qQgwXUT/y1w=="],
+
+    "string-width": ["string-width@4.2.3", "https://registry.npmmirror.com/string-width/-/string-width-4.2.3.tgz#269c7117d27b05ad2e536830a8ec895ef9c6d010", { "dependencies": { "emoji-regex": "^8.0.0", "is-fullwidth-code-point": "^3.0.0", "strip-ansi": "^6.0.1" } }, "sha512-wKyQRQpjJ0sIp62ErSZdGsjMJWsap5oRNihHhu6G7JVO/9jIB6UyevL+tXuOqrng8j/cxKTWyWUwvSTriiZz/g=="],
+
+    "strip-ansi": ["strip-ansi@6.0.1", "https://registry.npmmirror.com/strip-ansi/-/strip-ansi-6.0.1.tgz#9e26c63d30f53443e9489495b2105d37b67a85d9", { "dependencies": { "ansi-regex": "^5.0.1" } }, "sha512-Y38VPSHcqkFrCpFnQ9vuSXmquuv5oXOKpGeT6aGrr3o3Gc9AlVa6JBfUSOCnbxGGZF+/0ooI7KrPuUSztUdU5A=="],
+
+    "supports-color": ["supports-color@8.1.1", "https://registry.npmmirror.com/supports-color/-/supports-color-8.1.1.tgz", { "dependencies": { "has-flag": "^4.0.0" } }, "sha512-MpUEN2OodtUzxvKQl72cUF7RQ5EiHsGvSsVG0ia9c5RbWGL2CI4C7EpPS8UTBIplnlzZiNuV56w+FuNxy3ty2Q=="],
+
+    "sync-child-process": ["sync-child-process@1.0.2", "https://registry.npmmirror.com/sync-child-process/-/sync-child-process-1.0.2.tgz", { "dependencies": { "sync-message-port": "^1.0.0" } }, "sha512-8lD+t2KrrScJ/7KXCSyfhT3/hRq78rC0wBFqNJXv3mZyn6hW2ypM05JmlSvtqRbeq6jqA94oHbxAr2vYsJ8vDA=="],
+
+    "sync-message-port": ["sync-message-port@1.2.0", "https://registry.npmmirror.com/sync-message-port/-/sync-message-port-1.2.0.tgz", {}, "sha512-gAQ9qrUN/UCypHtGFbbe7Rc/f9bzO88IwrG8TDo/aMKAApKyD6E3W4Cm0EfhfBb6Z6SKt59tTCTfD+n1xmAvMg=="],
+
+    "terser": ["terser@5.42.0", "https://registry.npmmirror.com/terser/-/terser-5.42.0.tgz#1db8493aa0f3f866e488ec0fcf7e0c28eb43a2f5", { "dependencies": { "@jridgewell/source-map": "^0.3.3", "acorn": "^8.14.0", "commander": "^2.20.0", "source-map-support": "~0.5.20" }, "bin": { "terser": "bin/terser" } }, "sha512-UYCvU9YQW2f/Vwl+P0GfhxJxbUGLwd+5QrrGgLajzWAtC/23AX0vcise32kkP7Eu0Wu9VlzzHAXkLObgjQfFlQ=="],
+
+    "tslib": ["tslib@2.8.1", "https://registry.npmmirror.com/tslib/-/tslib-2.8.1.tgz#612efe4ed235d567e8aba5f2a5fab70280ade83f", {}, "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w=="],
+
+    "undici-types": ["undici-types@7.8.0", "https://registry.npmmirror.com/undici-types/-/undici-types-7.8.0.tgz#de00b85b710c54122e44fbfd911f8d70174cd294", {}, "sha512-9UJ2xGDvQ43tYyVMpuHlsgApydB8ZKfVYTsLDhXkFL/6gfkp+U8xTGdh8pMJv1SpZna0zxG1DwsKZsreLbXBxw=="],
+
+    "varint": ["varint@6.0.0", "https://registry.npmmirror.com/varint/-/varint-6.0.0.tgz", {}, "sha512-cXEIW6cfr15lFv563k4GuVuW/fiwjknytD37jIOLSdSWuOI6WnO/oKwmP2FQTU2l01LP8/M5TSAJpzUaGe3uWg=="],
+
+    "web-vitals": ["web-vitals@4.2.4", "https://registry.npmmirror.com/web-vitals/-/web-vitals-4.2.4.tgz#1d20bc8590a37769bd0902b289550936069184b7", {}, "sha512-r4DIlprAGwJ7YM11VZp4R884m0Vmgr6EAKe3P+kO0PPj3Unqyvv59rczf6UiGcb9Z8QxZVcqKNwv/g0WNdWwsw=="],
+
+    "websocket-driver": ["websocket-driver@0.7.4", "https://registry.npmmirror.com/websocket-driver/-/websocket-driver-0.7.4.tgz#89ad5295bbf64b480abcba31e4953aca706f5760", { "dependencies": { "http-parser-js": ">=0.5.1", "safe-buffer": ">=5.1.0", "websocket-extensions": ">=0.1.1" } }, "sha512-b17KeDIQVjvb0ssuSDF2cYXSg2iztliJ4B9WdsuB6J952qCPKmnVq4DyW5motImXHDC1cBT/1UezrJVsKw5zjg=="],
+
+    "websocket-extensions": ["websocket-extensions@0.1.4", "https://registry.npmmirror.com/websocket-extensions/-/websocket-extensions-0.1.4.tgz#7f8473bc839dfd87608adb95d7eb075211578a42", {}, "sha512-OqedPIGOfsDlo31UNwYbCFMSaO9m9G/0faIHj5/dZFDMFqPTcx6UwqyOy3COEaEOg/9VsGIpdqn62W5KhoKSpg=="],
+
+    "wrap-ansi": ["wrap-ansi@7.0.0", "https://registry.npmmirror.com/wrap-ansi/-/wrap-ansi-7.0.0.tgz#67e145cff510a6a6984bdf1152911d69d2eb9e43", { "dependencies": { "ansi-styles": "^4.0.0", "string-width": "^4.1.0", "strip-ansi": "^6.0.0" } }, "sha512-YVGIj2kamLSTxw6NsZjoBxfSwsn0ycdesmc4p+Q21c5zPuZ1pl+NfxVdxPtdHvmNVOQ6XSYG4AUtyt/Fi7D16Q=="],
+
+    "y18n": ["y18n@5.0.8", "https://registry.npmmirror.com/y18n/-/y18n-5.0.8.tgz#7f4934d0f7ca8c56f95314939ddcd2dd91ce1d55", {}, "sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA=="],
+
+    "yargs": ["yargs@17.7.2", "https://registry.npmmirror.com/yargs/-/yargs-17.7.2.tgz#991df39aca675a192b816e1e0363f9d75d2aa269", { "dependencies": { "cliui": "^8.0.1", "escalade": "^3.1.1", "get-caller-file": "^2.0.5", "require-directory": "^2.1.1", "string-width": "^4.2.3", "y18n": "^5.0.5", "yargs-parser": "^21.1.1" } }, "sha512-7dSzzRQ++CKnNI/krKnYRV7JKKPUXMEh61soaHKg9mrWEhzFWhFnxPxGl+69cD1Ou63C13NUPCnmIcrvqCuM6w=="],
+
+    "yargs-parser": ["yargs-parser@21.1.1", "https://registry.npmmirror.com/yargs-parser/-/yargs-parser-21.1.1.tgz#9096bceebf990d21bb31fa9516e0ede294a77d35", {}, "sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw=="],
+  }
+}
