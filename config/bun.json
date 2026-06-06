@@ -3,6 +3,10 @@
     "js": ["src/js/app.js"],
     "css": ["src/css/app.css"]
   },
+  "plugins": {
+    "css": ["aliases", "cssGlobs"],
+    "js": ["aliases", "jsGlobs", "config/bun/compress_assets.js"]
+  },
   "watchDirs": [
     "src/js",
     "src/css",
@@ -11,9 +15,6 @@
     "public/puppies",
     "public/svgs"
   ],
-  "watchExtensions": {
-    "css": ["scss"]
-  },
   "staticDirs": [
     "public/docs",
     "public/models",
