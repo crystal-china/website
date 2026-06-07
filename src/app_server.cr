@@ -10,6 +10,7 @@ class AppServer < Lucky::BaseAppServer
       Lucky::ErrorHandler.new(action: Errors::Show),
       Lucky::RemoteIpHandler.new,
       Lucky::RouteHandler.new,
+      Lucky::DevAssetCacheHandler.new(enabled: LuckyEnv.development?),
       LuckyEnv.production? ? Lucky::StaticCompressionHandler.new("./public", file_ext: "br", content_encoding: "br") : nil,
       LuckyEnv.production? ? Lucky::StaticCompressionHandler.new("./public", file_ext: "gz", content_encoding: "gzip") : nil,
       Lucky::StaticFileHandler.new("./public", fallthrough: false, directory_listing: false),
