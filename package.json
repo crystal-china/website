@@ -13,5 +13,10 @@
     "build": "bun lib/lucky/src/bun/bake.js",
     "dev": "bun run build --dev",
     "prod": "bun run build --prod"
+  },
+  "devDependencies": {
+    "@tailwindcss/node": "^4.3.0",
+    "@tailwindcss/oxide": "^4.3.0",
+    "tailwindcss": "^4.3.0"
   }
 }
