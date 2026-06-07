@@ -10,7 +10,6 @@ end
 
 require "./shards"
 
-# 先 mount dist/mix-manifest.json, 再读取它
 require "../config/backed_file_system_mounter"
 
 Lucky::AssetHelpers.load_manifest

@@ -19,7 +19,7 @@ shards:
 
   baked_file_system_mounter:
     git: https://github.com/crystal-china/baked_file_system_mounter.git
-    version: 0.6.0
+    version: 0.7.0
 
   base58:
     git: https://github.com/crystal-china/base58.cr.git
@@ -51,7 +51,7 @@ shards:
 
   crimage:
     git: https://github.com/naqvis/crimage.git
-    version: 1.0.5+git.commit.2b3abbcdca426a2a13a39b986326f9a2f7f65bc6
+    version: 1.0.5+git.commit.7d3244a3850646e3d398cef071f7c3e3f52c7518
 
   cron_parser:
     git: https://github.com/kostya/cron_parser.git
