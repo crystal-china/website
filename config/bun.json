@@ -4,7 +4,7 @@
     "css": ["src/css/app.css"]
   },
   "plugins": {
-    "css": ["aliases", "cssGlobs"],
+    "css": ["aliases", "cssGlobs", "config/bun/tailwind.js"],
     "js": ["aliases", "jsGlobs", "config/bun/compress_assets.js"]
   },
   "watchDirs": [

@@ -14,6 +14,12 @@
 /* Default Lucky styles. */
 /* Delete these when you're ready to bring in your own CSS. */
 
+@import "tailwindcss";
+@source "../**/*.cr";
+
+/* 如果你要自定义主题，再加： */
+/* @config "../../tailwind.config.js"; */
+
 @import "./base/**/*.css";
 @import "./components/**/*.css";
 @import "./layout/**/*.css";
