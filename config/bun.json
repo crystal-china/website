@@ -1,0 +1,27 @@
+{
+  "entryPoints": {
+    "js": ["src/js/app.js"],
+    "css": ["src/css/app.css"]
+  },
+  "plugins": {
+    "css": ["aliases", "cssGlobs", "config/bun/tailwind.js"],
+    "js": ["aliases", "jsGlobs", "config/bun/compress_assets.js"]
+  },
+  "watchDirs": [
+    "src/js",
+    "src/css",
+    "public/docs",
+    "public/models",
+    "public/puppies",
+    "public/svgs"
+  ],
+  "staticDirs": [
+    "public/docs",
+    "public/models",
+    "public/puppies",
+    "public/svgs"
+  ],
+  "outDir": "public/assets",
+  "publicPath": "/assets",
+  "manifestPath": "public/bun-manifest.json"
+}

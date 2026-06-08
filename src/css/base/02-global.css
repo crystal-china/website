@@ -1,0 +1,81 @@
+body {
+  font-family:
+    "微软雅黑",
+    "文泉驿微米黑",
+    "宋体",
+    system-ui,
+    BlinkMacSystemFont,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    Fira Sans,
+    Droid Sans,
+    Helvetica Neue,
+    sans-serif;
+  margin: 0 auto;
+  max-width: 1920px;
+  padding: 20px 40px;
+  overflow-x: hidden; /* 防止侧边栏展开时页面产生横向滚动 */
+}
+
+label,
+input {
+  display: flex;
+}
+
+label {
+  font-weight: 500;
+}
+
+/* [type='color'], */
+/* [type='date'], */
+/* [type='datetime'], */
+/* [type='datetime-local'], */
+/* [type='email'], */
+/* [type='month'], */
+/* [type='number'], */
+/* [type='password'], */
+/* [type='search'], */
+/* [type='tel'], */
+/* [type='text'], */
+/* [type='time'], */
+/* [type='url'], */
+/* [type='week'], */
+/* input:not([type]), */
+/* textarea { */
+/*   border-radius: 3px; */
+/*   border: 1px solid #bbb; */
+/*   margin: 7px 0 14px 0; */
+/*   max-width: 400px; */
+/*   padding: 8px 6px; */
+/*   width: 100%; */
+/* } */
+
+[type="submit"] {
+  font-weight: 900;
+  margin: 9px 0;
+  padding: 6px 9px;
+}
+
+:root {
+  --main-font: "Source Sans 3", -apple-system, system-ui, sans-serif;
+  --line-length: 50rem;
+}
+
+/* 不知道这是干啥的，先关闭 */
+/* dfn > code { */
+/*   font-style: normal; */
+/*   text-decoration: 1px dashed var(--muted-fg) underline; */
+/* } */
+/* code a { */
+/*   font-family: inherit; */
+/* } */
+
+/* 当 body 内部包含一个打开的(open) dialog 时，禁止 body 滚动 */
+/* 这个修复了打开 modal 对话框之后，scroll 事件仍然绑定在 body 的 bug */
+body:has(dialog[open]) {
+  overflow: hidden;
+}

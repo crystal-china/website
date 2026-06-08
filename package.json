@@ -1,24 +1,22 @@
 {
-  "devDependencies": {
-    "@rollup/plugin-inject": "^5.0.5",
-    "autoprefixer": "^10.4.21",
-    "cssnano": "^7.0.6",
-    "modern-normalize": "^3.0.1",
-    "postcss": "^8.5.3",
-    "sass-embedded": "^1.86.0",
-    "vite": "^6.2.7",
-    "vite-plugin-compression": "^0.5.1"
-  },
-  "scripts": {
-    "heroku-postbuild": "yarn prod",
-    "dev": "yarn run vite",
-    "watch": "yarn run vite build --mode watch",
-    "prod": "yarn run vite build"
-  },
+  "license": "UNLICENSED",
+  "private": true,
+  "type": "module",
   "dependencies": {
     "firebase": "^11.9.1",
     "htmx.org": "^2.0.5",
     "hyperscript.org": "^0.9.14",
-    "missing.css": "^1.1.3"
+    "missing.css": "^1.1.3",
+    "modern-normalize": "^3.0.1"
+  },
+  "scripts": {
+    "build": "bun lib/lucky/src/bun/bake.js",
+    "dev": "bun run build --dev",
+    "prod": "bun run build --prod"
+  },
+  "devDependencies": {
+    "@tailwindcss/node": "^4.3.0",
+    "@tailwindcss/oxide": "^4.3.0",
+    "tailwindcss": "^4.3.0"
   }
 }

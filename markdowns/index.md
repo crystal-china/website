@@ -62,7 +62,7 @@ Crystal 是一门受 Ruby 高度启发的计算机程序语言，并且最终编
 整个部署过程是非常简单而且快速的。
 
 1. `shards run index` 创建所需的索引
-2. `yarn prod` 打包 assets 文件到 ./dist 文件夹。
+2. `bun run prod` 打包并压缩 assets 文件到 `./public/assets`。
 3. 交叉编译，生成一个静态的 binary (所有所需的 assets 文件也会被加入二进制文件)
 4. 和服务器上最后部署版本比较，并生成 binary patchfile.
 5. 复制 patchfile 到服务器，并应用。（相较于文件覆盖，服务器无需停止，既可以打 patch）
@@ -116,5 +116,4 @@ deploy successful
 ```
 
 如有数据库表改动, 会在第一次启动时执行，部署完成！
-
 

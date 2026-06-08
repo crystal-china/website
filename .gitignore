@@ -9,4 +9,8 @@
 /tmp
 /.tool-versions
 /dist
+/public/assets
+/public/bun-manifest.json
+/script/setup
+/script/system_check
 /*.custom.gz
