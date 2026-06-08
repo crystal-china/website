@@ -24,16 +24,16 @@ class Shared::LayoutHead < BaseComponent
 
   private def frontend_config
     {
-      assetHost: Lucky::Server.settings.asset_host,
-      assetBasePath: "/assets",
+      assetHost:      Lucky::Server.settings.asset_host,
+      assetBasePath:  "/assets",
       firebaseConfig: {
-        apiKey: ENV["VITE_FIREBASE_API_KEY"]?,
-        authDomain: ENV["VITE_FIREBASE_AUTH_DOMAIN"]?,
-        projectId: ENV["VITE_FIREBASE_PROJECT_ID"]?,
-        storageBucket: ENV["VITE_FIREBASE_STORAGE_BUCKET"]?,
+        apiKey:            ENV["VITE_FIREBASE_API_KEY"]?,
+        authDomain:        ENV["VITE_FIREBASE_AUTH_DOMAIN"]?,
+        projectId:         ENV["VITE_FIREBASE_PROJECT_ID"]?,
+        storageBucket:     ENV["VITE_FIREBASE_STORAGE_BUCKET"]?,
         messagingSenderId: ENV["VITE_FIREBASE_MESSAGING_SENDER_ID"]?,
-        appId: ENV["VITE_FIREBASE_APP_ID"]?,
-        measurementId: ENV["VITE_FIREBASE_MEASUREMENT_ID"]?,
+        appId:             ENV["VITE_FIREBASE_APP_ID"]?,
+        measurementId:     ENV["VITE_FIREBASE_MEASUREMENT_ID"]?,
       },
     }
   end
