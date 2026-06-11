@@ -11,13 +11,15 @@ class AuthenticationFlow < BaseFlow
       password: password,
       password_confirmation: password
     el("span#signup_captcha").click
-    # CAPTCHA_CACHE.keys.size.should eq 1
-    # signup_captcha_id = CAPTCHA_CACHE.keys.first
-    CAPTCHA_LOCK.synchronize do
-      CAPTCHA_CACHE.keys.each do |e|
-        CAPTCHA_CACHE.write(e, "foo", expires_in: 10.minutes)
-      end
-    end
+    sleep 0.5.seconds
+    CAPTCHA_CACHE.keys.size.should eq 1
+    signup_captcha_id = CAPTCHA_CACHE.keys.first
+    CAPTCHA_CACHE.write(signup_captcha_id, "foo", expires_in: 1.minutes)
+    # CAPTCHA_LOCK.synchronize do
+    #   CAPTCHA_CACHE.keys.each do |e|
+    #     CAPTCHA_CACHE.write(e, "foo", expires_in: 10.minutes)
+    #   end
+    # end
     fill "captcha", with: "foo"
     click "@sign-up-button"
   end
@@ -43,17 +45,21 @@ class AuthenticationFlow < BaseFlow
   def create_two_reply_to_doc
     textarea = el("textarea#tab_text_area")
     textarea.click
+    sleep 0.5.seconds
     textarea.fill("hello!")
     click "@tab-preview_reply"
+    sleep 0.5.seconds
     click "@tab-do_reply"
+    sleep 0.5.seconds
     click "@tab-input_reply"
+    sleep 0.5.seconds
     textarea.fill("crystal china!")
     click "@tab-do_reply"
     sleep 0.5.seconds
   end
 
   def delete_first_reply
-    delete_link = driver.find_xpath("//article[@id='doc_reply-1']//a[text()='删除']").first
+    delete_link = driver.find_xpath("//article[@id='doc_reply-1']").first
     sleep 0.5.seconds
     delete_link.click
     sleep 0.5.seconds
@@ -68,11 +74,13 @@ class AuthenticationFlow < BaseFlow
     sleep 0.5.seconds
     text_area = el("textarea#reply_to_reply_text_area")
     text_area.click
+    sleep 0.5.seconds
     text_area.fill("hello world!")
     sleep 0.5.seconds
     click "@reply_to_reply-preview_reply"
     sleep 0.5.seconds
     click "@reply_to_reply-do_reply"
+    sleep 0.5.seconds
   end
 
   def create_reply_to_reply
