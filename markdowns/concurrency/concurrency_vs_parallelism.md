@@ -208,13 +208,7 @@ producer -> buffered channel -> many consumers
 $: crystal run -Dpreview_mt -Dexecution_context --release test.cr
 ```
 
-## 高级技巧
-每一个干活的 worker 中的 fiber 的数量（这里称作batch） 一般不要很大，
-如果 batch 很大，一个先启动的 worker 一拿到活，就会长时间埋头算：
-
-拿一个大块 -> 高 CPU 任务算很久 -> 很久以后才回来拿下一个
-
-例如 例如下面的代码（和，刚才的代码一样，只是抽取了方法，并改成从 0 加到 51200000 - 1）
+例如下面的代码（和，刚才的代码一样，只是抽取了方法，并改成从 0 加到 51200000 - 1）
 你可能会发现，在很多情况下，它无法用满多核。
 
 ```crystal
@@ -258,33 +252,6 @@ def calculate(total_seeds, batch_size, worker_size, batches)
 end
 
 ```
-
-原因是，第一个 worker 启动之后（mt.spawn），当它获取到数据（称其为 batch_size) 是一个很大的数字，
-(r[0]...r[1]**.each.size 是 62500000，而 each 里面运行的代码是 high CPU usage 的任务，
-Fiber 没有机会切出去，在这段时间，其他 workers 已经启动，也只能干等，可能等很久之后才有机会拿到下一个任务。
-
-如果每个块更小，例如将 batches = worker_size * 32，batch_size 变成了 1953125，
-相比前一个，它会在更短的时间内完成，所以会更频繁地出现“重新领取任务”的机会；
-而这些额外的领取机会，能让后来才真正跑起来其他核也参与进来，从而把剩余工作摊到更多核上。
-
-因此，将 batches 数量改大，让每一个 scheduler 中的 Fiber 数量变小，你会观察到，
-大多数情况，都可以用满所有的核。
-
-当然，小块会带来频繁切换的开销，但是，这些开销，比起能利用多核，还是微不足道的。
-
-换句话说，真正决定差距的更像是“并行度爬升速度”，能解释这种量级差异的，
-通常是“整个程序大部分时间到底是在用 3～4 个核，还是 12～16 个核”。
-提高 batches 并减少每一个 batch 里面的 Fiber 数量，能显著提高多核的利用率。
-
-另一个原因是，在目前版本中，一个可能的 bug 或者 limit，从主 Fiber 创建新的 Fiber 
-并加入一个新的 EC （跨 EC 加入 Fiber）似乎无法很快的分配到多核，见 [issue](https://github.com/crystal-lang/crystal/issues/16707#issuecomment-4016612442)， 
-
-官方的解释是，跨 EC 加入 Fiber 设计为更好的和 quickly terminated fibers 一起工作，
-但是如果 Fiber 里面运行的是高 CPU 的任务，官方的建议是，当前实现要避免跨 EC 入队。
-我在社区反馈后，官方很快关注到这个问题，[#16719](https://github.com/crystal-lang/crystal/pull/16719) 一旦合并，这个问题即将解决。
-
-目前的 workaround, 我们可以先启动一个 EC，然后在这个 EC 里面创建的 Fiber 都属于新的 EC.
-这种方式没有跨 EC，不会频繁的尝试  wake a scheduler/thread, 因此能够更快地散步在多核。
 
 下面是针对 CPU bounded 任务更加高效的写法：
 
@@ -461,7 +428,211 @@ def calculate(total_seeds, batch_size, worker_size, batches)
 end
 ```
 
-目前计划在 1.20 版本中默认开启
+## 高级技巧
+
+在 Crystal 1.20. 之前，从主 Fiber 创建新的 Fiber 并加入一个新的 EC （跨 EC 加入 Fiber）
+似乎无法很快的分配到多核，见 [issue](https://github.com/crystal-lang/crystal/issues/16707#issuecomment-4016612442)， 
+
+下面是一个新的例子，它叫作`考拉兹规则变换`，被给一个任意的正整数作为 seed，经过
+若干步(step)变换，最终一定会变成 1. 下面的代码是把 10 亿数字作为 seed, 分别执行
+考拉兹变换，最后输出总的耗时。
+
+算法不是本章关注的主题，最重要的可以充分的利用多核，且是典型的高 CPU 计算型任务。
+
+如果你在 Crystal 1.19 运行下面这段代码，你跑若干次，下面的命令，大部分情况洗，它无法跑满多核。
+
+```crystal
+require "wait_group"
+
+def collatz(seed : Int64)
+  steps = 0_i64
+
+  while seed > 1
+    while seed % 2 == 0
+      steps &+= 1
+      seed //= 2
+    end
+
+    if seed > 1
+      steps &+= 1
+      seed = seed &* 3 &+ 1
+    end
+  end
+
+  steps
+end
+
+def calculate(total_seeds, batch_size, worker_size, batches)
+  channel = Channel({Int64, Int64}).new(batches + 1)
+  wg = WaitGroup.new(worker_size)
+
+  p! batch_size
+  p! batches
+
+  mt = Fiber::ExecutionContext::Parallel.new("test", maximum: worker_size)
+
+  worker_size.times do |i|
+    mt.spawn(name: "WORKER-#{i}") do
+      while (r = channel.receive?)
+        (r[0]...r[1]).each do |seed|
+          steps = collatz(seed)
+
+          if seed % 1_000_000 == 0
+            print "Seed: #{seed} Steps: #{steps}\r"
+          end
+        end
+      end
+    ensure
+      wg.done
+    end
+  end
+
+  start = Time.measure do
+    r0 = 0_i64
+
+    batches.times do
+      r1 = r0 &+ batch_size
+      channel.send({r0, r1})
+      r0 = r1
+    end
+
+    if total_seeds - batch_size &* batches > 0
+      channel.send({r0, total_seeds})
+    end
+
+    channel.close
+    wg.wait
+  end
+
+  puts "\ncollatz took: #{start}"
+end
+
+total_seeds = 1_000_000_000_i64
+worker_size = Fiber::ExecutionContext.default_workers_count # => 7840hs 上返回 16
+
+p! total_seeds
+p! worker_size
+
+batches = worker_size
+batch_size = (total_seeds // batches).to_i32
+calculate(total_seeds, batch_size, worker_size, batches)
+```
+
+原因是，worker_size.times 循环中的第一个 worker 被 span 之后 (mt.spawn)
+这个干活的 worker 中的 fiber 的数量(这里称作 batch)，即：(r[0]...r[1]) 的数量，
+是一个很大的数字 62500000，使用 each 遍历这个大集合, 且执行的又是 high CPU usage 
+的任务，worker 一拿到活，就会长时间埋头算，因此 Fiber 没有机会切出去，在这段时间，
+其他 workers 已经启动，也只能干等，可能等很久之后才有机会拿到下一个任务。
+
+即：
+
+worker -> 长时间执行 high CPU bounded task -> 很久不让出 CPU 资源。
+
+如果每个块更小，例如将 batches = worker_size * 32，batch_size 变成了 1953125，
+相比前一个，它会在更短的时间内完成，所以会更频繁地出现“重新领取任务”的机会；
+而这些额外的领取机会，能让后来才真正跑起来其他核也参与进来，从而把剩余工作摊到更多核上。
+
+因此，将 batches 数量改大，让每一个 scheduler 中的 Fiber 数量变小，你会观察到，
+大多数情况，都可以用满所有的核。
+
+当然，小块会带来频繁切换的开销，但是，这些开销，比起能利用多核，还是微不足道的。
+
+换句话说，真正决定差距的更像是“并行度爬升速度”，能解释这种量级差异的，
+通常是“整个程序大部分时间到底是在用 3～4 个核，还是 12～16 个核”。
+提高 batches 并减少每一个 batch 里面的 Fiber 数量，能显著提高多核的利用率。
+
+官方的解释是，跨 EC 加入 Fiber 设计为更好的和 quickly terminated fibers 一起工作，
+但是如果 Fiber 里面运行的是高 CPU 的任务，官方的建议是，当前实现要避免跨 EC 入队。
+我在社区反馈后，官方很快关注到这个问题，引入了 Adaptive scaling, [#16719](https://github.com/crystal-lang/crystal/pull/16719) 
+一旦合并，这个问题即将解决。
+
+如果你仍旧在使用 1.19 或更早版本，目前的 workaround, 我们可以先启动一个 EC，
+然后在这个 EC 里面创建的 Fiber 都属于新的 EC.
+这种方式没有跨 EC，不会频繁的尝试 wake a scheduler/thread, 因此能够更快地散步在多核。
+
+下面是针对 CPU bounded 任务更加高效的写法：
+
+```crystal
+require "wait_group"
+
+def collatz(seed : Int64)
+  steps = 0_i64
+
+  while seed > 1
+    while seed % 2 == 0
+      steps &+= 1
+      seed //= 2
+    end
+
+    if seed > 1
+      steps &+= 1
+      seed = seed &* 3 &+ 1
+    end
+  end
+
+  steps
+end
+
+def calculate(total_seeds, batch_size, worker_size, batches)
+  channel = Channel({Int64, Int64}).new(batches + 1)
+  wg = WaitGroup.new(1)
+
+  p! batch_size
+  p! batches
+
+  mt = Fiber::ExecutionContext::Parallel.new("test", maximum: worker_size)
+
+  mt.spawn do
+    WaitGroup.wait do |wg|
+      worker_size.times do |i|
+        wg.spawn(name: "WORKER-#{i}") do
+          while (r = channel.receive?)
+            (r[0]...r[1]).each do |seed|
+              steps = collatz(seed)
+
+              if seed % 1_000_000 == 0
+                print "Seed: #{seed} Steps: #{steps}\r"
+              end
+            end
+          end
+        end
+      end
+    end
+    wg.done
+  end
+
+  start = Time.measure do
+    r0 = 0_i64
+
+    batches.times do
+      r1 = r0 &+ batch_size
+      channel.send({r0, r1})
+      r0 = r1
+    end
+
+    if total_seeds - batch_size &* batches > 0
+      channel.send({r0, total_seeds})
+    end
+
+    channel.close
+    wg.wait
+  end
+
+  puts "\ncollatz took: #{start}"
+end
+
+total_seeds = 1_000_000_000_i64
+worker_size = Fiber::ExecutionContext.default_workers_count # => 7840hs 上返回 16
+
+p! total_seeds
+p! worker_size
+
+batches = worker_size
+batch_size = (total_seeds // batches).to_i32
+calculate(total_seeds, batch_size, worker_size, batches)
+```
+
+目前计划在 1.21 版本中默认开启
 
 The actual parallelism is controlled by the execution context. As the need for parallelism increases, for example more fibers running longer, the more schedulers will start (and thus system threads), as the need decreases, for example not enough fibers, the schedulers will pause themselves and parallelism will decrease.
 
