@@ -3,14 +3,14 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import htmx from "htmx.org";
-import _hyperscript from "hyperscript.org";
+import "hyperscript.org";
 
 import copyCodeButton from "./copyCodeButton.js";
 import pasteImage from "./pasteImage.js";
 import stork from "./stork.js";
 import Viewer3D from "./viewer3d.js";
 
-_hyperscript.browserInit();
+globalThis._hyperscript?.browserInit();
 
 const frontendConfig = JSON.parse(
     document.getElementById("app-config")?.textContent ?? "{}",
