@@ -15,7 +15,7 @@ shards:
 
   baked_file_system: # Overridden
     git: https://github.com/schovi/baked_file_system.git
-    version: 0.14.0
+    version: 0.14.1
 
   baked_file_system_mounter:
     git: https://github.com/crystal-china/baked_file_system_mounter.git
@@ -27,11 +27,11 @@ shards:
 
   bindata:
     git: https://github.com/spider-gazelle/bindata.git
-    version: 2.1.1
+    version: 3.2.1
 
   cache:
     git: https://github.com/crystal-cache/cache.git
-    version: 1.0.0
+    version: 1.1.0
 
   cadmium_transliterator:
     git: https://github.com/cadmiumcr/transliterator.git
@@ -99,11 +99,11 @@ shards:
 
   html5:
     git: https://github.com/naqvis/crystal-html5.git
-    version: 0.5.1
+    version: 0.4.0
 
   jwt:
     git: https://github.com/crystal-community/jwt.git
-    version: 1.7.1
+    version: 1.7.2
 
   lucky:
     git: https://github.com/luckyframework/lucky.git
@@ -119,7 +119,7 @@ shards:
 
   lucky_flow:
     git: https://github.com/luckyframework/lucky_flow.git
-    version: 0.10.2
+    version: 0.7.3+git.commit.abd6e4991c74b9355d9b116911b063833c7c40cd
 
   lucky_router:
     git: https://github.com/luckyframework/lucky_router.git
@@ -158,8 +158,8 @@ shards:
     version: 1.0.1
 
   selenium:
-    git: https://github.com/crystal-loot/selenium.cr.git
-    version: 0.12.1
+    git: https://github.com/matthewmcgarvey/selenium.cr.git
+    version: 0.9.1
 
   shell-table:
     git: https://github.com/luckyframework/shell-table.cr.git
@@ -190,12 +190,12 @@ shards:
     version: 0.6.0
 
   webdrivers:
-    git: https://github.com/crystal-loot/webdrivers.cr.git
+    git: https://github.com/matthewmcgarvey/webdrivers.cr.git
     version: 0.4.5
 
   webless:
-    git: https://github.com/crystal-loot/webless.git
-    version: 0.2.0
+    git: https://github.com/matthewmcgarvey/webless.git
+    version: 0.1.0
 
   wordsmith:
     git: https://github.com/luckyframework/wordsmith.git
