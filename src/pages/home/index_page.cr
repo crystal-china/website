@@ -27,9 +27,9 @@ class Home::IndexPage < MainLayout
       )
     end
 
-    div class: "f-row justify-content:space-around" do
+    div style: "display: grid; grid-template-columns: repeat(5, max-content); justify-content: space-between; align-items: flex-start; max-width: 1800px; margin: 0 auto; column-gap: 56px;" do
       div do
-        h2 "Official", class: "font-bold"
+        h2 "Official", class: "font-bold", style: "white-space: nowrap;"
         ul class: "align-items:stretch" do
           li { normal_link("https://www.crystal-lang.org", "Crystal website") }
           li { github_icon_link("https://github.com/crystal-lang", "Crystal lang") }
@@ -39,7 +39,7 @@ class Home::IndexPage < MainLayout
       end
 
       div do
-        h2 "Docs", class: "font-bold"
+        h2 "Docs", class: "font-bold", style: "white-space: nowrap;"
         ul do
           li { normal_link "https://crystal-lang.org/api/latest/", "API document" }
           li { normal_link "https://devdocs.io/crystal", "devdocs Crystal" }
@@ -49,7 +49,7 @@ class Home::IndexPage < MainLayout
       end
 
       div do
-        h2 "Packages", class: "font-bold"
+        h2 "Packages", class: "font-bold", style: "white-space: nowrap;"
         ul class: "align-items:stretch" do
           li do
             a "shards.info", href: "https://shards.info/"
@@ -61,7 +61,7 @@ class Home::IndexPage < MainLayout
       end
 
       div do
-        h2 "Organizations", class: "font-bold"
+        h2 "Organizations", class: "font-bold", style: "white-space: nowrap;"
         ul class: "align-items:stretch" do
           li { github_icon_link("https://github.com/veelenga/awesome-crystal", "Awesome Crystal") }
           li { github_icon_link("https://github.com/crystal-ameba", "Crystal ameba") }
@@ -75,7 +75,7 @@ class Home::IndexPage < MainLayout
       end
 
       div do
-        h2 "Chat", class: "font-bold"
+        h2 "Chat", class: "font-bold", style: "white-space: nowrap;"
         ul class: "align-items:stretch" do
           li { normal_link "https://discord.gg/YS7YvQy", "Discord", target: "_blank" }
           li { normal_link "https://www.reddit.com/r/crystal_programming/", "Reddit" }
@@ -89,9 +89,9 @@ class Home::IndexPage < MainLayout
   end
 
   private def github_icon_link(link, content)
-    a href: link do
+    a href: link, style: "display: inline-flex; align-items: center; gap: 0.35rem; white-space: nowrap;" do
       text "#{content} "
-      img src: asset("svgs/github-icon.svg"), alt: "github", style: "width: 15px; height: 15px;"
+      img src: asset("svgs/github-icon.svg"), alt: "github", style: "width: 15px; height: 15px; flex-shrink: 0;"
     end
   end
 end
