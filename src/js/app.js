@@ -10,8 +10,6 @@ import pasteImage from "./pasteImage.js";
 import stork from "./stork.js";
 import Viewer3D from "./viewer3d.js";
 
-globalThis._hyperscript?.browserInit();
-
 const frontendConfig = JSON.parse(
     document.getElementById("app-config")?.textContent ?? "{}",
 );
