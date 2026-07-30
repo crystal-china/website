@@ -1,6 +1,6 @@
 class Home::IndexPage < MainLayout
   def content
-    div class: "brand-logo f-col align-items:center justify-content:center" do
+    div class: "mb-12 flex flex-col items-center justify-center" do
       h1 "The Crystal programming language 中文站"
 
       div(
@@ -10,7 +10,7 @@ class Home::IndexPage < MainLayout
         hx_swap: "outerHTML",
       ) do
         a href: "" do
-          span class: "f-row align-items:center" do
+          span class: "flex items-center gap-2" do
             text "Latest release:"
             mount Shared::Spinner, text: "获取最新版本...", width: "10px"
           end
@@ -22,15 +22,16 @@ class Home::IndexPage < MainLayout
         height: 300,
         width: 300,
         id: "logo-canvas",
-        style: "cursor:move",
+        class: "cursor-move",
         running: "false"
       )
     end
 
-    div style: "display: grid; grid-template-columns: repeat(5, max-content); justify-content: space-between; align-items: flex-start; max-width: 1800px; margin: 0 auto; column-gap: 56px;" do
+    # 使用 CSS Grid 布局。子元素不再按普通文档流堆叠，而是放进网格里。
+    div class: "mx-auto grid max-w-[1800px] grid-cols-[repeat(5,max-content)] items-start justify-between gap-x-14" do
       div do
         h2 "Official"
-        ul class: "align-items:stretch" do
+        ul do
           li { normal_link("https://www.crystal-lang.org", "Crystal website") }
           li { github_icon_link("https://github.com/crystal-lang", "Crystal lang") }
           li { normal_link "https://forum.crystal-lang.org", "Crystal forum" }
@@ -50,7 +51,7 @@ class Home::IndexPage < MainLayout
 
       div do
         h2 "Packages"
-        ul class: "align-items:stretch" do
+        ul do
           li do
             a "shards.info", href: "https://shards.info/"
           end
@@ -62,7 +63,7 @@ class Home::IndexPage < MainLayout
 
       div do
         h2 "Organizations"
-        ul class: "align-items:stretch" do
+        ul do
           li { github_icon_link("https://github.com/veelenga/awesome-crystal", "Awesome Crystal") }
           li { github_icon_link("https://github.com/crystal-ameba", "Crystal ameba") }
           li { github_icon_link("https://github.com/crystal-china", "Crystal China") }
@@ -76,7 +77,7 @@ class Home::IndexPage < MainLayout
 
       div do
         h2 "Chat"
-        ul class: "align-items:stretch" do
+        ul do
           li { normal_link "https://discord.gg/YS7YvQy", "Discord", target: "_blank" }
           li { normal_link "https://www.reddit.com/r/crystal_programming/", "Reddit" }
         end
@@ -89,9 +90,9 @@ class Home::IndexPage < MainLayout
   end
 
   private def github_icon_link(link, content)
-    a href: link, style: "display: inline-flex; align-items: center; gap: 0.35rem;" do
+    a href: link, class: "inline-flex items-center gap-1 whitespace-nowrap" do
       text "#{content} "
-      img src: asset("svgs/github-icon.svg"), alt: "github", style: "width: 15px; height: 15px; flex-shrink: 0;"
+      img src: asset("svgs/github-icon.svg"), alt: "github", class: "h-4 w-4 shrink-0"
     end
   end
 end
