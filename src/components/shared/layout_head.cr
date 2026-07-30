@@ -18,6 +18,7 @@ class Shared::LayoutHead < BaseComponent
 
       # css_link "https://fonts.bunny.net/css?family=source-sans-3:400,700|m-plus-code-latin:400,700"
 
+      live_reload_connect_tag if LuckyEnv.development?
       bun_reload_connect_tag
     end
   end
