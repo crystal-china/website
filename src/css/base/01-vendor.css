@@ -1,8 +1,8 @@
 /* Note: importing with `~` tells webpack to look in the installed npm packages */
 /* https://stackoverflow.com/questions/39535760/what-does-a-tilde-in-a-css-url-do */
 
-@import "modern-normalize/modern-normalize.css";
-@import "missing.css";
+/* @import "modern-normalize/modern-normalize.css"; */
+/* @import "missing.css"; */
 /* @import "asciinema-player/dist/bundle/asciinema-player.css"; */
 
 /* 这是 code block 的样式 */

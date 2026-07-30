@@ -1,0 +1,91 @@
+/* Typography: 补回 body / 标题 / 段落 / 链接的默认观感 */
+@layer base {
+  body {
+    @apply bg-white text-gray-800 leading-7;
+  }
+
+  h1 {
+    @apply mt-8 mb-4 text-4xl font-bold tracking-tight;
+  }
+
+  h2 {
+    @apply mt-8 mb-3 text-3xl font-bold tracking-tight;
+  }
+
+  h3 {
+    @apply mt-6 mb-3 text-2xl font-semibold;
+  }
+
+  p {
+    @apply my-4;
+  }
+
+  a {
+    @apply text-blue-700 underline decoration-dotted underline-offset-2 hover:text-blue-800;
+  }
+
+  /* Content: 补回列表、引用、分隔线这些文档元素 */
+  ul {
+    @apply my-4 list-disc pl-6;
+  }
+
+  ol {
+    @apply my-4 list-decimal pl-6;
+  }
+
+  li {
+    @apply my-1;
+  }
+
+  hr {
+    @apply my-8 border-gray-300;
+  }
+
+  blockquote {
+    @apply my-6 border-l-4 border-gray-300 pl-4 text-gray-700 italic;
+  }
+
+  /* Code / Media / Tables: 让代码块、图片、表格先有基础样式 */
+  code {
+    @apply rounded bg-gray-100 px-1.5 py-0.5 text-sm;
+  }
+
+  pre {
+    @apply my-6 overflow-x-auto rounded-lg bg-gray-900 p-4 text-sm text-gray-100;
+  }
+
+  pre code {
+    @apply bg-transparent p-0 text-inherit;
+  }
+
+  img {
+    @apply h-auto max-w-full;
+  }
+
+  table {
+    @apply my-6 w-full border-collapse text-left;
+  }
+
+  th {
+    @apply border-b border-gray-300 px-3 py-2 font-semibold;
+  }
+
+  td {
+    @apply border-b border-gray-200 px-3 py-2 align-top;
+  }
+
+  /* Forms: 按钮和表单控件的最低限度默认外观 */
+  button {
+    @apply rounded-md border border-gray-300 px-3 py-2 font-medium;
+  }
+
+  input,
+  textarea,
+  select {
+    @apply rounded-md border border-gray-300 px-3 py-2;
+  }
+
+  textarea {
+    @apply min-h-32 w-full;
+  }
+}
