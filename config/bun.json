@@ -1,27 +1,33 @@
 {
-  "entryPoints": {
-    "js": ["src/js/app.js"],
-    "css": ["src/css/app.css"]
-  },
-  "plugins": {
-    "css": ["aliases", "cssGlobs", "config/bun/tailwind.js"],
-    "js": ["aliases", "jsGlobs", "config/bun/compress_assets.js"]
-  },
-  "watchDirs": [
-    "src/js",
-    "src/css",
-    "public/docs",
-    "public/models",
-    "public/puppies",
-    "public/svgs"
-  ],
-  "staticDirs": [
-    "public/docs",
-    "public/models",
-    "public/puppies",
-    "public/svgs"
-  ],
-  "outDir": "public/assets",
-  "publicPath": "/assets",
-  "manifestPath": "public/bun-manifest.json"
+    "entryPoints": {
+        "js": "src/js/app.js",
+        "css": "src/css/app.css"
+    },
+    "plugins": {
+        "css": ["aliases", "cssGlobs", "config/bun/tailwind.js"],
+        "js": ["aliases", "jsGlobs", "config/bun/compress_assets.js"]
+    },
+    "watchDirs": [
+        "src",
+        "public/docs",
+        "public/models",
+        "public/puppies",
+        "public/svgs"
+    ],
+    "watchExtensions": {
+        "css": ["cr"]
+    },
+    "staticDirs": [
+        "public/docs",
+        "public/models",
+        "public/puppies",
+        "public/svgs"
+    ],
+    "outDir": "public/assets",
+    "publicPath": "/assets",
+    "manifestPath": "public/bun-manifest.json",
+    "devServer": {
+        "host": "127.0.0.1",
+        "port": 3002
+    }
 }
