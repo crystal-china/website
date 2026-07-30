@@ -28,7 +28,7 @@ class Home::IndexPage < MainLayout
     end
 
     # 使用 CSS Grid 布局。子元素不再按普通文档流堆叠，而是放进网格里。
-    div class: "mx-auto grid max-w-[1800px] grid-cols-[repeat(5,max-content)] items-start justify-between gap-x-14" do
+    div class: "mx-auto grid max-w-[1800px] grid-cols-[repeat(5,max-content)] items-start justify-between gap-x-10" do
       div do
         h2 "Official"
         ul do

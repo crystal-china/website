@@ -1,8 +1,12 @@
 class Footer < BaseComponent
   def render
-    section class: "tool-bar", style: "margin-top: 10px;" do
+    hr class: "mx-auto my-1 w-[70%] max-w-2xl basis-full border-t border-gray-300"
+
+    section class: "mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm" do
       text "Crystal China"
+
       a "admin@crystal-china.org", href: "mailto:admin@crystal-china.org"
+
       span(
         hx_trigger: "load,every 2m",
         hx_patch: Htmx::OnlineUsers.with(user_id: current_user.try(&.id)).path,
@@ -10,16 +14,31 @@ class Footer < BaseComponent
       ) do
         text "在线用户 #{ONLINE_USER_COUNTER.keys.size} 人, 游客 #{ONLINE_IP_COUNTER.keys.size} 人"
       end
-      hr "aria-orientation": "vertical"
-      a href: "https://github.com/crystal-china", target: "_blank", rel: "nofollow", title: "本站在 GitHub 上面的开源内容" do
-        img src: asset("svgs/github-icon.svg"), alt: "github"
-      end
-      a href: "https://x.com/crystalchinaorg", target: "_blank", rel: "nofollow", title: "本站的 X 账号" do
-        img src: asset("svgs/x-icon.svg"), alt: "x.com"
-      end
-      a href: "https://crystal-lang.org/", target: "_blank", rel: "nofollow", title: "Crystal 官方网站" do
-        img src: asset("svgs/crystal-lang-icon.svg"), alt: "crystal-lang"
-      end
+
+      icon_link(
+        title: "本站在 GitHub 上面的开源内容",
+        href: "https://github.com/crystal-china",
+        src: asset("svgs/github-icon.svg"),
+        alt: "github"
+      )
+      icon_link(
+        title: "本站的 X 账号",
+        href: "https://x.com/crystalchinaorg",
+        src: asset("svgs/x-icon.svg"),
+        alt: "x.com"
+      )
+      icon_link(
+        title: "Crystal 官方网站",
+        href: "https://crystal-lang.org/",
+        src: asset("svgs/crystal-lang-icon.svg"),
+        alt: "crystal-lang"
+      )
+    end
+  end
+
+  private def icon_link(title, href, src, alt)
+    a href: href, target: "_blank", rel: "nofollow", title: title, class: "inline-flex items-center" do
+      img src: src, alt: alt, class: "h-5 w-5"
     end
   end
 end

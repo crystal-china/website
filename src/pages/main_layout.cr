@@ -23,7 +23,7 @@ abstract class MainLayout
           main do
             content
 
-            footer class: "f-row flex-wrap:wrap justify-content:center" do
+            footer do
               mount Footer, current_user: current_user
             end
           end
