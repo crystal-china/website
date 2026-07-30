@@ -9,7 +9,7 @@
   }
 
   h1 {
-    @apply mt-10 mb-4 text-4xl font-bold leading-tight tracking-tight;
+    @apply mt-10 mb-4 text-[2em] font-bold leading-tight tracking-tight;
   }
 
   h2 {
@@ -24,8 +24,25 @@
     @apply my-4;
   }
 
+  strong,
+  b {
+    @apply font-bold;
+  }
+
+  small {
+    @apply text-[0.8em];
+  }
+
+  abbr[title] {
+    @apply underline decoration-dotted;
+  }
+
   a {
     @apply text-blue-700 underline decoration-dotted underline-offset-2 hover:decoration-solid;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-blue-600;
   }
 
   main {
@@ -53,9 +70,17 @@
     @apply my-6 border-s-4 border-gray-300 ps-4 text-gray-600 italic;
   }
 
+  summary {
+    @apply cursor-pointer;
+  }
+
   /* Code / Media / Tables: 让代码块、图片、表格先有基础样式 */
   code {
     @apply rounded bg-gray-100 px-1.5 py-0.5 font-mono text-[0.9em];
+  }
+
+  kbd {
+    @apply rounded border border-gray-300 bg-gray-50 px-1.5 py-0.5 font-mono text-[0.85em];
   }
 
   pre {
@@ -84,13 +109,13 @@
 
   /* Forms: 按钮和表单控件的最低限度默认外观 */
   button {
-    @apply rounded border border-gray-300 px-3 py-2 font-medium;
+    @apply rounded border border-gray-300 bg-gray-50 px-3 py-2 font-medium hover:bg-gray-100;
   }
 
   input,
   textarea,
   select {
-    @apply rounded border border-gray-300 px-3 py-2;
+    @apply rounded border border-gray-300 bg-white px-3 py-2;
   }
 
   textarea {
