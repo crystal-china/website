@@ -1,8 +1,8 @@
 class Footer < BaseComponent
   def render
-    hr class: "mx-auto my-1 w-[70%] max-w-2xl basis-full border-t border-gray-300"
+    hr class: "mx-auto my-1 w-[70%] max-w-4xl border-t border-gray-300"
 
-    section class: "mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm" do
+    section class: "mx-auto mt-2 flex w-full max-w-7xl flex-wrap items-center justify-center gap-x-3 gap-y-2 px-8 text-sm" do
       text "Crystal China"
 
       a "admin@crystal-china.org", href: "mailto:admin@crystal-china.org"

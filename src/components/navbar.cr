@@ -1,15 +1,13 @@
 class Navbar < BaseComponent
   def render
-    header class: "navbar", style: "margin-bottom: 2px; margin-top: 0px; width: 100%;" do
-      div do
-        a href: "/", class: "f-row align-items:center" do
-          img src: asset("svgs/crystal.svg"), alt: "crystal-china", style: "width: 150px;"
-          span "China", class: "allcaps", style: "color: black;"
-        end
+    header class: "mx-auto mb-0.5 flex w-full max-w-7xl items-center justify-between gap-6 px-8" do
+      a href: "/", class: "inline-flex shrink-0 items-center" do
+        img src: asset("svgs/crystal.svg"), alt: "crystal-china", class: "w-[150px]"
+        span "China", class: "ml-4 text-black uppercase"
       end
 
-      nav class: "contents" do
-        ul role: "list" do
+      nav class: "flex flex-1 justify-end" do
+        ul class: "flex flex-wrap items-center justify-end gap-x-6 gap-y-2" do
           li do
             if current_path.starts_with?("/docs")
               tag "search" do
@@ -40,24 +38,16 @@ class Navbar < BaseComponent
               )
             end
 
-            li do
-              # a me.email, href: link
-              link me.email, to: Me::Edit
-            end
+            li { link me.email, to: Me::Edit }
           else
-            li do
-              link "注册", to: SignUps::New
-            end
-
-            li do
-              link "登录", to: SignIns::New
-            end
+            li { link "注册", to: SignUps::New }
+            li { link "登录", to: SignIns::New }
           end
         end
       end
     end
 
-    div class: "f-row justify-content:end" do
+    div class: "flex justify-end" do
       mount Shared::FlashMessages, context.flash
     end
   end

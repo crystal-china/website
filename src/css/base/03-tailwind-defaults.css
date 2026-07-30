@@ -46,7 +46,7 @@
   }
 
   main {
-    @apply max-w-[80ch];
+    @apply w-full;
   }
 
   /* Content: 补回列表、引用、分隔线这些文档元素 */
