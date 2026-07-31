@@ -122,6 +122,10 @@ module PageHelpers
     end
   end
 
+  private def page_container_classes
+    " mx-auto w-full max-w-7xl px-8"
+  end
+
   # def asset_host
   #   Lucky::Server.settings.asset_host
   # end

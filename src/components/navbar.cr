@@ -1,13 +1,13 @@
 class Navbar < BaseComponent
   def render
-    header class: "mx-auto mb-0.5 flex w-full max-w-7xl items-center justify-between gap-6 px-8" do
+    header class: "flex justify-between items-center border-b border-black #{page_container_classes}" do
       a href: "/", class: "inline-flex shrink-0 items-center" do
-        img src: asset("svgs/crystal.svg"), alt: "crystal-china", class: "w-[150px]"
-        span "China", class: "ml-4 text-black uppercase"
+        img src: asset("svgs/crystal.svg"), alt: "crystal-china", class: "w-[180px]"
+        span "China", class: "ml-6 text-lg font-semibold tracking-wide text-black uppercase"
       end
 
       nav class: "flex flex-1 justify-end" do
-        ul class: "flex flex-wrap items-center justify-end gap-x-6 gap-y-2" do
+        ul class: "flex flex-wrap items-center justify-end gap-x-6" do
           li do
             if current_path.starts_with?("/docs")
               tag "search" do

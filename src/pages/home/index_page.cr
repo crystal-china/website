@@ -1,7 +1,7 @@
 class Home::IndexPage < MainLayout
   def content
-    div class: "mx-auto w-full max-w-7xl px-8" do
-      div class: "mb-12 flex flex-col items-center justify-center" do
+    div class: page_container_classes do
+      div class: "flex flex-col items-center justify-center" do
         h1 "The Crystal programming language 中文站"
 
         div(
@@ -20,8 +20,8 @@ class Home::IndexPage < MainLayout
 
         tag(
           "canvas",
-          height: 300,
-          width: 300,
+          height: 330,
+          width: 330,
           id: "logo-canvas",
           class: "cursor-move",
           running: "false"
