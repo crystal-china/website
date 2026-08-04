@@ -103,7 +103,7 @@ module PageHelpers
                     VoteQuery.new.user_id(me.id).doc_id(doc.id).map &.vote_type
                   end
 
-    div class: "f-row", style: "margin-bottom: 0px;" do
+    div do
       mount(
         Shared::VoteButton,
         votes: Hash(String, Int32).from_json(doc.votes.to_json),
