@@ -78,11 +78,6 @@ function init(eventElt) {
     // 取消注释来允许它正常发送请求。
     // htmx.config.selfRequestsOnly = false;
 
-    // 确保下面的函数，只在 body 重新改变时才触发
-    if (eventElt.nodeName == "BODY") {
-        void initStork();
-    }
-
     // 让 data-tooltip 属性可以显示中文
     document.querySelectorAll("[data-tooltip]").forEach((el) => {
         // 解码 data-tooltip 的值
@@ -103,7 +98,10 @@ function init(eventElt) {
         void setupLogo(eventElt);
         setupPasteImage(eventElt);
         setupCopyCodeButton(eventElt);
-        setupStork(eventElt);
+        // 确保下面的函数，只在 body 重新改变时才触发
+        if (eventElt.nodeName == "BODY") {
+            void initStork(eventElt);
+        }
     }
 }
 
@@ -157,9 +155,10 @@ function setupStork(eventElt) {
     }
 }
 
-async function initStork() {
-    stork.initialize(await assetUrl("docs/stork.wasm"));
-    stork.downloadIndex("docs", await assetUrl("docs/index.st"));
+async function initStork(eventElt) {
+    await stork.initialize(await assetUrl("docs/stork.wasm"));
+    await stork.downloadIndex("docs", await assetUrl("docs/index.st"));
+    setupStork(eventElt);
 }
 
 function setupCopyCodeButton(eventElt) {
