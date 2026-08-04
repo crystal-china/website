@@ -6,13 +6,11 @@ class Shared::VoteButton < BaseComponent
 
   def render
     votes.each do |(emoji, count)|
-      gray = count == 0 ? "filter: grayscale(100%); color: #ccc;" : ""
-
-      voted = emoji.in?(voted_types) ? "border: 1px solid #000;" : ""
+      gray = count == 0 ? "grayscale-[50%] text-gray-300" : ""
+      voted = emoji.in?(voted_types) ? "border border-black" : "border-transparent"
       config = {
-        class: "iconbutton f-col align-items:center emoji",
+        class: "inline-flex h-6 min-w-9 items-center justify-center text-sm leading-none #{gray} #{voted}",
         type:  "button",
-        style: "width: 35px; height: 15px; font-size:12px;#{gray}#{voted}",
       }
 
       if current_user
