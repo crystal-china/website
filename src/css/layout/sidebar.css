@@ -1,24 +1,18 @@
 /* ---------------- 侧边栏 ---------------- */
 
 #sidebar a {
-  font-weight: 500;
+    font-weight: 500;
 }
 
-.nested {
-  display: none;
-  padding-left: 20px;
-  font-size: 16px;
-  font-weight: 0;
+nav a.active, nav a:active {
+    background-color: #3182ce;
+    color: #fff;
+    border-radius: 6px;
+    text-decoration: none;
 }
 
-nav a.active,
-nav a:active,
-nav a:focus {
-  background-color: #63b3ed; /* 点击时的背景颜色 */
-  /* background-color: #3182ce; */
-  color: #fff; /* 改变文字颜色 */
-  border-radius: 5px; /* 加圆角 */
-  text-decoration: underline; /* 或者自定义样式，如下划线 */
-  text-underline-offset: 5px; /* 调整下划线位置（现代浏览器支持） */
-  text-decoration-thickness: 2px; /* 下划线粗细 */
+nav a:focus-visible {
+    outline: 2px solid #63b3ed;
+    outline-offset: 2px;
+    border-radius: 6px;
 }

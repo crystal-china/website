@@ -1,19 +1,16 @@
 class Sidebar < BaseComponent
   def render_child(ary, this_path)
     if !ary.empty?
-      ul_attr = {class: "margin nested"}
+      expanded = ary.any? { |child| current_path.in? [this_path, child.path] } ? "block" : "hidden"
 
-      if ary.any? { |child| current_path.in? [this_path, child.path] }
-        ul_attr = ul_attr.merge(style: "display: block;")
-      end
-
-      ul ul_attr do
+      ul class: "#{expanded} pl-5 text-base font-normal" do
         ary.each do |child|
           a_attr = {
             href: child.path,
           }
 
           if current_path == child.path
+            # active 定义见 src/css/layout/sidebar.css
             a_attr = a_attr.merge(class: "active")
           end
 
@@ -27,7 +24,7 @@ class Sidebar < BaseComponent
   end
 
   def render
-    div "目录", class: "<h1>"
+    h1 "目录"
 
     nav do
       ul role: "nested-list" do
@@ -56,28 +53,32 @@ class Sidebar < BaseComponent
             end
           end
         end
-
-        if (user = current_user)
-          li do
-            if (avatar = user.avatar)
-              div class: "f-row align-items:center", style: "padding-right: 50px;
-background-image:url(#{avatar});height:24px;width:300px;border-radius:20px;background-size: contain; background-repeat: no-repeat; background-position:left center;
-color: white;text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
-" do
-                strong user.name, style: "margin-left: 30px;"
-              end
-            else
-              text user.name
-            end
-          end
-        end
-
-        # li do
-        #   strong do
-        #     a "Back to home", class: "<button>", href: "/"
-        #   end
-        # end
       end
+
+      if (user = current_user)
+        div class: "mt-4 inline-flex items-center gap-3 rounded-full border border-gray-300 bg-white/80 px-3 py-2 shadow-sm" do
+          if (avatar = user.avatar)
+            img src: avatar, alt: "#{user.name} avatar", class: "h-10 w-10 rounded-full object-cover ring-1 ring-gray-200"
+          else
+            render_avatar_fallback(user)
+          end
+
+          render_current_user_name(user)
+        end
+      end
+    end
+  end
+
+  private def render_current_user_name(user)
+    div class: "min-w-0" do
+      div "当前用户", class: "text-xs tracking-wide text-gray-500"
+      strong user.name, class: "block truncate text-sm font-semibold text-gray-900"
+    end
+  end
+
+  private def render_avatar_fallback(user)
+    div class: "flex h-10 w-10 items-center justify-center rounded-full bg-gray-900 text-sm font-semibold text-white" do
+      text user.name[0].to_s.upcase
     end
   end
 end
