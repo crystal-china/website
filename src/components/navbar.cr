@@ -8,7 +8,7 @@ class Navbar < BaseComponent
         end
 
         nav class: "flex flex-1 justify-end" do
-          ul class: "flex flex-wrap items-center justify-end gap-x-6" do
+          ul class: "m-0 flex list-none flex-wrap items-center justify-end gap-x-6 p-0" do
             li do
               if current_path.starts_with?("/docs")
                 tag "search" do
