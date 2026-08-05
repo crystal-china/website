@@ -6,6 +6,7 @@ class Htmx::Docs::Replies < DocAction
 
     return head 401 if id_or_doc_path.nil?
 
+    # doc_path 示例：docs/index，完整: /htmx/replies/docs/index
     id_or_doc_path = self.id_or_doc_path.not_nil!
 
     pagination = replies_pagination(id_or_doc_path: id_or_doc_path, order_by: order_by)

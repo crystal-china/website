@@ -22,17 +22,17 @@ abstract class DocLayout
     html lang: "en", class: "-no-dark-theme" do
       mount Shared::LayoutHead, page_title: page_title
 
-      body hx_boost: true, style: "padding: 0px;" do
+      body hx_boost: true do
         div do
           mount Navbar, current_user: current_user
 
-          div class: "sidebar-layout fullscreen" do
-            header id: "sidebar" do
+          div class: "#{page_container_classes} flex items-start" do
+            header id: "sidebar", class: "sticky top-6 w-72 shrink-0 self-start border-r border-gray-300" do
               mount Sidebar, current_user: current_user
             end
 
-            div do
-              main style: "--density: 0.6" do
+            div class: "min-w-0 flex-1 pl-20" do
+              main class: "w-full max-w-[90ch]" do
                 h1 do
                   text page_title
                   if (msg = sub_title)
@@ -42,7 +42,7 @@ abstract class DocLayout
                   end
                 end
 
-                div class: "f-row justify-content:space-between" do
+                div class: "mt-4 flex items-center justify-between gap-6" do
                   doc = find_or_create_doc
                   raw print_doc_info(doc)
                   print_votes(doc)
@@ -50,22 +50,22 @@ abstract class DocLayout
 
                 content
 
-                footer do
+                footer class: "mt-10" do
                   mount Pager
                 end
 
-                div class: "<h5> f-row justify-content:center", style: "color: #BEBEBE" do
+                div class: "mt-8 flex justify-center text-gray-400" do
                   text "欢迎在评论区留下你的见解、问题或建议"
                 end
 
-                div id: "form_with_replies" do
+                div id: "form_with_replies", class: "mt-6" do
                   # 只是一个占位符，会被 htmx 请求覆盖
                   mount ::Docs::ReplyToDocForm, current_user: current_user, doc_path: current_path
 
                   show_replies_when_revealed
                 end
 
-                footer class: "f-row flex-wrap:wrap justify-content:center" do
+                footer class: "mt-12" do
                   mount Footer, current_user: current_user
                 end
               end
@@ -83,15 +83,15 @@ abstract class DocLayout
   private def doc_search_dialog
     dialog(
       id: "doc_search_dialog",
-      class: "margin f-col",
-      style: "max-width: 100%; width: 30em;
-max-height: 100%; height: 40em;
-padding-bottom: 0;") do
-      label "注意：中文搜索结果通常不准确, 请使用英文关键字！", for: "search-input", class: "titlebar", style: "margin-inline: calc(-1*var(--gap))"
+      class: "mx-auto mt-[16vh] h-[40em] max-h-full w-[30em] max-w-full"
+    ) do
+      label "注意：中文搜索结果通常不准确, 请使用英文关键字！", for: "search-input", class: "titlebar"
 
-      div class: "stork-wrapper-flat" do
-        input data_stork: "docs", class: "stork-input", id: "search-input"
-        div data_stork: "docs-output", class: "stork-output"
+      div class: "flex h-[40em] max-h-full w-[30em] max-w-full flex-col" do
+        div class: "stork-wrapper-flat" do
+          input data_stork: "docs", class: "stork-input", id: "search-input"
+          div data_stork: "docs-output", class: "stork-output"
+        end
       end
     end
   end
