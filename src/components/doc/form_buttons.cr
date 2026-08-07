@@ -5,18 +5,18 @@ class Docs::FormButtons < BaseComponent
   needs hx_target : String
 
   def render
-    div class: "f-row align-items:center justify-content:space-between", style: "margin-top: 5px;" do
-      span "共 #{page_count} 条回复"
+    div class: "mt-4 flex items-center justify-between gap-4" do
+      span "共 #{page_count} 条回复", class: "text-xl font-medium text-gray-900"
 
-      div class: "f-row align-items:center" do
+      div class: "flex items-center gap-3" do
         render_order_buttons(reply_path)
       end
     end
   end
 
   private def render_order_buttons(reply_path : String)
-    selected = "background-color: white; font-weight: bold; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);"
-    unselected = "background-color: #E2E7EB; border: none; text-decoration: none;"
+    selected = "inline-flex items-center rounded-full border border-sky-600 bg-white px-5 py-2 text-xl font-semibold text-sky-700 shadow-sm"
+    unselected = "inline-flex items-center rounded-full border border-transparent bg-gray-200 px-5 py-2 text-xl font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
 
     # 这里利用了一个狡黠的 htmx hack，点击下面的连接，生成的 url 如下：
     # /docs/replies/index?order_by=asc&order_by=desc
@@ -26,13 +26,12 @@ class Docs::FormButtons < BaseComponent
     [{"最早", "asc"}, {"最新", "desc"}].each do |title, order|
       a(
         title,
-        class: "chip",
-        herf: "",
+        class: order_by == order ? selected : unselected,
+        href: "#{reply_path}?order_by=#{order}",
         hx_get: "#{reply_path}?order_by=#{order}",
         hx_target: hx_target,
         hx_swap: "outerHTML",
         hx_include: "next input[name='order_by']",
-        style: order_by == order ? selected : unselected,
       )
     end
 
