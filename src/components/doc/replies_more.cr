@@ -20,7 +20,7 @@ class Docs::RepliesMore < BaseComponent
         render_emoji_buttons_and_delete_button(reply)
 
         div class: "f-row justify-content:center", id: "#{fragment_id(id)}-replies" do
-          if reply.replies_counter > 0
+          if reply.reply_id.nil? && reply.replies_counter > 0
             a(
               hx_get: "/htmx/replies/#{id}?page=1",
               hx_target: "##{fragment_id(id)}-replies",
@@ -105,9 +105,7 @@ dialog.querySelector('textarea').focus();
         }
 
         div do
-          if reply.reply_id.nil? # 只允许针对 doc 的评论进行回复
-            a("回复", opts, hx_get: Htmx::Docs::Reply::New.with(id: reply.id, user_id: me.id).path)
-          end
+          a("回复", opts, hx_get: Htmx::Docs::Reply::New.with(id: reply.id, user_id: me.id).path)
 
           if me.id == reply.user_id # 只允许编辑自己的回复
             a("编辑", opts, hx_get: Htmx::Docs::Reply::Edit.with(id: reply.id, user_id: me.id).path)

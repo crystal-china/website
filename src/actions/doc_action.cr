@@ -16,9 +16,10 @@ abstract class DocAction < BrowserAction
       current_doc = DocQuery.new.path_index(doc_path).first
       q = ReplyQuery.new.doc_id(current_doc.id)
     else
-      reply = ReplyQuery.find(id)
-      q = ReplyQuery.new.reply_id(reply.id)
-      url = "/htmx/replies/#{id}"
+      root_reply = thread_root_reply(ReplyQuery.find(id))
+      reply_ids = thread_reply_ids(root_reply.id)
+      q = reply_ids.empty? ? ReplyQuery.new.none : ReplyQuery.new.id.in(reply_ids)
+      url = "/htmx/replies/#{root_reply.id}"
     end
 
     q = order_by == "desc" ? q.id.desc_order : q.id.asc_order
@@ -31,6 +32,33 @@ abstract class DocAction < BrowserAction
       page:    page,
       url:     url,
     }
+  end
+
+  # 第一条针对评论的评论
+  protected def thread_root_reply(reply : Reply) : Reply
+    current = reply
+
+    while (parent_id = current.reply_id)
+      current = ReplyQuery.find(parent_id)
+    end
+
+    current
+  end
+
+  private def thread_reply_ids(root_reply_id : Int64) : Array(Int64)
+    reply_ids = [] of Int64
+    frontier = [root_reply_id]
+
+    until frontier.empty?
+      children = ReplyQuery.new.reply_id.in(frontier).results
+      break if children.empty?
+
+      child_ids = children.map(&.id)
+      reply_ids.concat(child_ids)
+      frontier = child_ids
+    end
+
+    reply_ids
   end
 
   memoize def formatter : Tartrazine::Formatter
