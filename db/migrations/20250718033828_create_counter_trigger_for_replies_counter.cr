@@ -5,7 +5,7 @@ class CreateCounterTriggerForRepliesCounter::V20250718033828 < Avram::Migrator::
 CREATE OR REPLACE FUNCTION increment_replies_counter()
 RETURNS TRIGGER AS $$
 BEGIN
-    -- 更新 docs 表中的 replies_counter 字段
+    -- 更新 replies 表中的 replies_counter 字段
     UPDATE replies
     SET replies_counter = replies_counter + 1
     WHERE id = NEW.reply_id;
@@ -19,7 +19,7 @@ HEREDOC
 CREATE OR REPLACE FUNCTION decrement_replies_counter()
 RETURNS TRIGGER AS $$
 BEGIN
-    -- 更新 docs 表中的 replies_counter 字段
+    -- 更新 replies 表中的 replies_counter 字段
     UPDATE replies
     SET replies_counter = replies_counter - 1
     WHERE id = OLD.reply_id;
