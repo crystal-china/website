@@ -73,6 +73,7 @@ HEREDOC
 
   private def render_emoji_buttons_and_delete_button(reply : Reply)
     me = current_user
+    has_direct_replies = ReplyQuery.new.reply_id(reply.id).any?
     voted_types = if me.nil?
                     [] of String
                   else
@@ -110,7 +111,7 @@ dialog.querySelector('textarea').focus();
           if me.id == reply.user_id # 只允许编辑自己的回复
             a("编辑", opts, hx_get: Htmx::Docs::Reply::Edit.with(id: reply.id, user_id: me.id).path)
 
-            if reply.replies_counter == 0 # 如果回复有了回复，就不再允许删除
+            if !has_direct_replies # 如果回复有了直接回复，就不再允许删除
               a(
                 "删除",
                 class: "border chip bad color",
