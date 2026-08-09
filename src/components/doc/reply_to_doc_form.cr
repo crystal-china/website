@@ -18,7 +18,7 @@ class Docs::ReplyToDocForm < BaseComponent
       text = "回复"
 
       opts = {
-        class:      "inline-flex items-center justify-center rounded-xl bg-sky-700 px-5 py-2.5 text-base font-semibold text-white transition hover:bg-sky-800 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500",
+        class:      "inline-flex items-center justify-center rounded-xl bg-sky-700 px-5 py-2 text-sm font-semibold text-white transition hover:bg-sky-800 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500",
         hx_target:  "div#replies",
         hx_include: "[name='_csrf'],next textarea",
         script:     "on click set value of next <textarea/> to ''",
@@ -72,7 +72,7 @@ class Docs::ReplyToDocForm < BaseComponent
         button(
           "取消",
           onclick: "document.getElementById('edit_dialog').close();",
-          class: "inline-flex items-center justify-center rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-base font-medium text-gray-700 transition hover:border-gray-400 hover:bg-gray-50"
+          class: "inline-flex items-center justify-center rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:border-gray-400 hover:bg-gray-50"
         )
       end
       button(text, opts)

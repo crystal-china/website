@@ -6,7 +6,7 @@ class Docs::FormButtons < BaseComponent
 
   def render
     div class: "mt-4 flex items-center justify-between gap-4" do
-      span "共 #{page_count} 条回复", class: "text-xl font-medium text-gray-900"
+      span "共 #{page_count} 条回复", class: "text-base font-medium text-gray-900"
 
       div class: "flex items-center gap-3" do
         render_order_buttons(reply_path)
@@ -15,8 +15,8 @@ class Docs::FormButtons < BaseComponent
   end
 
   private def render_order_buttons(reply_path : String)
-    selected = "inline-flex items-center rounded-full border border-sky-600 bg-white px-5 py-2 text-xl font-semibold text-sky-700 shadow-sm"
-    unselected = "inline-flex items-center rounded-full border border-transparent bg-gray-200 px-5 py-2 text-xl font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
+    selected = "inline-flex items-center rounded-full border border-sky-600 bg-white px-4 py-1.5 text-sm font-semibold text-sky-700 shadow-sm"
+    unselected = "inline-flex items-center rounded-full border border-transparent bg-gray-200 px-4 py-1.5 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
 
     # 这里利用了一个狡黠的 htmx hack，点击下面的连接，生成的 url 如下：
     # /docs/replies/index?order_by=asc&order_by=desc

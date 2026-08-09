@@ -35,14 +35,14 @@ class Docs::Form < BaseComponent
             "输入",
             for: id_input,
             flow_id: "#{html_id}-input_reply",
-            class: "label1 cursor-pointer rounded-full border border-gray-300 bg-gray-100 px-5 py-2 text-lg font-medium text-gray-600 transition"
+            class: "label1 cursor-pointer rounded-full border border-gray-300 bg-gray-100 px-5 py-2 text-base font-medium text-gray-600 transition"
           )
 
           label(
             "预览",
             for: id_preview,
             flow_id: "#{html_id}-preview_reply",
-            class: "label2 cursor-pointer rounded-full border border-transparent bg-gray-200 px-5 py-2 text-lg font-medium text-gray-500 transition",
+            class: "label2 cursor-pointer rounded-full border border-transparent bg-gray-200 px-5 py-2 text-base font-medium text-gray-500 transition",
             script: "on mouseover set x to the value of the next <textarea/>
         then if x == ''
            add @disabled to the previous <input/>
@@ -55,7 +55,7 @@ class Docs::Form < BaseComponent
           )
         end
 
-        output class: "text-center text-lg font-semibold text-gray-900 md:px-4" do
+        output class: "text-center text-base font-semibold text-gray-900 md:px-4" do
           text me.nil? ? "登录后添加评论" : "支持 markdown 格式"
         end
 
@@ -82,7 +82,7 @@ class Docs::Form < BaseComponent
       rows:  16,
       cols:  70,
       name:  "content",
-      class: "min-h-[22rem] w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-base leading-7 text-gray-900 shadow-inner transition outline-none placeholder:text-gray-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400",
+      class: "min-h-[22rem] w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm leading-7 text-gray-900 shadow-inner transition outline-none placeholder:text-gray-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400",
     }
 
     textarea_opt = textarea_opt.merge(disabled: "") if me.nil?

@@ -16,7 +16,7 @@ class Docs::RepliesMore < BaseComponent
 
         hr class: "my-5 border-0 border-t border-gray-300"
 
-        div class: "prose-neutral max-w-none prose text-[1.15rem] leading-8" do
+        div class: "prose-neutral max-w-none prose text-base leading-7" do
           raw markdown(reply.content)
         end
 
@@ -25,7 +25,7 @@ class Docs::RepliesMore < BaseComponent
         div class: "mt-4 flex justify-center", id: "#{fragment_id(id)}-replies" do
           if reply.reply_id.nil? && reply.root_replies_count > 0
             a(
-              class: "inline-flex items-center gap-2 rounded-full border border-gray-300 bg-gray-50 px-4 py-2 text-base font-medium text-gray-700 hover:border-gray-400 hover:bg-white",
+              class: "inline-flex items-center gap-2 rounded-full border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:bg-white",
               hx_get: "/htmx/replies/#{id}?page=1",
               hx_target: "##{fragment_id(id)}-replies",
               hx_swap: "outerHTML",
@@ -51,15 +51,15 @@ class Docs::RepliesMore < BaseComponent
   private def render_avatar_name_and_time(reply)
     div class: "flex items-start justify-between gap-4" do
       div class: "flex min-w-0 items-center gap-4" do
-        img src: reply.user_avatar || asset("svgs/crystal-lang-icon.svg"), class: "h-12 w-12 rounded-md border border-gray-300 bg-white object-cover p-1"
-        span reply.user_name, class: "truncate text-2xl font-semibold text-gray-900"
+        img src: reply.user_avatar || asset("svgs/crystal-lang-icon.svg"), class: "h-9 w-9 rounded-md border border-gray-300 bg-white object-cover p-1"
+        span reply.user_name, class: "truncate text-base font-semibold text-gray-900"
       end
 
       div class: "flex shrink-0 items-center gap-3" do
         a href: "##{fragment_id(reply.id)}" do
-          span TimeInWords::Helpers(TimeInWords::I18n::ZH_CN).from(past_time: reply.created_at), class: "text-xl text-sky-700 underline decoration-dotted underline-offset-2"
+          span TimeInWords::Helpers(TimeInWords::I18n::ZH_CN).from(past_time: reply.created_at), class: "text-base text-sky-700 underline decoration-dotted underline-offset-2"
         end
-        span "#{reply.preferences.floor} 楼", class: "inline-flex items-center rounded-full border border-gray-300 bg-white px-4 py-1.5 text-xl font-medium text-gray-800"
+        span "#{reply.preferences.floor} 楼", class: "inline-flex items-center rounded-full border border-gray-300 bg-white px-4 py-1.5 text-base font-medium text-gray-800"
 
         if reply_id == reply.id
           output(
@@ -83,7 +83,7 @@ class Docs::RepliesMore < BaseComponent
                   end
 
     div class: "mt-6 flex items-center justify-between gap-4" do
-      div class: "min-w-0 flex flex-wrap items-center gap-3 text-base" do
+      div class: "min-w-0 flex flex-wrap items-center gap-3 text-sm" do
         mount(
           Shared::VoteButton,
           votes: Hash(String, Int32).from_json(reply.votes.to_json),
@@ -95,7 +95,7 @@ class Docs::RepliesMore < BaseComponent
 
       if !me.nil?
         opts = {
-          class:      "inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-sky-600 px-4 py-1.5 text-lg font-medium text-sky-700 hover:bg-sky-50",
+          class:      "inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-sky-600 px-4 py-1.5 text-base font-medium text-sky-700 hover:bg-sky-50",
           hx_target:  "div#reply_to_reply-form",
           hx_swap:    "outerHTML",
           hx_include: "[name='_csrf']",
@@ -115,7 +115,7 @@ dialog.querySelector('textarea').focus();
             if !has_direct_replies # 如果回复有了直接回复，就不再允许删除
               a(
                 "删除",
-                class: "inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-red-400 px-4 py-1.5 text-lg font-medium text-red-500 hover:bg-red-50",
+                class: "inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-red-400 px-4 py-1.5 text-base font-medium text-red-500 hover:bg-red-50",
                 hx_delete: Htmx::Docs::Reply::Delete.with(id: reply.id, user_id: me.id).path,
                 hx_target: "closest article",
                 hx_swap: "outerHTML swap:1s",
