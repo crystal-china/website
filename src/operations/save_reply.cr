@@ -32,6 +32,12 @@ class SaveReply < Reply::SaveOperation
 
       reply_id.value.try do |reply_id|
         reply = ReplyQuery.find(reply_id)
+        #  - 如果父 reply 已经知道它属于哪个根 reply, 用父 reply 的 root_reply_id
+        #    即：至少是第三极评论，第一级 doc，第二级 root reply, 第三极才是父 reply
+
+        # -  如果父 reply 没有 root_reply_id, 说明父 reply 自己就是根评论, 因此就使用它的 id
+        #    此时父 reply 就是上面的第二级 root reply
+        root_reply_id.value = reply.root_reply_id || reply.id
 
         # 针对 reply 的回复，也总是继承所属文档的 doc_id。
         if doc_id.value.nil? && (parent_doc_id = reply.doc_id)
