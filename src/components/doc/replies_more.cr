@@ -8,7 +8,7 @@ class Docs::RepliesMore < BaseComponent
     pagination[:replies].each do |reply|
       id = reply.id
 
-      card_classes = "mt-6 rounded-2xl border border-gray-300 px-7 py-5 shadow-sm"
+      card_classes = "mt-6 rounded-2xl border border-gray-300 px-7 pt-5 pb-3 shadow-sm"
       card_classes += reply.reply_id ? " ml-8 bg-green-100" : " bg-white"
 
       article class: card_classes, id: fragment_id(id) do
@@ -22,19 +22,7 @@ class Docs::RepliesMore < BaseComponent
 
         render_emoji_buttons_and_delete_button(reply)
 
-        div class: "mt-4 flex justify-center", id: "#{fragment_id(id)}-replies" do
-          if reply.reply_id.nil? && reply.root_replies_count > 0
-            a(
-              class: "inline-flex items-center gap-2 rounded-full border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:bg-white",
-              hx_get: "/htmx/replies/#{id}?page=1",
-              hx_target: "##{fragment_id(id)}-replies",
-              hx_swap: "outerHTML",
-              hx_include: "previous input[name='order_by']",
-            ) do
-              text "加载评论，共 #{reply.root_replies_count} 条回复"
-              mount Shared::Spinner, text: "正在读取评论...", width: "10px"
-            end
-          end
+        div id: "#{fragment_id(id)}-replies" do
         end
       end
     end
@@ -82,8 +70,8 @@ class Docs::RepliesMore < BaseComponent
                     VoteQuery.new.user_id(me.id).reply_id(reply.id).map &.vote_type
                   end
 
-    div class: "mt-6 flex items-center justify-between gap-4" do
-      div class: "min-w-0 flex flex-wrap items-center gap-3 text-sm" do
+    div class: "mt-4 flex flex-wrap items-end justify-between gap-x-4 gap-y-3" do
+      div class: "min-w-0 flex flex-wrap items-center gap-2 text-sm" do
         mount(
           Shared::VoteButton,
           votes: Hash(String, Int32).from_json(reply.votes.to_json),
@@ -93,9 +81,23 @@ class Docs::RepliesMore < BaseComponent
         )
       end
 
+      if reply.reply_id.nil? && reply.root_replies_count > 0
+        a(
+          class: "inline-flex h-6 shrink-0 items-center px-2 text-sm font-medium text-gray-700 underline decoration-dotted underline-offset-2 hover:text-gray-900",
+          hx_get: "/htmx/replies/#{reply.id}?page=1",
+          hx_target: "##{fragment_id(reply.id)}-replies",
+          hx_swap: "outerHTML",
+          hx_include: "previous input[name='order_by']",
+          script: "on htmx:afterRequest if event.detail.successful remove me end",
+        ) do
+          text "加载评论，共 #{reply.root_replies_count} 条回复"
+          mount Shared::Spinner, text: "正在读取评论...", width: "10px"
+        end
+      end
+
       if !me.nil?
         opts = {
-          class:      "inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-sky-600 px-4 py-1.5 text-base font-medium text-sky-700 hover:bg-sky-50",
+          class:      "inline-flex h-6 shrink-0 items-center whitespace-nowrap rounded-full border border-sky-600 px-3 text-sm font-medium text-sky-700 hover:bg-sky-50",
           hx_target:  "div#reply_to_reply-form",
           hx_swap:    "outerHTML",
           hx_include: "[name='_csrf']",
@@ -106,7 +108,7 @@ dialog.querySelector('textarea').focus();
 ",
         }
 
-        div class: "flex shrink-0 flex-wrap items-center justify-end gap-3" do
+        div class: "flex shrink-0 flex-wrap items-center justify-end gap-2" do
           a("回复", opts, hx_get: Htmx::Docs::Reply::New.with(id: reply.id, user_id: me.id).path)
           
           if me.id == reply.user_id # 只允许编辑自己的回复
@@ -115,7 +117,7 @@ dialog.querySelector('textarea').focus();
             if !has_direct_replies # 如果回复有了直接回复，就不再允许删除
               a(
                 "删除",
-                class: "inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-red-400 px-4 py-1.5 text-base font-medium text-red-500 hover:bg-red-50",
+                class: "inline-flex h-6 shrink-0 items-center whitespace-nowrap rounded-full border border-red-400 px-3 text-sm font-medium text-red-500 hover:bg-red-50",
                 hx_delete: Htmx::Docs::Reply::Delete.with(id: reply.id, user_id: me.id).path,
                 hx_target: "closest article",
                 hx_swap: "outerHTML swap:1s",
