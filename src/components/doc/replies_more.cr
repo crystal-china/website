@@ -20,14 +20,14 @@ class Docs::RepliesMore < BaseComponent
         render_emoji_buttons_and_delete_button(reply)
 
         div class: "f-row justify-content:center", id: "#{fragment_id(id)}-replies" do
-          if reply.reply_id.nil? && reply.replies_counter > 0
+          if reply.reply_id.nil? && reply.root_replies_count > 0
             a(
               hx_get: "/htmx/replies/#{id}?page=1",
               hx_target: "##{fragment_id(id)}-replies",
               hx_swap: "outerHTML",
               hx_include: "previous input[name='order_by']",
             ) do
-              text "加载评论，共 #{reply.replies_counter} 条回复"
+              text "加载评论，共 #{reply.root_replies_count} 条回复"
               mount Shared::Spinner, text: "正在读取评论...", width: "10px"
             end
           end
