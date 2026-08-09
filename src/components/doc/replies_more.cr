@@ -23,7 +23,7 @@ class Docs::RepliesMore < BaseComponent
         render_emoji_buttons_and_delete_button(reply)
 
         div class: "mt-4 flex justify-center", id: "#{fragment_id(id)}-replies" do
-          if reply.replies_counter > 0
+          if reply.reply_id.nil? && reply.root_replies_count > 0
             a(
               class: "inline-flex items-center gap-2 rounded-full border border-gray-300 bg-gray-50 px-4 py-2 text-base font-medium text-gray-700 hover:border-gray-400 hover:bg-white",
               hx_get: "/htmx/replies/#{id}?page=1",
@@ -31,7 +31,7 @@ class Docs::RepliesMore < BaseComponent
               hx_swap: "outerHTML",
               hx_include: "previous input[name='order_by']",
             ) do
-              text "加载评论，共 #{reply.replies_counter} 条回复"
+              text "加载评论，共 #{reply.root_replies_count} 条回复"
               mount Shared::Spinner, text: "正在读取评论...", width: "10px"
             end
           end
@@ -75,6 +75,7 @@ class Docs::RepliesMore < BaseComponent
 
   private def render_emoji_buttons_and_delete_button(reply : Reply)
     me = current_user
+    has_direct_replies = ReplyQuery.new.reply_id(reply.id).any?
     voted_types = if me.nil?
                     [] of String
                   else
@@ -106,14 +107,12 @@ dialog.querySelector('textarea').focus();
         }
 
         div class: "flex shrink-0 flex-wrap items-center justify-end gap-3" do
-          # if reply.reply_id.nil? # 只允许针对 doc 的评论进行回复
           a("回复", opts, hx_get: Htmx::Docs::Reply::New.with(id: reply.id, user_id: me.id).path)
-          # end
-
+          
           if me.id == reply.user_id # 只允许编辑自己的回复
             a("编辑", opts, hx_get: Htmx::Docs::Reply::Edit.with(id: reply.id, user_id: me.id).path)
 
-            if reply.replies_counter == 0 # 如果回复有了回复，就不再允许删除
+            if !has_direct_replies # 如果回复有了直接回复，就不再允许删除
               a(
                 "删除",
                 class: "inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-red-400 px-4 py-1.5 text-lg font-medium text-red-500 hover:bg-red-50",

@@ -3,6 +3,7 @@ class Docs::ReplyToDocForm < BaseComponent
   needs html_id : String = "tab"
   needs doc_path : String?
   needs reply_id : Int64?
+  needs target_reply_id : Int64? = nil
 
   def render
     mount(
@@ -38,7 +39,7 @@ class Docs::ReplyToDocForm < BaseComponent
             # 为评论新增评论
             opts = opts.merge(
               hx_vals: %({"user_id": #{me.id}, "id": #{reply_id}, "op": "new"}),
-              hx_target: "#doc_reply-#{reply_id}-replies",
+              hx_target: "#doc_reply-#{target_reply_id || reply_id}-replies",
               hx_swap: "outerHTML"
             )
           else
@@ -48,7 +49,7 @@ class Docs::ReplyToDocForm < BaseComponent
             if !(id = reply.reply_id).nil?
               # 如果修改评论的评论，htmx target 直接覆盖子评论列表
               opts = opts.merge(
-                hx_target: "#doc_reply-#{id}-replies"
+                hx_target: "#doc_reply-#{target_reply_id || id}-replies"
               )
             end
 

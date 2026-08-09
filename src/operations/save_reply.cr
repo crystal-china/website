@@ -32,6 +32,12 @@ class SaveReply < Reply::SaveOperation
 
       reply_id.value.try do |reply_id|
         reply = ReplyQuery.find(reply_id)
+
+        # 针对 reply 的回复，也总是继承所属文档的 doc_id。
+        if doc_id.value.nil? && (parent_doc_id = reply.doc_id)
+          doc_id.value = parent_doc_id
+        end
+
         if (last_reply = ReplyQuery.new.reply_id(reply.id).last?)
           floor = last_reply.preferences.floor + 1
         else

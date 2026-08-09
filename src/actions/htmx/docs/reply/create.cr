@@ -21,8 +21,9 @@ class Htmx::Docs::Reply::CreateOrUpdate < DocAction
         path_for_doc = reply.preferences.path_for_doc?
         if path_for_doc.nil?
           # edit reply to reply
-          id_or_doc_path = reply.reply_id.to_s
-          html_id = "doc_reply-#{reply.reply_id}-replies"
+          root_reply = thread_root_reply(reply)
+          id_or_doc_path = root_reply.id.to_s
+          html_id = "doc_reply-#{root_reply.id}-replies"
         else
           # edit reply to doc
           id_or_doc_path = path_for_doc
@@ -30,8 +31,9 @@ class Htmx::Docs::Reply::CreateOrUpdate < DocAction
         end
       when "new"
         # new reply to reply，这个是要新建回复的那个 reply
-        id_or_doc_path = reply.id.to_s
-        html_id = "doc_reply-#{reply.id}-replies"
+        root_reply = thread_root_reply(reply)
+        id_or_doc_path = root_reply.id.to_s
+        html_id = "doc_reply-#{root_reply.id}-replies"
         reply = SaveReply.create!(user_id: user_id, reply_id: reply.id, content: content)
       end
     else

@@ -17,6 +17,7 @@ class Htmx::Docs::Reply::Edit < DocAction
       html_id: "reply_to_reply",
       reply_id: id.to_i64,
       doc_path: reply.preferences.path_for_doc?,
+      target_reply_id: reply.reply_id ? thread_root_reply(reply).id : nil,
     )
   end
 end
