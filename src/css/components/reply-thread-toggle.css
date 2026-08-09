@@ -1,0 +1,11 @@
+.reply-toggle .reply-collapse {
+  display: none;
+}
+
+article:has(.replies-content) .reply-toggle .reply-expand {
+  display: none;
+}
+
+article:has(.replies-content) .reply-toggle .reply-collapse {
+  display: inline-flex;
+}

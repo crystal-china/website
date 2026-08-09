@@ -6,7 +6,7 @@ class Docs::Replies < BaseComponent
   needs reply_id : Int64?
 
   def render
-    div role: "feed", id: html_id do
+    div role: "feed", id: html_id, class: "replies-content" do
       mount(
         ::Docs::FormButtons,
         page_count: pagination[:count],
