@@ -16,7 +16,7 @@ class SaveReply < Reply::SaveOperation
     if !id.value # 新建的时候
       doc_id.value.try do |doc_id|
         doc = DocQuery.find(doc_id)
-        if (last_reply = ReplyQuery.new.doc_id(doc.id).last?)
+        if (last_reply = ReplyQuery.new.doc_id(doc.id).reply_id.is_nil.last?)
           floor = last_reply.preferences.floor + 1
         else
           floor = 1
@@ -31,20 +31,20 @@ class SaveReply < Reply::SaveOperation
       end
 
       reply_id.value.try do |reply_id|
-        reply = ReplyQuery.find(reply_id)
+        parent_reply = ReplyQuery.find(reply_id)
         #  - 如果父 reply 已经知道它属于哪个根 reply, 用父 reply 的 root_reply_id
         #    即：至少是第三极评论，第一级 doc，第二级 root reply, 第三极才是父 reply
 
         # -  如果父 reply 没有 root_reply_id, 说明父 reply 自己就是根评论, 因此就使用它的 id
         #    此时父 reply 就是上面的第二级 root reply
-        root_reply_id.value = reply.root_reply_id || reply.id
+        root_reply_id.value = parent_reply.root_reply_id || parent_reply.id
 
         # 针对 reply 的回复，也总是继承所属文档的 doc_id。
-        if doc_id.value.nil? && (parent_doc_id = reply.doc_id)
+        if doc_id.value.nil? && (parent_doc_id = parent_reply.doc_id)
           doc_id.value = parent_doc_id
         end
 
-        if (last_reply = ReplyQuery.new.reply_id(reply.id).last?)
+        if (last_reply = ReplyQuery.new.reply_id(parent_reply.id).last?)
           floor = last_reply.preferences.floor + 1
         else
           floor = 1
