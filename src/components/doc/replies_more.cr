@@ -8,8 +8,8 @@ class Docs::RepliesMore < BaseComponent
     pagination[:replies].each do |reply|
       id = reply.id
 
-      card_classes = "mt-6 rounded-2xl border border-gray-300 bg-white px-7 py-5 shadow-sm"
-      card_classes += " ml-8 border-sky-100 bg-sky-50/30" if reply.reply_id
+      card_classes = "mt-6 rounded-2xl border border-gray-300 px-7 py-5 shadow-sm"
+      card_classes += reply.reply_id ? " ml-8 bg-green-100" : " bg-white"
 
       article class: card_classes, id: fragment_id(id) do
         render_avatar_name_and_time(reply)
