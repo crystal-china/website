@@ -9,7 +9,7 @@ class Shared::VoteButton < BaseComponent
       gray = count == 0 ? "grayscale-[50%] text-gray-300" : ""
       voted = emoji.in?(voted_types) ? "border border-black" : "border-transparent"
       config = {
-        class: "inline-flex h-6 min-w-9 items-center justify-center text-sm leading-none #{gray} #{voted}",
+        class: "inline-flex h-6 min-w-11 items-center justify-center gap-1 whitespace-nowrap rounded-full border bg-transparent px-2.5 text-sm leading-none #{gray} #{voted}",
         type:  "button",
       }
 
@@ -30,7 +30,10 @@ class Shared::VoteButton < BaseComponent
         )
       end
 
-      button("#{emoji}#{count}", config)
+      button(config) do
+        span emoji, class: "inline-block leading-none"
+        span count, class: "inline-block leading-none"
+      end
     end
   end
 end
