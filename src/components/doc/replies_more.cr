@@ -148,7 +148,7 @@ dialog.querySelector('textarea').focus();
   private def edit_dialog
     dialog(
       id: "edit_dialog",
-      class: "h-[40em] max-h-full w-[50em] max-w-full pb-0"
+      class: "mx-auto mt-[16vh] h-[40em] max-h-full w-[50em] max-w-full pb-0"
     ) do
       div id: "reply_to_reply-form" do
       end
