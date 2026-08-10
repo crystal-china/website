@@ -22,7 +22,7 @@ class Docs::RepliesMore < BaseComponent
 
         render_emoji_buttons_and_delete_button(reply)
 
-        div id: "#{fragment_id(id)}-replies-shell", class: "replies-shell" do
+        div id: "#{fragment_id(id)}-replies-shell" do
         end
       end
     end
@@ -82,13 +82,15 @@ class Docs::RepliesMore < BaseComponent
       end
 
       if reply.reply_id.nil? && reply.root_replies_count > 0
-        div class: "reply-toggle shrink-0" do
+        link_class = "inline-flex h-6 items-center px-2 text-sm font-medium text-gray-700 underline decoration-dotted underline-offset-2 hover:text-gray-900"
+        div class: "shrink-0" do
           a(
-            class: "reply-expand inline-flex h-6 items-center px-2 text-sm font-medium text-gray-700 underline decoration-dotted underline-offset-2 hover:text-gray-900",
+            class: link_class,
             hx_get: "/htmx/replies/#{reply.id}?page=1",
             hx_target: "##{fragment_id(reply.id)}-replies-shell",
             hx_swap: "innerHTML",
             hx_include: "previous input[name='order_by']",
+            "hx-on:htmx:after-request": "if (event.detail.successful) { this.hidden = true; this.nextElementSibling.hidden = false }",
           ) do
             text "加载子评论，共 #{reply.root_replies_count} 条"
             mount Shared::Spinner, text: "正在读取评论...", width: "10px"
@@ -96,10 +98,9 @@ class Docs::RepliesMore < BaseComponent
 
           a(
             "折叠子评论",
-            class: "reply-collapse inline-flex h-6 items-center px-2 text-sm font-medium text-gray-700 underline decoration-dotted underline-offset-2 hover:text-gray-900",
-            hx_get: Htmx::Null.path_without_query_params,
-            hx_target: "##{fragment_id(reply.id)}-replies",
-            hx_swap: "delete",
+            hidden: true,
+            class: link_class,
+            "hx-on:click": "document.getElementById('#{fragment_id(reply.id)}-replies')?.remove(); this.hidden = true; this.previousElementSibling.hidden = false",
           )
         end
       end
