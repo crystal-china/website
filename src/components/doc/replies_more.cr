@@ -8,13 +8,13 @@ class Docs::RepliesMore < BaseComponent
     pagination[:replies].each do |reply|
       id = reply.id
 
-      card_classes = "mt-6 rounded-2xl border border-gray-300 px-7 pt-5 pb-3 shadow-sm"
+      card_classes = "mt-6 rounded-2xl border border-gray-300 px-7 pt-2 pb-2 shadow-sm"
       card_classes += reply.reply_id ? " ml-8 bg-green-100" : " bg-white"
 
       article class: card_classes, id: fragment_id(id) do
         render_avatar_name_and_time(reply)
 
-        hr class: "my-5 border-0 border-t border-gray-300"
+        hr class: "my-2 border-0 border-t border-gray-300"
 
         div class: "prose-neutral max-w-none prose text-base leading-7" do
           raw markdown(reply.content)
@@ -37,21 +37,21 @@ class Docs::RepliesMore < BaseComponent
   end
 
   private def render_avatar_name_and_time(reply)
-    div class: "flex items-start justify-between gap-4" do
-      div class: "flex min-w-0 items-center gap-4" do
-        img src: reply.user_avatar || asset("svgs/crystal-lang-icon.svg"), class: "h-9 w-9 rounded-md border border-gray-300 bg-white object-cover p-1"
-        span reply.user_name, class: "truncate text-base font-semibold text-gray-900"
+    div class: "flex items-start justify-between gap-3" do
+      div class: "flex min-w-0 items-center gap-3" do
+        img src: reply.user_avatar || asset("svgs/crystal-lang-icon.svg"), class: "h-6 w-6 rounded-md border border-gray-300 bg-white object-cover p-0.5"
+        span reply.user_name, class: "truncate text-xs font-semibold text-gray-900"
       end
 
-      div class: "flex shrink-0 items-center gap-3" do
+      div class: "flex shrink-0 items-center gap-2" do
         a href: "##{fragment_id(reply.id)}" do
-          span TimeInWords::Helpers(TimeInWords::I18n::ZH_CN).from(past_time: reply.created_at), class: "text-base text-sky-700 underline decoration-dotted underline-offset-2"
+          span TimeInWords::Helpers(TimeInWords::I18n::ZH_CN).from(past_time: reply.created_at), class: "text-xs text-sky-700 underline decoration-dotted underline-offset-2"
         end
-        span "#{reply.preferences.floor} 楼", class: "inline-flex items-center rounded-full border border-gray-300 bg-white px-4 py-1.5 text-base font-medium text-gray-800"
+        span "#{reply.preferences.floor} 楼", class: "inline-flex items-center rounded-full border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-800"
 
         if reply_id == reply.id
           output(
-            class: "text-base font-medium text-green-600",
+            class: "text-xs font-medium text-green-600",
             script: "init transition my opacity to 0% over 3 seconds"
           ) do
             text "更新成功"
@@ -70,7 +70,7 @@ class Docs::RepliesMore < BaseComponent
                     VoteQuery.new.user_id(me.id).reply_id(reply.id).map &.vote_type
                   end
 
-    div class: "mt-4 flex flex-wrap items-end justify-between gap-x-4 gap-y-3" do
+    div class: "mt-2 flex flex-wrap items-end justify-between gap-x-4 gap-y-3" do
       div class: "min-w-0 flex flex-wrap items-center gap-2 text-sm" do
         mount(
           Shared::VoteButton,
