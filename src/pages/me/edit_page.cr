@@ -1,39 +1,105 @@
 class Me::EditPage < MainLayout
   needs op : UpdateUser
 
-  def content
-    figure do
-      figcaption "编辑我的信息"
+  def page_title
+    "编辑我的信息"
+  end
 
-      form_for Me::Update, class: "table rows" do
-        para do
-          label_for op.name, "昵称"
-          text_input op.name
+  def content
+    div class: "#{page_container_classes} py-10" do
+      section class: "mx-auto w-full max-w-3xl overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm" do
+        div class: "border-b border-gray-200 bg-gradient-to-r from-sky-50 via-white to-cyan-50 px-8 py-7" do
+          h1 "编辑我的信息", class: "text-3xl font-semibold tracking-tight text-gray-900"
+          para "更新昵称、头像和登录密码。头像目前仅支持 http/https 图片链接。", class: "mt-2 text-sm leading-6 text-gray-600"
         end
 
-        para do
-          label_for op.avatar, "头像（目前仅支持 http/https 链接）"
-          text_input op.avatar
-          if (avatar = op.avatar.value)
-            img src: avatar
+        form_for Me::Update, class: "space-y-8 px-8 py-8" do
+          div class: "grid gap-8 md:grid-cols-[minmax(0,1fr)_15rem]" do
+            div class: "space-y-6" do
+              render_text_field(
+                field: op.name,
+                label: "昵称",
+                placeholder: "输入你希望显示的名字"
+              )
+
+              render_text_field(
+                field: op.avatar,
+                label: "头像链接",
+                placeholder: "https://example.com/avatar.png",
+                autofocus: true
+              )
+
+              div class: "grid gap-6 md:grid-cols-2" do
+                render_password_field(
+                  field: op.password,
+                  label: "密码",
+                  placeholder: "留空则不修改"
+                )
+
+                render_password_field(
+                  field: op.password_confirmation,
+                  label: "确认密码",
+                  placeholder: "再次输入新密码"
+                )
+              end
+            end
+
+            render_avatar_preview
+          end
+
+          div class: "flex flex-wrap items-center justify-end gap-3 border-t border-gray-200 pt-6" do
+            a(
+              "返回",
+              href: previous_url(fallback: Home::Index),
+              class: "form-secondary"
+            )
+
+            submit(
+              "保存修改",
+              class: "form-submit"
+            )
           end
         end
+      end
+    end
+  end
 
-        para do
-          label_for op.password, "密码"
-          password_input op.password, auto_focus: true
+  private def render_text_field(field, label : String, placeholder : String, autofocus : Bool = false)
+    div class: "form-field" do
+      label_for field, label, class: "form-label"
+      text_input field, class: "form-input", placeholder: placeholder, autofocus: autofocus
+      mount Shared::FieldErrors, field
+    end
+  end
+
+  private def render_password_field(field, label : String, placeholder : String)
+    div class: "form-field" do
+      label_for field, label, class: "form-label"
+      password_input field, class: "form-input", placeholder: placeholder
+      mount Shared::FieldErrors, field
+    end
+  end
+
+  private def render_avatar_preview
+    avatar = op.avatar.value
+
+    figure class: "flex h-full flex-col rounded-2xl border border-gray-200 bg-gray-50/80 p-5" do
+      figcaption class: "text-sm font-medium text-gray-800" do
+        text "头像预览"
+      end
+
+      div class: "mt-4 flex flex-1 items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-white p-5" do
+        if avatar
+          img src: avatar, alt: "当前头像", class: "h-36 w-36 rounded-2xl object-cover shadow-sm"
+        else
+          div class: "flex h-36 w-36 items-center justify-center rounded-2xl bg-gray-900 text-4xl font-semibold text-white" do
+            text current_user.try(&.email[0].to_s.upcase) || "U"
+          end
         end
+      end
 
-        para do
-          label_for op.password, "确认密码"
-          password_input op.password_confirmation
-        end
-
-        para class: "f-row align-items:center" do
-          submit "保存"
-
-          a "返回", href: previous_url(fallback: Home::Index)
-        end
+      para class: "mt-4 text-sm leading-6 text-gray-600" do
+        text avatar ? "当前将使用上面的图片作为头像。" : "未设置头像时，会显示默认首字母占位图。"
       end
     end
   end

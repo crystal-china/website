@@ -35,19 +35,27 @@ class Shared::Field(T) < BaseComponent
   needs attribute : Avram::PermittedAttribute(T)
   needs label_text : String?
 
+  # div class: "form-field" do
+  #   label_for op.email, "电子邮件", class: "form-label"
+  #   email_input op.email, class: "form-input", autofocus: "true", placeholder: "you@example.com"
+  #   mount Shared::FieldErrors, op.email
+  # end
+
   def render(&)
-    label_for attribute, label_text
+    div class: "form-field" do
+      label_for field: attribute, text: label_text, class: "form-label"
 
-    # You can add more default options here. For example:
-    #
-    #    tag_defaults field: attribute, class: "input"
-    #
-    # Will add the class "input" to the generated HTML.
-    tag_defaults field: attribute do |tag_builder|
-      yield tag_builder
+      # You can add more default options here. For example:
+      #
+      #    tag_defaults field: attribute, class: "input"
+      #
+      # Will add the class "input" to the generated HTML.
+      tag_defaults field: attribute, class: "form-input" do |tag_builder|
+        yield tag_builder
+      end
+
+      mount Shared::FieldErrors, attribute
     end
-
-    mount Shared::FieldErrors, attribute
   end
 
   # Use a text_input by default
