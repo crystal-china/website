@@ -76,15 +76,3 @@
         @apply min-h-32 w-full;
     }
 }
-
-@layer components {
-    .prose code,
-    .markdown-preview code {
-        @apply rounded-md border border-amber-200/80 bg-amber-50 px-1.5 py-0.5 font-mono text-[0.88em] font-medium text-amber-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)];
-    }
-
-    .prose pre code,
-    .markdown-preview pre code {
-        @apply border-0 bg-transparent p-0 text-inherit shadow-none;
-    }
-}

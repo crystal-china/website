@@ -1,8 +1,25 @@
 @layer components {
+  .prose code,
+  .markdown-preview code {
+    @apply rounded-md border border-amber-200/80 bg-amber-50 px-1.5 py-0.5 font-mono text-[0.88em] font-medium text-amber-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)];
+  }
+
+  .prose pre code,
+  .markdown-preview pre code {
+    @apply border-0 bg-transparent p-0 text-inherit shadow-none;
+  }
+
   .prose a,
   .markdown-preview a {
     @apply text-[1.1em] font-medium underline decoration-dotted underline-offset-2 hover:decoration-solid;
     color: #145591;
+  }
+
+  .prose a:not(.anchor)::after,
+  .markdown-preview a:not(.anchor)::after {
+    content: "✦";
+    @apply ml-0.5 inline-block text-[0.68em] align-super no-underline;
+    color: currentcolor;
   }
 
   .prose ul,
