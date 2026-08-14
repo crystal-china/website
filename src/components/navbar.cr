@@ -12,17 +12,20 @@ class Navbar < BaseComponent
             li do
               if current_path.starts_with?("/docs")
                 tag "search" do
-                  strong do
-                    button "搜索文档", onclick: "document.getElementById('doc_search_dialog').showModal();", flow_id: "doc_index"
-                  end
+                  button(
+                    "搜索文档",
+                    class: nav_item_class,
+                    onclick: "document.getElementById('doc_search_dialog').showModal();",
+                    flow_id: "doc_index"
+                  )
                 end
               else
-                a "学习文档", href: "/docs/index", flow_id: "doc_index"
+                a "学习文档", href: "/docs/index", flow_id: "doc_index", class: nav_item_class
               end
             end
 
             li do
-              a "本站源码", href: "https://github.com/crystal-china/website"
+              a "本站源码", href: "https://github.com/crystal-china/website", class: nav_item_class
             end
 
             me = current_user
@@ -30,6 +33,7 @@ class Navbar < BaseComponent
               li do
                 link(
                   "登出",
+                  class: nav_item_class,
                   to: SignIns::Delete,
                   flow_id: "sign-out-button",
                   hx_target: "body",
@@ -39,10 +43,10 @@ class Navbar < BaseComponent
                 )
               end
 
-              li { link me.email, to: Me::Edit }
+              li { link me.email, to: Me::Edit, class: nav_item_class }
             else
-              li { link "注册", to: SignUps::New }
-              li { link "登录", to: SignIns::New }
+              li { link "注册", to: SignUps::New, class: nav_item_class }
+              li { link "登录", to: SignIns::New, class: nav_item_class }
             end
           end
         end
@@ -52,5 +56,9 @@ class Navbar < BaseComponent
     div class: "flex justify-end" do
       mount Shared::FlashMessages, context.flash
     end
+  end
+
+  private def nav_item_class
+    "inline-flex items-center rounded-md px-3 py-1.5 text-sm font-medium text-gray-800 no-underline transition hover:bg-gray-100 hover:text-gray-950"
   end
 end

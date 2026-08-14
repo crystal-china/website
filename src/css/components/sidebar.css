@@ -6,24 +6,25 @@
   }
 
   #sidebar li {
-    @apply my-1.5;
+    @apply my-1;
   }
 
   #sidebar a {
-    @apply text-base font-medium text-[#145591] underline decoration-dotted underline-offset-2 hover:decoration-solid;
+    @apply inline-flex items-center rounded-md px-2 py-1 text-base font-medium text-gray-800 no-underline transition hover:bg-gray-100 hover:text-gray-950;
   }
 
-  nav a.active,
-  nav a:active {
-    background-color: #3182ce;
-    color: #fff;
-    border-radius: 6px;
-    text-decoration: none;
+  #sidebar nav a.active,
+  #sidebar nav a:active {
+    @apply bg-gray-200 text-gray-950;
   }
 
-  nav a:focus-visible {
+  #sidebar nav a:focus-visible {
     outline: 2px solid #63b3ed;
     outline-offset: 2px;
     border-radius: 6px;
+  }
+
+  #sidebar ul ul a {
+    @apply text-[0.98rem] font-normal text-gray-700;
   }
 }
