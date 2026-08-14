@@ -24,6 +24,8 @@ module MarkdownHelpers
       )
     end
 
-    raw(MARKDOWN_CACHE.fetch(markdown_path) { markdown content })
+    div class: "prose" do
+      raw(MARKDOWN_CACHE.fetch(markdown_path) { markdown content })
+    end
   end
 end
