@@ -10,7 +10,7 @@ function copyCodeButton(blockElt) {
             button.className = "copyBtn";
             button.setAttribute(
                 "style",
-                "background: #24273a; color: white; border: none;",
+                "float: right; padding: 0; border: 0; line-height: 1; background: transparent;",
             );
             button.innerText = copyButtonLabel;
         }
