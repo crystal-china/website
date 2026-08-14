@@ -22,6 +22,17 @@
     color: currentcolor;
   }
 
+  .prose .anchor,
+  .markdown-preview .anchor {
+    @apply mr-1 inline-block no-underline;
+  }
+
+    /* ::before 的意思更准确是： 给这个元素自身的 `内容' 前面插入一个伪元素 */
+  .prose .anchor::before,
+  .markdown-preview .anchor::before {
+    content: "§";
+  }
+
   .prose ul,
   .markdown-preview ul {
     @apply my-4 list-disc ps-[1.5em];
