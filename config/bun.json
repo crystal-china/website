@@ -11,7 +11,6 @@
         "src",
         "public/docs",
         "public/models",
-        "public/puppies",
         "public/svgs"
     ],
     "watchExtensions": {
@@ -20,7 +19,6 @@
     "staticDirs": [
         "public/docs",
         "public/models",
-        "public/puppies",
         "public/svgs"
     ],
     "outDir": "public/assets",
