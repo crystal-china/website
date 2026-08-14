@@ -1,25 +1,30 @@
 /* ---------------- markdown 表头样式 ---------------- */
 
-table {
+.prose table,
+.markdown-preview table {
   border: 2px solid #d1d9e0; /* 边框颜色：绿色 */
   border-radius: 10px; /* 添加圆角 */
   border-collapse: collapse; /* 合并边框 */
   box-shadow: 2px 2px 5px gray; /* 添加阴影 */
 }
 
-table th {
+.prose table th,
+.markdown-preview table th {
   background-color: #ffffff; /* 表头背景颜色，类似于 GitHub 的浅灰色 #f6f8fa */
   font-weight: bold;
 }
 
-table th,
-table td {
+.prose table th,
+.prose table td,
+.markdown-preview table th,
+.markdown-preview table td {
   border: 1px solid #d1d9e0; /* 单元格边框 */
   padding: 10px;
   text-align: left;
 }
 
 /* 偶数行背景色（交替颜色） */
-table tr:nth-child(even) {
+.prose table tr:nth-child(even),
+.markdown-preview table tr:nth-child(even) {
   background-color: #ffffff; /* 浅灰色 */
 }

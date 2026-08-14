@@ -14,13 +14,19 @@
 /* Default Lucky styles. */
 /* Delete these when you're ready to bring in your own CSS. */
 
+/* 在 Tailwind v4 里，这个导入默认就会带上 Preflight。 */
+/* Preflight 就是 Tailwind 那层“reset / normalize-ish base styles”。 */
+
 @import "tailwindcss";
+
 @source "../**/*.cr";
 
 /* 如果你要自定义主题，再加： */
 /* @config "../../tailwind.config.js"; */
 
+/* - base：默认底色 */
+/* - components：组件/作用域规则 */
+/* - utilities：页面现场手工指定，优先级最高 */
 @import "./base/**/*.css";
 @import "./components/**/*.css";
-@import "./layout/**/*.css";
 @import "./utilities/**/*.css";

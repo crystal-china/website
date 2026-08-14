@@ -1,0 +1,29 @@
+@layer components {
+  /* ---------------- 侧边栏 ---------------- */
+
+  #sidebar ul {
+    @apply my-0 list-none ps-0;
+  }
+
+  #sidebar li {
+    @apply my-1.5;
+  }
+
+  #sidebar a {
+    @apply text-base font-medium text-[#145591] underline decoration-dotted underline-offset-2 hover:decoration-solid;
+  }
+
+  nav a.active,
+  nav a:active {
+    background-color: #3182ce;
+    color: #fff;
+    border-radius: 6px;
+    text-decoration: none;
+  }
+
+  nav a:focus-visible {
+    outline: 2px solid #63b3ed;
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+}
