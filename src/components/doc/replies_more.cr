@@ -71,7 +71,7 @@ class Docs::RepliesMore < BaseComponent
                   end
 
     div class: "mt-2 flex flex-wrap items-end justify-between gap-x-4 gap-y-3" do
-      div class: "min-w-0 flex flex-wrap items-center gap-2 text-sm" do
+      div class: "flex min-w-0 flex-wrap items-center gap-2 text-sm" do
         mount(
           Shared::VoteButton,
           votes: Hash(String, Int32).from_json(reply.votes.to_json),
@@ -107,7 +107,7 @@ class Docs::RepliesMore < BaseComponent
 
       if !me.nil?
         opts = {
-          class:      "inline-flex h-6 shrink-0 items-center whitespace-nowrap rounded-full border border-sky-600 px-3 text-sm font-medium text-sky-700 hover:bg-sky-50",
+          class:      "inline-flex h-6 shrink-0 items-center rounded-full border border-sky-600 px-3 text-sm font-medium whitespace-nowrap text-sky-700 hover:bg-sky-50",
           hx_target:  "div#reply_to_reply-form",
           hx_swap:    "outerHTML",
           hx_include: "[name='_csrf']",
@@ -120,14 +120,14 @@ dialog.querySelector('textarea').focus();
 
         div class: "flex shrink-0 flex-wrap items-center justify-end gap-2" do
           a("回复", opts, hx_get: Htmx::Docs::Reply::New.with(id: reply.id, user_id: me.id).path)
-          
+
           if me.id == reply.user_id # 只允许编辑自己的回复
             a("编辑", opts, hx_get: Htmx::Docs::Reply::Edit.with(id: reply.id, user_id: me.id).path)
 
             if !has_direct_replies # 如果回复有了直接回复，就不再允许删除
               a(
                 "删除",
-                class: "inline-flex h-6 shrink-0 items-center whitespace-nowrap rounded-full border border-red-400 px-3 text-sm font-medium text-red-500 hover:bg-red-50",
+                class: "inline-flex h-6 shrink-0 items-center rounded-full border border-red-400 px-3 text-sm font-medium whitespace-nowrap text-red-500 hover:bg-red-50",
                 hx_delete: Htmx::Docs::Reply::Delete.with(id: reply.id, user_id: me.id).path,
                 hx_target: "closest article",
                 hx_swap: "outerHTML swap:1s",
