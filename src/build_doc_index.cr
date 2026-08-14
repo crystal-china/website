@@ -20,6 +20,7 @@ str = String.build do |io|
   io << "]"
 end
 
+Dir.mkdir_p("tmp")
 File.write("tmp/index.toml", str)
 
 system("bin/stork build --input tmp/index.toml --output public/docs/index.st")
