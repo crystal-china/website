@@ -1,6 +1,6 @@
 ## 调用方法时传递关键字参数
 
-```
+```info
 Crystal 中，当定义一个方法时，无需特殊的语法来声明关键字参数类型，因为他和普通的位置参数是一样的。
 
 当调用一个方法并传递实参进来时，既可以使用正常的**位置参数方式**调用，也可以使用**关键字参数**方式调用
@@ -64,7 +64,7 @@ foo(a: 100) # => foo(a)
 foo(b: 100) # => foo(b)
 ```
 
-```
+```info
 参数名不同的情况下，必须添加 *，强制要求必须使用关键字参数方式调用, 才能正确区分。
 ```
 
@@ -185,7 +185,7 @@ Hash#~~key~~ => Hash#key_for
 ~~\_\_dir\_\_~~ => \_\_DIR\_\_
 
 
-```
+```info
 类似这样的变更，使用脚本替换相对简单，可以参考 [port_ruby_to_crystal 脚本](https://github.com/crystal-china/port_ruby_to_crystal/blob/master/bin/port_ruby_to_crystal)。
 
 

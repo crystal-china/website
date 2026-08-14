@@ -45,7 +45,7 @@ Crystal 中的字符串是由连续的 UTF-8 编码的 unicode 字符组成的�
 空字符(null character, codepoint 0) 在 Crystal 的字符串中仅仅是一个普通字符，并不作为字符串的结尾标志，实际字符串大小，取决于字符串对象的 #size 方法返回值。
 
 
-```
+```info
 和 Ruby 不同，单引号字符串，例如：‘Hello' 在 Crystal中是不合法的。
 
 类似于 C，以及 Rust, Crystal 中的字符串必须使用**双引号**表示，例如："Hello!"
@@ -107,7 +107,7 @@ String#[]			字符串切片，例如："hello"[1..3] => ell
 
 调用传递参数的方法，括号也是可选的，通常只有在特定场景下，读起来像自然语言且更容易理解时才会省略括号。
 
-```
+```info
 不同于 Ruby，Crystal 中调用一个方法并传递参数时，同一个实参既可以使用**普通方式**传递，也可以使用**关键字参数**方式调用
 
 更多详情见 [**调用方法时传递关键字参数**](for_advanced_rubyists/methods#anchor-调用方法时传递关键字参数)
@@ -137,7 +137,7 @@ say_hello 100 # => Error: expected argument #1 to 'say_hello' to be String, not 
 以及精确限制返回值类型。
 
 
-```
+```info
 可以在方法体(body)的任何地方通过 return ??? 语句提前返回方法，传递给 return 的参数将作为返回值。
 
 return 没有任何参数将返回 nil 
@@ -173,7 +173,7 @@ end
 add(1, 2) # => 3
 ```
 
-```
+```info
 你总可以通过 ``::`` 来引用顶级作用域中存在的定义, 甚至是定义在顶级作用域的方法。
 ```
 
@@ -201,7 +201,7 @@ p! a.hello # => "Hello in the top-level scope!"
 p! a.const # => "::CONST"
 ```
 
-```
+```info
 顶级作用域中定义的的变量是 local 的，在方法中无法被看到，这点和很多语言，例如，JavaScript, Python，BASH 不同！
 ```
 

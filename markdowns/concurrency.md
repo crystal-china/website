@@ -1,4 +1,4 @@
-```
+```info
 Crystal 原生支持 `并发原语`，这可能是除了`编译语言性能`以及`类型安全`之外，最让人激动地事情。
 ```
 自从 2024 年二月 25 日，[0002 有关执行上下文(execution context)草案](https://github.com/crystal-lang/rfcs/blob/rfc-0002-mt-execution-contexts/text/0002-execution-contexts.md) 被提交，
@@ -16,13 +16,13 @@ spawn 关键字原语，创建 Fibers(其他语言中的轻量级线程，例如
 下面分享几条有关 concurrency/parallelism 的铁律，如果你不理解没关系，看完所有文章
 再回头看，你就会明白了。
 
-```
+```info
 Concurrency is about struct, parallelism is about execution.
 
 并发是一种程序结构设计方法，并行则是有关于如何执行。
 ```
 
-```
+```info
 We do not write parallel code, only concurrent code that we hope will be run in parallel
 
 parallelism is a property of the runtime of our program, not the code.
@@ -32,7 +32,7 @@ parallelism is a property of the runtime of our program, not the code.
 并行是我们程序的一个 `运行时` 可选项，跟代码无关（即，我们只需要 concurrency 的方式编写代码就够了）
 ```
 
-```
+```info
 Do not communicate by sharing memory. Instead, share memory by communicating.
 
 不要通过共享内存中数据来在进程间通讯，代之，通过通讯(即：Channel)来传递数据。

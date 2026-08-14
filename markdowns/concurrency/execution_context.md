@@ -11,7 +11,7 @@ Issue: "https://github.com/crystal-lang/crystal/issues/15342"
 例如, 在存在 sleeping 线程的时候, 总是避免 block 纤程, 同时允许开发者手动的
 创建以及选择不同的 execution contexts 来运行 Fiber.
 
-```
+```info
 这个特性灵感来自于: Golang 和 Kotlin
 ```
 
@@ -28,7 +28,7 @@ Issue: "https://github.com/crystal-lang/crystal/issues/15342"
 
 ## 并发（Concurrency）
 
-```
+```info
 本 RFC 主要讨论 parallelism, 这里仅快速总结一下 concurrency.
 ```
 
@@ -115,7 +115,7 @@ scheduler/event-loop，这样做会引发许多复杂的潜在问题。
 
 下面的话不好翻译，继续引用原内容
 
-```
+```info
 Technically we can (`Thread.new` is undisclosed API but can be called), 
 yet calling anything remotely related to fibers or the event-loop is dangerous as 
 it will immediately create a scheduler for the thread, and/or an event-loop for
@@ -197,7 +197,7 @@ concurrency, 例如：GUI主循环（Git.main）, 游戏循环(game loop) 以及
 执行上下文可以配置仅使用一个线程，因此关闭了默认 context 内部并行能力。然而，仍旧
 可以和其他 context 并行运行！
 
-```
+```info
 直到 Crystal 2.0 之前，默认的 execution context 仍然是单线程（ST）模式。
 需要一个编译时选项，例如：-Dmt 来让默认 context 使用多线程模式。
 ```

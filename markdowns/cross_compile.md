@@ -256,7 +256,7 @@ lib
 </details>
 
 
-```
+```info
 另一个更好的选择是，你无需配置 Ruby ，也无需搭梯子，直接从 [项目 release 页面](https://github.com/crystal-china/magic-haversack/releases/latest)
 下载 `libs.tar.gz` 并解压缩到项目根目录即可。
 ```
@@ -300,7 +300,7 @@ bin/college: ELF 64-bit LSB executable, x86-64, version 1 (SYSV), static-pie lin
 sb_static --production --no-debug --link-flags=-s
 ```
 
-```
+```info
 本站在部署时，正是使用上面的脚本构建，生成一个静态可执行文件，然后拷贝这一个文件
 到远程服务器即可，非常简单！
 
@@ -353,5 +353,4 @@ bin/college: Mach-O 64-bit arm64 executable, flags:<NOUNDEFS|DYLDLINK|TWOLEVEL|N
 ------
 
 访问 [magic-haversack](https://github.com/crystal-china/magic-haversack) 项目主页的 REAME 以及 doc 了解更多的信息。
-
 

@@ -4,6 +4,32 @@
     @apply rounded-md border border-amber-200/80 bg-amber-50 px-1.5 py-0.5 font-mono text-[0.88em] font-medium text-amber-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)];
   }
 
+  .prose .box.info,
+  .markdown-preview .box.info {
+    @apply my-6 overflow-hidden rounded-md border border-[#2d8be3] bg-[#d9ebfb] py-0 text-slate-950 shadow-none;
+  }
+
+  .prose .box.info .titlebar,
+  .markdown-preview .box.info .titlebar {
+    @apply m-0 flex items-center gap-2.5 bg-[#2d8be3] px-4 py-1.5 text-[1.18rem] font-bold leading-none tracking-tight text-white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  }
+
+  .prose .box.info > :not(.titlebar),
+  .markdown-preview .box.info > :not(.titlebar) {
+    @apply mx-0 px-4 text-[0.97em] leading-[1.48] text-slate-950;
+  }
+
+  .prose .box.info > :last-child,
+  .markdown-preview .box.info > :last-child {
+    @apply pb-3;
+  }
+
+  .prose .box.info > :not(.titlebar):first-of-type,
+  .markdown-preview .box.info > :not(.titlebar):first-of-type {
+    @apply pt-3;
+  }
+
   .prose pre code,
   .markdown-preview pre code {
     @apply border-0 bg-transparent p-0 text-inherit shadow-none;

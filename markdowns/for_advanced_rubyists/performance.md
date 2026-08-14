@@ -7,7 +7,7 @@
 
 ## 不要过早的优化
 
-```
+```info
 > We should forget about small efficiencies, say about 97% of the time: premature optimization is the root of all evil. 
 > Yet we should not pass up our opportunities in that critical 3%.
 
@@ -74,7 +74,7 @@ struct 637.87M (  1.57ns) (±20.96%)   0.0B/op        fastest
 
 但是 struct 也不是万能的，struct 按照值的方式传递（而不是大多数对象采用的引用方式传递）
 
-```
+```info
 任何时候，一个 struct 对象 `（作为参数）被 传递` 或 `返回` 时，都会创建一个新的副本。
 如果恰巧在传递后修改了它，则只是修改的副本，这点极容易引起 bug。
 ```

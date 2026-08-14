@@ -29,7 +29,7 @@ Ruby 社区的开发者加入，甚至部分核心开发者认为学习 Crystal 
 
 ## 空安全（Null Safety）
 
-```
+```info
 > “I call it my billion-dollar mistake. It was the invention of the null reference in 1965.”
 
 > At that time, I was designing the first comprehensive type system for references
@@ -119,7 +119,7 @@ a.size # Error: undefined method 'size' for Nil (compile-time type is (String | 
 
 提起 CSP(Communicating Sequential Processes), 大多数接触过的人首先会想到 golang 的 goroutine/Chan。
 
-```
+```info
 Crystal 同样从设计之初就使用 Fiber/Chanel 实现了同样的 CSP 模型。
 
 没错，这就是 Ruby 一直想做，但是一直没做到的事情。

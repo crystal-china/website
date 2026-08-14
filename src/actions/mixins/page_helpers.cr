@@ -53,13 +53,10 @@ module PageHelpers
   end
 
   MARKDOWN_OPTIONS = Markd::Options.new(gfm: true, toc: true)
+  INFO_FENCE_RE    = /(?m)^```info[ \t]*\n([\s\S]*?)^```[ \t]*$/
 
   def markdown(text) : String
-    Markd.to_html(
-      text,
-      formatter: formatter,
-      options: MARKDOWN_OPTIONS
-    )
+    render_markdown_with_callouts(text)
   end
 
   def current_path
@@ -112,6 +109,31 @@ module PageHelpers
         voted_types: voted_types
       )
     end
+  end
+
+  private def render_markdown_with_callouts(text : String) : String
+    render_plain_markdown(
+      text.gsub(INFO_FENCE_RE) do
+        render_markdown_callout($1)
+      end
+    )
+  end
+
+  private def render_plain_markdown(text : String) : String
+    Markd.to_html(
+      text,
+      formatter: formatter,
+      options: MARKDOWN_OPTIONS
+    )
+  end
+
+  private def render_markdown_callout(content : String) : String
+    <<-HTML
+<div class="box info">
+  <strong class="titlebar block">💡 小提示</strong>
+  #{render_plain_markdown(content)}
+</div>
+HTML
   end
 
   private def show_replies_when_revealed
