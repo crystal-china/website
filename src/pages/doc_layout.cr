@@ -33,19 +33,22 @@ abstract class DocLayout
 
             div class: "min-w-0 flex-1 pl-20" do
               main class: "w-full max-w-[90ch]" do
-                h1 do
-                  text page_title
+                div class: "doc-page-header" do
+                  h1 class: "doc-page-title" do
+                    text page_title
+                  end
+
                   if (msg = sub_title)
-                    tag "sub-title" do
+                    para class: "doc-page-subtitle" do
                       text msg
                     end
                   end
-                end
 
-                div class: "mt-4 flex items-center justify-between gap-6" do
-                  doc = find_or_create_doc
-                  raw print_doc_info(doc)
-                  print_votes(doc)
+                  div class: "doc-page-meta" do
+                    doc = find_or_create_doc
+                    raw print_doc_info(doc)
+                    print_votes(doc)
+                  end
                 end
 
                 content

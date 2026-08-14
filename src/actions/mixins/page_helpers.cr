@@ -91,7 +91,7 @@ module PageHelpers
 
     doc_info = "#{doc_info}  | #{doc.view_count}次阅读" if doc.view_count > 0
 
-    "<blockquote>#{doc_info}</blockquote>"
+    %(<p class="doc-page-meta-text">#{doc_info}</p>)
   end
 
   def print_votes(doc)
@@ -103,7 +103,7 @@ module PageHelpers
                     VoteQuery.new.user_id(me.id).doc_id(doc.id).map &.vote_type
                   end
 
-    div do
+    div class: "doc-page-votes" do
       mount(
         Shared::VoteButton,
         votes: Hash(String, Int32).from_json(doc.votes.to_json),

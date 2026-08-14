@@ -1,0 +1,25 @@
+@layer components {
+  .doc-page-header {
+    @apply mb-8 border-b border-gray-200 pb-5;
+  }
+
+  .doc-page-title {
+    @apply mt-6 mb-2 text-[2.55rem] font-semibold tracking-tight text-gray-950;
+  }
+
+  .doc-page-subtitle {
+    @apply my-0 text-[1.38rem] leading-tight font-medium tracking-[0.02em] text-gray-500;
+  }
+
+  .doc-page-meta {
+    @apply mt-3 flex items-center justify-between gap-6;
+  }
+
+  .doc-page-meta-text {
+    @apply m-0 text-[0.98rem] leading-7 text-gray-600;
+  }
+
+  .doc-page-votes {
+    @apply flex shrink-0 items-center gap-2 text-gray-700;
+  }
+}
