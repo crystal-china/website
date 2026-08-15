@@ -11,7 +11,7 @@
 
   .prose .box.info .titlebar,
   .markdown-preview .box.info .titlebar {
-    @apply m-0 flex items-center gap-2.5 bg-[#2d8be3] px-4 py-1.5 text-[1.18rem] font-bold leading-none tracking-tight text-white;
+    @apply m-0 flex items-center gap-2.5 bg-[#2d8be3] px-4 py-1.5 text-[1.18rem] leading-none font-bold tracking-tight text-white;
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
   }
 
@@ -44,7 +44,7 @@
   .prose a:not(.anchor)::after,
   .markdown-preview a:not(.anchor)::after {
     content: "✦";
-    @apply ml-0.5 inline-block text-[0.68em] align-super no-underline;
+    @apply ml-0.5 inline-block align-super text-[0.68em] no-underline;
     color: currentcolor;
   }
 

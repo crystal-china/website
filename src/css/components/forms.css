@@ -8,7 +8,7 @@
   }
 
   .form-input {
-    @apply block w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 shadow-sm outline-none transition placeholder:text-gray-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-100;
+    @apply block w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 shadow-sm transition outline-none placeholder:text-gray-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-100;
   }
 
   .form-submit {
