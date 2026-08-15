@@ -9,6 +9,10 @@
     @apply my-1;
   }
 
+  #sidebar nav > ul > li + li {
+    @apply mt-3;
+  }
+
   #sidebar a {
     @apply inline-flex items-center rounded-md px-2 py-1 text-base font-medium text-gray-800 no-underline transition hover:bg-gray-100 hover:text-gray-950;
   }
@@ -25,6 +29,10 @@
   }
 
   #sidebar ul ul a {
-    @apply text-[0.98rem] font-normal text-gray-700;
+    @apply text-[0.92rem] font-normal text-gray-600;
+  }
+
+  #sidebar ul ul li {
+    @apply my-0.5;
   }
 }

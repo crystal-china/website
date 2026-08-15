@@ -3,7 +3,7 @@ class Sidebar < BaseComponent
     if !ary.empty?
       expanded = ary.any? { |child| current_path.in? [this_path, child.path] } ? "block" : "hidden"
 
-      ul class: "#{expanded} pl-5 text-base font-normal" do
+      ul class: "#{expanded} pl-5" do
         ary.each do |child|
           a_attr = {
             href: child.path,
@@ -24,7 +24,7 @@ class Sidebar < BaseComponent
   end
 
   def render
-    h1 "目录"
+    h1 "目录", class: "my-4"
 
     nav do
       ul role: "nested-list" do
