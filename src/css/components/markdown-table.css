@@ -1,34 +1,31 @@
-/* ---------------- markdown 表头样式 ---------------- */
+@layer components {
+  /* ---------------- markdown 表头样式 ---------------- */
 
-.prose table,
-.markdown-preview table {
-  border: 1px solid #d7dee7; /* 边框颜色：绿色 */
-  border-radius: 10px; /* 添加圆角 */
-  border-collapse: collapse; /* 合并边框 */
-  overflow: hidden;
-  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08); /* 添加阴影 */
-  background-color: #ffffff;
-}
+  .prose table,
+  .markdown-preview table {
+    @apply my-6 w-full border-collapse overflow-hidden rounded-[10px] bg-white text-left tabular-nums;
+    border: 1px solid #d7dee7; /* 边框颜色：绿色 */
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08); /* 添加阴影 */
+  }
 
-.prose table th,
-.markdown-preview table th {
-  background-color: #eef3f8; /* 表头背景颜色，类似于 GitHub 的浅灰色 #f6f8fa */
-  color: #0f172a;
-  font-weight: bold;
-}
+  .prose table th,
+  .markdown-preview table th {
+    @apply px-[18px] py-3 font-bold;
+    background-color: #eef3f8; /* 表头背景颜色，类似于 GitHub 的浅灰色 #f6f8fa */
+    color: #0f172a;
+  }
 
-.prose table th,
-.prose table td,
-.markdown-preview table th,
-.markdown-preview table td {
-  border: 1px solid #d7dee7; /* 单元格边框 */
-  padding: 12px 18px;
-  text-align: left;
-  vertical-align: top;
-}
+  .prose table th,
+  .prose table td,
+  .markdown-preview table th,
+  .markdown-preview table td {
+    @apply px-[18px] py-3 text-left align-top;
+    border: 1px solid #d7dee7; /* 单元格边框 */
+  }
 
-/* 偶数行背景色（交替颜色） */
-.prose table tr:nth-child(even),
-.markdown-preview table tr:nth-child(even) {
-  background-color: #f8fafc; /* 浅灰色 */
+  /* 偶数行背景色（交替颜色） */
+  .prose table tr:nth-child(even),
+  .markdown-preview table tr:nth-child(even) {
+    background-color: #f8fafc; /* 浅灰色 */
+  }
 }

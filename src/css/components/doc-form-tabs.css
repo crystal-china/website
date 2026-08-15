@@ -1,24 +1,26 @@
-/* ---------------- 文档评论表单 tabs ---------------- */
-.input1:checked ~ div .label1 {
+@layer components {
+  /* ---------------- 文档评论表单 tabs ---------------- */
+  .input1:checked ~ div .label1 {
     @apply border-sky-300 bg-white text-gray-900;
-}
+  }
 
-.input2:checked ~ div .label2 {
+  .input2:checked ~ div .label2 {
     @apply border-sky-300 bg-white text-gray-900;
-}
+  }
 
-.input1:checked ~ .panel1 {
+  .input1:checked ~ .panel1 {
     @apply block;
-}
+  }
 
-.input2:checked ~ .panel2 {
+  .input2:checked ~ .panel2 {
     @apply block;
-}
+  }
 
-.label1:hover {
+  .label1:hover {
     @apply border-sky-300 bg-white text-gray-900;
-}
+  }
 
-.label2:hover {
+  .label2:hover {
     @apply border-gray-300 text-gray-700;
+  }
 }

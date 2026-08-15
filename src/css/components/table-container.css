@@ -1,53 +1,49 @@
-/* 设置表格容器，只显示 10 行 */
-div.table-container {
-  max-height: calc(10 * 2em); /* 每行高度约 2em，可根据需要调节 */
-  overflow-y: auto; /* Y 轴滚动条 */
-  border: 1px solid #ccc; /* 为区域添加边框 */
-}
+@layer components {
+  /* 设置表格容器，只显示 10 行 */
+  div.table-container {
+    @apply overflow-y-auto;
+    max-height: calc(10 * 2em); /* 每行高度约 2em，可根据需要调节 */
+    border: 1px solid #ccc; /* 为区域添加边框 */
+  }
 
-div.table-container table {
-  width: 100%;
-  border-collapse: collapse; /* 合并边框 */
-}
+  div.table-container table {
+    @apply w-full border-collapse; /* 合并边框 */
+  }
 
-div.table-container table th,
-div.table-container table td {
-  border: 1px solid #ccc;
-  padding: 8px;
-  text-align: center;
-  vertical-align: middle; /* 垂直居中 */
-  position: relative;
-  /* padding: 5px; */
-}
+  div.table-container table th,
+  div.table-container table td {
+    @apply relative px-2 py-2 text-center align-middle;
+    border: 1px solid #ccc;
+    /* padding: 5px; */
+  }
 
-/* 提示框的基本样式 */
-div.table-container table td:hover::after {
-  content: attr(data-tooltip-decoded);
-  position: absolute;
-  top: -35px; /* 提示框的位置（调整到单元格上方） */
-  left: 50%;
-  transform: translateX(-50%); /* 水平居中 */
-  background-color: #333; /* 背景颜色 */
-  color: #fff; /* 字体颜色 */
-  padding: 5px 10px; /* 提示框内边距 */
-  border-radius: 4px; /* 圆角样式 */
-  white-space: nowrap; /* 不换行 */
-  font-size: 12px; /* 字体大小 */
-  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2); /* 阴影 */
-  z-index: 200; /* 提升层级，避免被遮挡 */
-  opacity: 0; /* 初始看不见 */
-  transition: opacity 0.2s; /* 动画效果 */
-  pointer-events: none; /* 避免鼠标移到提示框时触发其他交互 */
-}
+  /* 提示框的基本样式 */
+  div.table-container table td:hover::after {
+    content: attr(data-tooltip-decoded);
+    position: absolute;
+    top: -35px; /* 提示框的位置（调整到单元格上方） */
+    left: 50%;
+    transform: translateX(-50%); /* 水平居中 */
+    background-color: #333; /* 背景颜色 */
+    color: #fff; /* 字体颜色 */
+    padding: 5px 10px; /* 提示框内边距 */
+    border-radius: 4px; /* 圆角样式 */
+    white-space: nowrap; /* 不换行 */
+    font-size: 12px; /* 字体大小 */
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2); /* 阴影 */
+    z-index: 200; /* 提升层级，避免被遮挡 */
+    opacity: 0; /* 初始看不见 */
+    transition: opacity 0.2s; /* 动画效果 */
+    pointer-events: none; /* 避免鼠标移到提示框时触发其他交互 */
+  }
 
-/* 仅当 data-tooltip 存在且非空时显示提示框 */
-div.table-container table td[data-tooltip]:hover::after {
-  opacity: 1; /* 鼠标悬停时显示提示框 */
-}
+  /* 仅当 data-tooltip 存在且非空时显示提示框 */
+  div.table-container table td[data-tooltip]:hover::after {
+    opacity: 1; /* 鼠标悬停时显示提示框 */
+  }
 
-div.table-container table thead th {
-  position: sticky; /* 表头固定 */
-  top: 0; /* 表头贴近容器顶部 */
-  z-index: 10; /* 提升表头层级，避免被内容遮挡 */
-  background-color: #f4f4f4;
+  div.table-container table thead th {
+    @apply sticky top-0 z-10;
+    background-color: #f4f4f4;
+  }
 }

@@ -1,9 +1,11 @@
-/* 禁用单元格样式 */
-.disabled {
-  /* pointer-events: none; */
-  user-select: none; /* 禁止选中文本 */
-  background-color: #f5f5f5; /* 背景灰色（标识禁用） */
-  color: #888; /* 文本灰色（标识禁用） */
-  opacity: 0.6; /* 透明度减弱 */
-  cursor: not-allowed; /* 鼠标显示“禁止”图标 */
+@layer utilities {
+  /* 禁用单元格样式 */
+  .disabled {
+    /* pointer-events: none; */
+    user-select: none; /* 禁止选中文本 */
+    background-color: #f5f5f5; /* 背景灰色（标识禁用） */
+    color: #888; /* 文本灰色（标识禁用） */
+    opacity: 0.6; /* 透明度减弱 */
+    cursor: not-allowed; /* 鼠标显示“禁止”图标 */
+  }
 }

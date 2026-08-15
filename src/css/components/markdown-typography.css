@@ -92,18 +92,4 @@
     @apply my-6 border-s-4 border-gray-300 ps-4 text-gray-600 italic;
   }
 
-  .prose table,
-  .markdown-preview table {
-    @apply my-6 w-full border-collapse text-left tabular-nums;
-  }
-
-  .prose th,
-  .markdown-preview th {
-    @apply border-b border-gray-300 px-3 py-2 font-semibold;
-  }
-
-  .prose td,
-  .markdown-preview td {
-    @apply border-b border-gray-200 px-3 py-2 align-top;
-  }
 }

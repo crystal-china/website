@@ -1,6 +1,8 @@
-/* ---------------- 修改点击 emoji 时的手型 ---------------- */
+@layer utilities {
+  /* ---------------- 修改点击 emoji 时的手型 ---------------- */
 
-.emoji:hover {
-  cursor: pointer; /* 鼠标悬停时设置为手型 */
-  /* background-color: #e0e0e0; */
+  .emoji:hover {
+    cursor: pointer; /* 鼠标悬停时设置为手型 */
+    /* background-color: #e0e0e0; */
+  }
 }
