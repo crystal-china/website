@@ -9,12 +9,7 @@ class SignUps::NewPage < AuthLayout
     op = operation
 
     section class: "mx-auto grid w-full max-w-4xl gap-8 px-8 py-12 lg:grid-cols-[minmax(0,1fr)_18rem]" do
-      article class: "overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm" do
-        div class: "border-b border-gray-200 bg-gradient-to-r from-sky-50 via-white to-cyan-50 px-8 py-7" do
-          h1 "注册", class: "text-3xl font-semibold tracking-tight text-gray-900"
-          para "创建新账号并设置登录密码。完成后即可使用邮箱、密码或第三方账号登录。", class: "mt-2 text-sm leading-6 text-gray-600"
-        end
-
+      auth_card("注册", "创建新账号并设置登录密码。完成后即可使用邮箱、密码或第三方账号登录。") do
         form_for SignUps::Create, class: "space-y-6 px-8 py-8" do
           div class: "mx-auto w-full max-w-sm space-y-6" do
             mount Shared::Field, attribute: op.email, label_text: "电子邮件", &.email_input(autofocus: "true", required: "", placeholder: "you@example.com")

@@ -10,12 +10,7 @@ class PasswordResets::NewPage < AuthLayout
     op = operation
 
     section class: "mx-auto w-full max-w-3xl px-8 py-12" do
-      article class: "mx-auto overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm" do
-        div class: "border-b border-gray-200 bg-gradient-to-r from-sky-50 via-white to-cyan-50 px-8 py-7" do
-          h1 "设置新密码", class: "text-3xl font-semibold tracking-tight text-gray-900"
-          para "请输入新的登录密码，并再次确认。", class: "mt-2 text-sm leading-6 text-gray-600"
-        end
-
+      auth_card("设置新密码", "请输入新的登录密码，并再次确认。") do
         form_for PasswordResets::Create.with(@user_id), class: "space-y-6 px-8 py-8" do
           div class: "mx-auto w-full max-w-sm space-y-6" do
             mount Shared::Field, attribute: op.password, label_text: "密码", &.password_input(autofocus: "true", placeholder: "输入新的登录密码")
