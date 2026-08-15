@@ -145,7 +145,15 @@ HTML
   end
 
   private def page_container_classes
-    " mx-auto w-full max-w-7xl px-8"
+    "#{page_frame_classes} #{page_gutter_classes}"
+  end
+
+  private def page_frame_classes
+    "mx-auto w-full max-w-7xl"
+  end
+
+  private def page_gutter_classes
+    "px-8"
   end
 
   # def asset_host

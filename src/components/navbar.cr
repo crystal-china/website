@@ -1,7 +1,7 @@
 class Navbar < BaseComponent
   def render
     header class: "sticky top-0 z-50" do
-      div class: "flex items-center justify-between border-b border-black bg-[#F2F4F6] pb-4 #{page_container_classes}" do
+      div class: "flex items-center justify-between border-b border-black bg-[#F2F4F6] pt-4 pb-4 #{page_frame_classes} #{page_gutter_classes}" do
         a href: "/", class: "inline-flex shrink-0 items-center" do
           img src: asset("svgs/crystal.svg"), alt: "crystal-china", class: "w-[180px]"
           span "China", class: "ml-6 text-lg font-semibold tracking-wide text-black uppercase"
