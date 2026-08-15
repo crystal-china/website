@@ -1,12 +1,9 @@
 /* 加上下面两行，允许通过 js 点开 model 对话框后，textarea 为选中状态 */
-textarea {
-  border-radius: 6px;
-  border: 1px solid #d1d5da;
-  background: #fafbfc;
-  transition: border-color 0.2s;
+textarea:not([class]) {
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-textarea:focus {
+textarea:not([class]):focus {
   border-color: #0366d6;
   outline: none;
   box-shadow: 0 0 0 2px #c8e1ff;

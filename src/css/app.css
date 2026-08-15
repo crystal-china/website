@@ -24,6 +24,14 @@
 /* 如果你要自定义主题，再加： */
 /* @config "../../tailwind.config.js"; */
 
+/* @import "asciinema-player/dist/bundle/asciinema-player.css"; */
+
+/* 这是 code block 的样式 */
+@import "./catppuccin-macchiato.css";
+
+/* stork 搜索页面的样式 */
+@import "./stork-wrapper-flat.css";
+
 /* - base：默认底色 */
 /* - components：组件/作用域规则 */
 /* - utilities：页面现场手工指定，优先级最高 */

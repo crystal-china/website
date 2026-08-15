@@ -1,0 +1,118 @@
+@layer base {
+  /* ---------------- 页面基础尺寸 ---------------- */
+  html {
+    @apply text-[17px] leading-[1.5];
+  }
+
+  /* ---------------- 站点画布 ---------------- */
+  body {
+    @apply mx-auto max-w-[1920px] overflow-x-hidden bg-[#F8FAFB] px-10 py-5 text-gray-900;
+    font-family:
+      "Noto Sans SC",
+      "Source Han Sans SC",
+      "Microsoft YaHei",
+      "PingFang SC",
+      "Hiragino Sans GB",
+      "WenQuanYi Micro Hei",
+      system-ui,
+      sans-serif;
+  }
+
+  /* ---------------- 基础排版 ---------------- */
+  h1 {
+    @apply mt-10 mb-4 text-[2em] leading-tight font-bold tracking-tight;
+  }
+
+  h2 {
+    @apply mt-8 mb-3 text-[1.6em] leading-tight font-bold tracking-tight;
+  }
+
+  h3 {
+    @apply mt-6 mb-3 text-[1.17em] leading-snug font-semibold;
+  }
+
+  p {
+    @apply my-4;
+  }
+
+  strong,
+  b {
+    @apply font-bold;
+  }
+
+  /* ---------------- 通用交互状态 ---------------- */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-blue-600;
+  }
+
+  /* ---------------- 常见语义元素 ---------------- */
+  summary {
+    @apply cursor-pointer;
+  }
+
+  pre {
+    @apply my-6 overflow-x-auto rounded-lg bg-gray-900 p-4 text-[0.9em] text-gray-100;
+  }
+
+  img {
+    @apply h-auto max-w-full;
+  }
+
+  /* ---------------- 裸表单控件默认外观 ---------------- */
+  /* 只给“裸元素”提供最低限度默认外观。带 class 的控件由组件自己负责。 */
+  button:not([class]) {
+    @apply rounded border border-gray-300 bg-gray-50 px-3 py-2 font-medium hover:bg-gray-100;
+  }
+
+  input:not([class]):not([type="hidden"]):not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="reset"]),
+  textarea:not([class]),
+  select:not([class]) {
+    @apply rounded border border-gray-300 bg-white px-3 py-2;
+  }
+
+  textarea:not([class]) {
+    @apply min-h-32 w-full;
+  }
+
+  /* ---------------- 历史样式草稿 ---------------- */
+  /* [type='color'], */
+  /* [type='date'], */
+  /* [type='datetime'], */
+  /* [type='datetime-local'], */
+  /* [type='email'], */
+  /* [type='month'], */
+  /* [type='number'], */
+  /* [type='password'], */
+  /* [type='search'], */
+  /* [type='tel'], */
+  /* [type='text'], */
+  /* [type='time'], */
+  /* [type='url'], */
+  /* [type='week'], */
+  /* input:not([type]), */
+  /* textarea { */
+  /*   border-radius: 3px; */
+  /*   border: 1px solid #bbb; */
+  /*   margin: 7px 0 14px 0; */
+  /*   max-width: 400px; */
+  /*   padding: 8px 6px; */
+  /*   width: 100%; */
+  /* } */
+
+  /* ---------------- 暂停启用的历史规则 ---------------- */
+  /* 不知道这是干啥的，先关闭 */
+  /* dfn > code { */
+  /*   font-style: normal; */
+  /*   text-decoration: 1px dashed var(--muted-fg) underline; */
+  /* } */
+  /* code a { */
+  /*   font-family: inherit; */
+  /* } */
+
+  /* ---------------- 全局行为修复 ---------------- */
+  /* 当 body 内部包含一个打开的(open) dialog 时，禁止 body 滚动 */
+  /* 这个修复了打开 modal 对话框之后，scroll 事件仍然绑定在 body 的 bug */
+  body:has(dialog[open]) {
+    @apply overflow-hidden;
+  }
+}
