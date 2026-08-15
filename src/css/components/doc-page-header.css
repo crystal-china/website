@@ -12,7 +12,7 @@
   }
 
   .doc-page-meta {
-    @apply mt-3 flex items-center justify-between gap-6;
+    @apply mt-3 flex items-center gap-4;
   }
 
   .doc-page-meta-text {
@@ -20,6 +20,6 @@
   }
 
   .doc-page-votes {
-    @apply flex shrink-0 items-center gap-2 text-gray-700;
+    @apply ml-2 flex shrink-0 items-center gap-2 text-gray-700;
   }
 }
