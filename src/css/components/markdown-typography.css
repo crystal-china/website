@@ -50,7 +50,15 @@
 
   .prose .anchor,
   .markdown-preview .anchor {
-    @apply mr-1 inline-block no-underline;
+    @apply mr-0.5 inline-block no-underline opacity-35 transition-opacity;
+    color: #6b88a7;
+  }
+
+  .prose :is(h1, h2, h3, h4, h5, h6):hover .anchor,
+  .markdown-preview :is(h1, h2, h3, h4, h5, h6):hover .anchor,
+  .prose .anchor:focus-visible,
+  .markdown-preview .anchor:focus-visible {
+    @apply opacity-80;
   }
 
     /* ::before 的意思更准确是： 给这个元素自身的 `内容' 前面插入一个伪元素 */
