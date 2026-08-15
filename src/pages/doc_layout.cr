@@ -26,12 +26,14 @@ abstract class DocLayout
         div do
           mount Navbar, current_user: current_user
 
-          div class: "#{page_container_classes} flex items-start" do
-            header id: "sidebar", class: "sticky top-6 w-72 shrink-0 self-start border-r border-gray-300" do
-              mount Sidebar, current_user: current_user
+          div class: "mx-auto flex w-full max-w-7xl items-start" do
+            aside class: "w-80 shrink-0 self-stretch border-r border-gray-300 bg-[#F2F4F6]" do
+              header id: "sidebar", class: "sticky top-6 px-8 py-2" do
+                mount Sidebar, current_user: current_user
+              end
             end
 
-            div class: "min-w-0 flex-1 pl-20" do
+            div class: "min-w-0 flex-1 px-8 pl-20" do
               main class: "w-full max-w-[90ch]" do
                 div class: "doc-page-header" do
                   h1 class: "doc-page-title" do
