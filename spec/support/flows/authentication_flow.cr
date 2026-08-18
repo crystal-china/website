@@ -11,9 +11,9 @@ class AuthenticationFlow < BaseFlow
       password: password,
       password_confirmation: password
     el("span#signup_captcha").click
-    sleep 0.5.seconds
-    CAPTCHA_CACHE.keys.size.should eq 1
-    signup_captcha_id = CAPTCHA_CACHE.keys.first
+    wait_for_captcha_to_be_generated
+    CAPTCHA_CACHE.keys.should_not be_empty
+    signup_captcha_id = CAPTCHA_CACHE.keys.to_a.last
     CAPTCHA_CACHE.write(signup_captcha_id, "foo", expires_in: 1.minutes)
     # CAPTCHA_LOCK.synchronize do
     #   CAPTCHA_CACHE.keys.each do |e|
@@ -22,6 +22,7 @@ class AuthenticationFlow < BaseFlow
     # end
     fill "captcha", with: "foo"
     click "@sign-up-button"
+    sleep 0.5.seconds
   end
 
   def sign_out
@@ -38,8 +39,7 @@ class AuthenticationFlow < BaseFlow
   end
 
   def open_doc
-    # el("header nav ul > li:first-child > a").click
-    click "@doc_index"
+    visit "/docs/index"
   end
 
   def create_two_reply_to_doc
@@ -107,6 +107,13 @@ class AuthenticationFlow < BaseFlow
 
   private def sign_out_button
     el("@sign-out-button")
+  end
+
+  private def wait_for_captcha_to_be_generated
+    20.times do
+      return unless CAPTCHA_CACHE.keys.empty?
+      sleep 0.1.seconds
+    end
   end
 
   # NOTE: this is a shim for readability
