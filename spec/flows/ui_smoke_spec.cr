@@ -372,6 +372,28 @@ describe "UI smoke tests", tags: "headless_chrome" do
     first_root_reply_text(flow).should contain("newer root reply")
   end
 
+  it "keeps root reply order_by after submitting a new reply" do
+    user = UserFactory.create
+    doc = SaveDoc.create!(path_index: "/docs/index")
+    SaveReply.create!(user_id: user.id, doc_id: doc.id, content: "older root reply")
+    SaveReply.create!(user_id: user.id, doc_id: doc.id, content: "newer root reply")
+
+    flow = BaseFlow.new
+    flow.visit "/docs/index?backdoor_user_id=#{user.id}"
+    sleep 0.8.seconds
+
+    flow.driver.find_xpath("//div[@id='replies']//a[text()='最早']").first.click
+    sleep 0.8.seconds
+
+    first_root_reply_text(flow).should contain("older root reply")
+    flow.el("textarea#tab_text_area").fill("reply submitted after asc sort")
+    flow.dom_click("[flow-id='tab-do_reply']")
+    sleep 0.8.seconds
+
+    flow.should have_element("article", text: "reply submitted after asc sort")
+    first_root_reply_text(flow).should contain("older root reply")
+  end
+
   it "opens the reply dialog for an existing reply" do
     user = UserFactory.create
     doc = SaveDoc.create!(path_index: "/docs/index")
@@ -498,6 +520,38 @@ describe "UI smoke tests", tags: "headless_chrome" do
 
     ReplyQuery.find(root_reply.id).root_replies_count.should eq 1
     flow.should have_element("article", text: "child reply from dialog")
+  end
+
+  it "creates multiple child replies for the same root reply" do
+    user = UserFactory.create
+    doc = SaveDoc.create!(path_index: "/docs/index")
+    root_reply = SaveReply.create!(user_id: user.id, doc_id: doc.id, content: "thread root reply twice")
+
+    flow = BaseFlow.new
+    flow.visit "/docs/index?backdoor_user_id=#{user.id}"
+    sleep 0.8.seconds
+
+    flow.driver.find_xpath("//article[@id='doc_reply-#{root_reply.id}']//a[text()='回复']").first.click
+    sleep 0.8.seconds
+
+    textarea = flow.el("textarea#reply_to_reply_text_area")
+    textarea.click
+    textarea.fill("first child reply")
+    flow.dom_click("[flow-id='reply_to_reply-do_reply']")
+    sleep 1.0.seconds
+
+    flow.driver.find_xpath("//article[@id='doc_reply-#{root_reply.id}']//a[text()='回复']").first.click
+    sleep 0.8.seconds
+
+    textarea = flow.el("textarea#reply_to_reply_text_area")
+    textarea.clear
+    textarea.fill("second child reply")
+    flow.dom_click("[flow-id='reply_to_reply-do_reply']")
+    sleep 1.0.seconds
+
+    ReplyQuery.find(root_reply.id).root_replies_count.should eq 2
+    flow.should have_element("article", text: "first child reply")
+    flow.should have_element("article", text: "second child reply")
   end
 
   it "updates a child reply from the edit dialog" do
