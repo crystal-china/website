@@ -1,5 +1,6 @@
 class Htmx::Docs::Reply::New < DocAction
   param user_id : Int64
+  param order_by : String?
   param doc_path : String?
   param id : Int64?
 
@@ -27,6 +28,7 @@ class Htmx::Docs::Reply::New < DocAction
       ::Docs::ReplyToDocForm,
       current_user: me,
       html_id: html_id,
+      order_by: order_by,
       doc_path: doc_path,
       reply_id: reply.try &.id,
       target_reply_id: target_reply_id

@@ -1,17 +1,16 @@
 class Docs::Replies < BaseComponent
   needs formatter : Tartrazine::Formatter
-  needs pagination : {count: Int32 | Int64, replies: ReplyQuery, page: Lucky::Paginator?, url: String}
-  needs order_by : String
+  needs pagination : {count: Int32 | Int64, replies: ReplyQuery, page: Lucky::Paginator?, url: String, order_by: String}
   needs html_id : String
   needs reply_id : Int64?
 
   def render
     div role: "feed", id: html_id do
+      input type: "hidden", id: "#{html_id}-order-by", name: "order_by", value: pagination[:order_by]
+
       mount(
         ::Docs::FormButtons,
-        page_count: pagination[:count],
-        reply_path: pagination[:url],
-        order_by: order_by,
+        pagination: pagination,
         hx_target: "div##{html_id}"
       )
 

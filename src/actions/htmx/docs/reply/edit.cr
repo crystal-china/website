@@ -1,5 +1,6 @@
 class Htmx::Docs::Reply::Edit < DocAction
   param user_id : Int64
+  param order_by : String?
 
   get "/htmx/docs/reply/edit/:id" do
     me = current_user
@@ -15,6 +16,7 @@ class Htmx::Docs::Reply::Edit < DocAction
       current_user: current_user,
       content: reply.content,
       html_id: "reply_to_reply",
+      order_by: order_by,
       reply_id: id.to_i64,
       doc_path: reply.preferences.path_for_doc?,
       target_reply_id: reply.reply_id ? thread_root_reply(reply).id : nil,

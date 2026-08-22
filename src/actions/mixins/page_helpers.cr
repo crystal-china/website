@@ -156,6 +156,14 @@ HTML
     "px-8"
   end
 
+  private def htmx_success(script)
+    <<-HEREDOC
+on htmx:after:request(ctx)[ctx.response.raw.ok]
+#{script}
+end
+HEREDOC
+  end
+
   # def asset_host
   #   Lucky::Server.settings.asset_host
   # end

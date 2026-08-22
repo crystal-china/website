@@ -1,6 +1,7 @@
 class Htmx::Docs::Reply::CreateOrUpdate < DocAction
   param user_id : Int64
   param content : String
+  param order_by : String = "desc"
   param doc_path : String?
   param id : Int64?
   param op : String?
@@ -45,14 +46,13 @@ class Htmx::Docs::Reply::CreateOrUpdate < DocAction
       reply = SaveReply.create!(user_id: user_id, doc_id: doc.id, content: content)
     end
 
-    pagination = replies_pagination(id_or_doc_path: id_or_doc_path.not_nil!)
+    pagination = replies_pagination(id_or_doc_path: id_or_doc_path.not_nil!, order_by: order_by)
 
     component(
       ::Docs::Replies,
       formatter: formatter,
       pagination: pagination,
       current_user: me,
-      order_by: "desc",
       reply_id: reply.id,
       html_id: html_id.to_s
     )

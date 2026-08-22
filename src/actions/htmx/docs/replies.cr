@@ -23,14 +23,19 @@ class Htmx::Docs::Replies < DocAction
         reply_id: id
       )
     else
+      html_id = if id
+                  "doc_reply-#{id}-replies"
+                else
+                  "replies"
+                end
+
       component(
         ::Docs::Replies,
         formatter: formatter,
         pagination: pagination,
         current_user: current_user,
-        order_by: order_by,
         reply_id: id,
-        html_id: id.nil? ? "replies" : "doc_reply-#{id}-replies"
+        html_id: html_id
       )
     end
   end

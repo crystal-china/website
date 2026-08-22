@@ -24,9 +24,10 @@ class Docs::Form < BaseComponent
         id: id_preview,
         class: "input2 sr-only",
         hx_put: Htmx::Docs::MarkdownRender.path_without_query_params,
-        hx_target: "next p.markdown-preview",
-        hx_include: "[name='_csrf'],next textarea",
+        hx_target: "next div.markdown-preview",
+        hx_include: "[name='_csrf'],##{html_id}_text_area",
         hx_indicator: "next img.htmx-indicator",
+        script: "bind @disabled to (the value of ##{html_id}_text_area is empty)",
       )
 
       div class: "grid gap-4 border-b border-gray-200 p-4 md:grid-cols-[auto_1fr_auto] md:items-center" do
@@ -43,15 +44,15 @@ class Docs::Form < BaseComponent
             for: id_preview,
             flow_id: "#{html_id}-preview_reply",
             class: "label2 cursor-pointer rounded-full border border-transparent bg-gray-200 px-5 py-2 text-base font-medium text-gray-500 transition",
-            script: "on mouseover set x to the value of the next <textarea/>
-        then if x == ''
-           add @disabled to the previous <input/>
-           then set the style of me to 'cursor: not-allowed;'
-        else
-          remove @disabled from the previous <input/>
-          then remove @style from me
-        end
-        "
+            script: <<-HEREDOC
+  on mouseenter
+    if the value of ##{html_id}_text_area is empty
+      set my *cursor to "not-allowed"
+    else
+      set my *cursor to "pointer"
+    end
+  end
+HEREDOC
           )
         end
 
@@ -87,16 +88,14 @@ class Docs::Form < BaseComponent
 
     textarea_opt = textarea_opt.merge(disabled: "") if me.nil?
 
-    form class: "w-full" do
-      textarea textarea_opt do
-        text content
-      end
+    textarea textarea_opt do
+      text content
     end
   end
 
   private def render_preview
     div class: "min-h-[22rem] rounded-xl border border-gray-200 bg-gray-50/60 px-4 py-3" do
-      para class: "markdown-preview min-h-[18rem]"
+      div class: "markdown-preview min-h-[18rem]"
       mount Shared::Spinner, text: "正在预览..."
     end
   end
