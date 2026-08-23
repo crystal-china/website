@@ -10,20 +10,22 @@ class Home::IndexPage < MainLayout
           hx_get: Home::Htmx::CrystalLatestRelease.path_without_query_params,
           hx_swap: "outerHTML",
         ) do
-          a href: "", class: "inline-flex items-center gap-2" do
+          span class: "inline-flex items-center gap-2" do
             text "Latest release:"
             mount Shared::Spinner, text: "获取最新版本...", width: "10px"
           end
         end
 
-        tag(
-          "canvas",
-          height: 330,
-          width: 330,
-          id: "logo-canvas",
-          class: "cursor-move",
-          running: "false"
-        )
+        figure do
+          tag(
+            "canvas",
+            height: 330,
+            width: 330,
+            id: "logo-canvas",
+            class: "cursor-move",
+            running: "false"
+          )
+        end
       end
 
       # 使用 CSS Grid 布局。子元素不再按普通文档流堆叠，而是放进网格里。
