@@ -17,18 +17,16 @@ abstract class MainLayout
       mount Shared::LayoutHead, page_title: page_title
 
       body hx_boost: true do
-        div do
-          mount Navbar, current_user: current_user
+        mount Navbar, current_user: current_user
+        mount Shared::PageFlash, flash: context.flash
 
-          main do
-            content
-
-            footer do
-              mount Footer, current_user: current_user
-            end
-          end
-          mount Shared::Common, page_title: page_title
+        main do
+          content
         end
+
+        mount Footer, current_user: current_user
+
+        mount Shared::Common, page_title: page_title
       end
     end
   end
