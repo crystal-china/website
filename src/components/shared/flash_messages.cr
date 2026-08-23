@@ -3,18 +3,16 @@ class Shared::FlashMessages < BaseComponent
 
   def render
     flash.each do |flash_type, flash_message|
-      # The built-in message types are success, failure and info
+      flash_class = case flash_type
+                    when "failure"
+                      "flash-message--failure"
+                    when "info"
+                      "flash-message--info"
+                    else
+                      "flash-message--success"
+                    end
 
-      case flash_type
-      when "failure"
-        box_class = "bad"
-      when "info"
-        box_class = "warn"
-      else
-        box_class = "ok"
-      end
-
-      div class: "box #{box_class}", flow_id: "flash", style: "width: 300px;" do
+      div class: "flash-message #{flash_class}", flow_id: "flash" do
         text flash_message
       end
     end

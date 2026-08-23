@@ -9,6 +9,11 @@ class Docs::FormButtons < BaseComponent
     div class: "mt-4 flex items-center justify-between gap-4" do
       span "共 #{pagination[:count]} 条回复", class: "text-base font-medium text-gray-900"
 
+      # 这里之前利用了一个狡黠的 htmx hack，点击下面的连接，生成的 url 如下：
+      # /docs/replies/index?order_by=asc&order_by=desc
+      # 此时有两个 order_by，第一个来自于 hx_get 中的 ? 参数, 第二个来自于 hx_include
+      # 此时，总是第一个生效。·
+
       div class: "flex items-center gap-3" do
         [{"最早", "asc"}, {"最新", "desc"}].each do |title, order|
           a(

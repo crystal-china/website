@@ -1,0 +1,17 @@
+@layer components {
+  .flash-message {
+    @apply w-[300px] rounded-xl border px-4 py-3 text-sm font-medium shadow-sm;
+  }
+
+  .flash-message--success {
+    @apply border-emerald-200 bg-emerald-50 text-emerald-800;
+  }
+
+  .flash-message--info {
+    @apply border-amber-200 bg-amber-50 text-amber-800;
+  }
+
+  .flash-message--failure {
+    @apply border-rose-200 bg-rose-50 text-rose-800;
+  }
+}
