@@ -566,7 +566,7 @@ describe "UI smoke tests", tags: "headless_chrome" do
     flow.visit "/docs/index?backdoor_user_id=#{user.id}"
     sleep 0.8.seconds
 
-    flow.dom_click("[hx-get='/htmx/replies/#{root_reply.id}?page=1&order_by=desc']")
+    flow.dom_click("[flow-id='doc_reply-#{root_reply.id}-load_thread']")
     sleep 0.8.seconds
 
     flow.driver.find_xpath("//article[@id='doc_reply-#{child_reply.id}']//a[text()='编辑']").first.click
@@ -593,7 +593,7 @@ describe "UI smoke tests", tags: "headless_chrome" do
     flow.visit "/docs/index?backdoor_user_id=#{user.id}"
     sleep 0.8.seconds
 
-    flow.dom_click("[hx-get='/htmx/replies/#{root_reply.id}?page=1&order_by=desc']")
+    flow.dom_click("[flow-id='doc_reply-#{root_reply.id}-load_thread']")
     sleep 0.8.seconds
 
     flow.driver.find_xpath("//article[@id='doc_reply-#{child_reply.id}']//a[text()='删除']").first.click
@@ -619,7 +619,7 @@ describe "UI smoke tests", tags: "headless_chrome" do
     flow.should have_element("article", text: "root smoke reply")
     flow.should have_element("a", text: "加载子评论，共 1 条")
 
-    flow.dom_click("[hx-get='/htmx/replies/#{root_reply.id}?page=1&order_by=desc']")
+    flow.dom_click("[flow-id='doc_reply-#{root_reply.id}-load_thread']")
     sleep 0.8.seconds
 
     flow.should have_element("article", text: "child smoke reply")
@@ -630,9 +630,10 @@ describe "UI smoke tests", tags: "headless_chrome" do
 
     flow.js_bool(
       <<-JS,
-        return document.getElementById('doc_reply-#{root_reply.id}-replies') !== null;
+        const replies = document.getElementById('doc_reply-#{root_reply.id}-replies');
+        return replies !== null && replies.innerHTML.trim() === "";
       JS
-    ).should be_false
+    ).should be_true
     flow.js_bool(
       <<-JS,
         const link = document.querySelector("[flow-id='doc_reply-#{root_reply.id}-load_thread']");
