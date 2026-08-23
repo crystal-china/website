@@ -5,9 +5,12 @@ class Docs::RepliesMore < BaseComponent
   needs reply_id : Int64?
 
   def render
-    pagination[:replies].each do |reply|
+    replies = pagination[:replies].results
+    parent_replies = parent_replies_by_id(replies)
+
+    replies.each do |reply|
       article class: reply_card_classes(reply), id: "doc_reply-#{reply.id}" do
-        render_avatar_name_and_time(reply)
+        render_avatar_name_and_time(reply, parent_replies)
 
         hr class: "my-2 border-0 border-t border-gray-300"
 
@@ -29,12 +32,14 @@ class Docs::RepliesMore < BaseComponent
     )
   end
 
-  private def render_avatar_name_and_time(reply)
+  private def render_avatar_name_and_time(reply : Reply, parent_replies : Hash(Int64, Reply))
     header class: "flex items-start justify-between gap-3" do
       div class: "flex min-w-0 items-center gap-3" do
         img src: reply.user_avatar || asset("svgs/crystal-lang-icon.svg"), class: "h-6 w-6 rounded-md border border-gray-300 bg-white object-cover p-0.5"
         span reply.user_name, class: "truncate text-xs font-semibold text-gray-900"
       end
+
+      render_parent_reply_hint(reply, parent_replies)
 
       div class: "flex shrink-0 items-center gap-2" do
         a href: "#doc_reply-#{reply.id}" do
@@ -52,6 +57,40 @@ class Docs::RepliesMore < BaseComponent
         end
       end
     end
+  end
+
+  private def render_parent_reply_hint(reply : Reply, parent_replies : Hash(Int64, Reply))
+    return unless (parent_id = reply.reply_id)
+    return unless (parent_reply = parent_replies[parent_id]?)
+
+    div class: "min-w-0 flex-1 self-center px-2 text-center text-xs font-medium text-green-700" do
+      a(
+        "回复 #{parent_reply.preferences.floor} 楼 @#{parent_reply.user_name}",
+        href: "#doc_reply-#{parent_reply.id}",
+        class: "inline-block truncate underline decoration-dotted underline-offset-2 hover:text-green-800"
+      )
+    end
+  end
+
+  private def parent_replies_by_id(replies : Array(Reply)) : Hash(Int64, Reply)
+    parent_ids = [] of Int64
+
+    replies.each do |reply|
+      if (parent_id = reply.reply_id)
+        parent_ids << parent_id
+      end
+    end
+
+    parent_ids.uniq!
+    parents = {} of Int64 => Reply
+
+    unless parent_ids.empty?
+      ReplyQuery.new.id.in(parent_ids).results.each do |parent_reply|
+        parents[parent_reply.id] = parent_reply
+      end
+    end
+
+    parents
   end
 
   private def render_emoji_buttons_and_delete_button(reply : Reply)
