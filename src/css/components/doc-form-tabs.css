@@ -1,10 +1,10 @@
 @layer utilities {
   /* ---------------- 文档评论表单 tabs ---------------- */
-  .input1:checked ~ div .label1 {
+  .input1:checked ~ .doc-form-toolbar .label1 {
     @apply border-sky-300 bg-white text-gray-900;
   }
 
-  .input2:checked ~ div .label2 {
+  .input2:checked ~ .doc-form-toolbar .label2 {
     @apply border-sky-300 bg-white text-gray-900;
   }
 

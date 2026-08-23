@@ -41,7 +41,7 @@ HEREDOC
 
       opts = {
         class:      "inline-flex items-center justify-center rounded-xl bg-sky-700 px-5 py-2 text-sm font-semibold text-white transition hover:bg-sky-800 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500",
-        hx_target:  "div#replies",
+        hx_target:  "#replies",
         hx_include: hx_include,
         hx_post:    Htmx::Docs::Reply::CreateOrUpdate.path_without_query_params,
         script:     after_submit,

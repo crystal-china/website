@@ -30,7 +30,7 @@ class Docs::Form < BaseComponent
         script: "bind @disabled to (the value of ##{html_id}_text_area is empty)",
       )
 
-      div class: "grid gap-4 border-b border-gray-200 p-4 md:grid-cols-[auto_1fr_auto] md:items-center" do
+      div class: "doc-form-toolbar grid gap-4 border-b border-gray-200 p-4 md:grid-cols-[auto_1fr_auto] md:items-center" do
         div class: "flex items-center gap-2" do
           label(
             "输入",

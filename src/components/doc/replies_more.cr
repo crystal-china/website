@@ -30,7 +30,7 @@ class Docs::RepliesMore < BaseComponent
   end
 
   private def render_avatar_name_and_time(reply)
-    div class: "flex items-start justify-between gap-3" do
+    header class: "flex items-start justify-between gap-3" do
       div class: "flex min-w-0 items-center gap-3" do
         img src: reply.user_avatar || asset("svgs/crystal-lang-icon.svg"), class: "h-6 w-6 rounded-md border border-gray-300 bg-white object-cover p-0.5"
         span reply.user_name, class: "truncate text-xs font-semibold text-gray-900"
@@ -59,7 +59,7 @@ class Docs::RepliesMore < BaseComponent
     has_direct_replies = ReplyQuery.new.reply_id(reply.id).any?
     voted_types = me ? VoteQuery.new.user_id(me.id).reply_id(reply.id).map(&.vote_type) : [] of String
 
-    div class: "mt-2 flex flex-wrap items-end justify-between gap-x-4 gap-y-3" do
+    footer class: "mt-2 flex flex-wrap items-end justify-between gap-x-4 gap-y-3" do
       div class: "flex min-w-0 flex-wrap items-center gap-2 text-sm" do
         mount(
           Shared::VoteButton,

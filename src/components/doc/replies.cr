@@ -11,7 +11,7 @@ class Docs::Replies < BaseComponent
       mount(
         ::Docs::FormButtons,
         pagination: pagination,
-        hx_target: "div##{html_id}"
+        hx_target: "##{html_id}"
       )
 
       mount(
