@@ -37,14 +37,10 @@ class SaveReply < Reply::SaveOperation
 
         # -  如果父 reply 没有 root_reply_id, 说明父 reply 自己就是根评论, 因此就使用它的 id
         #    此时父 reply 就是上面的第二级 root reply
-        root_reply_id.value = parent_reply.root_reply_id || parent_reply.id
+        thread_root_id = parent_reply.root_reply_id || parent_reply.id
+        root_reply_id.value = thread_root_id
 
-        # 针对 reply 的回复，也总是继承所属文档的 doc_id。
-        if doc_id.value.nil? && (parent_doc_id = parent_reply.doc_id)
-          doc_id.value = parent_doc_id
-        end
-
-        if (last_reply = ReplyQuery.new.reply_id(parent_reply.id).last?)
+        if (last_reply = ReplyQuery.new.root_reply_id(thread_root_id).last?)
           floor = last_reply.preferences.floor + 1
         else
           floor = 1
