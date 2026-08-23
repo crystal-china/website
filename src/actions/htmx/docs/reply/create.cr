@@ -6,7 +6,10 @@ class Htmx::Docs::Reply::CreateOrUpdate < DocAction
   param id : Int64?
   param op : String?
 
-  # 回复评论按钮
+  # 统一处理 3 种提交：
+  # - 给 doc 新建顶级评论
+  # - 给某条已有 reply 新建子评论
+  # - 编辑某条已有评论（可能是顶级评论，也可能是子评论）
   post "/htmx/docs/reply" do
     me = current_user
     return head 401 if me.nil?
@@ -18,6 +21,9 @@ class Htmx::Docs::Reply::CreateOrUpdate < DocAction
 
       case op
       when "edit"
+        # 编辑一条已有评论。这里 reply 可能是：
+        # - 针对 doc 的顶级评论
+        # - 针对 reply 的子评论
         SaveReply.update!(reply, content: content)
         path_for_doc = reply.preferences.path_for_doc?
         if path_for_doc.nil?
@@ -31,11 +37,13 @@ class Htmx::Docs::Reply::CreateOrUpdate < DocAction
           html_id = "replies"
         end
       when "new"
-        # new reply to reply，这个是要新建回复的那个 reply
+        # 为一条已有 reply 新建子评论。这里的 reply 是“被回复的那条旧评论”。
         root_reply = thread_root_reply(reply)
         id_or_doc_path = root_reply.id.to_s
         html_id = "doc_reply-#{root_reply.id}-replies"
         reply = SaveReply.create!(user_id: user_id, reply_id: reply.id, content: content)
+      else
+        return head 400
       end
     else
       # 给 doc 新建评论
