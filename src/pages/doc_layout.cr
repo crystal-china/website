@@ -53,7 +53,6 @@ abstract class DocLayout
       render_content_column(
         section_class: "min-w-0 flex-1 #{page_gutter_classes} pl-20",
         article_class: "w-full max-w-[90ch]",
-        footer_class: "mt-12 w-full max-w-[90ch]",
         show_pager: true
       )
     end
@@ -66,13 +65,12 @@ abstract class DocLayout
       render_content_column(
         section_class: "w-full",
         article_class: "mx-auto w-full max-w-[90ch]",
-        footer_class: "mx-auto mt-12 w-full max-w-[90ch]",
         show_pager: false
       )
     end
   end
 
-  private def render_content_column(*, section_class : String, article_class : String, footer_class : String, show_pager : Bool)
+  private def render_content_column(*, section_class : String, article_class : String, show_pager : Bool)
     section class: section_class do
       article class: article_class do
         render_page_header
@@ -97,9 +95,7 @@ abstract class DocLayout
         end
       end
 
-      footer class: footer_class do
-        mount Footer, current_user: current_user
-      end
+      mount Footer, current_user: current_user
     end
   end
 
