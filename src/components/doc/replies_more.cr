@@ -78,7 +78,7 @@ class Docs::RepliesMore < BaseComponent
   private def render_thread_toggle(reply : Reply)
     return unless reply.reply_id.nil? && reply.root_replies_count > 0
 
-    link_class = "inline-flex h-8 items-center rounded-full border border-sky-200 bg-sky-50 px-3 text-sm font-medium text-sky-800 transition hover:border-sky-300 hover:bg-sky-100"
+    link_class = "inline-flex h-8 items-center justify-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-3 text-sm font-medium text-sky-800 transition hover:border-sky-300 hover:bg-sky-100"
 
     div class: "shrink-0" do
       input type: "hidden", class: "reply-order-state", name: "order_by", value: pagination[:order_by]

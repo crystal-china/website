@@ -122,6 +122,15 @@
   /* } */
 
   /* ---------------- 全局行为修复 ---------------- */
+  .htmx-indicator {
+    @apply hidden;
+  }
+
+  .htmx-request .htmx-indicator,
+  .htmx-request.htmx-indicator {
+    @apply inline-block;
+  }
+
   /* 当 body 内部包含一个打开的(open) dialog 时，禁止 body 滚动 */
   /* 这个修复了打开 modal 对话框之后，scroll 事件仍然绑定在 body 的 bug */
   body:has(dialog[open]) {
