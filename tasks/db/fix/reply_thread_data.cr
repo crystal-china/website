@@ -13,6 +13,8 @@ module Db::Fix::ReplyThreadDataTask
       AppDatabase.exec(backfill_root_reply_id_sql)
       AppDatabase.exec(reset_root_replies_count_sql)
       AppDatabase.exec(recalculate_root_replies_count_sql)
+      AppDatabase.exec(recalculate_doc_reply_floors_sql)
+      AppDatabase.exec(recalculate_thread_reply_floors_sql)
     end
 
     puts "Done fixing reply thread data"
@@ -75,6 +77,56 @@ FROM (
   GROUP BY root_reply_id
 ) AS counts
 WHERE replies.id = counts.root_reply_id;
+SQL
+  end
+
+  private def self.recalculate_doc_reply_floors_sql
+    <<-SQL
+WITH ranked AS (
+  SELECT
+    id,
+    ROW_NUMBER() OVER (
+      PARTITION BY doc_id
+      ORDER BY created_at ASC, id ASC
+    )::int AS floor
+  FROM replies
+  WHERE reply_id IS NULL
+    AND doc_id IS NOT NULL
+)
+UPDATE replies
+SET preferences = jsonb_set(
+  COALESCE(replies.preferences::jsonb, '{}'::jsonb),
+  '{floor}',
+  to_jsonb(ranked.floor),
+  true
+)
+FROM ranked
+WHERE replies.id = ranked.id;
+SQL
+  end
+
+  private def self.recalculate_thread_reply_floors_sql
+    <<-SQL
+WITH ranked AS (
+  SELECT
+    id,
+    ROW_NUMBER() OVER (
+      PARTITION BY root_reply_id
+      ORDER BY created_at ASC, id ASC
+    )::int AS floor
+  FROM replies
+  WHERE reply_id IS NOT NULL
+    AND root_reply_id IS NOT NULL
+)
+UPDATE replies
+SET preferences = jsonb_set(
+  COALESCE(replies.preferences::jsonb, '{}'::jsonb),
+  '{floor}',
+  to_jsonb(ranked.floor),
+  true
+)
+FROM ranked
+WHERE replies.id = ranked.id;
 SQL
   end
 end
