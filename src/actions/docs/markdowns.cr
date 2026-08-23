@@ -1,13 +1,10 @@
 class Docs::Markdowns < DocAction
   get "/docs/*:markdown_path" do
-    if PageHelpers::PAGINATION_RELATION_MAPPING[current_path]?
-      remote_ip = context.request.remote_ip || "0.0.0.0"
+    return redirect(to: Docs::Markdowns.with(markdown_path: "index")) if current_path == "/docs"
 
-      VIEW_COUNT_CACHE.fetch("#{remote_ip}-#{current_path}") { true }
+    remote_ip = context.request.remote_ip || "0.0.0.0"
+    VIEW_COUNT_CACHE.fetch("#{remote_ip}-#{current_path}") { true }
 
-      html Docs::MarkdownsPage
-    else
-      html Raw::MarkdownsPage
-    end
+    html Docs::MarkdownsPage
   end
 end
