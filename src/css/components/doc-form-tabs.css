@@ -1,4 +1,4 @@
-@layer components {
+@layer utilities {
   /* ---------------- 文档评论表单 tabs ---------------- */
   .input1:checked ~ div .label1 {
     @apply border-sky-300 bg-white text-gray-900;
@@ -9,11 +9,11 @@
   }
 
   .input1:checked ~ .panel1 {
-    @apply block;
+    @apply !block;
   }
 
   .input2:checked ~ .panel2 {
-    @apply block;
+    @apply !block;
   }
 
   .label1:hover {
