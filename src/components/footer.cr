@@ -2,10 +2,11 @@ class Footer < BaseComponent
   def render
     hr class: "mx-auto my-1 w-[70%] max-w-4xl border-t border-gray-300"
 
-    section class: "#{page_container_classes}  flex gap-y-2 flex-wrap mt-2  gap-x-3 justify-center items-center   text-sm" do
-      text "Crystal China"
-
-      a "admin@crystal-china.org", href: "mailto:admin@crystal-china.org"
+    section class: "#{page_container_classes} mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm" do
+      address class: "not-italic" do
+        text "Crystal China "
+        a "admin@crystal-china.org", href: "mailto:admin@crystal-china.org"
+      end
 
       span(
         hx_trigger: "load,every 2m",
@@ -15,24 +16,26 @@ class Footer < BaseComponent
         text "在线用户 #{ONLINE_USER_COUNTER.keys.size} 人, 游客 #{ONLINE_IP_COUNTER.keys.size} 人"
       end
 
-      icon_link(
-        title: "本站在 GitHub 上面的开源内容",
-        href: "https://github.com/crystal-china",
-        src: asset("svgs/github-icon.svg"),
-        alt: "github"
-      )
-      icon_link(
-        title: "本站的 X 账号",
-        href: "https://x.com/crystalchinaorg",
-        src: asset("svgs/x-icon.svg"),
-        alt: "x.com"
-      )
-      icon_link(
-        title: "Crystal 官方网站",
-        href: "https://crystal-lang.org/",
-        src: asset("svgs/crystal-lang-icon.svg"),
-        alt: "crystal-lang"
-      )
+      nav "aria-label": "页脚链接", class: "inline-flex items-center gap-3" do
+        icon_link(
+          title: "本站在 GitHub 上面的开源内容",
+          href: "https://github.com/crystal-china",
+          src: asset("svgs/github-icon.svg"),
+          alt: "github"
+        )
+        icon_link(
+          title: "本站的 X 账号",
+          href: "https://x.com/crystalchinaorg",
+          src: asset("svgs/x-icon.svg"),
+          alt: "x.com"
+        )
+        icon_link(
+          title: "Crystal 官方网站",
+          href: "https://crystal-lang.org/",
+          src: asset("svgs/crystal-lang-icon.svg"),
+          alt: "crystal-lang"
+        )
+      end
     end
   end
 

@@ -146,7 +146,7 @@ HYPER
   end
 
   private def reply_card_classes(reply : Reply)
-    classes = "mt-6 rounded-2xl border border-gray-300 px-7 pt-2 pb-2 shadow-sm"
+    classes = "mt-6 rounded-2xl border border-gray-300 px-7 py-2 shadow-sm"
     classes += reply.reply_id ? " ml-8 bg-green-100" : " bg-white"
     classes
   end

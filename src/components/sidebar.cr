@@ -10,7 +10,7 @@ class Sidebar < BaseComponent
           }
 
           if current_path == child.path
-            # active 定义见 src/css/layout/sidebar.css
+            # active 定义见 src/css/components/sidebar.css
             a_attr = a_attr.merge(class: "active")
           end
 
@@ -30,7 +30,6 @@ class Sidebar < BaseComponent
       ul role: "nested-list" do
         PageHelpers::SIDEBAR_LINKS.each do |k, v|
           _child = v.child
-          li_attr = {} of Symbol => String
 
           if _child.empty?
             a_name = v.name
@@ -46,26 +45,28 @@ class Sidebar < BaseComponent
             a_attr = a_attr.merge(class: "active")
           end
 
-          if v.parent == "root"
-            li li_attr do
-              a a_name, a_attr
-              render_child(_child, v.path)
-            end
+          li do
+            a a_name, a_attr
+            render_child(_child, v.path)
           end
         end
       end
+    end
 
-      if (user = current_user)
-        div class: "mt-4 inline-flex items-center gap-3 rounded-full border border-gray-300 bg-white/80 px-3 py-2 shadow-sm" do
-          if (avatar = user.avatar)
-            img src: avatar, alt: "#{user.name} avatar", class: "h-10 w-10 rounded-full object-cover ring-1 ring-gray-200"
-          else
-            render_avatar_fallback(user)
-          end
+    render_current_user
+  end
 
-          render_current_user_name(user)
-        end
+  private def render_current_user
+    return unless (user = current_user)
+
+    div class: "mt-4 inline-flex items-center gap-3 rounded-full border border-gray-300 bg-white/80 px-3 py-2 shadow-sm" do
+      if (avatar = user.avatar)
+        img src: avatar, alt: "#{user.name} avatar", class: "h-10 w-10 rounded-full object-cover ring-1 ring-gray-200"
+      else
+        render_avatar_fallback(user)
       end
+
+      render_current_user_name(user)
     end
   end
 
