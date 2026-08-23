@@ -3,7 +3,7 @@ class Shared::Spinner < BaseComponent
   needs width : String?
 
   def render
-    div class: "f-col align-items:center" do
+    div class: "flex flex-col items-center" do
       opts = {
         class: "htmx-indicator",
         src:   asset("svgs/spinning-circles.svg"),
