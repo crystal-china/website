@@ -52,10 +52,10 @@ HEREDOC
         opts = opts.merge(disabled: "")
       else
         if !reply_id.nil?
-          # 一定是针对 reply 的操作，这里包含三种情况
-          # - 为评论新增评论
-          # - 编辑评论
-          # - 编辑评论的评论。
+          # reply_id 不为空，说明当前表单针对的是一条已有 reply。
+          # 然后再用 content 是否为空区分表单模式：
+          # - 空：这是“回复这条评论”，即新建子评论
+          # - 非空：这是“编辑这条已有评论”
           if content.blank?
             # 为评论新增评论
             target_id = target_reply_id || reply_id
@@ -65,7 +65,9 @@ HEREDOC
               hx_swap: "outerHTML"
             )
           else
-            # 这里覆盖两种编辑的情况
+            # 编辑时，再区分两种已有评论：
+            # - reply.reply_id 为空：编辑针对 doc 的顶级评论
+            # - reply.reply_id 不为空：编辑针对 reply 的子评论
             reply = ReplyQuery.find(reply_id.not_nil!)
 
             if !(id = reply.reply_id).nil?
