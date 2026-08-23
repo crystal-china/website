@@ -54,8 +54,8 @@ class Navbar < BaseComponent
 
   private def nav_item_class(*, active : Bool = false)
     base = "inline-flex items-center rounded-md px-3 py-1.5 text-sm font-medium no-underline"
-    active_classes = "bg-gray-200 text-gray-950"
-    inactive_classes = "text-gray-800 hover:bg-gray-100 hover:text-gray-950"
+    active_classes = "bg-gray-300 text-gray-950"
+    inactive_classes = "text-gray-800 hover:bg-gray-200 hover:text-gray-950"
 
     "#{base} #{active ? active_classes : inactive_classes}"
   end

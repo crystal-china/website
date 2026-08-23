@@ -14,12 +14,12 @@
   }
 
   #sidebar a {
-    @apply inline-flex items-center rounded-md px-2 py-1 text-base font-medium text-gray-800 no-underline transition hover:bg-gray-100 hover:text-gray-950;
+    @apply inline-flex items-center rounded-md px-2 py-1 text-base font-medium text-gray-800 no-underline transition hover:bg-gray-200 hover:text-gray-950;
   }
 
   #sidebar nav a.active,
   #sidebar nav a:active {
-    @apply bg-gray-200 text-gray-950;
+    @apply bg-gray-300 text-gray-950;
   }
 
   #sidebar nav a:focus-visible {

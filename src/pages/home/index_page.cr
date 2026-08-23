@@ -84,13 +84,17 @@ class Home::IndexPage < MainLayout
   end
 
   private def normal_link(link, content, **opts)
-    a content, **opts, href: link
+    a content, **opts.merge(class: home_link_class), href: link
   end
 
   private def github_icon_link(link, content)
-    a href: link, class: "inline-flex items-center gap-1 whitespace-nowrap" do
+    a href: link, class: "inline-flex items-center gap-1 whitespace-nowrap #{home_link_class}" do
       text "#{content} "
       img src: asset("svgs/github-icon.svg"), alt: "github", class: "h-4 w-4 shrink-0"
     end
+  end
+
+  private def home_link_class
+    "text-[#145591] underline decoration-dotted underline-offset-2 transition hover:text-[#0f4370] hover:decoration-solid"
   end
 end
