@@ -14,7 +14,7 @@ abstract class DocAction < BrowserAction
       doc_path = id_or_doc_path.starts_with?("/") ? id_or_doc_path : "/#{id_or_doc_path}"
       url = doc_path.sub("/docs", "/htmx/replies/docs")
       current_doc = DocQuery.new.path_index(doc_path).first
-      q = ReplyQuery.new.doc_id(current_doc.id)
+      q = ReplyQuery.new.doc_id(current_doc.id).reply_id.is_nil
     else
       root_reply = thread_root_reply(ReplyQuery.find(id))
       reply_ids = thread_reply_ids(root_reply.id)
@@ -27,10 +27,10 @@ abstract class DocAction < BrowserAction
     page, replies = paginate(q, per_page: per_page)
 
     {
-      count:   page.item_count,
-      replies: replies,
-      page:    page,
-      url:     url,
+      count:    page.item_count,
+      replies:  replies,
+      page:     page,
+      url:      url,
       order_by: order_by,
     }
   end
