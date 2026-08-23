@@ -62,6 +62,9 @@ class Docs::RepliesMore < BaseComponent
   private def render_parent_reply_hint(reply : Reply, parent_replies : Hash(Int64, Reply))
     return unless (parent_id = reply.reply_id)
     return unless (parent_reply = parent_replies[parent_id]?)
+    # 直接回复根评论时，缩进本身已经说明“这是针对这条顶级评论的回复”，不用再重复显示。
+    # 但如果回复的是某条子评论，即使它是那条子评论的第一条回复，也应该显示“回复谁”。
+    return if reply.root_reply_id == parent_reply.id
 
     div class: "min-w-0 flex-1 self-center px-2 text-center text-xs font-medium text-green-700" do
       a(
