@@ -40,8 +40,7 @@ dependencies:
   tartrazine:
     github: ralsina/tartrazine
   markd:
-    github: zw963/markd
-    branch: missing.style
+    github: icyleaf/markd
   cron_scheduler:
     github: kostya/cron_scheduler
   time_in_words:
