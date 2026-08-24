@@ -19,7 +19,8 @@ class Htmx::Docs::Reply::Edit < DocAction
       order_by: order_by,
       reply_id: id.to_i64,
       doc_path: reply.preferences.path_for_doc?,
-      target_reply_id: reply.reply_id ? thread_root_reply(reply).id : nil,
+      # 只有子评论需要指定线程替换目标；顶级评论提交后替换文档的评论列表。
+      target_reply_id: reply.reply_id ? reply.root_reply_id : nil,
     )
   end
 end

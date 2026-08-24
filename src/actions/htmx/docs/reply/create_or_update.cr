@@ -28,9 +28,10 @@ class Htmx::Docs::Reply::CreateOrUpdate < DocAction
         path_for_doc = reply.preferences.path_for_doc?
         if path_for_doc.nil?
           # edit reply to reply
-          root_reply = thread_root_reply(reply)
-          id_or_doc_path = root_reply.id.to_s
-          html_id = "doc_reply-#{root_reply.id}-replies"
+          # 子评论创建时已经保存所属线程，因此编辑后直接刷新这个根评论下的整个子评论列表。
+          root_reply_id = reply.root_reply_id.not_nil!
+          id_or_doc_path = root_reply_id.to_s
+          html_id = "doc_reply-#{root_reply_id}-replies"
         else
           # edit reply to doc
           id_or_doc_path = path_for_doc
@@ -38,9 +39,10 @@ class Htmx::Docs::Reply::CreateOrUpdate < DocAction
         end
       when "new"
         # 为一条已有 reply 新建子评论。这里的 reply 是“被回复的那条旧评论”。
-        root_reply = thread_root_reply(reply)
-        id_or_doc_path = root_reply.id.to_s
-        html_id = "doc_reply-#{root_reply.id}-replies"
+        # 回复顶级评论时，它自己就是线程根；回复子评论时，继承该子评论所属的线程根。
+        root_reply_id = reply.root_reply_id || reply.id
+        id_or_doc_path = root_reply_id.to_s
+        html_id = "doc_reply-#{root_reply_id}-replies"
         reply = SaveReply.create!(user_id: user_id, reply_id: reply.id, content: content)
       else
         return head 400

@@ -18,7 +18,8 @@ class Htmx::Docs::Reply::New < DocAction
       # reply 的回复
       html_id = "reply_to_reply"
       reply = ReplyQuery.find(id.not_nil!)
-      target_reply_id = thread_root_reply(reply).id
+      # target_reply_id 用于确定提交成功后替换哪个线程：顶级评论用自身 ID，子评论用所属根 ID。
+      target_reply_id = reply.root_reply_id || reply.id
     else
       # doc 的回复
       html_id = "tab"
