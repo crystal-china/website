@@ -60,8 +60,16 @@ class Sidebar < BaseComponent
     return unless (user = current_user)
 
     div class: "mt-4 inline-flex items-center gap-3 rounded-full border border-gray-300 bg-white/80 px-3 py-2 shadow-sm" do
-      if (avatar = user.avatar)
-        img src: avatar, alt: "#{user.name} avatar", class: "h-10 w-10 rounded-full object-cover ring-1 ring-gray-200"
+      if (avatar = user.avatar).presence
+        div class: "relative h-10 w-10 shrink-0" do
+          render_avatar_fallback(user)
+          img(
+            src: avatar.not_nil!,
+            alt: "",
+            class: "absolute inset-0 h-10 w-10 rounded-full object-cover ring-1 ring-gray-200",
+            onerror: "this.remove()"
+          )
+        end
       else
         render_avatar_fallback(user)
       end
@@ -71,7 +79,7 @@ class Sidebar < BaseComponent
   end
 
   private def render_current_user_name(user)
-    div class: "min-w-0" do
+    div class: "min-w-0 space-y-1" do
       div "当前用户", class: "text-xs tracking-wide text-gray-500"
       strong user.name, class: "block truncate text-sm font-semibold text-gray-900"
     end
