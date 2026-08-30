@@ -5,6 +5,6 @@ class Htmx::Docs::MarkdownRender < DocAction
     return head 401 if current_user.nil?
     return head 400 if content.blank?
 
-    plain_text markdown(content)
+    plain_text user_markdown(content)
   end
 end

@@ -157,6 +157,10 @@ shards:
     git: https://github.com/wout/rosetta.git
     version: 1.0.1
 
+  sanitize:
+    git: https://github.com/straight-shoota/sanitize.git
+    version: 0.1.0+git.commit.c17d933fed22c6d3d615cca91a895166414389af
+
   selenium:
     git: https://github.com/matthewmcgarvey/selenium.cr.git
     version: 0.9.1

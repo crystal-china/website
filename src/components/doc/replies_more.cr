@@ -15,7 +15,7 @@ class Docs::RepliesMore < BaseComponent
         hr class: "my-2 border-0 border-t border-gray-300"
 
         div class: "prose-neutral max-w-none prose text-base leading-7" do
-          raw markdown(reply.content)
+          raw user_markdown(reply.content)
         end
 
         render_emoji_buttons_and_delete_button(reply)

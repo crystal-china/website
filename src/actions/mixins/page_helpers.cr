@@ -52,11 +52,20 @@ module PageHelpers
     end
   end
 
-  MARKDOWN_OPTIONS = Markd::Options.new(gfm: true, toc: true)
-  INFO_FENCE_RE    = /(?m)^```info[ \t]*\n([\s\S]*?)^```[ \t]*$/
+  MARKDOWN_OPTIONS      = Markd::Options.new(gfm: true, toc: true)
+  USER_MARKDOWN_OPTIONS = Markd::Options.new(gfm: true, toc: false)
+  INFO_FENCE_RE         = /(?m)^```info[ \t]*\n([\s\S]*?)^```[ \t]*$/
+
+  USER_HTML_SANITIZER = UserHtmlSanitizer.new
 
   def markdown(text) : String
     render_markdown_with_callouts(text)
+  end
+
+  # User-authored Markdown may contain raw HTML, so sanitize the rendered HTML
+  # before inserting it into the page. Trusted documentation uses #markdown.
+  def user_markdown(text) : String
+    USER_HTML_SANITIZER.process(render_markdown_with_callouts(text, USER_MARKDOWN_OPTIONS))
   end
 
   def current_path
@@ -111,27 +120,28 @@ module PageHelpers
     end
   end
 
-  private def render_markdown_with_callouts(text : String) : String
+  private def render_markdown_with_callouts(text : String, options = MARKDOWN_OPTIONS) : String
     render_plain_markdown(
       text.gsub(INFO_FENCE_RE) do
-        render_markdown_callout($1)
-      end
+        render_markdown_callout($1, options)
+      end,
+      options
     )
   end
 
-  private def render_plain_markdown(text : String) : String
+  private def render_plain_markdown(text : String, options = MARKDOWN_OPTIONS) : String
     Markd.to_html(
       text,
       formatter: formatter,
-      options: MARKDOWN_OPTIONS
+      options: options
     )
   end
 
-  private def render_markdown_callout(content : String) : String
+  private def render_markdown_callout(content : String, options) : String
     <<-HTML
 <div class="box info">
   <strong class="titlebar block">💡 小提示</strong>
-  #{render_plain_markdown(content)}
+  #{render_plain_markdown(content, options)}
 </div>
 HTML
   end

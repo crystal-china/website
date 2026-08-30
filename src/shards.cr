@@ -12,6 +12,7 @@ require "jwt"
 require "baked_file_system_mounter"
 require "tartrazine" # optional dependency for markd to render markdown code block.
 require "markd"
+require "sanitize"
 require "cron_scheduler"
 require "time_in_words"
 # require "lucky_cache"
