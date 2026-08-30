@@ -54,6 +54,9 @@ async function handlePasteEvent(event, textarea) {
                     `上传失败：${error.message}`,
                 );
             }
+
+            // 通过代码修改 value 不会自动触发 input 事件。
+            textarea.dispatchEvent(new Event("input", { bubbles: true }));
         }
     }
 }
