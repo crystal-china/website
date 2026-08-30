@@ -21,10 +21,13 @@ abstract class BrowserAction < Lucky::Action
 
   def sign_in(authenticatable : User) : Nil
     super(authenticatable)
-    cookies.set_raw("user_token", UserToken.generate(authenticatable))
+    # Image uploads currently read this API token from JavaScript.
+    cookies.delete("user_token")
+    cookies.set_raw("upload_token", UserToken.generate(authenticatable)).http_only(false)
   end
 
   def sign_out : Nil
+    cookies.delete("upload_token")
     cookies.delete("user_token")
     super
   end

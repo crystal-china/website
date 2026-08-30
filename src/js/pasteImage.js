@@ -127,7 +127,7 @@ function replacePlaceholderWithError(textarea, placeholderId, errorMessage) {
 
 async function uploadImage(file) {
     const formData = new FormData();
-    formData.append("auth_token", getCookie("user_token"));
+    formData.append("auth_token", getCookie("upload_token"));
     formData.append("source", file);
 
     const response = await fetch("/api/upload", {
