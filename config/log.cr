@@ -49,3 +49,5 @@ Lucky::LogHandler.configure do |settings|
     }
   end
 end
+
+Sanitize::Processor::Log.level = :info
