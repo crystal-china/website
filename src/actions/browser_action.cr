@@ -19,19 +19,6 @@ abstract class BrowserAction < Lucky::Action
   # This module provides current_user, sign_in, and sign_out methods
   include Authentic::ActionHelpers(User)
 
-  def sign_in(authenticatable : User) : Nil
-    super(authenticatable)
-    # Image uploads currently read this API token from JavaScript.
-    cookies.delete("user_token")
-    cookies.set_raw("upload_token", UserToken.generate(authenticatable)).http_only(false)
-  end
-
-  def sign_out : Nil
-    cookies.delete("upload_token")
-    cookies.delete("user_token")
-    super
-  end
-
   # When testing you can skip normal sign in by using `visit` with the `as` param
   #
   # flow.visit Me::Show, as: UserFactory.create

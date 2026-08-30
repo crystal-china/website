@@ -127,11 +127,15 @@ function replacePlaceholderWithError(textarea, placeholderId, errorMessage) {
 
 async function uploadImage(file) {
     const formData = new FormData();
-    formData.append("auth_token", getCookie("upload_token"));
     formData.append("source", file);
 
     const response = await fetch("/api/upload", {
         method: "POST",
+        headers: {
+            "X-CSRF-TOKEN": document.querySelector(
+                'meta[name="csrf-token"]',
+            ).content,
+        },
         body: formData,
     });
 
@@ -142,14 +146,6 @@ async function uploadImage(file) {
     } else {
         throw new Error(data.message || "上传失败");
     }
-}
-
-function getCookie(name) {
-    // 匹配带有目标键名的键值对
-    const match = document.cookie.match(
-        new RegExp("(^|;\\s*)" + name + "=([^;]*)"),
-    );
-    return match ? decodeURIComponent(match[2]) : null;
 }
 
 // const items = (event.clipboardData || event.originalEvent.clipboardData).items;

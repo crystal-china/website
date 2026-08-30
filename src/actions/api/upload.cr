@@ -1,4 +1,4 @@
-class Api::Upload < ApiAction
+class Api::Upload < BrowserAction
   post "/api/upload" do
     source = params.from_multipart.last["source"]
 
