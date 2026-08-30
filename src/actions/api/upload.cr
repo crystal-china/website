@@ -41,5 +41,12 @@ class Api::Upload < BrowserAction
     else
       json({status: "failed", message: body.dig("error")}, HTTP::Status::BAD_REQUEST)
     end
+  rescue Socket::ConnectError | IO::TimeoutError
+    json(
+      {status: "failed", message: "图片上传服务暂时不可用，请稍后重试"},
+      HTTP::Status::SERVICE_UNAVAILABLE
+    )
+  ensure
+    reader.try(&.close)
   end
 end
