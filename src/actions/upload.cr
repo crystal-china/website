@@ -1,5 +1,5 @@
 class Upload < BrowserAction
-  post "/api/upload" do
+  post "/upload" do
     source = params.from_multipart.last["source"]
 
     # use IO.pipe instead of IO::Memory to reduce memory usage.

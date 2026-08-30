@@ -129,7 +129,7 @@ async function uploadImage(file) {
     const formData = new FormData();
     formData.append("source", file);
 
-    const response = await fetch("/api/upload", {
+    const response = await fetch("/upload", {
         method: "POST",
         headers: {
             "X-CSRF-TOKEN": document.querySelector(
