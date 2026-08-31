@@ -37,7 +37,6 @@ class Navbar < BaseComponent
                   hx_target: "body",
                   hx_push_url: "true",
                   hx_delete: SignIns::Delete.path,
-                  hx_include: "[name='_csrf']",
                 )
               end
 

@@ -17,6 +17,22 @@ const assetHost = frontendConfig.assetHost ?? "";
 const assetBasePath = frontendConfig.assetBasePath ?? "/assets";
 const firebaseConfig = frontendConfig.firebaseConfig ?? {};
 
+// HTMX 4 puts DELETE parameters in the URL. Send the CSRF token as a header
+// for every state-changing HTMX request so it never appears in the query string.
+document.addEventListener("htmx:config:request", (event) => {
+    const request = event.detail.ctx.request;
+
+    if (["POST", "PUT", "PATCH", "DELETE"].includes(request.method)) {
+        const token = document.querySelector(
+            'meta[name="csrf-token"]',
+        )?.content;
+
+        if (token) {
+            request.headers["X-CSRF-TOKEN"] = token;
+        }
+    }
+});
+
 let assetManifestPromise;
 
 function loadAssetManifest() {
@@ -70,10 +86,6 @@ function init(eventElt) {
 
     window.scrollToElementById = scrollToElementById;
 
-    // Delete 请求仍旧使用 form-encoded body 来传递参数。
-    // htmx 2.0, 对于 DELETE 请求，将使用 params （根据 spec 规定）
-    // 这里设定，仅仅 get 请求使用 params
-    htmx.config.methodsThatUseUrlParams = ["get"];
     // 2.0 不允许使用 htmx 执行 cross-domain requests.
     // 取消注释来允许它正常发送请求。
     // htmx.config.selfRequestsOnly = false;
@@ -124,7 +136,7 @@ htmx.onLoad(init);
 // 将一些 js 库的针对 DOM 的修改回滚到初始状态，以使得 htmx history 在载入时，
 // 运行 js 来重新初始化。
 // 因为上面有 htmx-settling 的判断，这个其实不是必须的，但这是 htmx 推荐的方式。
-document.body.addEventListener("htmx:beforeHistorySave", function (event) {
+document.body.addEventListener("htmx:before:history:update", function (event) {
     document.getElementById("logo-canvas")?.setAttribute("running", "false");
 });
 

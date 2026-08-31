@@ -161,12 +161,11 @@ HYPER
 
   private def render_reply_actions(reply : Reply, me : User, has_direct_replies : Bool)
     opts = {
-      type:       "button",
-      class:      "inline-flex h-6 shrink-0 items-center rounded-full border border-sky-600 px-3 text-sm font-medium whitespace-nowrap text-sky-700 hover:bg-sky-50",
-      hx_target:  Docs::ReplyDialog.reply_form_target,
-      hx_swap:    "outerHTML",
-      hx_include: "[name='_csrf']",
-      onclick:    Docs::ReplyDialog.open_reply_dialog_js,
+      type:      "button",
+      class:     "inline-flex h-6 shrink-0 items-center rounded-full border border-sky-600 px-3 text-sm font-medium whitespace-nowrap text-sky-700 hover:bg-sky-50",
+      hx_target: Docs::ReplyDialog.reply_form_target,
+      hx_swap:   "outerHTML",
+      onclick:   Docs::ReplyDialog.open_reply_dialog_js,
     }
 
     div class: "flex shrink-0 flex-wrap items-center justify-end gap-2" do
@@ -183,7 +182,6 @@ HYPER
             hx_delete: Htmx::Docs::Reply::Delete.with(id: reply.id, user_id: me.id).path,
             hx_target: "closest article",
             hx_swap: "outerHTML swap:1s",
-            hx_include: "[name='_csrf']",
             hx_confirm: "删除这条回复？"
           )
         end
