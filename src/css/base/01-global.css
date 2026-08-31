@@ -45,6 +45,14 @@
     @apply outline-2 outline-offset-2 outline-blue-600;
   }
 
+  button:not(:disabled) {
+    @apply cursor-pointer;
+  }
+
+  button:disabled {
+    @apply cursor-not-allowed;
+  }
+
   /* ---------------- 常见语义元素 ---------------- */
   summary {
     @apply cursor-pointer;

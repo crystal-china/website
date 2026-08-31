@@ -13,7 +13,7 @@ abstract class MainLayout
   def render
     html_doctype
 
-    html lang: "en" do
+    html lang: "zh-CN" do
       mount Shared::LayoutHead, page_title: page_title
 
       body hx_boost: true do

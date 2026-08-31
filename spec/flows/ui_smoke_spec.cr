@@ -403,7 +403,7 @@ describe "UI smoke tests", tags: "headless_chrome" do
     flow.visit "/docs/index?backdoor_user_id=#{user.id}"
     sleep 0.8.seconds
 
-    flow.driver.find_xpath("//article[@id='doc_reply-#{root_reply.id}']//a[text()='回复']").first.click
+    flow.driver.find_xpath("//article[@id='doc_reply-#{root_reply.id}']//button[text()='回复']").first.click
     sleep 0.8.seconds
 
     flow.js_bool(
@@ -423,7 +423,7 @@ describe "UI smoke tests", tags: "headless_chrome" do
     flow.visit "/docs/index?backdoor_user_id=#{user.id}"
     sleep 0.8.seconds
 
-    flow.driver.find_xpath("//article[@id='doc_reply-#{root_reply.id}']//a[text()='回复']").first.click
+    flow.driver.find_xpath("//article[@id='doc_reply-#{root_reply.id}']//button[text()='回复']").first.click
     sleep 0.8.seconds
 
     flow.js_bool(
@@ -447,7 +447,7 @@ describe "UI smoke tests", tags: "headless_chrome" do
     flow.visit "/docs/index?backdoor_user_id=#{user.id}"
     sleep 0.8.seconds
 
-    flow.driver.find_xpath("//article[@id='doc_reply-#{root_reply.id}']//a[text()='编辑']").first.click
+    flow.driver.find_xpath("//article[@id='doc_reply-#{root_reply.id}']//button[text()='编辑']").first.click
     sleep 0.8.seconds
 
     flow.js_bool(
@@ -468,7 +468,7 @@ describe "UI smoke tests", tags: "headless_chrome" do
     flow.visit "/docs/index?backdoor_user_id=#{user.id}"
     sleep 0.8.seconds
 
-    flow.driver.find_xpath("//article[@id='doc_reply-#{root_reply.id}']//a[text()='编辑']").first.click
+    flow.driver.find_xpath("//article[@id='doc_reply-#{root_reply.id}']//button[text()='编辑']").first.click
     sleep 0.8.seconds
 
     textarea = flow.el("textarea#reply_to_reply_text_area")
@@ -490,7 +490,7 @@ describe "UI smoke tests", tags: "headless_chrome" do
     flow.visit "/docs/index?backdoor_user_id=#{user.id}"
     sleep 0.8.seconds
 
-    flow.driver.find_xpath("//article[@id='doc_reply-#{root_reply.id}']//a[text()='删除']").first.click
+    flow.driver.find_xpath("//article[@id='doc_reply-#{root_reply.id}']//button[text()='删除']").first.click
     sleep 0.3.seconds
     flow.accept_alert
     sleep 1.2.seconds
@@ -509,7 +509,7 @@ describe "UI smoke tests", tags: "headless_chrome" do
     flow.visit "/docs/index?backdoor_user_id=#{user.id}"
     sleep 0.8.seconds
 
-    flow.driver.find_xpath("//article[@id='doc_reply-#{root_reply.id}']//a[text()='回复']").first.click
+    flow.driver.find_xpath("//article[@id='doc_reply-#{root_reply.id}']//button[text()='回复']").first.click
     sleep 0.8.seconds
 
     textarea = flow.el("textarea#reply_to_reply_text_area")
@@ -531,7 +531,7 @@ describe "UI smoke tests", tags: "headless_chrome" do
     flow.visit "/docs/index?backdoor_user_id=#{user.id}"
     sleep 0.8.seconds
 
-    flow.driver.find_xpath("//article[@id='doc_reply-#{root_reply.id}']//a[text()='回复']").first.click
+    flow.driver.find_xpath("//article[@id='doc_reply-#{root_reply.id}']//button[text()='回复']").first.click
     sleep 0.8.seconds
 
     textarea = flow.el("textarea#reply_to_reply_text_area")
@@ -540,7 +540,7 @@ describe "UI smoke tests", tags: "headless_chrome" do
     flow.dom_click("[flow-id='reply_to_reply-do_reply']")
     sleep 1.0.seconds
 
-    flow.driver.find_xpath("//article[@id='doc_reply-#{root_reply.id}']//a[text()='回复']").first.click
+    flow.driver.find_xpath("//article[@id='doc_reply-#{root_reply.id}']//button[text()='回复']").first.click
     sleep 0.8.seconds
 
     textarea = flow.el("textarea#reply_to_reply_text_area")
@@ -569,7 +569,7 @@ describe "UI smoke tests", tags: "headless_chrome" do
     flow.dom_click("[flow-id='doc_reply-#{root_reply.id}-load_thread']")
     sleep 0.8.seconds
 
-    flow.driver.find_xpath("//article[@id='doc_reply-#{child_reply.id}']//a[text()='编辑']").first.click
+    flow.driver.find_xpath("//article[@id='doc_reply-#{child_reply.id}']//button[text()='编辑']").first.click
     sleep 0.8.seconds
 
     textarea = flow.el("textarea#reply_to_reply_text_area")
@@ -596,7 +596,7 @@ describe "UI smoke tests", tags: "headless_chrome" do
     flow.dom_click("[flow-id='doc_reply-#{root_reply.id}-load_thread']")
     sleep 0.8.seconds
 
-    flow.driver.find_xpath("//article[@id='doc_reply-#{child_reply.id}']//a[text()='删除']").first.click
+    flow.driver.find_xpath("//article[@id='doc_reply-#{child_reply.id}']//button[text()='删除']").first.click
     sleep 0.3.seconds
     flow.accept_alert
     sleep 1.2.seconds
@@ -617,13 +617,13 @@ describe "UI smoke tests", tags: "headless_chrome" do
     flow.visit "/docs/index?backdoor_user_id=#{user.id}"
 
     flow.should have_element("article", text: "root smoke reply")
-    flow.should have_element("a", text: "加载子评论，共 1 条")
+    flow.should have_element("button", text: "加载子评论，共 1 条")
 
     flow.dom_click("[flow-id='doc_reply-#{root_reply.id}-load_thread']")
     sleep 0.8.seconds
 
     flow.should have_element("article", text: "child smoke reply")
-    flow.should have_element("a", text: "折叠子评论")
+    flow.should have_element("button", text: "折叠子评论")
 
     flow.dom_click("[flow-id='doc_reply-#{root_reply.id}-collapse_thread']")
     sleep 0.3.seconds

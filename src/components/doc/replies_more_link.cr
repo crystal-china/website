@@ -5,7 +5,8 @@ class Docs::RepliesMoreLink < BaseComponent
   def render
     div class: "mt-4 flex justify-center" do
       if pagination[:page].try &.next_page
-        a(
+        button(
+          type: "button",
           class: "inline-flex items-center justify-center gap-1.5 rounded-full border border-gray-300 bg-white px-4 py-1.5 text-sm font-medium text-gray-700 hover:border-gray-400 hover:bg-gray-50",
           hx_get: "#{pagination[:url]}?page=#{page_number + 1}&order_by=#{pagination[:order_by]}",
           hx_target: "closest div",

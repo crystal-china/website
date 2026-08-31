@@ -120,13 +120,14 @@ class Docs::RepliesMore < BaseComponent
   private def render_thread_toggle(reply : Reply)
     return unless reply.reply_id.nil? && reply.root_replies_count > 0
 
-    link_class = "inline-flex h-8 items-center justify-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-3 text-sm font-medium text-sky-800 transition hover:border-sky-300 hover:bg-sky-100"
+    button_class = "inline-flex h-8 items-center justify-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-3 text-sm font-medium text-sky-800 transition hover:border-sky-300 hover:bg-sky-100"
 
     div class: "shrink-0" do
       input type: "hidden", class: "reply-order-state", name: "order_by", value: pagination[:order_by]
 
-      a(
-        class: link_class,
+      button(
+        type: "button",
+        class: button_class,
         hx_get: "/htmx/replies/#{reply.id}?page=1",
         hx_include: "previous input",
         hx_target: "#doc_reply-#{reply.id}-replies",
@@ -134,23 +135,24 @@ class Docs::RepliesMore < BaseComponent
         flow_id: "doc_reply-#{reply.id}-load_thread",
         script: htmx_success <<-HEREDOC
 add @hidden to me
-remove @hidden from the next <a/>
+remove @hidden from the next <button/>
 HEREDOC
       ) do
         text "加载子评论，共 #{reply.root_replies_count} 条"
         mount Shared::Spinner, text: "正在读取评论...", width: "10px"
       end
 
-      a(
+      button(
         "折叠子评论",
+        type: "button",
         hidden: true,
-        class: link_class,
+        class: button_class,
         flow_id: "doc_reply-#{reply.id}-collapse_thread",
         script: <<-HYPER
 on click
    put "" into #doc_reply-#{reply.id}-replies
   add @hidden to me
-  remove @hidden from the previous <a/>
+  remove @hidden from the previous <button/>
 end
 HYPER
       )
@@ -159,6 +161,7 @@ HYPER
 
   private def render_reply_actions(reply : Reply, me : User, has_direct_replies : Bool)
     opts = {
+      type:       "button",
       class:      "inline-flex h-6 shrink-0 items-center rounded-full border border-sky-600 px-3 text-sm font-medium whitespace-nowrap text-sky-700 hover:bg-sky-50",
       hx_target:  Docs::ReplyDialog.reply_form_target,
       hx_swap:    "outerHTML",
@@ -167,14 +170,15 @@ HYPER
     }
 
     div class: "flex shrink-0 flex-wrap items-center justify-end gap-2" do
-      a("回复", opts, hx_get: Htmx::Docs::Reply::New.with(id: reply.id, user_id: me.id, order_by: pagination[:order_by]).path)
+      button("回复", opts, hx_get: Htmx::Docs::Reply::New.with(id: reply.id, user_id: me.id, order_by: pagination[:order_by]).path)
 
       if me.id == reply.user_id # 只允许编辑自己的回复
-        a("编辑", opts, hx_get: Htmx::Docs::Reply::Edit.with(id: reply.id, user_id: me.id, order_by: pagination[:order_by]).path)
+        button("编辑", opts, hx_get: Htmx::Docs::Reply::Edit.with(id: reply.id, user_id: me.id, order_by: pagination[:order_by]).path)
 
         if !has_direct_replies # 如果回复有了直接回复，就不再允许删除
-          a(
+          button(
             "删除",
+            type: "button",
             class: "inline-flex h-6 shrink-0 items-center rounded-full border border-red-400 px-3 text-sm font-medium whitespace-nowrap text-red-500 hover:bg-red-50",
             hx_delete: Htmx::Docs::Reply::Delete.with(id: reply.id, user_id: me.id).path,
             hx_target: "closest article",
