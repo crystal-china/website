@@ -17,8 +17,8 @@ class CreateReplies::V20250309142021 < Avram::Migrator::Migration::V1
       add_timestamps
     end
 
-    execute "ALTER TABLE replies ADD CONSTRAINT replies_target_check CHECK ((doc_id IS NULL) <> (reply_id IS NULL))"
-    execute "ALTER TABLE replies ADD CONSTRAINT replies_thread_check CHECK ((reply_id IS NULL) = (root_reply_id IS NULL))"
+    require_nullability_relation(:exactly_one_non_null, "replies", "doc_id", "reply_id")
+    require_nullability_relation(:both_null_or_both_non_null, "replies", "reply_id", "root_reply_id")
 
     create_index table_for(Reply), [:doc_id, :floor], unique: true
     create_index table_for(Reply), [:root_reply_id, :floor], unique: true
