@@ -5,8 +5,8 @@ Habitat.raise_if_missing_settings!
 if LuckyEnv.development?
   Avram::Migrator::Runner.new.ensure_migrated!
   Avram::SchemaEnforcer.ensure_correct_column_mappings!
-  # else
-  #   Avram::Migrator::Runner.new.run_pending_migrations
+  # elsif LuckyEnv.production?
+  # Avram::Migrator::Runner.new.run_pending_migrations
 end
 
 app_server = AppServer.new
