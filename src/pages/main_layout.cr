@@ -16,7 +16,7 @@ abstract class MainLayout
     html lang: "zh-CN" do
       mount Shared::LayoutHead, page_title: page_title
 
-      body hx_boost: true do
+      body "hx-boost:inherited": "true" do
         mount Navbar, current_user: current_user
         mount Shared::PageFlash, flash: context.flash
 

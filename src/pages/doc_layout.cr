@@ -22,7 +22,7 @@ abstract class DocLayout
     html lang: "zh-CN" do
       mount Shared::LayoutHead, page_title: page_title
 
-      body hx_boost: true do
+      body "hx-boost:inherited": "true" do
         if paginated_doc?
           render_paginated_doc
         else
