@@ -168,7 +168,7 @@ function setupCopyCodeButton(eventElt) {
     // you'll want to check the root elt itself
     if (eventElt instanceof Element) {
         if (eventElt.matches("pre.b")) {
-            pasteImage(eventElt);
+            copyCodeButton(eventElt);
         }
     }
 }
