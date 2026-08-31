@@ -8,37 +8,22 @@ on:
 
 jobs:
   check-format:
-    strategy:
-      fail-fast: false
-      matrix:
-        crystal_version:
-          - 1.20.2
-        experimental:
-          - false
     runs-on: ubuntu-latest
-    continue-on-error: ${{ matrix.experimental }}
     steps:
       - uses: actions/checkout@v6
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1
         with:
-          crystal: ${{ matrix.crystal_version }}
+          crystal: 1.20.2
       - name: Format
         run: crystal tool format --check
 
   specs:
-    strategy:
-      fail-fast: false
-      matrix:
-        crystal_version:
-          - 1.20.2
-        experimental:
-          - false
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     env:
       LUCKY_ENV: test
       DB_HOST: localhost
-    continue-on-error: ${{ matrix.experimental }}
     services:
       postgres:
         image: postgres:18-alpine
@@ -58,7 +43,7 @@ jobs:
       - name: Install Crystal
         uses: crystal-lang/install-crystal@v1
         with:
-          crystal: ${{ matrix.crystal_version }}
+          crystal: 1.20.2
       - name: Install Bun
         uses: oven-sh/setup-bun@v2
         with:
@@ -76,11 +61,10 @@ jobs:
             ${{ runner.os }}-crystal-
 
       - name: Install shards
-        if: steps.crystal-cache.outputs.cache-hit != 'true'
         run: shards check || shards install
 
       - name: Install frontend packages
-        run: bun install --frozen-lockfile
+        run: bun ci
       - name: Compiling assets
         run: bun run prod
       - name: Build lucky_tasks
