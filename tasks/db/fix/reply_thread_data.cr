@@ -15,6 +15,7 @@ module Db::Fix::ReplyThreadDataTask
       AppDatabase.exec(recalculate_root_replies_count_sql)
       AppDatabase.exec(recalculate_doc_reply_floors_sql)
       AppDatabase.exec(recalculate_thread_reply_floors_sql)
+      AppDatabase.exec(remove_floor_from_preferences_sql)
     end
 
     puts "Done fixing reply thread data"
@@ -94,12 +95,7 @@ WITH ranked AS (
     AND doc_id IS NOT NULL
 )
 UPDATE replies
-SET preferences = jsonb_set(
-  COALESCE(replies.preferences::jsonb, '{}'::jsonb),
-  '{floor}',
-  to_jsonb(ranked.floor),
-  true
-)
+SET floor = ranked.floor
 FROM ranked
 WHERE replies.id = ranked.id;
 SQL
@@ -119,14 +115,17 @@ WITH ranked AS (
     AND root_reply_id IS NOT NULL
 )
 UPDATE replies
-SET preferences = jsonb_set(
-  COALESCE(replies.preferences::jsonb, '{}'::jsonb),
-  '{floor}',
-  to_jsonb(ranked.floor),
-  true
-)
+SET floor = ranked.floor
 FROM ranked
 WHERE replies.id = ranked.id;
+SQL
+  end
+
+  private def self.remove_floor_from_preferences_sql
+    <<-SQL
+UPDATE replies
+SET preferences = preferences - 'floor'
+WHERE preferences ? 'floor';
 SQL
   end
 end

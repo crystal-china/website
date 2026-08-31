@@ -45,7 +45,7 @@ class Docs::RepliesMore < BaseComponent
         a href: "#doc_reply-#{reply.id}" do
           span TimeInWords::Helpers(TimeInWords::I18n::ZH_CN).from(past_time: reply.created_at), class: "text-xs text-sky-700 underline decoration-dotted underline-offset-2"
         end
-        span "#{reply.preferences.floor} 楼", class: "inline-flex items-center rounded-full border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-800"
+        span "#{reply.floor} 楼", class: "inline-flex items-center rounded-full border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-800"
 
         if reply_id == reply.id
           output(
@@ -68,7 +68,7 @@ class Docs::RepliesMore < BaseComponent
 
     div class: "min-w-0 flex-1 self-center px-2 text-center text-xs font-medium text-green-700" do
       a(
-        "回复 #{parent_reply.preferences.floor} 楼 @#{parent_reply.user_name}",
+        "回复 #{parent_reply.floor} 楼 @#{parent_reply.user_name}",
         href: "#doc_reply-#{parent_reply.id}",
         class: "inline-block truncate underline decoration-dotted underline-offset-2 hover:text-green-800"
       )

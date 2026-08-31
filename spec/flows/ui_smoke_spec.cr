@@ -651,7 +651,6 @@ private def insert_child_reply_for_test(*, user : User, root_reply : Reply, cont
   now = Time.utc
   preferences = {
     path_for_doc: nil,
-    floor:        1,
   }.to_json
   votes = {
     "👍"  => 0,
