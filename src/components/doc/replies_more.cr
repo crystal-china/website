@@ -33,7 +33,7 @@ class Docs::RepliesMore < BaseComponent
   end
 
   private def render_avatar_name_and_time(reply : Reply, parent_replies : Hash(Int64, Reply))
-    header class: "flex items-start justify-between gap-3" do
+    header class: "flex flex-wrap items-start justify-between gap-3 sm:flex-nowrap" do
       div class: "flex min-w-0 items-center gap-3" do
         img src: reply.user_avatar || asset("svgs/crystal-lang-icon.svg"), class: "h-6 w-6 rounded-md border border-gray-300 bg-white object-cover p-0.5"
         span reply.user_name, class: "truncate text-xs font-semibold text-gray-900"
@@ -66,7 +66,7 @@ class Docs::RepliesMore < BaseComponent
     # 但如果回复的是某条子评论，即使它是那条子评论的第一条回复，也应该显示“回复谁”。
     return if reply.root_reply_id == parent_reply.id
 
-    div class: "min-w-0 flex-1 self-center px-2 text-center text-xs font-medium text-green-700" do
+    div class: "order-3 min-w-0 basis-full self-center px-2 text-center text-xs font-medium text-green-700 sm:order-none sm:flex-1 sm:basis-auto" do
       a(
         "回复 #{parent_reply.floor} 楼 @#{parent_reply.user_name}",
         href: "#doc_reply-#{parent_reply.id}",
@@ -192,8 +192,8 @@ HYPER
   end
 
   private def reply_card_classes(reply : Reply)
-    classes = "mt-6 rounded-2xl border border-gray-300 px-7 py-2 shadow-sm"
-    classes += reply.reply_id ? " ml-8 bg-green-100" : " bg-white"
+    classes = "mt-6 rounded-2xl border border-gray-300 px-4 py-2 shadow-sm sm:px-7"
+    classes += reply.reply_id ? " bg-green-100 sm:ml-8" : " bg-white"
     classes
   end
 end

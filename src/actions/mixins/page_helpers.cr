@@ -163,7 +163,7 @@ HTML
   end
 
   private def page_gutter_classes
-    "px-8"
+    "px-4 sm:px-6 lg:px-8"
   end
 
   private def htmx_success(script)

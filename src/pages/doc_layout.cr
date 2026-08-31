@@ -43,15 +43,15 @@ abstract class DocLayout
     mount Navbar, current_user: current_user
     mount Shared::PageFlash, flash: context.flash
 
-    main class: "#{page_frame_classes} flex items-start" do
-      aside class: "w-80 shrink-0 self-stretch border-r border-gray-300 bg-[#F2F4F6]" do
-        header id: "sidebar", class: "sticky top-6 #{page_gutter_classes} py-2" do
+    main class: "#{page_frame_classes} flex flex-col items-stretch lg:flex-row lg:items-start" do
+      aside class: "w-full border-b border-gray-300 bg-[#F2F4F6] lg:w-80 lg:shrink-0 lg:self-stretch lg:border-r lg:border-b-0" do
+        header id: "sidebar", class: "#{page_gutter_classes} py-2 lg:sticky lg:top-6" do
           mount Sidebar, current_user: current_user
         end
       end
 
       render_content_column(
-        section_class: "min-w-0 flex-1 #{page_gutter_classes} pl-20",
+        section_class: "min-w-0 w-full flex-1 pt-6 #{page_gutter_classes} lg:pt-0 lg:pl-20",
         article_class: "w-full max-w-[90ch]",
         show_pager: true
       )
@@ -122,7 +122,7 @@ abstract class DocLayout
   private def doc_search_dialog
     dialog(
       id: "doc_search_dialog",
-      class: "mx-auto mt-[16vh] h-[40em] max-h-full w-[30em] max-w-full"
+      class: "mx-auto mt-[8vh] h-[40em] max-h-[calc(100vh_-_2rem)] w-[calc(100%_-_2rem)] sm:mt-[16vh] sm:w-[30em]"
     ) do
       label "注意：中文搜索结果通常不准确, 请使用英文关键字！", for: "search-input", class: "titlebar"
 
