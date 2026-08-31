@@ -204,6 +204,16 @@ function Viewer3D(container) {
     }
 
     function animate() {
+        if (!_container.isConnected) {
+            console.count("Viewer3D detached canvas cleanup");
+            window.clearInterval(_renderInterval);
+            _renderInterval = undefined;
+            _container.removeEventListener("mousedown", mouseDownHandler, false);
+            window.removeEventListener("mousemove", mouseMoveHandler, false);
+            window.removeEventListener("mouseup", mouseUpHandler, false);
+            return;
+        }
+
         _r = matrixMultiply(
             [
                 [Math.cos(_yaw), 0, -Math.sin(_yaw)],
