@@ -13,7 +13,8 @@ class Htmx::HourlySchedule < BrowserAction
     return head 401 if Time.local > cell_hour_time
 
     record = HourlyAvailabilityQuery.new.date(date).hour(hour).first?
-    comment = request.headers["HX-Prompt"]?
+    # hx-prompt 扩展会对请求头内容进行 URI 编码，入库前恢复原文。
+    comment = request.headers["HX-Prompt"]?.try { |value| URI.decode(value) }
 
     if record.nil?
       record = SaveHourlyAvailability.create!(

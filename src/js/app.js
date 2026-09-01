@@ -3,14 +3,14 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import htmx from "htmx.org";
+// HTMX 4 将 hx-prompt 移出核心；加载扩展以恢复属性及 HX-Prompt 请求头。
+import "htmx.org/dist/ext/hx-prompt.js";
 import "hyperscript.org";
 // import * as AsciinemaPlayer from 'asciinema-player';
 // AsciinemaPlayer.create('/demo.cast', document.getElementById('demo'));
 
 import createAssetUrl from "./assetUrl.js";
 import copyCodeButton from "./copyCodeButton.js";
-import decodePromptTooltips from "./hxPromptDecoding.js";
-import findElements from "./findElements.js";
 import setupLogo from "./logoViewer.js";
 import pasteImage from "./pasteImage.js";
 import setupStork from "./storkSearch.js";
@@ -53,7 +53,6 @@ document.addEventListener("htmx:config:request", (event) => {
 });
 
 function initializeContent(root) {
-    decodePromptTooltips(root);
     void setupLogo(root, assetUrl);
     setupPasteImage(root);
     setupCopyCodeButton(root);
@@ -72,6 +71,16 @@ function initializeContent(root) {
 // 处理局部替换。HTMX 4 的 history 恢复会重新请求并处理 HTML，也会自然走这个
 // 入口，无须再监听单独的 history 事件。
 htmx.onLoad(initializeContent);
+
+function findElements(root, selector) {
+    const elements = [...root.querySelectorAll(selector)];
+
+    if (root.matches(selector)) {
+        elements.unshift(root);
+    }
+
+    return elements;
+}
 
 function setupCopyCodeButton(root) {
     findElements(root, "pre.b").forEach(copyCodeButton);
