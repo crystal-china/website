@@ -24,6 +24,8 @@ class Htmx::Docs::Reply::CreateOrUpdate < DocAction
         # 编辑一条已有评论。这里 reply 可能是：
         # - 针对 doc 的顶级评论
         # - 针对 reply 的子评论
+        return head 403 if reply.user_id != me.id
+
         SaveReply.update!(reply, content: content)
         path_for_doc = reply.preferences.path_for_doc?
         if path_for_doc.nil?
