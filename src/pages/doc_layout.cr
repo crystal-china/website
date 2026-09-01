@@ -23,14 +23,18 @@ abstract class DocLayout
       mount Shared::LayoutHead, page_title: page_title
 
       body "hx-boost:inherited": "true" do
-        if paginated_doc?
-          render_paginated_doc
-        else
-          render_standalone_doc
-        end
+        # hx-boost 替换 body 时，会对每个顶级子元素分别触发 htmx.onLoad。
+        # 保持 body 下只有这个根元素，确保整页替换时只触发一次；不要删除。
+        div id: "htmx-onload-root" do
+          if paginated_doc?
+            render_paginated_doc
+          else
+            render_standalone_doc
+          end
 
-        mount Shared::Common, page_title: page_title
-        mount Docs::ReplyDialog
+          mount Shared::Common, page_title: page_title
+          mount Docs::ReplyDialog
+        end
       end
     end
   end
