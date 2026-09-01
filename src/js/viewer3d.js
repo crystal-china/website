@@ -205,7 +205,6 @@ function Viewer3D(container) {
 
     function animate() {
         if (!_container.isConnected) {
-            console.count("Viewer3D detached canvas cleanup");
             window.clearInterval(_renderInterval);
             _renderInterval = undefined;
             _container.removeEventListener("mousedown", mouseDownHandler, false);
