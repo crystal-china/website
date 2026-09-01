@@ -22,7 +22,7 @@ class Htmx::Docs::Vote < BrowserAction
     transaction_committed = AppDatabase.transaction do
       reply = ReplyQuery.new.id(reply_id).for_update.first
       votes = Hash(String, Int32).from_json(reply.votes.to_json)
-      
+
       AppDatabase.rollback unless votes.has_key?(vote_type)
 
       vote = VoteQuery.new
@@ -61,7 +61,7 @@ class Htmx::Docs::Vote < BrowserAction
     transaction_committed = AppDatabase.transaction do
       doc = DocQuery.new.id(doc_id).for_update.first
       votes = Hash(String, Int32).from_json(doc.votes.to_json)
-      
+
       AppDatabase.rollback unless votes.has_key?(vote_type)
 
       vote = VoteQuery.new

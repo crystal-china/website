@@ -8,7 +8,10 @@ class UpdateUser < User::SaveOperation
     validate_avatar_is_a_link
     if !password.value.nil?
       validate_confirmation_of password, with: password_confirmation
-      Authentic.copy_and_encrypt password, to: encrypted_password
+      validate_size_of password,
+        min: PasswordValidations::MIN_PASSWORD_LENGTH,
+        max: PasswordValidations::MAX_PASSWORD_LENGTH
+      Authentic.copy_and_encrypt password, to: encrypted_password if password.valid?
     end
   end
 
