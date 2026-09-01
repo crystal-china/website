@@ -16,6 +16,7 @@ function createAssetUrl(assetHost, assetBasePath) {
                     return response.json();
                 })
                 .catch((error) => {
+                    assetManifestPromise = undefined;
                     console.warn(error);
                     return {};
                 });
