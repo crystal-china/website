@@ -4,9 +4,9 @@ module MarkdownHelpers
   FRONT_MATTER_RE = /\A---[ \t]*\n(?<yaml>.*?)\n---[ \t]*\n?/m
 
   def markdown_path
-    name = current_path.sub(%r{/docs/}, "markdowns/")
+    request_path = current_path.sub(%r{\A/docs/}, "")
 
-    "#{name}.md"
+    MarkdownFile.resolve(request_path).not_nil!
   end
 
   def markdown_page_title
