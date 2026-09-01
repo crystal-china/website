@@ -7,8 +7,8 @@ class Htmx::Docs::Reply::New < DocAction
   get "/htmx/docs/reply/new" do
     me = current_user
     return head 401 if me.nil?
-    return head 401 if user_id != me.id
-    return head 401 if doc_path.nil? && id.nil?
+    return head 403 if user_id != me.id
+    return head 400 if doc_path.nil? && id.nil?
 
     reply : ::Reply? = nil
     target_reply_id = nil
