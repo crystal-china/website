@@ -1,4 +1,4 @@
-function createAssetUrl({ assetHost = "", assetBasePath = "/assets" } = {}) {
+function createAssetUrl(assetHost, assetBasePath) {
     let assetManifestPromise;
 
     function loadAssetManifest() {
