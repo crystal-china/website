@@ -33,7 +33,7 @@ class Docs::RepliesMore < BaseComponent
   end
 
   private def render_avatar_name_and_time(reply : Reply, parent_replies : Hash(Int64, Reply))
-    header class: "flex items-start justify-between gap-3" do
+    header class: "flex flex-wrap items-start justify-between gap-3 sm:flex-nowrap" do
       div class: "flex min-w-0 items-center gap-3" do
         img src: reply.user_avatar || asset("svgs/crystal-lang-icon.svg"), class: "h-6 w-6 rounded-md border border-gray-300 bg-white object-cover p-0.5"
         span reply.user_name, class: "truncate text-xs font-semibold text-gray-900"
@@ -45,7 +45,7 @@ class Docs::RepliesMore < BaseComponent
         a href: "#doc_reply-#{reply.id}" do
           span TimeInWords::Helpers(TimeInWords::I18n::ZH_CN).from(past_time: reply.created_at), class: "text-xs text-sky-700 underline decoration-dotted underline-offset-2"
         end
-        span "#{reply.preferences.floor} 楼", class: "inline-flex items-center rounded-full border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-800"
+        span "#{reply.floor} 楼", class: "inline-flex items-center rounded-full border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-800"
 
         if reply_id == reply.id
           output(
@@ -66,9 +66,9 @@ class Docs::RepliesMore < BaseComponent
     # 但如果回复的是某条子评论，即使它是那条子评论的第一条回复，也应该显示“回复谁”。
     return if reply.root_reply_id == parent_reply.id
 
-    div class: "min-w-0 flex-1 self-center px-2 text-center text-xs font-medium text-green-700" do
+    div class: "order-3 min-w-0 basis-full self-center px-2 text-center text-xs font-medium text-green-700 sm:order-none sm:flex-1 sm:basis-auto" do
       a(
-        "回复 #{parent_reply.preferences.floor} 楼 @#{parent_reply.user_name}",
+        "回复 #{parent_reply.floor} 楼 @#{parent_reply.user_name}",
         href: "#doc_reply-#{parent_reply.id}",
         class: "inline-block truncate underline decoration-dotted underline-offset-2 hover:text-green-800"
       )
@@ -120,13 +120,14 @@ class Docs::RepliesMore < BaseComponent
   private def render_thread_toggle(reply : Reply)
     return unless reply.reply_id.nil? && reply.root_replies_count > 0
 
-    link_class = "inline-flex h-8 items-center justify-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-3 text-sm font-medium text-sky-800 transition hover:border-sky-300 hover:bg-sky-100"
+    button_class = "inline-flex h-8 items-center justify-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-3 text-sm font-medium text-sky-800 transition hover:border-sky-300 hover:bg-sky-100"
 
     div class: "shrink-0" do
       input type: "hidden", class: "reply-order-state", name: "order_by", value: pagination[:order_by]
 
-      a(
-        class: link_class,
+      button(
+        type: "button",
+        class: button_class,
         hx_get: "/htmx/replies/#{reply.id}?page=1",
         hx_include: "previous input",
         hx_target: "#doc_reply-#{reply.id}-replies",
@@ -134,23 +135,24 @@ class Docs::RepliesMore < BaseComponent
         flow_id: "doc_reply-#{reply.id}-load_thread",
         script: htmx_success <<-HEREDOC
 add @hidden to me
-remove @hidden from the next <a/>
+remove @hidden from the next <button/>
 HEREDOC
       ) do
         text "加载子评论，共 #{reply.root_replies_count} 条"
         mount Shared::Spinner, text: "正在读取评论...", width: "10px"
       end
 
-      a(
+      button(
         "折叠子评论",
+        type: "button",
         hidden: true,
-        class: link_class,
+        class: button_class,
         flow_id: "doc_reply-#{reply.id}-collapse_thread",
         script: <<-HYPER
 on click
    put "" into #doc_reply-#{reply.id}-replies
   add @hidden to me
-  remove @hidden from the previous <a/>
+  remove @hidden from the previous <button/>
 end
 HYPER
       )
@@ -159,27 +161,27 @@ HYPER
 
   private def render_reply_actions(reply : Reply, me : User, has_direct_replies : Bool)
     opts = {
-      class:      "inline-flex h-6 shrink-0 items-center rounded-full border border-sky-600 px-3 text-sm font-medium whitespace-nowrap text-sky-700 hover:bg-sky-50",
-      hx_target:  Docs::ReplyDialog.reply_form_target,
-      hx_swap:    "outerHTML",
-      hx_include: "[name='_csrf']",
-      onclick:    Docs::ReplyDialog.open_reply_dialog_js,
+      type:      "button",
+      class:     "inline-flex h-6 shrink-0 items-center rounded-full border border-sky-600 px-3 text-sm font-medium whitespace-nowrap text-sky-700 hover:bg-sky-50",
+      hx_target: Docs::ReplyDialog.reply_form_target,
+      hx_swap:   "outerHTML",
+      onclick:   Docs::ReplyDialog.open_reply_dialog_js,
     }
 
     div class: "flex shrink-0 flex-wrap items-center justify-end gap-2" do
-      a("回复", opts, hx_get: Htmx::Docs::Reply::New.with(id: reply.id, user_id: me.id, order_by: pagination[:order_by]).path)
+      button("回复", opts, hx_get: Htmx::Docs::Reply::New.with(id: reply.id, user_id: me.id, order_by: pagination[:order_by]).path)
 
       if me.id == reply.user_id # 只允许编辑自己的回复
-        a("编辑", opts, hx_get: Htmx::Docs::Reply::Edit.with(id: reply.id, user_id: me.id, order_by: pagination[:order_by]).path)
+        button("编辑", opts, hx_get: Htmx::Docs::Reply::Edit.with(id: reply.id, user_id: me.id, order_by: pagination[:order_by]).path)
 
         if !has_direct_replies # 如果回复有了直接回复，就不再允许删除
-          a(
+          button(
             "删除",
+            type: "button",
             class: "inline-flex h-6 shrink-0 items-center rounded-full border border-red-400 px-3 text-sm font-medium whitespace-nowrap text-red-500 hover:bg-red-50",
             hx_delete: Htmx::Docs::Reply::Delete.with(id: reply.id, user_id: me.id).path,
             hx_target: "closest article",
             hx_swap: "outerHTML swap:1s",
-            hx_include: "[name='_csrf']",
             hx_confirm: "删除这条回复？"
           )
         end
@@ -188,8 +190,8 @@ HYPER
   end
 
   private def reply_card_classes(reply : Reply)
-    classes = "mt-6 rounded-2xl border border-gray-300 px-7 py-2 shadow-sm"
-    classes += reply.reply_id ? " ml-8 bg-green-100" : " bg-white"
+    classes = "mt-6 rounded-2xl border border-gray-300 px-4 py-2 shadow-sm sm:px-7"
+    classes += reply.reply_id ? " bg-green-100 sm:ml-8" : " bg-white"
     classes
   end
 end

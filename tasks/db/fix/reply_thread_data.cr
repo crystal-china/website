@@ -1,5 +1,5 @@
 class Db::Fix::ReplyThreadData < LuckyTask::Task
-  summary "Fix dirty root reply data for replies"
+  summary "Fix dirty reply thread data"
 
   def call
     Db::Fix::ReplyThreadDataTask.run
@@ -15,6 +15,11 @@ module Db::Fix::ReplyThreadDataTask
       AppDatabase.exec(recalculate_root_replies_count_sql)
       AppDatabase.exec(recalculate_doc_reply_floors_sql)
       AppDatabase.exec(recalculate_thread_reply_floors_sql)
+      AppDatabase.exec(reset_doc_reply_floor_counters_sql)
+      AppDatabase.exec(recalculate_doc_reply_floor_counters_sql)
+      AppDatabase.exec(reset_root_reply_floor_counters_sql)
+      AppDatabase.exec(recalculate_root_reply_floor_counters_sql)
+      AppDatabase.exec(remove_floor_from_preferences_sql)
     end
 
     puts "Done fixing reply thread data"
@@ -94,12 +99,7 @@ WITH ranked AS (
     AND doc_id IS NOT NULL
 )
 UPDATE replies
-SET preferences = jsonb_set(
-  COALESCE(replies.preferences::jsonb, '{}'::jsonb),
-  '{floor}',
-  to_jsonb(ranked.floor),
-  true
-)
+SET floor = ranked.floor
 FROM ranked
 WHERE replies.id = ranked.id;
 SQL
@@ -119,14 +119,66 @@ WITH ranked AS (
     AND root_reply_id IS NOT NULL
 )
 UPDATE replies
-SET preferences = jsonb_set(
-  COALESCE(replies.preferences::jsonb, '{}'::jsonb),
-  '{floor}',
-  to_jsonb(ranked.floor),
-  true
-)
+SET floor = ranked.floor
 FROM ranked
 WHERE replies.id = ranked.id;
+SQL
+  end
+
+  private def self.reset_doc_reply_floor_counters_sql
+    <<-SQL
+UPDATE docs
+SET reply_floor_counter = 0
+WHERE reply_floor_counter <> 0;
+SQL
+  end
+
+  private def self.recalculate_doc_reply_floor_counters_sql
+    <<-SQL
+UPDATE docs
+SET reply_floor_counter = floors.maximum
+FROM (
+  SELECT
+    doc_id,
+    MAX(floor)::int AS maximum
+  FROM replies
+  WHERE reply_id IS NULL
+    AND doc_id IS NOT NULL
+  GROUP BY doc_id
+) AS floors
+WHERE docs.id = floors.doc_id;
+SQL
+  end
+
+  private def self.reset_root_reply_floor_counters_sql
+    <<-SQL
+UPDATE replies
+SET reply_floor_counter = 0
+WHERE reply_floor_counter <> 0;
+SQL
+  end
+
+  private def self.recalculate_root_reply_floor_counters_sql
+    <<-SQL
+UPDATE replies
+SET reply_floor_counter = floors.maximum
+FROM (
+  SELECT
+    root_reply_id,
+    MAX(floor)::int AS maximum
+  FROM replies
+  WHERE root_reply_id IS NOT NULL
+  GROUP BY root_reply_id
+) AS floors
+WHERE replies.id = floors.root_reply_id;
+SQL
+  end
+
+  private def self.remove_floor_from_preferences_sql
+    <<-SQL
+UPDATE replies
+SET preferences = preferences - 'floor'
+WHERE preferences ? 'floor';
 SQL
   end
 end

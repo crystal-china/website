@@ -25,7 +25,7 @@ class Docs::Form < BaseComponent
         class: "input2 sr-only",
         hx_put: Htmx::Docs::MarkdownRender.path_without_query_params,
         hx_target: "next div.markdown-preview",
-        hx_include: "[name='_csrf'],##{html_id}_text_area",
+        hx_include: "##{html_id}_text_area",
         hx_indicator: "next img.htmx-indicator",
         script: "bind @disabled to (the value of ##{html_id}_text_area is empty)",
       )

@@ -17,7 +17,7 @@ JS
   def render
     dialog(
       id: DIALOG_ID,
-      class: "mx-auto mt-[16vh] h-[40em] max-h-full w-[50em] max-w-full pb-0"
+      class: "mx-auto mt-[8vh] h-[40em] max-h-[calc(100vh_-_2rem)] w-[calc(100%_-_2rem)] pb-0 sm:mt-[16vh] sm:w-[50em] sm:max-w-full"
     ) do
       div id: FORM_ID do
       end

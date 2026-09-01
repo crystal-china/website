@@ -2,7 +2,7 @@ class Home::IndexPage < MainLayout
   def content
     div class: page_container_classes do
       header class: "flex flex-col items-center" do
-        h1 "The Crystal programming language 中文站"
+        h1 "The Crystal programming language 中文站", class: "text-center"
 
         div(
           class: "latest-release-info",
@@ -22,14 +22,14 @@ class Home::IndexPage < MainLayout
             height: 330,
             width: 330,
             id: "logo-canvas",
-            class: "cursor-move",
+            class: "h-auto w-full max-w-[330px] cursor-move",
             running: "false"
           )
         end
       end
 
       # 使用 CSS Grid 布局。子元素不再按普通文档流堆叠，而是放进网格里。
-      nav "aria-label": "常用站点链接", class: "mb-10 grid w-full grid-cols-[repeat(5,max-content)] items-start justify-between gap-x-10" do
+      nav "aria-label": "常用站点链接", class: "mb-10 grid w-full grid-cols-1 items-start gap-x-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[repeat(5,max-content)] xl:justify-between" do
         section do
           h2 "Official"
           ul do

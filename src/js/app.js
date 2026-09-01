@@ -3,193 +3,89 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics, logEvent } from "firebase/analytics";
 import htmx from "htmx.org";
+// HTMX 4 将 hx-prompt 移出核心；加载扩展以恢复属性及 HX-Prompt 请求头。
+import "htmx.org/dist/ext/hx-prompt.js";
 import "hyperscript.org";
+// import * as AsciinemaPlayer from 'asciinema-player';
+// AsciinemaPlayer.create('/demo.cast', document.getElementById('demo'));
 
+import createAssetUrl from "./assetUrl.js";
 import copyCodeButton from "./copyCodeButton.js";
+import setupLogo from "./logoViewer.js";
 import pasteImage from "./pasteImage.js";
-import stork from "./stork.js";
-import Viewer3D from "./viewer3d.js";
+import setupStork from "./storkSearch.js";
+
+// 调试 HTMX 时临时取消注释；错误和警告默认始终输出。
+// htmx.config.logAll = true;
+
+  // HTMX 4 默认只允许同源请求；确实需要跨域并已配置 CORS 时取消注释。
+  // htmx.config.mode = "cors";
 
 const frontendConfig = JSON.parse(
     document.getElementById("app-config")?.textContent ?? "{}",
 );
 const assetHost = frontendConfig.assetHost ?? "";
 const assetBasePath = frontendConfig.assetBasePath ?? "/assets";
+const assetUrl = createAssetUrl(assetHost, assetBasePath);
 const firebaseConfig = frontendConfig.firebaseConfig ?? {};
 
-let assetManifestPromise;
-
-function loadAssetManifest() {
-    if (assetManifestPromise == null) {
-        assetManifestPromise = fetch("/bun-manifest.json", {
-            cache: "no-store",
-        })
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error(
-                        `Failed to load bun-manifest.json: ${response.status}`,
-                    );
-                }
-
-                return response.json();
-            })
-            .catch((error) => {
-                console.warn(error);
-                return {};
-            });
-    }
-
-    return assetManifestPromise;
+if (firebaseConfig.apiKey != null) {
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    window.analytics = analytics;
+    window.logEvent = logEvent;
 }
 
-async function assetUrl(logicalPath, fallback = `/assets/${logicalPath}`) {
-    const manifest = await loadAssetManifest();
-    const manifestPath = manifest[logicalPath];
-    const resolvedPath =
-        manifestPath == null ? fallback : `${assetBasePath}/${manifestPath}`;
+// HTMX 4 puts DELETE parameters in the URL. Send the CSRF token as a header
+// for every state-changing HTMX request so it never appears in the query string.
+document.addEventListener("htmx:config:request", (event) => {
+    const request = event.detail.ctx.request;
 
-    return `${assetHost}${resolvedPath}`;
-}
+    if (["POST", "PUT", "PATCH", "DELETE"].includes(request.method)) {
+        const token = document.querySelector(
+            'meta[name="csrf-token"]',
+        )?.content;
 
-// import * as AsciinemaPlayer from 'asciinema-player';
-// AsciinemaPlayer.create('/demo.cast', document.getElementById('demo'));
-
-function init(eventElt) {
-    // htmx.logger = function (elt, event, data) {
-    //     if (console) {
-    //         console.log(event, elt, data);
-    //     }
-    // };
-
-    if (firebaseConfig.apiKey != null) {
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-        window.analytics = analytics;
-        window.logEvent = logEvent;
-    }
-
-    window.scrollToElementById = scrollToElementById;
-
-    // Delete 请求仍旧使用 form-encoded body 来传递参数。
-    // htmx 2.0, 对于 DELETE 请求，将使用 params （根据 spec 规定）
-    // 这里设定，仅仅 get 请求使用 params
-    htmx.config.methodsThatUseUrlParams = ["get"];
-    // 2.0 不允许使用 htmx 执行 cross-domain requests.
-    // 取消注释来允许它正常发送请求。
-    // htmx.config.selfRequestsOnly = false;
-
-    // 让 data-tooltip 属性可以显示中文
-    document.querySelectorAll("[data-tooltip]").forEach((el) => {
-        // 解码 data-tooltip 的值
-        const decodedTooltip = decodeURIComponent(
-            el.getAttribute("data-tooltip"),
-        );
-
-        // 设置一个新的属性 data-tooltip-decoded，用于存储解码后的值
-        el.setAttribute("data-tooltip-decoded", decodedTooltip);
-    });
-
-    // console.log(eventElt.getAttribute("class"));
-    // 确保激活的这个 div 不包含 htmx-settling
-    // 目前猜测所有使用 htmx-trigger="load" 激活的 swap，js callback 也会被执行。
-    // 此时重复执行 js 的 callback 会引起问题，例如，render Logo 动画两次。
-    // 为了避免重复执行，做一个判断。（不确定是不是总是有效）
-    if (!eventElt.className.includes("htmx-settling")) {
-        void setupLogo(eventElt);
-        setupPasteImage(eventElt);
-        setupCopyCodeButton(eventElt);
-        // 确保下面的函数，只在 body 重新改变时才触发
-        if (eventElt.nodeName == "BODY") {
-            void initStork(eventElt);
+        if (token) {
+            request.headers["X-CSRF-TOKEN"] = token;
         }
     }
-}
-
-// 备忘，为什么这里不直接使用 htmx.onLoad 呢？
-// https://github.com/bigskysoftware/htmx/discussions/3126#discussioncomment-11820869
-
-//  htmx will fire htmx:load on every top-level child of the swapped content.
-// When you use hx-boost, it's an equivalent to hx-target="body" hx-swap="innerHTML",
-// which will replace the content of the body, then fire htmx:load on its direct descendants,
-// so here the header, div and dialog from your screenshot indeed.
-
-// 然后，为什么现在又用回了 onLoad, 因为现在经过重构，body 下面只有一个顶级的 div,
-// 之前事件绑定重复激发的情况不存在了，而且，onLoad 可以很好的处理 history 相关的问题。
-// 不必再单独为 htmx:historyRestore" 事件绑定一遍了。
-
-htmx.onLoad(init);
-
-// https://htmx.org/docs/#undoing-dom-mutations-by-3rd-party-libraries
-// 当全局开启 hx-boost 之后，有义务在 htmx:beforeHistorySave 的 callback 中，
-// 将一些 js 库的针对 DOM 的修改回滚到初始状态，以使得 htmx history 在载入时，
-// 运行 js 来重新初始化。
-// 因为上面有 htmx-settling 的判断，这个其实不是必须的，但这是 htmx 推荐的方式。
-document.body.addEventListener("htmx:beforeHistorySave", function (event) {
-    document.getElementById("logo-canvas")?.setAttribute("running", "false");
 });
 
-async function setupLogo(eventElt) {
-    const canvas = document.getElementById("logo-canvas");
-
-    if (canvas != null && canvas.getAttribute("running") === "false") {
-        // setIPhoneDataAttribute
-        let platform = navigator?.userAgent || navigator?.platform || "unknown";
-
-        if (/iPhone/.test(platform)) {
-            document.documentElement.dataset.uaIphone = true;
-        }
-
-        // startLogoAnimation
-        var model = new Viewer3D(canvas);
-        model.shader("flat", 255, 255, 255);
-        model.insertModel(await assetUrl("models/icosahedron.xml"));
-        model.contrast(0.9);
-        canvas.setAttribute("running", "true");
-    }
+function initializeContent(root) {
+    void setupLogo(root, assetUrl);
+    setupPasteImage(root);
+    setupCopyCodeButton(root);
+    void setupStork(root, assetUrl);
 }
 
-function setupStork(eventElt) {
-    let storkContainer = eventElt.querySelector("input[data-stork='docs']");
-    if (storkContainer != null) {
-        stork.attach("docs");
+// 备忘：为什么这里使用 htmx.onLoad
+// https://github.com/bigskysoftware/htmx/discussions/3126#discussioncomment-11820869
+//
+// 首次加载时，HTMX 会以整个 body 调用一次 callback；但 hx-boost 等价于
+// hx-target="body" + hx-swap="innerHTML"，替换 body 内容后，HTMX 仍会逐个处理
+// body 的顶级子元素。因此 body 有多个顶级元素时，callback 也会执行多次。
+//
+// 项目通过 #htmx-onload-root 保持 body 只有一个顶级元素，确保整页替换只调用
+// 一次 callback。initializeContent 仍只查找本次传入的 root 及其后代，以便正确
+// 处理局部替换。HTMX 4 的 history 恢复会重新请求并处理 HTML，也会自然走这个
+// 入口，无须再监听单独的 history 事件。
+htmx.onLoad(initializeContent);
+
+function findElements(root, selector) {
+    const elements = [...root.querySelectorAll(selector)];
+
+    if (root.matches(selector)) {
+        elements.unshift(root);
     }
+
+    return elements;
 }
 
-async function initStork(eventElt) {
-    await stork.initialize(await assetUrl("docs/stork.wasm"));
-    await stork.downloadIndex("docs", await assetUrl("docs/index.st"));
-    setupStork(eventElt);
+function setupCopyCodeButton(root) {
+    findElements(root, "pre.b").forEach(copyCodeButton);
 }
 
-function setupCopyCodeButton(eventElt) {
-    eventElt.querySelectorAll("pre.b").forEach(copyCodeButton);
-
-    // If it's possible that a block is at the top level of the response,
-    // you'll want to check the root elt itself
-    if (eventElt instanceof Element) {
-        if (eventElt.matches("pre.b")) {
-            pasteImage(eventElt);
-        }
-    }
-}
-
-function setupPasteImage(eventElt) {
-    eventElt.querySelectorAll("textarea").forEach(pasteImage);
-
-    if (eventElt instanceof Element) {
-        if (eventElt.matches("textarea")) {
-            pasteImage(eventElt);
-        }
-    }
-}
-
-function scrollToElementById(someId) {
-    const element = document.getElementById(someId);
-
-    if (element) {
-        element.scrollIntoView({
-            behavior: "smooth", // 平滑滚动
-            block: "center", // 元素在视窗中的对齐位置（"center" 表示居中）
-        });
-    }
+function setupPasteImage(root) {
+    findElements(root, "textarea").forEach(pasteImage);
 }

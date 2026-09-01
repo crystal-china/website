@@ -12,7 +12,6 @@ class Footer < BaseComponent
         span(
           hx_trigger: "load,every 2m",
           hx_patch: Htmx::OnlineUsers.with(user_id: current_user.try(&.id)).path,
-          hx_include: "[name='_csrf']",
         ) do
           text "在线用户 #{ONLINE_USER_COUNTER.keys.size} 人, 游客 #{ONLINE_IP_COUNTER.keys.size} 人"
         end

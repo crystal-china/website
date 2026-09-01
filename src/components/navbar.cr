@@ -1,14 +1,14 @@
 class Navbar < BaseComponent
   def render
     header class: "sticky top-0 z-50" do
-      div class: "flex translate-y-px items-center justify-between border-b border-black bg-[#F2F4F6] pt-4 pb-3 #{page_frame_classes} #{page_gutter_classes}" do
+      div class: "flex translate-y-px flex-col items-center gap-3 border-b border-black bg-[#F2F4F6] pt-3 pb-3 md:flex-row md:justify-between md:pt-4 #{page_frame_classes} #{page_gutter_classes}" do
         a href: "/", class: "inline-flex shrink-0 items-center" do
-          img src: asset("svgs/crystal.svg"), alt: "crystal-china", class: "w-[180px]"
-          span "China", class: "ml-6 text-lg font-semibold tracking-wide text-black uppercase"
+          img src: asset("svgs/crystal.svg"), alt: "crystal-china", class: "w-[140px] sm:w-[180px]"
+          span "China", class: "ml-3 text-base font-semibold tracking-wide text-black uppercase sm:ml-6 sm:text-lg"
         end
 
-        nav class: "ml-auto" do
-          ul class: "m-0 flex list-none flex-wrap items-center gap-x-6 p-0" do
+        nav class: "w-full md:ml-auto md:w-auto" do
+          ul class: "m-0 flex list-none flex-wrap items-center justify-center gap-x-2 gap-y-2 p-0 sm:gap-x-4 md:justify-end lg:gap-x-6" do
             li do
               if current_path.starts_with?("/docs")
                 button(
@@ -37,7 +37,6 @@ class Navbar < BaseComponent
                   hx_target: "body",
                   hx_push_url: "true",
                   hx_delete: SignIns::Delete.path,
-                  hx_include: "[name='_csrf']",
                 )
               end
 

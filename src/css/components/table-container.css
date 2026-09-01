@@ -19,7 +19,7 @@
 
   /* 提示框的基本样式 */
   div.table-container table td:hover::after {
-    content: attr(data-tooltip-decoded);
+    content: attr(data-tooltip);
     position: absolute;
     top: -35px; /* 提示框的位置（调整到单元格上方） */
     left: 50%;

@@ -34,9 +34,9 @@ close the closest <dialog/>
 HEREDOC
 
       hx_include = if order_by
-                     "[name='_csrf'],##{html_id}_text_area,##{order_by_input_id}"
+                     "##{html_id}_text_area,##{order_by_input_id}"
                    else
-                     "[name='_csrf'],##{html_id}_text_area,#replies-order-by"
+                     "##{html_id}_text_area,#replies-order-by"
                    end
 
       opts = {

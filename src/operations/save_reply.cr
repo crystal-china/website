@@ -16,16 +16,10 @@ class SaveReply < Reply::SaveOperation
     if !id.value # 新建的时候
       doc_id.value.try do |doc_id|
         doc = DocQuery.find(doc_id)
-        if (last_reply = ReplyQuery.new.doc_id(doc.id).reply_id.is_nil.last?)
-          floor = last_reply.preferences.floor + 1
-        else
-          floor = 1
-        end
 
         preferences.value = Reply::Preferences.from_json(
           {
             path_for_doc: doc.path_index,
-            floor:        floor,
           }.to_json
         )
       end
@@ -40,16 +34,9 @@ class SaveReply < Reply::SaveOperation
         thread_root_id = parent_reply.root_reply_id || parent_reply.id
         root_reply_id.value = thread_root_id
 
-        if (last_reply = ReplyQuery.new.root_reply_id(thread_root_id).last?)
-          floor = last_reply.preferences.floor + 1
-        else
-          floor = 1
-        end
-
         preferences.value = Reply::Preferences.from_json(
           {
             path_for_doc: nil,
-            floor:        floor,
           }.to_json
         )
       end
@@ -69,8 +56,8 @@ class SaveReply < Reply::SaveOperation
   end
 
   private def validate_doc_id_reply_id
-    if doc_id.value.blank? && reply_id.value.blank?
-      add_error :doc_id_or_reply_id, "必须至少一个存在"
+    if doc_id.value.blank? == reply_id.value.blank?
+      add_error :doc_id_or_reply_id, "必须且只能有一个存在"
     end
   end
 end
