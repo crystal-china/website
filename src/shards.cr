@@ -9,7 +9,6 @@ require "rosetta"
 require "carbon"
 require "authentic"
 require "jwt"
-require "baked_file_system_mounter"
 require "tartrazine" # optional dependency for markd to render markdown code block.
 require "markd"
 require "sanitize"

@@ -1,4 +1,5 @@
 require "./app"
+require "./server/baked_file_system_mounter"
 
 Habitat.raise_if_missing_settings!
 

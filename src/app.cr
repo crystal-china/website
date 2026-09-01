@@ -10,8 +10,6 @@ end
 
 require "./shards"
 
-require "../config/backed_file_system_mounter"
-
 Lucky::AssetHelpers.load_manifest
 
 require "./utils/**"
