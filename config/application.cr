@@ -35,10 +35,11 @@ CACHE_STORE = if LuckyEnv.production?
                 Cache::NullStore(String)
               end
 
-CAPTCHA_CACHE       = Cache::MemoryStore(String).new(expires_in: 1.minute)
-MARKDOWN_CACHE      = CACHE_STORE.new(expires_in: 1.day)
-ONLINE_USER_COUNTER = Cache::MemoryStore(Int64).new(expires_in: 3.minutes)
-COUNTER_MUTEX       = Mutex.new
+CAPTCHA_CACHE        = Cache::MemoryStore(String).new(expires_in: 1.minute)
+MARKDOWN_CACHE       = CACHE_STORE.new(expires_in: 1.day)
+LATEST_RELEASE_CACHE = CACHE_STORE.new(expires_in: 1.hour)
+ONLINE_USER_COUNTER  = Cache::MemoryStore(Int64).new(expires_in: 3.minutes)
+COUNTER_MUTEX        = Mutex.new
 
 ONLINE_IP_COUNTER = CACHE_STORE.new(expires_in: 3.minutes)
 
