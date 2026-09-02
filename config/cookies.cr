@@ -6,8 +6,9 @@ end
 
 Lucky::CookieJar.configure do |settings|
   settings.on_set = ->(cookie : HTTP::Cookie) {
-    # If ForceSSLHandler is enabled, only send cookies over HTTPS
-    cookie.secure(Lucky::ForceSSLHandler.settings.enabled)
+    # Cloudflare terminates HTTPS before requests reach this app, so this must
+    # not depend on Lucky's ForceSSLHandler setting.
+    cookie.secure(LuckyEnv.production?)
 
     # By default, don't allow reading cookies with JavaScript
     cookie.http_only(true)
