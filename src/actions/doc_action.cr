@@ -24,6 +24,7 @@ abstract class DocAction < BrowserAction
     end
 
     q = order_by == "desc" ? q.id.desc_order : q.id.asc_order
+    q = q.preload_reply
 
     page, replies = paginate(q, per_page: per_page)
 
