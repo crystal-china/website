@@ -6,14 +6,15 @@ class CreateReplies::V20250309142021 < Avram::Migrator::Migration::V1
       add_belongs_to user : User, on_delete: :cascade
       add_belongs_to reply : Reply?, on_delete: :cascade
       add_belongs_to root_reply : Reply?, on_delete: :cascade
-      add root_replies_count : Int32, default: 0
+      add thread_replies_count : Int32, default: 0
+      add direct_replies_count : Int32, default: 0
       add reply_floor_counter : Int32, default: 0
       add floor : Int32
       add content : String
       add user_name : String
       add user_avatar : String?
       add preferences : JSON::Any
-      add votes : JSON::Any
+      add vote_counts : JSON::Any
       add_timestamps
     end
 
@@ -26,8 +27,15 @@ class CreateReplies::V20250309142021 < Avram::Migrator::Migration::V1
     add_counters_for(
       source_table: "replies",
       target_table: "replies",
-      target_column: "root_replies_count",
+      target_column: "thread_replies_count",
       target_id_column: "root_reply_id",
+    )
+
+    add_counters_for(
+      source_table: "replies",
+      target_table: "replies",
+      target_column: "direct_replies_count",
+      target_id_column: "reply_id",
     )
 
     create_function "assign_reply_floor", <<-SQL
@@ -63,7 +71,13 @@ class CreateReplies::V20250309142021 < Avram::Migrator::Migration::V1
     remove_counters_for(
       source_table: "replies",
       target_table: "replies",
-      target_column: "root_replies_count",
+      target_column: "direct_replies_count",
+    )
+
+    remove_counters_for(
+      source_table: "replies",
+      target_table: "replies",
+      target_column: "thread_replies_count",
     )
 
     drop table_for(Reply)
