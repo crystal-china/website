@@ -26,6 +26,10 @@ abstract class DocAction < BrowserAction
     q = order_by == "desc" ? q.id.desc_order : q.id.asc_order
     q = q.preload_reply
 
+    if (me = current_user)
+      q = q.preload_votes { |vote_query| vote_query.user_id(me.id) }
+    end
+
     page, replies = paginate(q, per_page: per_page)
 
     {

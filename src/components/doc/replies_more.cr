@@ -75,7 +75,7 @@ class Docs::RepliesMore < BaseComponent
 
   private def render_emoji_buttons_and_delete_button(reply : Reply)
     me = current_user
-    voted_types = me ? VoteQuery.new.user_id(me.id).reply_id(reply.id).map(&.vote_type) : [] of String
+    voted_types = me ? reply.votes.map(&.vote_type) : [] of String
 
     footer class: "mt-2 flex flex-wrap items-end justify-between gap-x-4 gap-y-3" do
       div class: "flex min-w-0 flex-wrap items-center gap-2 text-sm" do
