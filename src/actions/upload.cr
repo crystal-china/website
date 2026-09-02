@@ -1,6 +1,7 @@
 class Upload < BrowserAction
   post "/upload" do
     source = params.from_multipart.last["source"]
+    return json({status: "failed", message: "文件过大"}, HTTP::Status::PAYLOAD_TOO_LARGE) if File.size(source.path) > 5 * 1024 * 1024
 
     # use IO.pipe instead of IO::Memory to reduce memory usage.
     # https://forum.crystal-lang.org/t/upload-image-failed-use-http-client-but-test-with-postman-work/8171/13
