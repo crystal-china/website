@@ -11,8 +11,10 @@ module Db::Fix::ReplyThreadDataTask
     AppDatabase.transaction do
       AppDatabase.exec(clear_root_reply_id_for_roots_sql)
       AppDatabase.exec(backfill_root_reply_id_sql)
-      AppDatabase.exec(reset_root_replies_count_sql)
-      AppDatabase.exec(recalculate_root_replies_count_sql)
+      AppDatabase.exec(reset_thread_replies_count_sql)
+      AppDatabase.exec(recalculate_thread_replies_count_sql)
+      AppDatabase.exec(reset_direct_replies_count_sql)
+      AppDatabase.exec(recalculate_direct_replies_count_sql)
       AppDatabase.exec(recalculate_doc_reply_floors_sql)
       AppDatabase.exec(recalculate_thread_reply_floors_sql)
       AppDatabase.exec(reset_doc_reply_floor_counters_sql)
@@ -61,18 +63,18 @@ WHERE replies.id = reply_tree.id
 SQL
   end
 
-  private def self.reset_root_replies_count_sql
+  private def self.reset_thread_replies_count_sql
     <<-SQL
 UPDATE replies
-SET root_replies_count = 0
-WHERE root_replies_count <> 0;
+SET thread_replies_count = 0
+WHERE thread_replies_count <> 0;
 SQL
   end
 
-  private def self.recalculate_root_replies_count_sql
+  private def self.recalculate_thread_replies_count_sql
     <<-SQL
 UPDATE replies
-SET root_replies_count = counts.total
+SET thread_replies_count = counts.total
 FROM (
   SELECT
     root_reply_id,
@@ -82,6 +84,30 @@ FROM (
   GROUP BY root_reply_id
 ) AS counts
 WHERE replies.id = counts.root_reply_id;
+SQL
+  end
+
+  private def self.reset_direct_replies_count_sql
+    <<-SQL
+UPDATE replies
+SET direct_replies_count = 0
+WHERE direct_replies_count <> 0;
+SQL
+  end
+
+  private def self.recalculate_direct_replies_count_sql
+    <<-SQL
+UPDATE replies
+SET direct_replies_count = counts.total
+FROM (
+  SELECT
+    reply_id,
+    COUNT(*)::int AS total
+  FROM replies
+  WHERE reply_id IS NOT NULL
+  GROUP BY reply_id
+) AS counts
+WHERE replies.id = counts.reply_id;
 SQL
   end
 

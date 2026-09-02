@@ -9,6 +9,7 @@ class Htmx::Docs::Reply::Delete < DocAction
     reply = ReplyQuery.find(id)
 
     return head 403 if reply.user_id != me.id
+    return head 409 if reply.direct_replies_count > 0
 
     DeleteReply.delete!(reply)
 

@@ -75,7 +75,6 @@ class Docs::RepliesMore < BaseComponent
 
   private def render_emoji_buttons_and_delete_button(reply : Reply)
     me = current_user
-    has_direct_replies = ReplyQuery.new.reply_id(reply.id).any?
     voted_types = me ? VoteQuery.new.user_id(me.id).reply_id(reply.id).map(&.vote_type) : [] of String
 
     footer class: "mt-2 flex flex-wrap items-end justify-between gap-x-4 gap-y-3" do
@@ -90,12 +89,12 @@ class Docs::RepliesMore < BaseComponent
       end
 
       render_thread_toggle(reply)
-      render_reply_actions(reply, me, has_direct_replies) unless me.nil?
+      render_reply_actions(reply, me) unless me.nil?
     end
   end
 
   private def render_thread_toggle(reply : Reply)
-    return unless reply.reply_id.nil? && reply.root_replies_count > 0
+    return unless reply.reply_id.nil? && reply.thread_replies_count > 0
 
     button_class = "inline-flex h-8 items-center justify-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-3 text-sm font-medium text-sky-800 transition hover:border-sky-300 hover:bg-sky-100"
 
@@ -115,7 +114,7 @@ add @hidden to me
 remove @hidden from the next <button/>
 HEREDOC
       ) do
-        text "加载子评论，共 #{reply.root_replies_count} 条"
+        text "加载子评论，共 #{reply.thread_replies_count} 条"
         mount Shared::Spinner, text: "正在读取评论...", width: "10px"
       end
 
@@ -136,7 +135,7 @@ HYPER
     end
   end
 
-  private def render_reply_actions(reply : Reply, me : User, has_direct_replies : Bool)
+  private def render_reply_actions(reply : Reply, me : User)
     opts = {
       type:      "button",
       class:     "inline-flex h-6 shrink-0 items-center rounded-full border border-sky-600 px-3 text-sm font-medium whitespace-nowrap text-sky-700 hover:bg-sky-50",
@@ -151,7 +150,7 @@ HYPER
       if me.id == reply.user_id # 只允许编辑自己的回复
         button("编辑", opts, hx_get: Htmx::Docs::Reply::Edit.with(id: reply.id, user_id: me.id, order_by: pagination[:order_by]).path)
 
-        if !has_direct_replies # 如果回复有了直接回复，就不再允许删除
+        if reply.direct_replies_count == 0 # 如果回复有了直接回复，就不再允许删除
           button(
             "删除",
             type: "button",
