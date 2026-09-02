@@ -112,7 +112,7 @@ module PageHelpers
     div class: "doc-page-votes" do
       mount(
         Shared::VoteButton,
-        votes: Hash(String, Int32).from_json(doc.votes.to_json),
+        vote_counts: Hash(String, Int32).from_json(doc.vote_counts.to_json),
         doc_id: doc.id,
         current_user: me,
         voted_types: voted_types

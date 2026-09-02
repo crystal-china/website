@@ -192,9 +192,9 @@ HEREDOC
   end
 
   def random_emoji(reply)
-    UpdateReplyVotes.update!(
+    UpdateReplyVoteCounts.update!(
       reply,
-      votes: Reply::Votes.from_json({
+      vote_counts: Reply::VoteCounts.from_json({
         "👍":  [0, 0, 0, 0, 1, 2, 5, 8, rand(10..99), rand(100..300)].sample,
         "👎":  [0, 0, 0, 0, 1, 2, 5, 8, rand(10..99), rand(100..300)].sample,
         "😄":  [0, 0, 0, 0, 1, 2, 5, 8, rand(10..99), rand(100..300)].sample,

@@ -5,7 +5,7 @@ class Reply < BaseModel
     property? path_for_doc : String?
   end
 
-  struct Votes
+  struct VoteCounts
     include JSON::Serializable
 
     property 👍 : Int32 = 0
@@ -22,6 +22,7 @@ class Reply < BaseModel
     belongs_to reply : Reply?
     belongs_to root_reply : Reply?
     belongs_to user : User
+    has_many votes : Vote
 
     column content : String
     column user_name : String
@@ -33,6 +34,6 @@ class Reply < BaseModel
 
     polymorphic target, associations: [:doc, :reply]
     column preferences : Reply::Preferences, serialize: true
-    column votes : Reply::Votes, serialize: true
+    column vote_counts : Reply::VoteCounts, serialize: true
   end
 end

@@ -81,7 +81,7 @@ class Docs::RepliesMore < BaseComponent
       div class: "flex min-w-0 flex-wrap items-center gap-2 text-sm" do
         mount(
           Shared::VoteButton,
-          votes: Hash(String, Int32).from_json(reply.votes.to_json),
+          vote_counts: Hash(String, Int32).from_json(reply.vote_counts.to_json),
           reply_id: reply.id,
           current_user: me,
           voted_types: voted_types

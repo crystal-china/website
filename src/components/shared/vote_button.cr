@@ -1,11 +1,11 @@
 class Shared::VoteButton < BaseComponent
   needs reply_id : Int64?
   needs doc_id : Int64?
-  needs votes : Hash(String, Int32)
+  needs vote_counts : Hash(String, Int32)
   needs voted_types : Array(String)
 
   def render
-    votes.each do |(emoji, count)|
+    vote_counts.each do |(emoji, count)|
       gray = count == 0 ? "grayscale-[50%] text-gray-300" : ""
       voted = emoji.in?(voted_types) ? "border border-black" : "border-transparent"
       config = {

@@ -41,7 +41,7 @@ class SaveReply < Reply::SaveOperation
         )
       end
 
-      votes.value = Reply::Votes.from_json(
+      vote_counts.value = Reply::VoteCounts.from_json(
         {
           👍:  0,
           👎:  0,
