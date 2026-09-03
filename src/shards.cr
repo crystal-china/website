@@ -9,6 +9,8 @@ require "rosetta"
 require "carbon"
 require "authentic"
 require "jwt"
+require "crypto/subtle"
+require "random/secure"
 require "tartrazine" # optional dependency for markd to render markdown code block.
 require "markd"
 require "sanitize"

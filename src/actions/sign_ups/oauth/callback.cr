@@ -2,6 +2,12 @@ class SignUps::Oauth::Callback < BrowserAction
   include Auth::RedirectSignedInUsers
 
   get "/multi_auth/:provider/callback" do
+    expected_state = session.delete("oauth_state:#{provider}")
+    received_state = params.get?(:state)
+
+    return head 400 if expected_state.nil? || received_state.nil?
+    return head 400 unless Crypto::Subtle.constant_time_compare(expected_state, received_state)
+
     redirect_uri = "#{Lucky::RouteHelper.settings.base_uri}/multi_auth/#{provider}/callback"
     auth_user = MultiAuth.make(provider, redirect_uri).user(request.query_params)
 

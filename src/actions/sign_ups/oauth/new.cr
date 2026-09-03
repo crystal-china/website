@@ -11,8 +11,17 @@ class SignUps::Oauth::New < BrowserAction
       scope = "email"
     end
 
-    authorize_uri = MultiAuth.make(provider, redirect_uri).authorize_uri(scope: scope)
+    state = Random::Secure.hex(32)
+    session.set("oauth_state:#{provider}", state)
 
-    redirect authorize_uri
+    authorize_uri = URI.parse(MultiAuth.make(provider, redirect_uri).authorize_uri(scope: scope))
+
+    # 只有 OAuth2 协议才能保证一定在 callback 中回传 state params
+    # 例如，twitter 就不支持。
+    authorize_uri.query_params = authorize_uri.query_params.tap do |params|
+      params["state"] = state
+    end
+
+    redirect authorize_uri.to_s
   end
 end
