@@ -28,9 +28,12 @@ class UpdateUser < User::SaveOperation
   private def user_audit(saved_user)
     attributes.select(&.changed?).each do |attribute|
       column_name = attribute.name.to_s
-      user_id = saved_user.id
 
-      next if column_name.in? ["updated_at", "created_at"]
+      # UserAudit only drives reply profile synchronization. Do not audit
+      # credentials or future private attributes by default.
+      next unless column_name.in? ["name", "avatar"]
+
+      user_id = saved_user.id
 
       exists_pending_record = UserAuditQuery.new
         .sync_state(UserAudit::SyncStatus::Pending)

@@ -32,10 +32,12 @@ class Docs::RepliesMore < BaseComponent
   end
 
   private def render_avatar_name_and_time(reply : Reply)
+    user = reply.user
+
     header class: "flex flex-wrap items-start justify-between gap-3 sm:flex-nowrap" do
       div class: "flex min-w-0 items-center gap-3" do
-        img src: reply.user_avatar || asset("svgs/crystal-lang-icon.svg"), class: "h-6 w-6 rounded-md border border-gray-300 bg-white object-cover p-0.5"
-        span reply.user_name, class: "truncate text-xs font-semibold text-gray-900"
+        img src: user.avatar || asset("svgs/crystal-lang-icon.svg"), class: "h-6 w-6 rounded-md border border-gray-300 bg-white object-cover p-0.5"
+        span user.name, class: "truncate text-xs font-semibold text-gray-900"
       end
 
       render_parent_reply_hint(reply)
@@ -66,7 +68,7 @@ class Docs::RepliesMore < BaseComponent
 
     div class: "order-3 min-w-0 basis-full self-center px-2 text-center text-xs font-medium text-green-700 sm:order-none sm:flex-1 sm:basis-auto" do
       a(
-        "回复 #{parent_reply.floor} 楼 @#{parent_reply.user_name}",
+        "回复 #{parent_reply.floor} 楼 @#{parent_reply.user.name}",
         href: "#doc_reply-#{parent_reply.id}",
         class: "inline-block truncate underline decoration-dotted underline-offset-2 hover:text-green-800"
       )

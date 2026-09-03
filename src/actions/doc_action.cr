@@ -24,7 +24,8 @@ abstract class DocAction < BrowserAction
     end
 
     q = order_by == "desc" ? q.id.desc_order : q.id.asc_order
-    q = q.preload_reply
+    q = q.preload_user
+    q = q.preload_reply { |reply_query| reply_query.preload_user }
 
     if (me = current_user)
       q = q.preload_votes { |vote_query| vote_query.user_id(me.id) }
