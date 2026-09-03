@@ -5,14 +5,6 @@ class SaveReply < Reply::SaveOperation
   before_save do
     validate_required user_id, content
 
-    user = UserQuery.find(user_id.value.not_nil!)
-
-    user_name.value = user.name
-
-    user.avatar.try do |avatar|
-      user_avatar.value = avatar
-    end
-
     if !id.value # 新建的时候
       doc_id.value.try do |doc_id|
         doc = DocQuery.find(doc_id)

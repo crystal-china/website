@@ -29,8 +29,8 @@ class UpdateUser < User::SaveOperation
     attributes.select(&.changed?).each do |attribute|
       column_name = attribute.name.to_s
 
-      # UserAudit only drives reply profile synchronization. Do not audit
-      # credentials or future private attributes by default.
+      # Record only public profile changes. Do not audit credentials or future
+      # private attributes by default.
       next unless column_name.in? ["name", "avatar"]
 
       user_id = saved_user.id
