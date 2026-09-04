@@ -11,8 +11,6 @@ class CreateReplies::V20250309142021 < Avram::Migrator::Migration::V1
       add reply_floor_counter : Int32, default: 0
       add floor : Int32
       add content : String
-      add user_name : String
-      add user_avatar : String?
       add preferences : JSON::Any
       add vote_counts : JSON::Any
       add_timestamps
