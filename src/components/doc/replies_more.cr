@@ -96,7 +96,7 @@ class Docs::RepliesMore < BaseComponent
   end
 
   private def render_thread_toggle(reply : Reply)
-    return unless reply.parent_id.nil? && reply.thread_replies_count > 0
+    return unless reply.parent_id.nil? && reply.descendants_count > 0
 
     button_class = "inline-flex h-8 items-center justify-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-3 text-sm font-medium text-sky-800 transition hover:border-sky-300 hover:bg-sky-100"
 
@@ -116,7 +116,7 @@ add @hidden to me
 remove @hidden from the next <button/>
 HEREDOC
       ) do
-        text "加载子评论，共 #{reply.thread_replies_count} 条"
+        text "加载子评论，共 #{reply.descendants_count} 条"
         mount Shared::Spinner, text: "正在读取评论...", width: "10px"
       end
 
@@ -152,7 +152,7 @@ HYPER
       if me.id == reply.user_id # 只允许编辑自己的回复
         button("编辑", opts, hx_get: Htmx::Docs::Reply::Edit.with(id: reply.id, user_id: me.id, order_by: pagination[:order_by]).path)
 
-        if reply.direct_replies_count == 0 # 如果回复有了直接回复，就不再允许删除
+        if reply.children_count == 0 # 如果回复有了直接回复，就不再允许删除
           button(
             "删除",
             type: "button",
