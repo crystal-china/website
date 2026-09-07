@@ -17,10 +17,10 @@ module Db::Fix::ReplyThreadDataTask
       AppDatabase.exec(recalculate_children_count_sql)
       AppDatabase.exec(recalculate_doc_reply_floors_sql)
       AppDatabase.exec(recalculate_thread_reply_floors_sql)
-      AppDatabase.exec(reset_doc_reply_floor_counters_sql)
-      AppDatabase.exec(recalculate_doc_reply_floor_counters_sql)
-      AppDatabase.exec(reset_root_reply_floor_counters_sql)
-      AppDatabase.exec(recalculate_root_reply_floor_counters_sql)
+      AppDatabase.exec(reset_doc_floor_counters_sql)
+      AppDatabase.exec(recalculate_doc_floor_counters_sql)
+      AppDatabase.exec(reset_root_floor_counters_sql)
+      AppDatabase.exec(recalculate_root_floor_counters_sql)
       AppDatabase.exec(remove_floor_from_preferences_sql)
     end
 
@@ -151,18 +151,18 @@ WHERE replies.id = ranked.id;
 SQL
   end
 
-  private def self.reset_doc_reply_floor_counters_sql
+  private def self.reset_doc_floor_counters_sql
     <<-SQL
 UPDATE docs
-SET reply_floor_counter = 0
-WHERE reply_floor_counter <> 0;
+SET floor_counter = 0
+WHERE floor_counter <> 0;
 SQL
   end
 
-  private def self.recalculate_doc_reply_floor_counters_sql
+  private def self.recalculate_doc_floor_counters_sql
     <<-SQL
 UPDATE docs
-SET reply_floor_counter = floors.maximum
+SET floor_counter = floors.maximum
 FROM (
   SELECT
     doc_id,
@@ -176,18 +176,18 @@ WHERE docs.id = floors.doc_id;
 SQL
   end
 
-  private def self.reset_root_reply_floor_counters_sql
+  private def self.reset_root_floor_counters_sql
     <<-SQL
 UPDATE replies
-SET reply_floor_counter = 0
-WHERE reply_floor_counter <> 0;
+SET floor_counter = 0
+WHERE floor_counter <> 0;
 SQL
   end
 
-  private def self.recalculate_root_reply_floor_counters_sql
+  private def self.recalculate_root_floor_counters_sql
     <<-SQL
 UPDATE replies
-SET reply_floor_counter = floors.maximum
+SET floor_counter = floors.maximum
 FROM (
   SELECT
     root_id,
