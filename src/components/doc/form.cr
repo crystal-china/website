@@ -1,7 +1,7 @@
 class Docs::Form < BaseComponent
   needs content : String = ""
   needs doc_path : String?
-  needs reply_id : Int64?
+  needs comment_id : Int64?
   needs html_id : String = "tab"
 
   def render(&)

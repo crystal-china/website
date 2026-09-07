@@ -1,2 +1,2 @@
-class ReplyQuery < Reply::BaseQuery
+class CommentQuery < Comment::BaseQuery
 end

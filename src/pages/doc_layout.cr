@@ -93,7 +93,7 @@ abstract class DocLayout
 
         section id: "form_with_replies", class: "mt-6" do
           # 只是一个占位符，会被 htmx 请求覆盖
-          mount ::Docs::ReplyToDocForm, current_user: current_user, doc_path: current_path
+          mount ::Comments::Form, current_user: current_user, doc_path: current_path
 
           show_replies_when_revealed
         end

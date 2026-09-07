@@ -17,21 +17,21 @@ class Htmx::Docs::Reply::CreateOrUpdate < DocAction
     return head 400 if content.blank?
 
     if !id.nil?
-      reply = ReplyQuery.find(id.not_nil!)
+      comment = CommentQuery.find(id.not_nil!)
 
       case op
       when "edit"
-        # 编辑一条已有评论。这里 reply 可能是：
+        # 编辑一条已有评论。这里 comment 可能是：
         # - 针对 doc 的顶级评论
         # - 针对 reply 的子评论
-        return head 403 if reply.user_id != me.id
+        return head 403 if comment.user_id != me.id
 
-        SaveReply.update!(reply, content: content)
-        path_for_doc = reply.preferences.path_for_doc?
+        SaveComment.update!(comment, content: content)
+        path_for_doc = comment.preferences.path_for_doc?
         if path_for_doc.nil?
           # edit reply to reply
           # 子评论创建时已经保存所属线程，因此编辑后直接刷新这个根评论下的整个子评论列表。
-          root_id = reply.root_id.not_nil!
+          root_id = comment.root_id.not_nil!
           id_or_doc_path = root_id.to_s
           html_id = "doc_reply-#{root_id}-replies"
         else
@@ -40,12 +40,12 @@ class Htmx::Docs::Reply::CreateOrUpdate < DocAction
           html_id = "replies"
         end
       when "new"
-        # 为一条已有 reply 新建子评论。这里的 reply 是“被回复的那条旧评论”。
+        # 为一条已有评论新建子评论。这里的 comment 是“被回复的那条旧评论”。
         # 回复顶级评论时，它自己就是线程根；回复子评论时，继承该子评论所属的线程根。
-        root_id = reply.root_id || reply.id
+        root_id = comment.root_id || comment.id
         id_or_doc_path = root_id.to_s
         html_id = "doc_reply-#{root_id}-replies"
-        reply = SaveReply.create!(user_id: user_id, parent_id: reply.id, content: content)
+        comment = SaveComment.create!(user_id: user_id, parent_id: comment.id, content: content)
       else
         return head 400
       end
@@ -55,17 +55,17 @@ class Htmx::Docs::Reply::CreateOrUpdate < DocAction
       doc = DocQuery.new.path_index(doc_path).first
       id_or_doc_path = doc_path
       html_id = "replies"
-      reply = SaveReply.create!(user_id: user_id, doc_id: doc.id, content: content)
+      comment = SaveComment.create!(user_id: user_id, doc_id: doc.id, content: content)
     end
 
-    pagination = replies_pagination(id_or_doc_path: id_or_doc_path.not_nil!, order_by: order_by)
+    pagination = comments_pagination(id_or_doc_path: id_or_doc_path.not_nil!, order_by: order_by)
 
     component(
-      ::Docs::Replies,
+      ::Comments::List,
       formatter: formatter,
       pagination: pagination,
       current_user: me,
-      reply_id: reply.id,
+      comment_id: comment.id,
       html_id: html_id.to_s
     )
   end

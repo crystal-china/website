@@ -12,7 +12,7 @@ class User < BaseModel
     # OAuth 登录时密码为空
     column encrypted_password : String?
 
-    has_many replies : Reply
+    has_many comments : Comment
   end
 
   def emailable : Carbon::Address

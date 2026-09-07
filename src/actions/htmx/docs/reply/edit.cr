@@ -7,20 +7,20 @@ class Htmx::Docs::Reply::Edit < DocAction
     return head 401 if me.nil?
     return head 403 if user_id != me.id
 
-    reply = ReplyQuery.find(id)
+    comment = CommentQuery.find(id)
 
-    return head 403 if reply.user_id != me.id
+    return head 403 if comment.user_id != me.id
 
     component(
-      ::Docs::ReplyToDocForm,
+      ::Comments::Form,
       current_user: current_user,
-      content: reply.content,
+      content: comment.content,
       html_id: "reply_to_reply",
       order_by: order_by,
-      reply_id: id.to_i64,
-      doc_path: reply.preferences.path_for_doc?,
+      comment_id: id.to_i64,
+      doc_path: comment.preferences.path_for_doc?,
       # 只有子评论需要指定线程替换目标；顶级评论提交后替换文档的评论列表。
-      target_reply_id: reply.parent_id ? reply.root_id : nil,
+      target_comment_id: comment.parent_id ? comment.root_id : nil,
     )
   end
 end

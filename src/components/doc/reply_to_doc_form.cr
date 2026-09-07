@@ -1,17 +1,17 @@
-class Docs::ReplyToDocForm < BaseComponent
+class Comments::Form < BaseComponent
   needs content : String = ""
   needs html_id : String = "tab"
   needs order_by : String? = nil
   needs doc_path : String?
-  needs reply_id : Int64?
-  needs target_reply_id : Int64? = nil
+  needs comment_id : Int64?
+  needs target_comment_id : Int64? = nil
 
   def render
     mount(
       Docs::Form,
       content: content,
       doc_path: doc_path,
-      reply_id: reply_id,
+      comment_id: comment_id,
       current_user: current_user,
       html_id: html_id
     ) do
@@ -51,16 +51,16 @@ HEREDOC
       if me.nil?
         opts = opts.merge(disabled: "")
       else
-        if !reply_id.nil?
-          # reply_id 不为空，说明当前表单针对的是一条已有 reply。
+        if !comment_id.nil?
+          # comment_id 不为空，说明当前表单针对的是一条已有评论。
           # 然后再用 content 是否为空区分表单模式：
           # - 空：这是“回复这条评论”，即新建子评论
           # - 非空：这是“编辑这条已有评论”
           if content.blank?
             # 为评论新增评论
-            target_id = target_reply_id || reply_id
+            target_id = target_comment_id || comment_id
             opts = opts.merge(
-              hx_vals: %({"user_id": #{me.id}, "id": #{reply_id}, "op": "new"}),
+              hx_vals: %({"user_id": #{me.id}, "id": #{comment_id}, "op": "new"}),
               hx_target: "#doc_reply-#{target_id}-replies",
               hx_swap: "outerHTML"
             )
@@ -68,17 +68,17 @@ HEREDOC
             # 编辑时，再区分两种已有评论：
             # - reply.parent_id 为空：编辑针对 doc 的顶级评论
             # - reply.parent_id 不为空：编辑针对 reply 的子评论
-            reply = ReplyQuery.find(reply_id.not_nil!)
+            comment = CommentQuery.find(comment_id.not_nil!)
 
-            if !(id = reply.parent_id).nil?
+            if !(id = comment.parent_id).nil?
               # 如果修改评论的评论，htmx target 直接覆盖子评论列表
               opts = opts.merge(
-                hx_target: "#doc_reply-#{target_reply_id || id}-replies"
+                hx_target: "#doc_reply-#{target_comment_id || id}-replies"
               )
             end
 
             opts = opts.merge(
-              hx_vals: %({"user_id": #{me.id}, "id": #{reply_id}, "op": "edit"}),
+              hx_vals: %({"user_id": #{me.id}, "id": #{comment_id}, "op": "edit"}),
               hx_swap: "outerHTML",
             )
             text = "修改"
@@ -91,7 +91,7 @@ HEREDOC
         end
       end
 
-      if !reply_id.nil? && !me.nil?
+      if !comment_id.nil? && !me.nil?
         button(
           "取消",
           script: "on click close the closest <dialog/>",

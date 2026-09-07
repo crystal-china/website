@@ -1,5 +1,5 @@
 class Docs::RepliesMoreLink < BaseComponent
-  needs pagination : {count: Int32 | Int64, replies: ReplyQuery, page: Lucky::Paginator?, url: String, order_by: String}
+  needs pagination : {count: Int32 | Int64, comments: CommentQuery, page: Lucky::Paginator?, url: String, order_by: String}
   needs page_number : Int32
 
   def render

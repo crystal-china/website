@@ -10,29 +10,29 @@ class Htmx::Docs::Reply::New < DocAction
     return head 403 if user_id != me.id
     return head 400 if doc_path.nil? && id.nil?
 
-    reply : ::Reply? = nil
-    target_reply_id = nil
+    comment : ::Comment? = nil
+    target_comment_id = nil
 
     # 根据 doc_path 是否存在，判断这是针对 doc 的回复还是针对评论的回复
     if doc_path.nil?
-      # reply 的回复
+      # 评论的回复
       html_id = "reply_to_reply"
-      reply = ReplyQuery.find(id.not_nil!)
-      # target_reply_id 用于确定提交成功后替换哪个线程：顶级评论用自身 ID，子评论用所属根 ID。
-      target_reply_id = reply.root_id || reply.id
+      comment = CommentQuery.find(id.not_nil!)
+      # target_comment_id 用于确定提交成功后替换哪个线程：顶级评论用自身 ID，子评论用所属根 ID。
+      target_comment_id = comment.root_id || comment.id
     else
       # doc 的回复
       html_id = "tab"
     end
 
     component(
-      ::Docs::ReplyToDocForm,
+      ::Comments::Form,
       current_user: me,
       html_id: html_id,
       order_by: order_by,
       doc_path: doc_path,
-      reply_id: reply.try &.id,
-      target_reply_id: target_reply_id
+      comment_id: comment.try &.id,
+      target_comment_id: target_comment_id
     )
   end
 end

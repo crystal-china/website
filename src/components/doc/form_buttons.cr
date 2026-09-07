@@ -1,5 +1,5 @@
 class Docs::FormButtons < BaseComponent
-  needs pagination : {count: Int32 | Int64, replies: ReplyQuery, page: Lucky::Paginator?, url: String, order_by: String}
+  needs pagination : {count: Int32 | Int64, comments: CommentQuery, page: Lucky::Paginator?, url: String, order_by: String}
   needs hx_target : String
 
   def render
@@ -25,7 +25,7 @@ class Docs::FormButtons < BaseComponent
             hx_swap: "outerHTML",
             script: <<-HYPER
   on click
-    set the value of the first .reply-order-state in the closest <article/> to "#{order}"
+    set the value of the first .comment-order-state in the closest <article/> to "#{order}"
   end
 HYPER
           )

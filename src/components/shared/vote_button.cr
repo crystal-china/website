@@ -1,5 +1,5 @@
 class Shared::VoteButton < BaseComponent
-  needs reply_id : Int64?
+  needs comment_id : Int64?
   needs doc_id : Int64?
   needs vote_counts : Hash(String, Int32)
   needs voted_types : Array(String)
@@ -14,8 +14,8 @@ class Shared::VoteButton < BaseComponent
       }
 
       if current_user
-        if reply_id
-          hx_values = %({"user_id": #{current_user.not_nil!.id}, "vote_type": "#{emoji}", "reply_id": #{reply_id.not_nil!}})
+        if comment_id
+          hx_values = %({"user_id": #{current_user.not_nil!.id}, "vote_type": "#{emoji}", "comment_id": #{comment_id.not_nil!}})
         else
           hx_values = %({"user_id": #{current_user.not_nil!.id}, "vote_type": "#{emoji}", "doc_id": #{doc_id.not_nil!}})
         end

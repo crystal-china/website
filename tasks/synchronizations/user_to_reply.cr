@@ -18,9 +18,9 @@
 #           .map do |e|
 #             case e.changed_column_name
 #             when "name"
-#               ReplyQuery.new.user_id(user_id).update(user_name: e.to)
+#               CommentQuery.new.user_id(user_id).update(user_name: e.to)
 #             when "avatar"
-#               ReplyQuery.new.user_id(user_id).update(user_avatar: e.to)
+#               CommentQuery.new.user_id(user_id).update(user_avatar: e.to)
 #             end
 #           end
 

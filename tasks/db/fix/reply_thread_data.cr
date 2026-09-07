@@ -29,7 +29,7 @@ module Db::Fix::ReplyThreadDataTask
 
   private def self.clear_root_id_for_roots_sql
     <<-SQL
-UPDATE replies
+UPDATE comments
 SET root_id = NULL
 WHERE parent_id IS NULL
   AND root_id IS NOT NULL;
@@ -38,12 +38,12 @@ SQL
 
   private def self.backfill_root_id_sql
     <<-SQL
-WITH RECURSIVE reply_tree AS (
+WITH RECURSIVE comment_tree AS (
   SELECT
     id,
     parent_id,
     id AS root_id
-  FROM replies
+  FROM comments
   WHERE parent_id IS NULL
 
   UNION ALL
@@ -51,21 +51,21 @@ WITH RECURSIVE reply_tree AS (
   SELECT
     child.id,
     child.parent_id,
-    reply_tree.root_id
-  FROM replies AS child
-  INNER JOIN reply_tree ON child.parent_id = reply_tree.id
+    comment_tree.root_id
+  FROM comments AS child
+  INNER JOIN comment_tree ON child.parent_id = comment_tree.id
 )
-UPDATE replies
-SET root_id = reply_tree.root_id
-FROM reply_tree
-WHERE replies.id = reply_tree.id
-  AND replies.parent_id IS NOT NULL;
+UPDATE comments
+SET root_id = comment_tree.root_id
+FROM comment_tree
+WHERE comments.id = comment_tree.id
+  AND comments.parent_id IS NOT NULL;
 SQL
   end
 
   private def self.reset_descendants_count_sql
     <<-SQL
-UPDATE replies
+UPDATE comments
 SET descendants_count = 0
 WHERE descendants_count <> 0;
 SQL
@@ -73,23 +73,23 @@ SQL
 
   private def self.recalculate_descendants_count_sql
     <<-SQL
-UPDATE replies
+UPDATE comments
 SET descendants_count = counts.total
 FROM (
   SELECT
     root_id,
     COUNT(*)::int AS total
-  FROM replies
+  FROM comments
   WHERE root_id IS NOT NULL
   GROUP BY root_id
 ) AS counts
-WHERE replies.id = counts.root_id;
+WHERE comments.id = counts.root_id;
 SQL
   end
 
   private def self.reset_children_count_sql
     <<-SQL
-UPDATE replies
+UPDATE comments
 SET children_count = 0
 WHERE children_count <> 0;
 SQL
@@ -97,17 +97,17 @@ SQL
 
   private def self.recalculate_children_count_sql
     <<-SQL
-UPDATE replies
+UPDATE comments
 SET children_count = counts.total
 FROM (
   SELECT
     parent_id,
     COUNT(*)::int AS total
-  FROM replies
+  FROM comments
   WHERE parent_id IS NOT NULL
   GROUP BY parent_id
 ) AS counts
-WHERE replies.id = counts.parent_id;
+WHERE comments.id = counts.parent_id;
 SQL
   end
 
@@ -120,14 +120,14 @@ WITH ranked AS (
       PARTITION BY doc_id
       ORDER BY created_at ASC, id ASC
     )::int AS floor
-  FROM replies
+  FROM comments
   WHERE parent_id IS NULL
     AND doc_id IS NOT NULL
 )
-UPDATE replies
+UPDATE comments
 SET floor = ranked.floor
 FROM ranked
-WHERE replies.id = ranked.id;
+WHERE comments.id = ranked.id;
 SQL
   end
 
@@ -140,14 +140,14 @@ WITH ranked AS (
       PARTITION BY root_id
       ORDER BY created_at ASC, id ASC
     )::int AS floor
-  FROM replies
+  FROM comments
   WHERE parent_id IS NOT NULL
     AND root_id IS NOT NULL
 )
-UPDATE replies
+UPDATE comments
 SET floor = ranked.floor
 FROM ranked
-WHERE replies.id = ranked.id;
+WHERE comments.id = ranked.id;
 SQL
   end
 
@@ -167,7 +167,7 @@ FROM (
   SELECT
     doc_id,
     MAX(floor)::int AS maximum
-  FROM replies
+  FROM comments
   WHERE parent_id IS NULL
     AND doc_id IS NOT NULL
   GROUP BY doc_id
@@ -178,7 +178,7 @@ SQL
 
   private def self.reset_root_floor_counters_sql
     <<-SQL
-UPDATE replies
+UPDATE comments
 SET floor_counter = 0
 WHERE floor_counter <> 0;
 SQL
@@ -186,23 +186,23 @@ SQL
 
   private def self.recalculate_root_floor_counters_sql
     <<-SQL
-UPDATE replies
+UPDATE comments
 SET floor_counter = floors.maximum
 FROM (
   SELECT
     root_id,
     MAX(floor)::int AS maximum
-  FROM replies
+  FROM comments
   WHERE root_id IS NOT NULL
   GROUP BY root_id
 ) AS floors
-WHERE replies.id = floors.root_id;
+WHERE comments.id = floors.root_id;
 SQL
   end
 
   private def self.remove_floor_from_preferences_sql
     <<-SQL
-UPDATE replies
+UPDATE comments
 SET preferences = preferences - 'floor'
 WHERE preferences ? 'floor';
 SQL

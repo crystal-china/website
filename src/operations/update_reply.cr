@@ -1,4 +1,4 @@
-class UpdateReply < Reply::SaveOperation
+class UpdateComment < Comment::SaveOperation
   permit_columns content
 
   before_save do

@@ -1,2 +1,2 @@
-class DeleteReply < Reply::DeleteOperation
+class DeleteComment < Comment::DeleteOperation
 end

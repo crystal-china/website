@@ -1,3 +1,3 @@
-class UpdateReplyVoteCounts < Reply::SaveOperation
+class UpdateCommentVoteCounts < Comment::SaveOperation
   permit_columns vote_counts
 end

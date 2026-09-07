@@ -9,18 +9,18 @@ class Htmx::Docs::Replies < DocAction
     # doc_path 示例：docs/index，完整: /htmx/replies/docs/index
     id_or_doc_path = self.id_or_doc_path.not_nil!
 
-    pagination = replies_pagination(id_or_doc_path: id_or_doc_path, order_by: order_by)
+    pagination = comments_pagination(id_or_doc_path: id_or_doc_path, order_by: order_by)
 
     id = id_or_doc_path.to_i64?
 
     if page_number && page_number > 1
       component(
-        ::Docs::RepliesMore,
+        ::Comments::ListMore,
         formatter: formatter,
         pagination: pagination,
         page_number: page_number,
         current_user: current_user,
-        reply_id: id
+        comment_id: id
       )
     else
       html_id = if id
@@ -30,11 +30,11 @@ class Htmx::Docs::Replies < DocAction
                 end
 
       component(
-        ::Docs::Replies,
+        ::Comments::List,
         formatter: formatter,
         pagination: pagination,
         current_user: current_user,
-        reply_id: id,
+        comment_id: id,
         html_id: html_id
       )
     end

@@ -22,7 +22,7 @@ class Db::Seed::SampleData < LuckyTask::Task
 
     DocQuery.truncate(cascade: true)
     UserQuery.truncate(cascade: true)
-    ReplyQuery.truncate(cascade: true)
+    CommentQuery.truncate(cascade: true)
 
     me = SignUpUser.create!(
       email: "me@163.com",
@@ -49,7 +49,7 @@ class Db::Seed::SampleData < LuckyTask::Task
     docs.each do |doc|
       Timecop.travel(Time.parse_local("2025-01-05 12:33:55", "%F %T"))
 
-      SaveReply.create!(
+      SaveComment.create!(
         doc_id: doc.id,
         user_id: user1.id,
         content: <<-'HEREDOC'
@@ -65,7 +65,7 @@ HEREDOC
       )
 
       Timecop.travel(Time.parse_local("2025-01-08 20:05:15", "%F %T"))
-      random_emoji SaveReply.create!(
+      random_emoji SaveComment.create!(
         doc_id: doc.id,
         user_id: user2.id,
         content: <<-'HEREDOC'
@@ -79,7 +79,7 @@ HEREDOC
 
       Timecop.travel(Time.parse_local("2025-01-08 21:24:00", "%F %T"))
 
-      random_emoji SaveReply.create!(
+      random_emoji SaveComment.create!(
         doc_id: doc.id,
         user_id: user2.id,
         content: <<-'HEREDOC'
@@ -89,7 +89,7 @@ HEREDOC
 
       Timecop.travel(Time.parse_local("2025-01-09 01:22:34", "%F %T"))
 
-      random_emoji SaveReply.create!(
+      random_emoji SaveComment.create!(
         doc_id: doc.id,
         user_id: user1.id,
         content: <<-'HEREDOC'
@@ -99,7 +99,7 @@ HEREDOC
 
       Timecop.travel(Time.parse_local("2025-01-10 08:22:34", "%F %T"))
 
-      random_emoji SaveReply.create!(
+      random_emoji SaveComment.create!(
         doc_id: doc.id,
         user_id: user1.id,
         content: <<-'HEREDOC'
@@ -109,7 +109,7 @@ HEREDOC
 
       Timecop.travel(Time.parse_local("2025-01-10 08:33:00", "%F %T"))
 
-      random_emoji SaveReply.create!(
+      random_emoji SaveComment.create!(
         doc_id: doc.id,
         user_id: user1.id,
         content: <<-'HEREDOC'
@@ -121,7 +121,7 @@ HEREDOC
 
       Timecop.travel(Time.parse_local("2025-01-10 08:34:02", "%F %T"))
 
-      random_emoji SaveReply.create!(
+      random_emoji SaveComment.create!(
         doc_id: doc.id,
         user_id: user2.id,
         content: <<-'HEREDOC'
@@ -131,7 +131,7 @@ HEREDOC
 
       Timecop.travel(Time.parse_local("2025-01-10 08:35:48", "%F %T"))
 
-      random_emoji SaveReply.create!(
+      random_emoji SaveComment.create!(
         doc_id: doc.id,
         user_id: user1.id,
         content: <<-'HEREDOC'
@@ -141,7 +141,7 @@ HEREDOC
 
       Timecop.travel(Time.parse_local("2025-01-10 08:36:20", "%F %T"))
 
-      random_emoji SaveReply.create!(
+      random_emoji SaveComment.create!(
         doc_id: doc.id,
         user_id: user2.id,
         content: <<-'HEREDOC'
@@ -151,7 +151,7 @@ HEREDOC
 
       Timecop.travel(Time.parse_local("2025-01-10 08:40:12", "%F %T"))
 
-      random_emoji SaveReply.create!(
+      random_emoji SaveComment.create!(
         doc_id: doc.id,
         user_id: user2.id,
         content: <<-'HEREDOC'
@@ -161,7 +161,7 @@ HEREDOC
 
       Timecop.travel(Time.parse_local("2025-01-10 08:42:18", "%F %T"))
 
-      random_emoji SaveReply.create!(
+      random_emoji SaveComment.create!(
         doc_id: doc.id,
         user_id: user1.id,
         content: <<-'HEREDOC'
@@ -171,7 +171,7 @@ HEREDOC
 
       Timecop.travel(Time.parse_local("2025-01-10 08:44:00", "%F %T"))
 
-      random_emoji SaveReply.create!(
+      random_emoji SaveComment.create!(
         doc_id: doc.id,
         user_id: user2.id,
         content: <<-'HEREDOC'
@@ -191,10 +191,10 @@ HEREDOC
     exit
   end
 
-  def random_emoji(reply)
-    UpdateReplyVoteCounts.update!(
-      reply,
-      vote_counts: Reply::VoteCounts.from_json({
+  def random_emoji(comment)
+    UpdateCommentVoteCounts.update!(
+      comment,
+      vote_counts: Comment::VoteCounts.from_json({
         "👍":  [0, 0, 0, 0, 1, 2, 5, 8, rand(10..99), rand(100..300)].sample,
         "👎":  [0, 0, 0, 0, 1, 2, 5, 8, rand(10..99), rand(100..300)].sample,
         "😄":  [0, 0, 0, 0, 1, 2, 5, 8, rand(10..99), rand(100..300)].sample,

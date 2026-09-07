@@ -5,8 +5,8 @@ abstract class DocAction < BrowserAction
 
   expose formatter
 
-  def replies_pagination(id_or_doc_path : String, order_by : String = "desc", per_page : Int32 = 10)
-    return {count: 0, replies: ReplyQuery.new.none, page: nil, url: "", order_by: "desc"} unless order_by.in?("desc", "asc")
+  def comments_pagination(id_or_doc_path : String, order_by : String = "desc", per_page : Int32 = 10)
+    return {count: 0, comments: CommentQuery.new.none, page: nil, url: "", order_by: "desc"} unless order_by.in?("desc", "asc")
 
     id = id_or_doc_path.to_i64?
 
@@ -14,12 +14,12 @@ abstract class DocAction < BrowserAction
       doc_path = id_or_doc_path.starts_with?("/") ? id_or_doc_path : "/#{id_or_doc_path}"
       url = doc_path.sub("/docs", "/htmx/replies/docs")
       current_doc = DocQuery.new.path_index(doc_path).first
-      q = ReplyQuery.new.doc_id(current_doc.id).parent_id.is_nil
+      q = CommentQuery.new.doc_id(current_doc.id).parent_id.is_nil
     else
-      reply = ReplyQuery.find(id)
+      comment = CommentQuery.find(id)
       # 顶级评论的 root_id 为 nil，它自己就是线程根；子评论则直接使用已保存的线程根 ID。
-      root_id = reply.root_id || reply.id
-      q = ReplyQuery.new.root_id(root_id)
+      root_id = comment.root_id || comment.id
+      q = CommentQuery.new.root_id(root_id)
       url = "/htmx/replies/#{root_id}"
     end
 
@@ -31,11 +31,11 @@ abstract class DocAction < BrowserAction
       q = q.preload_votes { |vote_query| vote_query.user_id(me.id) }
     end
 
-    page, replies = paginate(q, per_page: per_page)
+    page, comments = paginate(q, per_page: per_page)
 
     {
       count:    page.item_count,
-      replies:  replies,
+      comments: comments,
       page:     page,
       url:      url,
       order_by: order_by,
