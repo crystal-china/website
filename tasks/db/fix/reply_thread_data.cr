@@ -9,8 +9,8 @@ end
 module Db::Fix::ReplyThreadDataTask
   def self.run
     AppDatabase.transaction do
-      AppDatabase.exec(clear_root_reply_id_for_roots_sql)
-      AppDatabase.exec(backfill_root_reply_id_sql)
+      AppDatabase.exec(clear_root_id_for_roots_sql)
+      AppDatabase.exec(backfill_root_id_sql)
       AppDatabase.exec(reset_thread_replies_count_sql)
       AppDatabase.exec(recalculate_thread_replies_count_sql)
       AppDatabase.exec(reset_direct_replies_count_sql)
@@ -27,39 +27,39 @@ module Db::Fix::ReplyThreadDataTask
     puts "Done fixing reply thread data"
   end
 
-  private def self.clear_root_reply_id_for_roots_sql
+  private def self.clear_root_id_for_roots_sql
     <<-SQL
 UPDATE replies
-SET root_reply_id = NULL
-WHERE reply_id IS NULL
-  AND root_reply_id IS NOT NULL;
+SET root_id = NULL
+WHERE parent_id IS NULL
+  AND root_id IS NOT NULL;
 SQL
   end
 
-  private def self.backfill_root_reply_id_sql
+  private def self.backfill_root_id_sql
     <<-SQL
 WITH RECURSIVE reply_tree AS (
   SELECT
     id,
-    reply_id,
+    parent_id,
     id AS root_id
   FROM replies
-  WHERE reply_id IS NULL
+  WHERE parent_id IS NULL
 
   UNION ALL
 
   SELECT
     child.id,
-    child.reply_id,
+    child.parent_id,
     reply_tree.root_id
   FROM replies AS child
-  INNER JOIN reply_tree ON child.reply_id = reply_tree.id
+  INNER JOIN reply_tree ON child.parent_id = reply_tree.id
 )
 UPDATE replies
-SET root_reply_id = reply_tree.root_id
+SET root_id = reply_tree.root_id
 FROM reply_tree
 WHERE replies.id = reply_tree.id
-  AND replies.reply_id IS NOT NULL;
+  AND replies.parent_id IS NOT NULL;
 SQL
   end
 
@@ -77,13 +77,13 @@ UPDATE replies
 SET thread_replies_count = counts.total
 FROM (
   SELECT
-    root_reply_id,
+    root_id,
     COUNT(*)::int AS total
   FROM replies
-  WHERE root_reply_id IS NOT NULL
-  GROUP BY root_reply_id
+  WHERE root_id IS NOT NULL
+  GROUP BY root_id
 ) AS counts
-WHERE replies.id = counts.root_reply_id;
+WHERE replies.id = counts.root_id;
 SQL
   end
 
@@ -101,13 +101,13 @@ UPDATE replies
 SET direct_replies_count = counts.total
 FROM (
   SELECT
-    reply_id,
+    parent_id,
     COUNT(*)::int AS total
   FROM replies
-  WHERE reply_id IS NOT NULL
-  GROUP BY reply_id
+  WHERE parent_id IS NOT NULL
+  GROUP BY parent_id
 ) AS counts
-WHERE replies.id = counts.reply_id;
+WHERE replies.id = counts.parent_id;
 SQL
   end
 
@@ -121,7 +121,7 @@ WITH ranked AS (
       ORDER BY created_at ASC, id ASC
     )::int AS floor
   FROM replies
-  WHERE reply_id IS NULL
+  WHERE parent_id IS NULL
     AND doc_id IS NOT NULL
 )
 UPDATE replies
@@ -137,12 +137,12 @@ WITH ranked AS (
   SELECT
     id,
     ROW_NUMBER() OVER (
-      PARTITION BY root_reply_id
+      PARTITION BY root_id
       ORDER BY created_at ASC, id ASC
     )::int AS floor
   FROM replies
-  WHERE reply_id IS NOT NULL
-    AND root_reply_id IS NOT NULL
+  WHERE parent_id IS NOT NULL
+    AND root_id IS NOT NULL
 )
 UPDATE replies
 SET floor = ranked.floor
@@ -168,7 +168,7 @@ FROM (
     doc_id,
     MAX(floor)::int AS maximum
   FROM replies
-  WHERE reply_id IS NULL
+  WHERE parent_id IS NULL
     AND doc_id IS NOT NULL
   GROUP BY doc_id
 ) AS floors
@@ -190,13 +190,13 @@ UPDATE replies
 SET reply_floor_counter = floors.maximum
 FROM (
   SELECT
-    root_reply_id,
+    root_id,
     MAX(floor)::int AS maximum
   FROM replies
-  WHERE root_reply_id IS NOT NULL
-  GROUP BY root_reply_id
+  WHERE root_id IS NOT NULL
+  GROUP BY root_id
 ) AS floors
-WHERE replies.id = floors.root_reply_id;
+WHERE replies.id = floors.root_id;
 SQL
   end
 

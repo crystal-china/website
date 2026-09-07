@@ -66,11 +66,11 @@ HEREDOC
             )
           else
             # 编辑时，再区分两种已有评论：
-            # - reply.reply_id 为空：编辑针对 doc 的顶级评论
-            # - reply.reply_id 不为空：编辑针对 reply 的子评论
+            # - reply.parent_id 为空：编辑针对 doc 的顶级评论
+            # - reply.parent_id 不为空：编辑针对 reply 的子评论
             reply = ReplyQuery.find(reply_id.not_nil!)
 
-            if !(id = reply.reply_id).nil?
+            if !(id = reply.parent_id).nil?
               # 如果修改评论的评论，htmx target 直接覆盖子评论列表
               opts = opts.merge(
                 hx_target: "#doc_reply-#{target_reply_id || id}-replies"

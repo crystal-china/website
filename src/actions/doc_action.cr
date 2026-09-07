@@ -14,18 +14,18 @@ abstract class DocAction < BrowserAction
       doc_path = id_or_doc_path.starts_with?("/") ? id_or_doc_path : "/#{id_or_doc_path}"
       url = doc_path.sub("/docs", "/htmx/replies/docs")
       current_doc = DocQuery.new.path_index(doc_path).first
-      q = ReplyQuery.new.doc_id(current_doc.id).reply_id.is_nil
+      q = ReplyQuery.new.doc_id(current_doc.id).parent_id.is_nil
     else
       reply = ReplyQuery.find(id)
-      # 顶级评论的 root_reply_id 为 nil，它自己就是线程根；子评论则直接使用已保存的线程根 ID。
-      root_reply_id = reply.root_reply_id || reply.id
-      q = ReplyQuery.new.root_reply_id(root_reply_id)
-      url = "/htmx/replies/#{root_reply_id}"
+      # 顶级评论的 root_id 为 nil，它自己就是线程根；子评论则直接使用已保存的线程根 ID。
+      root_id = reply.root_id || reply.id
+      q = ReplyQuery.new.root_id(root_id)
+      url = "/htmx/replies/#{root_id}"
     end
 
     q = order_by == "desc" ? q.id.desc_order : q.id.asc_order
     q = q.preload_user
-    q = q.preload_reply { |reply_query| reply_query.preload_user }
+    q = q.preload_parent { |parent_query| parent_query.preload_user }
 
     if (me = current_user)
       q = q.preload_votes { |vote_query| vote_query.user_id(me.id) }

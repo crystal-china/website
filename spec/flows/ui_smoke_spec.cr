@@ -51,7 +51,7 @@ pending "Critical browser flows", tags: "headless_chrome" do
     user = UserFactory.create
     doc = SaveDoc.create!(path_index: "/docs/index")
     root_reply = SaveReply.create!(user_id: user.id, doc_id: doc.id, content: "root reply")
-    SaveReply.create!(user_id: user.id, reply_id: root_reply.id, content: "child reply")
+    SaveReply.create!(user_id: user.id, parent_id: root_reply.id, content: "child reply")
 
     flow = BaseFlow.new
     flow.visit "/docs/index?backdoor_user_id=#{user.id}"

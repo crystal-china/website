@@ -61,10 +61,10 @@ class Docs::RepliesMore < BaseComponent
   end
 
   private def render_parent_reply_hint(reply : Reply)
-    return unless (parent_reply = reply.reply)
+    return unless (parent_reply = reply.parent)
     # 直接回复根评论时，缩进本身已经说明“这是针对这条顶级评论的回复”，不用再重复显示。
     # 但如果回复的是某条子评论，即使它是那条子评论的第一条回复，也应该显示“回复谁”。
-    return if reply.root_reply_id == parent_reply.id
+    return if reply.root_id == parent_reply.id
 
     div class: "order-3 min-w-0 basis-full self-center px-2 text-center text-xs font-medium text-green-700 sm:order-none sm:flex-1 sm:basis-auto" do
       a(
@@ -96,7 +96,7 @@ class Docs::RepliesMore < BaseComponent
   end
 
   private def render_thread_toggle(reply : Reply)
-    return unless reply.reply_id.nil? && reply.thread_replies_count > 0
+    return unless reply.parent_id.nil? && reply.thread_replies_count > 0
 
     button_class = "inline-flex h-8 items-center justify-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-3 text-sm font-medium text-sky-800 transition hover:border-sky-300 hover:bg-sky-100"
 
@@ -169,7 +169,7 @@ HYPER
 
   private def reply_card_classes(reply : Reply)
     classes = "mt-6 rounded-2xl border border-gray-300 px-4 py-2 shadow-sm sm:px-7"
-    classes += reply.reply_id ? " bg-green-100 sm:ml-8" : " bg-white"
+    classes += reply.parent_id ? " bg-green-100 sm:ml-8" : " bg-white"
     classes
   end
 end
