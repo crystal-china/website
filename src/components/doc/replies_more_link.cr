@@ -1,4 +1,4 @@
-class Docs::RepliesMoreLink < BaseComponent
+class Comments::LoadMoreButton < BaseComponent
   needs pagination : {count: Int32 | Int64, comments: CommentQuery, page: Lucky::Paginator?, url: String, order_by: String}
   needs page_number : Int32
 

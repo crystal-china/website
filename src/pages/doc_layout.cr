@@ -33,7 +33,7 @@ abstract class DocLayout
           end
 
           mount Shared::Common, page_title: page_title
-          mount Docs::ReplyDialog
+          mount Comments::Dialog
         end
       end
     end
@@ -91,11 +91,11 @@ abstract class DocLayout
           text "欢迎在评论区留下你的见解、问题或建议"
         end
 
-        section id: "form_with_replies", class: "mt-6" do
+        section id: "form_with_comments", class: "mt-6" do
           # 只是一个占位符，会被 htmx 请求覆盖
           mount ::Comments::Form, current_user: current_user, doc_path: current_path
 
-          show_replies_when_revealed
+          show_comments_when_revealed
         end
       end
 

@@ -1,12 +1,12 @@
-class Docs::ReplyDialog < BaseComponent
-  private DIALOG_ID = "edit_dialog"
-  private FORM_ID   = "reply_to_reply-form"
+class Comments::Dialog < BaseComponent
+  private DIALOG_ID = "comment-dialog"
+  private FORM_ID   = "comment-form"
 
-  def self.reply_form_target
+  def self.comment_form_target
     "div##{FORM_ID}"
   end
 
-  def self.open_reply_dialog_js
+  def self.open_comment_dialog_js
     <<-JS
 const dialog = document.getElementById('#{DIALOG_ID}');
 dialog?.showModal();

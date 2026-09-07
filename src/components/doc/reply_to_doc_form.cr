@@ -8,7 +8,7 @@ class Comments::Form < BaseComponent
 
   def render
     mount(
-      Docs::Form,
+      Comments::Editor,
       content: content,
       doc_path: doc_path,
       comment_id: comment_id,
@@ -36,16 +36,16 @@ HEREDOC
       hx_include = if order_by
                      "##{html_id}_text_area,##{order_by_input_id}"
                    else
-                     "##{html_id}_text_area,#replies-order-by"
+                     "##{html_id}_text_area,#comments-order-by"
                    end
 
       opts = {
         class:      "inline-flex items-center justify-center rounded-xl bg-sky-700 px-5 py-2 text-sm font-semibold text-white transition hover:bg-sky-800 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500",
-        hx_target:  "#replies",
+        hx_target:  "#comments",
         hx_include: hx_include,
-        hx_post:    Htmx::Docs::Reply::CreateOrUpdate.path_without_query_params,
+        hx_post:    Htmx::Comments::CreateOrUpdate.path_without_query_params,
         script:     after_submit,
-        flow_id:    "#{html_id}-do_reply",
+        flow_id:    "#{html_id}-do_comment",
       }
 
       if me.nil?
@@ -61,19 +61,19 @@ HEREDOC
             target_id = target_comment_id || comment_id
             opts = opts.merge(
               hx_vals: %({"user_id": #{me.id}, "id": #{comment_id}, "op": "new"}),
-              hx_target: "#doc_reply-#{target_id}-replies",
+              hx_target: "#comment-#{target_id}-comments",
               hx_swap: "outerHTML"
             )
           else
             # 编辑时，再区分两种已有评论：
-            # - reply.parent_id 为空：编辑针对 doc 的顶级评论
-            # - reply.parent_id 不为空：编辑针对 reply 的子评论
+            # - comment.parent_id 为空：编辑针对 doc 的顶级评论
+            # - comment.parent_id 不为空：编辑针对 comment 的子评论
             comment = CommentQuery.find(comment_id.not_nil!)
 
             if !(id = comment.parent_id).nil?
               # 如果修改评论的评论，htmx target 直接覆盖子评论列表
               opts = opts.merge(
-                hx_target: "#doc_reply-#{target_comment_id || id}-replies"
+                hx_target: "#comment-#{target_comment_id || id}-comments"
               )
             end
 

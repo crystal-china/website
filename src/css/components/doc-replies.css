@@ -3,15 +3,15 @@
     scroll-behavior: smooth;
   }
 
-  article[id^="doc_reply-"] {
+  article[id^="comment-"] {
     scroll-margin-top: 5.5rem;
   }
 
-  article[id^="doc_reply-"]:target {
-    animation: doc-reply-target-flash 2s ease-out;
+  article[id^="comment-"]:target {
+    animation: comment-target-flash 2s ease-out;
   }
 
-  @keyframes doc-reply-target-flash {
+  @keyframes comment-target-flash {
     0% {
       box-shadow:
         0 0 0 0 rgb(14 165 233 / 0.55),

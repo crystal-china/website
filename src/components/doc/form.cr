@@ -1,4 +1,4 @@
-class Docs::Form < BaseComponent
+class Comments::Editor < BaseComponent
   needs content : String = ""
   needs doc_path : String?
   needs comment_id : Int64?
@@ -35,14 +35,14 @@ class Docs::Form < BaseComponent
           label(
             "输入",
             for: id_input,
-            flow_id: "#{html_id}-input_reply",
+            flow_id: "#{html_id}-input_comment",
             class: "label1 cursor-pointer rounded-full border border-gray-300 bg-gray-100 px-5 py-2 text-base font-medium text-gray-600 transition"
           )
 
           label(
             "预览",
             for: id_preview,
-            flow_id: "#{html_id}-preview_reply",
+            flow_id: "#{html_id}-preview_comment",
             class: "label2 cursor-pointer rounded-full border border-transparent bg-gray-200 px-5 py-2 text-base font-medium text-gray-500 transition",
             script: <<-HEREDOC
   on mouseenter

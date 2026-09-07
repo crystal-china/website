@@ -1,4 +1,4 @@
-class Docs::FormButtons < BaseComponent
+class Comments::Toolbar < BaseComponent
   needs pagination : {count: Int32 | Int64, comments: CommentQuery, page: Lucky::Paginator?, url: String, order_by: String}
   needs hx_target : String
 
@@ -10,7 +10,7 @@ class Docs::FormButtons < BaseComponent
       span "共 #{pagination[:count]} 条回复", class: "text-base font-medium text-gray-900"
 
       # 这里之前利用了一个狡黠的 htmx hack，点击下面的连接，生成的 url 如下：
-      # /docs/replies/index?order_by=asc&order_by=desc
+      # /htmx/comments/docs/index?order_by=asc&order_by=desc
       # 此时有两个 order_by，第一个来自于 hx_get 中的 ? 参数, 第二个来自于 hx_include
       # 此时，总是第一个生效。·
 

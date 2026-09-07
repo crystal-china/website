@@ -8,7 +8,7 @@ class Comments::ListMore < BaseComponent
     comments = pagination[:comments].results
 
     comments.each do |comment|
-      article class: comment_card_classes(comment), id: "doc_reply-#{comment.id}" do
+      article class: comment_card_classes(comment), id: "comment-#{comment.id}" do
         render_avatar_name_and_time(comment)
 
         hr class: "my-2 border-0 border-t border-gray-300"
@@ -19,13 +19,13 @@ class Comments::ListMore < BaseComponent
 
         render_emoji_buttons_and_delete_button(comment)
 
-        div id: "doc_reply-#{comment.id}-replies" do
+        div id: "comment-#{comment.id}-comments" do
         end
       end
     end
 
     mount(
-      Docs::RepliesMoreLink,
+      Comments::LoadMoreButton,
       pagination: pagination,
       page_number: page_number,
     )
@@ -40,10 +40,10 @@ class Comments::ListMore < BaseComponent
         span user.name, class: "truncate text-xs font-semibold text-gray-900"
       end
 
-      render_parent_reply_hint(comment)
+      render_parent_comment_hint(comment)
 
       div class: "flex shrink-0 items-center gap-2" do
-        a href: "#doc_reply-#{comment.id}" do
+        a href: "#comment-#{comment.id}" do
           span TimeInWords::Helpers(TimeInWords::I18n::ZH_CN).from(past_time: comment.created_at), class: "text-xs text-sky-700 underline decoration-dotted underline-offset-2"
         end
         span "#{comment.floor} 楼", class: "inline-flex items-center rounded-full border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-800"
@@ -60,7 +60,7 @@ class Comments::ListMore < BaseComponent
     end
   end
 
-  private def render_parent_reply_hint(comment : Comment)
+  private def render_parent_comment_hint(comment : Comment)
     return unless (parent_comment = comment.parent)
     # 直接回复根评论时，缩进本身已经说明“这是针对这条顶级评论的回复”，不用再重复显示。
     # 但如果回复的是某条子评论，即使它是那条子评论的第一条回复，也应该显示“回复谁”。
@@ -69,7 +69,7 @@ class Comments::ListMore < BaseComponent
     div class: "order-3 min-w-0 basis-full self-center px-2 text-center text-xs font-medium text-green-700 sm:order-none sm:flex-1 sm:basis-auto" do
       a(
         "回复 #{parent_comment.floor} 楼 @#{parent_comment.user.name}",
-        href: "#doc_reply-#{parent_comment.id}",
+        href: "#comment-#{parent_comment.id}",
         class: "inline-block truncate underline decoration-dotted underline-offset-2 hover:text-green-800"
       )
     end
@@ -106,11 +106,11 @@ class Comments::ListMore < BaseComponent
       button(
         type: "button",
         class: button_class,
-        hx_get: "/htmx/replies/#{comment.id}?page=1",
+        hx_get: "/htmx/comments/#{comment.id}?page=1",
         hx_include: "previous input",
-        hx_target: "#doc_reply-#{comment.id}-replies",
+        hx_target: "#comment-#{comment.id}-comments",
         hx_swap: "outerHTML",
-        flow_id: "doc_reply-#{comment.id}-load_thread",
+        flow_id: "comment-#{comment.id}-load_thread",
         script: htmx_success <<-HEREDOC
 add @hidden to me
 remove @hidden from the next <button/>
@@ -125,10 +125,10 @@ HEREDOC
         type: "button",
         hidden: true,
         class: button_class,
-        flow_id: "doc_reply-#{comment.id}-collapse_thread",
+        flow_id: "comment-#{comment.id}-collapse_thread",
         script: <<-HYPER
 on click
-   put "" into #doc_reply-#{comment.id}-replies
+   put "" into #comment-#{comment.id}-comments
   add @hidden to me
   remove @hidden from the previous <button/>
 end
@@ -141,23 +141,23 @@ HYPER
     opts = {
       type:      "button",
       class:     "inline-flex h-6 shrink-0 items-center rounded-full border border-sky-600 px-3 text-sm font-medium whitespace-nowrap text-sky-700 hover:bg-sky-50",
-      hx_target: Docs::ReplyDialog.reply_form_target,
+      hx_target: Comments::Dialog.comment_form_target,
       hx_swap:   "outerHTML",
-      onclick:   Docs::ReplyDialog.open_reply_dialog_js,
+      onclick:   Comments::Dialog.open_comment_dialog_js,
     }
 
     div class: "flex shrink-0 flex-wrap items-center justify-end gap-2" do
-      button("回复", opts, hx_get: Htmx::Docs::Reply::New.with(id: comment.id, user_id: me.id, order_by: pagination[:order_by]).path)
+      button("回复", opts, hx_get: Htmx::Comments::New.with(id: comment.id, user_id: me.id, order_by: pagination[:order_by]).path)
 
       if me.id == comment.user_id # 只允许编辑自己的回复
-        button("编辑", opts, hx_get: Htmx::Docs::Reply::Edit.with(id: comment.id, user_id: me.id, order_by: pagination[:order_by]).path)
+        button("编辑", opts, hx_get: Htmx::Comments::Edit.with(id: comment.id, user_id: me.id, order_by: pagination[:order_by]).path)
 
         if comment.children_count == 0 # 如果回复有了直接回复，就不再允许删除
           button(
             "删除",
             type: "button",
             class: "inline-flex h-6 shrink-0 items-center rounded-full border border-red-400 px-3 text-sm font-medium whitespace-nowrap text-red-500 hover:bg-red-50",
-            hx_delete: Htmx::Docs::Reply::Delete.with(id: comment.id, user_id: me.id).path,
+            hx_delete: Htmx::Comments::Delete.with(id: comment.id, user_id: me.id).path,
             hx_target: "closest article",
             hx_swap: "outerHTML swap:1s",
             hx_confirm: "删除这条回复？"

@@ -9,7 +9,7 @@ class Comments::List < BaseComponent
       input type: "hidden", id: "#{html_id}-order-by", name: "order_by", value: pagination[:order_by]
 
       mount(
-        ::Docs::FormButtons,
+        ::Comments::Toolbar,
         pagination: pagination,
         hx_target: "##{html_id}"
       )

@@ -12,7 +12,7 @@ abstract class DocAction < BrowserAction
 
     if id.nil?
       doc_path = id_or_doc_path.starts_with?("/") ? id_or_doc_path : "/#{id_or_doc_path}"
-      url = doc_path.sub("/docs", "/htmx/replies/docs")
+      url = doc_path.sub("/docs", "/htmx/comments/docs")
       current_doc = DocQuery.new.path_index(doc_path).first
       q = CommentQuery.new.doc_id(current_doc.id).parent_id.is_nil
     else
@@ -20,7 +20,7 @@ abstract class DocAction < BrowserAction
       # 顶级评论的 root_id 为 nil，它自己就是线程根；子评论则直接使用已保存的线程根 ID。
       root_id = comment.root_id || comment.id
       q = CommentQuery.new.root_id(root_id)
-      url = "/htmx/replies/#{root_id}"
+      url = "/htmx/comments/#{root_id}"
     end
 
     q = order_by == "desc" ? q.id.desc_order : q.id.asc_order

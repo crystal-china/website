@@ -72,8 +72,8 @@ module PageHelpers
     context.request.path
   end
 
-  def current_reply_path
-    current_path.sub("/docs", "/htmx/replies/docs")
+  def current_comments_path
+    current_path.sub("/docs", "/htmx/comments/docs")
   end
 
   private def find_or_create_doc
@@ -146,10 +146,10 @@ module PageHelpers
 HTML
   end
 
-  private def show_replies_when_revealed
+  private def show_comments_when_revealed
     trigger = context.request.headers["Referer"]? ? "revealed" : "load"
 
-    div role: "feed", id: "replies", hx_get: current_reply_path, hx_trigger: trigger, hx_swap: "outerHTML" do
+    div role: "feed", id: "comments", hx_get: current_comments_path, hx_trigger: trigger, hx_swap: "outerHTML" do
       mount Shared::Spinner, text: "正在读取评论..."
     end
   end
