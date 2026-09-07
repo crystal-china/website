@@ -1,12 +1,12 @@
-class Db::Fix::ReplyThreadData < LuckyTask::Task
-  summary "Fix dirty reply thread data"
+class Db::Fix::CommentThreadData < LuckyTask::Task
+  summary "Fix dirty comment thread data"
 
   def call
-    Db::Fix::ReplyThreadDataTask.run
+    Db::Fix::CommentThreadDataTask.run
   end
 end
 
-module Db::Fix::ReplyThreadDataTask
+module Db::Fix::CommentThreadDataTask
   def self.run
     AppDatabase.transaction do
       AppDatabase.exec(clear_root_id_for_roots_sql)
@@ -15,8 +15,8 @@ module Db::Fix::ReplyThreadDataTask
       AppDatabase.exec(recalculate_descendants_count_sql)
       AppDatabase.exec(reset_children_count_sql)
       AppDatabase.exec(recalculate_children_count_sql)
-      AppDatabase.exec(recalculate_doc_reply_floors_sql)
-      AppDatabase.exec(recalculate_thread_reply_floors_sql)
+      AppDatabase.exec(recalculate_doc_comment_floors_sql)
+      AppDatabase.exec(recalculate_thread_comment_floors_sql)
       AppDatabase.exec(reset_doc_floor_counters_sql)
       AppDatabase.exec(recalculate_doc_floor_counters_sql)
       AppDatabase.exec(reset_root_floor_counters_sql)
@@ -24,7 +24,7 @@ module Db::Fix::ReplyThreadDataTask
       AppDatabase.exec(remove_floor_from_preferences_sql)
     end
 
-    puts "Done fixing reply thread data"
+    puts "Done fixing comment thread data"
   end
 
   private def self.clear_root_id_for_roots_sql
@@ -111,7 +111,7 @@ WHERE comments.id = counts.parent_id;
 SQL
   end
 
-  private def self.recalculate_doc_reply_floors_sql
+  private def self.recalculate_doc_comment_floors_sql
     <<-SQL
 WITH ranked AS (
   SELECT
@@ -131,7 +131,7 @@ WHERE comments.id = ranked.id;
 SQL
   end
 
-  private def self.recalculate_thread_reply_floors_sql
+  private def self.recalculate_thread_comment_floors_sql
     <<-SQL
 WITH ranked AS (
   SELECT

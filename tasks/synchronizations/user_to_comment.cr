@@ -1,8 +1,8 @@
-# 调用方式，DB::Synchronizations::UserToReply.new.call
-# 之前用来同步 user 的 name avatar 作为冗余字段到 reply，现在移除了。
+# 调用方式，DB::Synchronizations::UserToComment.new.call
+# 之前用来同步 user 的 name avatar 作为冗余字段到 comment，现在移除了。
 
-# class DB::Synchronizations::UserToReply < LuckyTask::Task
-#   summary "sync user name and avatar to user replies"
+# class DB::Synchronizations::UserToComment < LuckyTask::Task
+#   summary "sync user name and avatar to user comments"
 
 #   def call
 #     user_ids = UserAuditQuery.new
