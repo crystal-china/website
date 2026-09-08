@@ -50,6 +50,13 @@ module Db::ConstraintHelpers
       CHECK ((#{left_column} IS NULL) #{operator} (#{right_column} IS NULL))
       SQL
   end
+
+  def drop_nullability_relation(relation : Symbol, table_name : String, left_column : String, right_column : String)
+    execute <<-SQL
+      ALTER TABLE #{table_name}
+      DROP CONSTRAINT "#{table_name}_#{left_column}_#{right_column}_check"
+      SQL
+  end
 end
 
 class Avram::Migrator::Migration::V1
