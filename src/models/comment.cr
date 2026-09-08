@@ -18,6 +18,7 @@ class Comment < BaseModel
   end
 
   table do
+    belongs_to comment_thread : CommentThread?
     belongs_to doc : Doc?
     belongs_to parent : Comment?
     belongs_to root : Comment?

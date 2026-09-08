@@ -13,6 +13,7 @@ class User < BaseModel
     column encrypted_password : String?
 
     has_many comments : Comment
+    has_many topics : Topic
   end
 
   def emailable : Carbon::Address

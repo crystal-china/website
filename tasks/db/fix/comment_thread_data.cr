@@ -11,6 +11,10 @@ module Db::Fix::CommentThreadDataTask
     AppDatabase.transaction do
       AppDatabase.exec(clear_root_id_for_roots_sql)
       AppDatabase.exec(backfill_root_id_sql)
+      AppDatabase.exec(create_doc_comment_threads_sql)
+      AppDatabase.exec(create_topic_comment_threads_sql)
+      AppDatabase.exec(backfill_root_comment_thread_id_sql)
+      AppDatabase.exec(backfill_child_comment_thread_id_sql)
       AppDatabase.exec(reset_descendants_count_sql)
       AppDatabase.exec(recalculate_descendants_count_sql)
       AppDatabase.exec(reset_children_count_sql)
@@ -21,6 +25,8 @@ module Db::Fix::CommentThreadDataTask
       AppDatabase.exec(recalculate_doc_floor_counters_sql)
       AppDatabase.exec(reset_root_floor_counters_sql)
       AppDatabase.exec(recalculate_root_floor_counters_sql)
+      AppDatabase.exec(reset_comment_thread_floor_counters_sql)
+      AppDatabase.exec(recalculate_comment_thread_floor_counters_sql)
       AppDatabase.exec(remove_floor_from_preferences_sql)
     end
 
@@ -60,6 +66,48 @@ SET root_id = comment_tree.root_id
 FROM comment_tree
 WHERE comments.id = comment_tree.id
   AND comments.parent_id IS NOT NULL;
+SQL
+  end
+
+  private def self.create_doc_comment_threads_sql
+    <<-SQL
+INSERT INTO comment_threads (doc_id, floor_counter, created_at, updated_at)
+SELECT id, 0, NOW(), NOW()
+FROM docs
+ON CONFLICT (doc_id) DO NOTHING;
+SQL
+  end
+
+  private def self.create_topic_comment_threads_sql
+    <<-SQL
+INSERT INTO comment_threads (topic_id, floor_counter, created_at, updated_at)
+SELECT id, 0, NOW(), NOW()
+FROM topics
+ON CONFLICT (topic_id) DO NOTHING;
+SQL
+  end
+
+  private def self.backfill_root_comment_thread_id_sql
+    <<-SQL
+UPDATE comments
+SET comment_thread_id = comment_threads.id
+FROM comment_threads
+WHERE comments.parent_id IS NULL
+  AND comment_threads.doc_id = comments.doc_id
+  AND comments.comment_thread_id IS DISTINCT FROM comment_threads.id;
+SQL
+  end
+
+  private def self.backfill_child_comment_thread_id_sql
+    <<-SQL
+UPDATE comments AS child
+SET comment_thread_id = comment_threads.id
+FROM comments AS root
+INNER JOIN comment_threads ON comment_threads.doc_id = root.doc_id
+WHERE child.parent_id IS NOT NULL
+  AND child.root_id = root.id
+  AND root.parent_id IS NULL
+  AND child.comment_thread_id IS DISTINCT FROM comment_threads.id;
 SQL
   end
 
@@ -197,6 +245,31 @@ FROM (
   GROUP BY root_id
 ) AS floors
 WHERE comments.id = floors.root_id;
+SQL
+  end
+
+  private def self.reset_comment_thread_floor_counters_sql
+    <<-SQL
+UPDATE comment_threads
+SET floor_counter = 0
+WHERE floor_counter <> 0;
+SQL
+  end
+
+  private def self.recalculate_comment_thread_floor_counters_sql
+    <<-SQL
+UPDATE comment_threads
+SET floor_counter = floors.maximum
+FROM (
+  SELECT
+    comment_thread_id,
+    MAX(floor)::int AS maximum
+  FROM comments
+  WHERE parent_id IS NULL
+    AND comment_thread_id IS NOT NULL
+  GROUP BY comment_thread_id
+) AS floors
+WHERE comment_threads.id = floors.comment_thread_id;
 SQL
   end
 
