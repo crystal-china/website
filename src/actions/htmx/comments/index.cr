@@ -1,17 +1,18 @@
 class Htmx::Comments::Index < DocAction
   param order_by : String = "desc"
+  param comment_thread_id : Int64?
+  param root_id : Int64?
 
-  get "/htmx/comments/*:id_or_doc_path" do
+  get "/htmx/comments" do
     page_number = params.get?(:page).try &.to_i
 
-    return head 401 if id_or_doc_path.nil?
+    return head 400 if comment_thread_id.nil? == root_id.nil?
 
-    # doc_path 示例：docs/index，完整: /htmx/comments/docs/index
-    id_or_doc_path = self.id_or_doc_path.not_nil!
-
-    pagination = comments_pagination(id_or_doc_path: id_or_doc_path, order_by: order_by)
-
-    id = id_or_doc_path.to_i64?
+    pagination = comments_pagination(
+      comment_thread_id: comment_thread_id,
+      root_id: root_id,
+      order_by: order_by
+    )
 
     if page_number && page_number > 1
       component(
@@ -20,11 +21,11 @@ class Htmx::Comments::Index < DocAction
         pagination: pagination,
         page_number: page_number,
         current_user: current_user,
-        comment_id: id
+        comment_id: root_id
       )
     else
-      html_id = if id
-                  "comment-#{id}-comments"
+      html_id = if root_id
+                  "comment-#{root_id}-comments"
                 else
                   "comments"
                 end
@@ -34,7 +35,7 @@ class Htmx::Comments::Index < DocAction
         formatter: formatter,
         pagination: pagination,
         current_user: current_user,
-        comment_id: id,
+        comment_id: root_id,
         html_id: html_id
       )
     end

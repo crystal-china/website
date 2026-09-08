@@ -106,7 +106,7 @@ class Comments::ListMore < BaseComponent
       button(
         type: "button",
         class: button_class,
-        hx_get: "/htmx/comments/#{comment.id}?page=1",
+        hx_get: "/htmx/comments?root_id=#{comment.id}&page=1",
         hx_include: "previous input",
         hx_target: "#comment-#{comment.id}-comments",
         hx_swap: "outerHTML",

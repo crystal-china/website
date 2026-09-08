@@ -28,41 +28,35 @@ class Htmx::Comments::CreateOrUpdate < DocAction
         return head 403 if comment.user_id != me.id
 
         SaveComment.update!(comment, content: content)
-        path_for_doc = comment.preferences.path_for_doc?
-        if path_for_doc.nil?
+        if comment.parent_id
           # 编辑子评论
           # 子评论创建时已经保存所属线程，因此编辑后直接刷新这个根评论下的整个子评论列表。
           root_id = comment.root_id.not_nil!
-          id_or_doc_path = root_id.to_s
+          pagination = comments_pagination(root_id: root_id, order_by: order_by)
           html_id = "comment-#{root_id}-comments"
         else
           # 编辑顶级评论
-          id_or_doc_path = path_for_doc
+          pagination = comments_pagination(comment_thread_id: comment.comment_thread_id, order_by: order_by)
           html_id = "comments"
         end
       when "new"
         # 为一条已有评论新建子评论。这里的 comment 是“被回复的那条旧评论”。
         # 回复顶级评论时，它自己就是线程根；回复子评论时，继承该子评论所属的线程根。
         root_id = comment.root_id || comment.id
-        id_or_doc_path = root_id.to_s
+        pagination = comments_pagination(root_id: root_id, order_by: order_by)
         html_id = "comment-#{root_id}-comments"
         comment = SaveComment.create!(user_id: user_id, parent_id: comment.id, content: content)
       else
         return head 400
       end
     else
-      # 给 doc 新建评论
-      comment_thread = CommentThreadQuery.find(comment_thread_id.not_nil!)
-      doc_id = comment_thread.doc_id
-      return head 400 if doc_id.nil?
-
-      doc = DocQuery.find(doc_id)
-      id_or_doc_path = doc.path_index
+      # 给 CommentThread 新建顶级评论
+      comment_thread_id = self.comment_thread_id.not_nil!
+      CommentThreadQuery.find(comment_thread_id)
+      pagination = comments_pagination(comment_thread_id: comment_thread_id, order_by: order_by)
       html_id = "comments"
-      comment = SaveComment.create!(user_id: user_id, comment_thread_id: comment_thread.id, content: content)
+      comment = SaveComment.create!(user_id: user_id, comment_thread_id: comment_thread_id, content: content)
     end
-
-    pagination = comments_pagination(id_or_doc_path: id_or_doc_path.not_nil!, order_by: order_by)
 
     component(
       ::Comments::List,

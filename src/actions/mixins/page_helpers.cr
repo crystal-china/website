@@ -72,10 +72,6 @@ module PageHelpers
     context.request.path
   end
 
-  def current_comments_path
-    current_path.sub("/docs", "/htmx/comments/docs")
-  end
-
   private def find_or_create_doc
     doc = DocQuery.new.path_index(current_path).first?
     doc = SaveDoc.create!(path_index: current_path) if doc.nil?
@@ -146,10 +142,10 @@ module PageHelpers
 HTML
   end
 
-  private def show_comments_when_revealed
+  private def show_comments_when_revealed(comment_thread_id : Int64)
     trigger = context.request.headers["Referer"]? ? "revealed" : "load"
 
-    div role: "feed", id: "comments", hx_get: current_comments_path, hx_trigger: trigger, hx_swap: "outerHTML" do
+    div role: "feed", id: "comments", hx_get: "/htmx/comments?comment_thread_id=#{comment_thread_id}", hx_trigger: trigger, hx_swap: "outerHTML" do
       mount Shared::Spinner, text: "正在读取评论..."
     end
   end

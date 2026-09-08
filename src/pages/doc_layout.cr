@@ -102,7 +102,7 @@ abstract class DocLayout
             comment_thread_id: comment_thread.id
           )
 
-          show_comments_when_revealed
+          show_comments_when_revealed(comment_thread.id)
         end
       end
 

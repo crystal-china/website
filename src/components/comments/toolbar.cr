@@ -10,7 +10,7 @@ class Comments::Toolbar < BaseComponent
       span "共 #{pagination[:count]} 条回复", class: "text-base font-medium text-gray-900"
 
       # 这里之前利用了一个狡黠的 htmx hack，点击下面的连接，生成的 url 如下：
-      # /htmx/comments/docs/index?order_by=asc&order_by=desc
+      # /htmx/comments?comment_thread_id=1&order_by=asc&order_by=desc
       # 此时有两个 order_by，第一个来自于 hx_get 中的 ? 参数, 第二个来自于 hx_include
       # 此时，总是第一个生效。·
 
@@ -19,8 +19,8 @@ class Comments::Toolbar < BaseComponent
           a(
             title,
             class: pagination[:order_by] == order ? selected : unselected,
-            href: "#{pagination[:url]}?order_by=#{order}",
-            hx_get: "#{pagination[:url]}?order_by=#{order}",
+            href: "#{pagination[:url]}&order_by=#{order}",
+            hx_get: "#{pagination[:url]}&order_by=#{order}",
             hx_target: hx_target,
             hx_swap: "outerHTML",
             script: <<-HYPER

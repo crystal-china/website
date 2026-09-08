@@ -5,23 +5,17 @@ abstract class DocAction < BrowserAction
 
   expose formatter
 
-  def comments_pagination(id_or_doc_path : String, order_by : String = "desc", per_page : Int32 = 10)
+  def comments_pagination(comment_thread_id : Int64? = nil, root_id : Int64? = nil, order_by : String = "desc", per_page : Int32 = 10)
     return {count: 0, comments: CommentQuery.new.none, page: nil, url: "", order_by: "desc"} unless order_by.in?("desc", "asc")
+    raise ArgumentError.new("comment_thread_id 和 root_id 必须且只能提供一个") if comment_thread_id.nil? == root_id.nil?
 
-    id = id_or_doc_path.to_i64?
-
-    if id.nil?
-      doc_path = id_or_doc_path.starts_with?("/") ? id_or_doc_path : "/#{id_or_doc_path}"
-      url = doc_path.sub("/docs", "/htmx/comments/docs")
-      current_doc = DocQuery.new.path_index(doc_path).first
-      comment_thread = CommentThreadQuery.new.doc_id(current_doc.id).first
-      q = CommentQuery.new.comment_thread_id(comment_thread.id).parent_id.is_nil
+    if comment_thread_id
+      q = CommentQuery.new.comment_thread_id(comment_thread_id).parent_id.is_nil
+      url = "/htmx/comments?comment_thread_id=#{comment_thread_id}"
     else
-      comment = CommentQuery.find(id)
-      # 顶级评论的 root_id 为 nil，它自己就是线程根；子评论则直接使用已保存的线程根 ID。
-      root_id = comment.root_id || comment.id
+      root_id = root_id.not_nil!
       q = CommentQuery.new.root_id(root_id)
-      url = "/htmx/comments/#{root_id}"
+      url = "/htmx/comments?root_id=#{root_id}"
     end
 
     q = order_by == "desc" ? q.id.desc_order : q.id.asc_order
