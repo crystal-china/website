@@ -2,7 +2,7 @@ class Htmx::Comments::CreateOrUpdate < DocAction
   param user_id : Int64
   param content : String
   param order_by : String = "desc"
-  param doc_path : String?
+  param comment_thread_id : Int64?
   param id : Int64?
   param op : String?
 
@@ -15,6 +15,7 @@ class Htmx::Comments::CreateOrUpdate < DocAction
     return head 401 if me.nil?
     return head 403 if user_id != me.id
     return head 400 if content.blank?
+    return head 400 if id.nil? && comment_thread_id.nil?
 
     if !id.nil?
       comment = CommentQuery.find(id.not_nil!)
@@ -51,11 +52,14 @@ class Htmx::Comments::CreateOrUpdate < DocAction
       end
     else
       # 给 doc 新建评论
-      doc_path = self.doc_path.not_nil!
-      doc = DocQuery.new.path_index(doc_path).first
-      id_or_doc_path = doc_path
+      comment_thread = CommentThreadQuery.find(comment_thread_id.not_nil!)
+      doc_id = comment_thread.doc_id
+      return head 400 if doc_id.nil?
+
+      doc = DocQuery.find(doc_id)
+      id_or_doc_path = doc.path_index
       html_id = "comments"
-      comment = SaveComment.create!(user_id: user_id, doc_id: doc.id, content: content)
+      comment = SaveComment.create!(user_id: user_id, comment_thread_id: comment_thread.id, content: content)
     end
 
     pagination = comments_pagination(id_or_doc_path: id_or_doc_path.not_nil!, order_by: order_by)

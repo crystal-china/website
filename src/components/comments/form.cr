@@ -3,6 +3,7 @@ class Comments::Form < BaseComponent
   needs html_id : String = "tab"
   needs order_by : String? = nil
   needs doc_path : String?
+  needs comment_thread_id : Int64? = nil
   needs comment_id : Int64?
   needs target_comment_id : Int64? = nil
 
@@ -85,8 +86,9 @@ HEREDOC
           end
         else
           # 为 doc 新建评论
+          thread_id = comment_thread_id.not_nil!
           opts = opts.merge(
-            hx_vals: %({"user_id": #{me.id}, "doc_path": "#{doc_path}"}),
+            hx_vals: %({"user_id": #{me.id}, "comment_thread_id": #{thread_id}}),
           )
         end
       end

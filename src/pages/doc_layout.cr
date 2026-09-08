@@ -93,7 +93,14 @@ abstract class DocLayout
 
         section id: "form_with_comments", class: "mt-6" do
           # 只是一个占位符，会被 htmx 请求覆盖
-          mount ::Comments::Form, current_user: current_user, doc_path: current_path
+          doc = find_or_create_doc
+          comment_thread = CommentThreadQuery.new.doc_id(doc.id).first
+          mount(
+            ::Comments::Form,
+            current_user: current_user,
+            doc_path: current_path,
+            comment_thread_id: comment_thread.id
+          )
 
           show_comments_when_revealed
         end

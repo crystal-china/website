@@ -50,7 +50,8 @@ pending "Critical browser flows", tags: "headless_chrome" do
   it "loads and collapses a comment thread" do
     user = UserFactory.create
     doc = SaveDoc.create!(path_index: "/docs/index")
-    root_comment = SaveComment.create!(user_id: user.id, doc_id: doc.id, content: "root comment")
+    comment_thread_id = CommentThreadQuery.new.doc_id(doc.id).first.id
+    root_comment = SaveComment.create!(user_id: user.id, comment_thread_id: comment_thread_id, content: "root comment")
     SaveComment.create!(user_id: user.id, parent_id: root_comment.id, content: "child comment")
 
     flow = BaseFlow.new
