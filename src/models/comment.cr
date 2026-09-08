@@ -1,8 +1,6 @@
 class Comment < BaseModel
   struct Preferences
     include JSON::Serializable
-
-    property? path_for_doc : String?
   end
 
   struct VoteCounts

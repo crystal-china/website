@@ -2,7 +2,6 @@ class Comments::Form < BaseComponent
   needs content : String = ""
   needs html_id : String = "tab"
   needs order_by : String? = nil
-  needs doc_path : String?
   needs comment_thread_id : Int64? = nil
   needs comment_id : Int64?
   needs target_comment_id : Int64? = nil
@@ -11,7 +10,6 @@ class Comments::Form < BaseComponent
     mount(
       Comments::Editor,
       content: content,
-      doc_path: doc_path,
       comment_id: comment_id,
       current_user: current_user,
       html_id: html_id

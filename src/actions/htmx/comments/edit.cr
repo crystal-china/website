@@ -18,7 +18,6 @@ class Htmx::Comments::Edit < DocAction
       html_id: "comment",
       order_by: order_by,
       comment_id: id.to_i64,
-      doc_path: comment.preferences.path_for_doc?,
       # 只有子评论需要指定线程替换目标；顶级评论提交后替换文档的评论列表。
       target_comment_id: comment.parent_id ? comment.root_id : nil,
     )

@@ -98,7 +98,6 @@ abstract class DocLayout
           mount(
             ::Comments::Form,
             current_user: current_user,
-            doc_path: current_path,
             comment_thread_id: comment_thread.id
           )
 

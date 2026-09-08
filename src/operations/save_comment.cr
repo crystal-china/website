@@ -4,19 +4,6 @@ class SaveComment < Comment::SaveOperation
 
   before_save do
     if !id.value # 新建的时候
-      comment_thread_id.value.try do |comment_thread_id|
-        comment_thread = CommentThreadQuery.find(comment_thread_id)
-        path_for_doc = comment_thread.doc_id.try do |doc_id|
-          DocQuery.find(doc_id).path_index
-        end
-
-        preferences.value = Comment::Preferences.from_json(
-          {
-            path_for_doc: path_for_doc,
-          }.to_json
-        )
-      end
-
       parent_id.value.try do |parent_id|
         parent_comment = CommentQuery.find(parent_id)
         comment_thread_id.value = parent_comment.comment_thread_id
@@ -27,13 +14,10 @@ class SaveComment < Comment::SaveOperation
         #   此时父评论就是上面的第二级 root comment
         thread_root_id = parent_comment.root_id || parent_comment.id
         root_id.value = thread_root_id
-
-        preferences.value = Comment::Preferences.from_json(
-          {
-            path_for_doc: nil,
-          }.to_json
-        )
       end
+
+      # preferences 数据库列将在后续 migration 中删除；在此之前仍需满足 NOT NULL。
+      preferences.value = Comment::Preferences.from_json("{}")
 
       vote_counts.value = Comment::VoteCounts.from_json(
         {

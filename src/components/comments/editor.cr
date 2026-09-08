@@ -1,6 +1,5 @@
 class Comments::Editor < BaseComponent
   needs content : String = ""
-  needs doc_path : String?
   needs comment_id : Int64?
   needs html_id : String = "tab"
 
