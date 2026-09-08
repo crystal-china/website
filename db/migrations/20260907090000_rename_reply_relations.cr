@@ -13,6 +13,9 @@ class RenameReplyRelations::V20260907090000 < Avram::Migrator::Migration::V1
     drop_trigger table_for(Reply), "assign_reply_floor_before_insert"
     drop_function "assign_reply_floor"
 
+    drop_nullability_relation(:exactly_one_non_null, "replies", "doc_id", "reply_id")
+    drop_nullability_relation(:both_null_or_both_non_null, "replies", "reply_id", "root_reply_id")
+
     alter :replies do
       rename_belongs_to :reply, :parent
       rename_belongs_to :root_reply, :root
@@ -24,6 +27,9 @@ class RenameReplyRelations::V20260907090000 < Avram::Migrator::Migration::V1
       rename_belongs_to :parent, :reply
       rename_belongs_to :root, :root_reply
     end
+
+    require_nullability_relation(:exactly_one_non_null, "replies", "doc_id", "reply_id")
+    require_nullability_relation(:both_null_or_both_non_null, "replies", "reply_id", "root_reply_id")
 
     add_counters_for(
       source_table: "replies",

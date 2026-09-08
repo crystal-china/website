@@ -2,11 +2,6 @@ class RestoreCommentTriggers::V20260908101000 < Avram::Migrator::Migration::V1
   def migrate
     make_required table_for(Comment), :comment_thread_id
 
-    execute <<-SQL
-      ALTER TABLE comments
-      DROP CONSTRAINT replies_doc_id_reply_id_check
-      SQL
-
     drop_index table_for(Comment), name: :replies_doc_id_floor_index
 
     execute <<-SQL
@@ -14,6 +9,8 @@ class RestoreCommentTriggers::V20260908101000 < Avram::Migrator::Migration::V1
       ON comments (comment_thread_id, floor)
       WHERE parent_id IS NULL
       SQL
+
+    require_nullability_relation(:both_null_or_both_non_null, "comments", "parent_id", "root_id")
 
     add_counters_for(
       source_table: "comments",
@@ -74,7 +71,7 @@ class RestoreCommentTriggers::V20260908101000 < Avram::Migrator::Migration::V1
     drop_index table_for(Comment), name: :comments_comment_thread_id_floor_index
     create_index table_for(Comment), [:doc_id, :floor], unique: true
 
-    require_nullability_relation(:exactly_one_non_null, "comments", "doc_id", "parent_id")
+    drop_nullability_relation(:both_null_or_both_non_null, "comments", "parent_id", "root_id")
     make_optional table_for(Comment), :comment_thread_id
   end
 end
