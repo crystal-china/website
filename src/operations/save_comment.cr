@@ -3,11 +3,10 @@ class SaveComment < Comment::SaveOperation
   before_save validate_doc_id_parent_id
 
   before_save do
-    validate_required user_id, content
-
     if !id.value # 新建的时候
       doc_id.value.try do |doc_id|
         doc = DocQuery.find(doc_id)
+        comment_thread_id.value = CommentThreadQuery.new.doc_id(doc.id).first.id
 
         preferences.value = Comment::Preferences.from_json(
           {
@@ -18,6 +17,7 @@ class SaveComment < Comment::SaveOperation
 
       parent_id.value.try do |parent_id|
         parent_comment = CommentQuery.find(parent_id)
+        comment_thread_id.value = parent_comment.comment_thread_id
         #  - 如果父评论已经知道它属于哪个根评论, 用父评论的 root_id
         #    即：至少是第三级评论，第一级 doc，第二级 root comment, 第三级才是父评论
 
@@ -45,6 +45,8 @@ class SaveComment < Comment::SaveOperation
         }.to_json
       )
     end
+
+    validate_required user_id, content, comment_thread_id
   end
 
   private def validate_doc_id_parent_id
