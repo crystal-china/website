@@ -18,8 +18,10 @@ import setupStork from "./storkSearch.js";
 // 调试 HTMX 时临时取消注释；错误和警告默认始终输出。
 // htmx.config.logAll = true;
 
-  // HTMX 4 默认只允许同源请求；确实需要跨域并已配置 CORS 时取消注释。
-  // htmx.config.mode = "cors";
+// HTMX 4 默认只允许同源请求；确实需要跨域并已配置 CORS 时取消注释。
+// htmx.config.mode = "cors";
+
+htmx.config.noSwap.push("4xx", "5xx")
 
 const frontendConfig = JSON.parse(
     document.getElementById("app-config")?.textContent ?? "{}",
