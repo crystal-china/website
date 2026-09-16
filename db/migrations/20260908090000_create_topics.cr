@@ -1,4 +1,4 @@
-class CreateTopics::V20260908095000 < Avram::Migrator::Migration::V1
+class CreateTopics::V20260908090000 < Avram::Migrator::Migration::V1
   def migrate
     create table_for(Topic) do
       primary_key id : Int64
