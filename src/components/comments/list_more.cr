@@ -139,11 +139,12 @@ HYPER
 
   private def render_comment_actions(comment : Comment, me : User)
     opts = {
-      type:      "button",
-      class:     "inline-flex h-6 shrink-0 items-center rounded-full border border-sky-600 px-3 text-sm font-medium whitespace-nowrap text-sky-700 hover:bg-sky-50",
-      hx_target: Comments::Dialog.comment_form_target,
-      hx_swap:   "outerHTML",
-      onclick:   Comments::Dialog.open_comment_dialog_js,
+      type:       "button",
+      class:      "inline-flex h-6 shrink-0 items-center rounded-full border border-sky-600 px-3 text-sm font-medium whitespace-nowrap text-sky-700 hover:bg-sky-50",
+      hx_target:  Comments::Dialog.comment_form_target,
+      hx_swap:    "outerHTML",
+      hx_disable: "this",
+      script:     Comments::Dialog.open_comment_dialog,
     }
 
     div class: "flex shrink-0 flex-wrap items-center justify-end gap-2" do

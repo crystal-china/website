@@ -6,12 +6,13 @@ class Comments::Dialog < BaseComponent
     "div##{FORM_ID}"
   end
 
-  def self.open_comment_dialog_js
-    <<-JS
-const dialog = document.getElementById('#{DIALOG_ID}');
-dialog?.showModal();
-dialog?.querySelector('textarea')?.focus();
-JS
+  def self.open_comment_dialog
+    <<-HYPER
+on htmx:after:swap(ctx)[ctx.response.raw.ok]
+  open ##{DIALOG_ID}
+  focus the first <textarea/> in ##{DIALOG_ID}
+end
+HYPER
   end
 
   def render

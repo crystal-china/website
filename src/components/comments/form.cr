@@ -43,6 +43,7 @@ HEREDOC
         hx_target:  "#comments",
         hx_include: hx_include,
         hx_post:    Htmx::Comments::CreateOrUpdate.path_without_query_params,
+        hx_disable: "this",
         script:     after_submit,
         flow_id:    "#{html_id}-do_comment",
       }
