@@ -11,6 +11,7 @@ import "hyperscript.org";
 
 import createAssetUrl from "./assetUrl.js";
 import copyCodeButton from "./copyCodeButton.js";
+import setupHtmxErrorAlert from "./htmxErrorAlert.js";
 import setupLogo from "./logoViewer.js";
 import pasteImage from "./pasteImage.js";
 import setupStork from "./storkSearch.js";
@@ -21,7 +22,8 @@ import setupStork from "./storkSearch.js";
 // HTMX 4 默认只允许同源请求；确实需要跨域并已配置 CORS 时取消注释。
 // htmx.config.mode = "cors";
 
-htmx.config.noSwap.push("4xx", "5xx")
+htmx.config.noSwap.push("4xx", "5xx");
+setupHtmxErrorAlert();
 
 const frontendConfig = JSON.parse(
     document.getElementById("app-config")?.textContent ?? "{}",
