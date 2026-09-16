@@ -1,6 +1,5 @@
 class SaveComment < Comment::SaveOperation
   permit_columns user_id, comment_thread_id, parent_id, content
-  before_save validate_comment_thread_id_parent_id
 
   before_save do
     if !id.value # 新建的时候
@@ -33,11 +32,5 @@ class SaveComment < Comment::SaveOperation
     end
 
     validate_required user_id, content, comment_thread_id
-  end
-
-  private def validate_comment_thread_id_parent_id
-    if comment_thread_id.value.blank? == parent_id.value.blank?
-      add_error :comment_thread_id_or_parent_id, "必须且只能有一个存在"
-    end
   end
 end
