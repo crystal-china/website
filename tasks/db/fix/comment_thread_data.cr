@@ -13,21 +13,16 @@ module Db::Fix::CommentThreadDataTask
       AppDatabase.exec(backfill_root_id_sql)
       AppDatabase.exec(create_doc_comment_threads_sql)
       AppDatabase.exec(create_topic_comment_threads_sql)
-      AppDatabase.exec(backfill_root_comment_thread_id_sql)
-      AppDatabase.exec(backfill_child_comment_thread_id_sql)
       AppDatabase.exec(reset_descendants_count_sql)
       AppDatabase.exec(recalculate_descendants_count_sql)
       AppDatabase.exec(reset_children_count_sql)
       AppDatabase.exec(recalculate_children_count_sql)
-      AppDatabase.exec(recalculate_doc_comment_floors_sql)
+      AppDatabase.exec(recalculate_top_level_comment_floors_sql)
       AppDatabase.exec(recalculate_thread_comment_floors_sql)
-      AppDatabase.exec(reset_doc_floor_counters_sql)
-      AppDatabase.exec(recalculate_doc_floor_counters_sql)
       AppDatabase.exec(reset_root_floor_counters_sql)
       AppDatabase.exec(recalculate_root_floor_counters_sql)
       AppDatabase.exec(reset_comment_thread_floor_counters_sql)
       AppDatabase.exec(recalculate_comment_thread_floor_counters_sql)
-      AppDatabase.exec(remove_floor_from_preferences_sql)
     end
 
     puts "Done fixing comment thread data"
@@ -87,30 +82,6 @@ ON CONFLICT (topic_id) DO NOTHING;
 SQL
   end
 
-  private def self.backfill_root_comment_thread_id_sql
-    <<-SQL
-UPDATE comments
-SET comment_thread_id = comment_threads.id
-FROM comment_threads
-WHERE comments.parent_id IS NULL
-  AND comment_threads.doc_id = comments.doc_id
-  AND comments.comment_thread_id IS DISTINCT FROM comment_threads.id;
-SQL
-  end
-
-  private def self.backfill_child_comment_thread_id_sql
-    <<-SQL
-UPDATE comments AS child
-SET comment_thread_id = comment_threads.id
-FROM comments AS root
-INNER JOIN comment_threads ON comment_threads.doc_id = root.doc_id
-WHERE child.parent_id IS NOT NULL
-  AND child.root_id = root.id
-  AND root.parent_id IS NULL
-  AND child.comment_thread_id IS DISTINCT FROM comment_threads.id;
-SQL
-  end
-
   private def self.reset_descendants_count_sql
     <<-SQL
 UPDATE comments
@@ -159,18 +130,18 @@ WHERE comments.id = counts.parent_id;
 SQL
   end
 
-  private def self.recalculate_doc_comment_floors_sql
+  private def self.recalculate_top_level_comment_floors_sql
     <<-SQL
 WITH ranked AS (
   SELECT
     id,
     ROW_NUMBER() OVER (
-      PARTITION BY doc_id
+      PARTITION BY comment_thread_id
       ORDER BY created_at ASC, id ASC
     )::int AS floor
   FROM comments
   WHERE parent_id IS NULL
-    AND doc_id IS NOT NULL
+    AND comment_thread_id IS NOT NULL
 )
 UPDATE comments
 SET floor = ranked.floor
@@ -196,31 +167,6 @@ UPDATE comments
 SET floor = ranked.floor
 FROM ranked
 WHERE comments.id = ranked.id;
-SQL
-  end
-
-  private def self.reset_doc_floor_counters_sql
-    <<-SQL
-UPDATE docs
-SET floor_counter = 0
-WHERE floor_counter <> 0;
-SQL
-  end
-
-  private def self.recalculate_doc_floor_counters_sql
-    <<-SQL
-UPDATE docs
-SET floor_counter = floors.maximum
-FROM (
-  SELECT
-    doc_id,
-    MAX(floor)::int AS maximum
-  FROM comments
-  WHERE parent_id IS NULL
-    AND doc_id IS NOT NULL
-  GROUP BY doc_id
-) AS floors
-WHERE docs.id = floors.doc_id;
 SQL
   end
 
@@ -270,14 +216,6 @@ FROM (
   GROUP BY comment_thread_id
 ) AS floors
 WHERE comment_threads.id = floors.comment_thread_id;
-SQL
-  end
-
-  private def self.remove_floor_from_preferences_sql
-    <<-SQL
-UPDATE comments
-SET preferences = preferences - 'floor'
-WHERE preferences ? 'floor';
 SQL
   end
 end

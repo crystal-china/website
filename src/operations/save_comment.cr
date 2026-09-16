@@ -15,9 +15,6 @@ class SaveComment < Comment::SaveOperation
         root_id.value = thread_root_id
       end
 
-      # preferences 数据库列将在后续 migration 中删除；在此之前仍需满足 NOT NULL。
-      preferences.value = Comment::Preferences.from_json("{}")
-
       vote_counts.value = Comment::VoteCounts.from_json(
         {
           👍:  0,

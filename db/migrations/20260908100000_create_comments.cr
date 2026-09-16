@@ -6,9 +6,6 @@ class CreateComments::V20260908100000 < Avram::Migrator::Migration::V1
       # 评论所属的唯一评论区。Doc 和 Topic 均通过 CommentThread 共用 comments 表。
       add_belongs_to comment_thread : CommentThread, on_delete: :cascade
 
-      # 旧版文档评论的直接关联；新代码通过 comment_thread_id 定位宿主，暂留作历史兼容。
-      add_belongs_to doc : Doc?, on_delete: :cascade
-
       # 直接回复的评论；顶级评论为 NULL。
       add_belongs_to parent : Comment?, on_delete: :cascade
 
@@ -30,7 +27,6 @@ class CreateComments::V20260908100000 < Avram::Migrator::Migration::V1
 
       # 当前评论的直接子评论数，由基于 parent_id 的 INSERT/DELETE counter triggers 维护。
       add children_count : Int32, default: 0
-      add preferences : JSON::Any
 
       # 各 emoji 票数的反规范化汇总，由投票事务同步维护，避免渲染时逐票聚合。
       add vote_counts : JSON::Any
