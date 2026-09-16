@@ -54,7 +54,7 @@ module Db::ConstraintHelpers
   def drop_nullability_relation(relation : Symbol, table_name : String, left_column : String, right_column : String)
     execute <<-SQL
       ALTER TABLE #{table_name}
-      DROP CONSTRAINT "#{table_name}_#{left_column}_#{right_column}_check"
+      DROP CONSTRAINT IF EXISTS "#{table_name}_#{left_column}_#{right_column}_check"
       SQL
   end
 end
