@@ -7,7 +7,7 @@ class Htmx::Comments::CreateOrUpdate < DocAction
   param op : String?
 
   # 统一处理 3 种提交：
-  # - 给 doc 新建顶级评论
+  # - 给 CommentThread 新建顶级评论
   # - 给某条已有评论新建子评论
   # - 编辑某条已有评论（可能是顶级评论，也可能是子评论）
   post "/htmx/comments" do
@@ -23,7 +23,7 @@ class Htmx::Comments::CreateOrUpdate < DocAction
       case op
       when "edit"
         # 编辑一条已有评论。这里 comment 可能是：
-        # - 针对 doc 的顶级评论
+        # - CommentThread 的顶级评论
         # - 针对 comment 的子评论
         return head 403 if comment.user_id != me.id
 
@@ -35,7 +35,7 @@ class Htmx::Comments::CreateOrUpdate < DocAction
           pagination = comments_pagination(root_id: root_id, order_by: order_by)
           html_id = "comment-#{root_id}-comments"
         else
-          # 编辑顶级评论
+          # 编辑 CommentThread 的顶级评论
           pagination = comments_pagination(comment_thread_id: comment.comment_thread_id, order_by: order_by)
           html_id = "comments"
         end

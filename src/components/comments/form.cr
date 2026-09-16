@@ -65,7 +65,7 @@ HEREDOC
             )
           else
             # 编辑时，再区分两种已有评论：
-            # - comment.parent_id 为空：编辑针对 doc 的顶级评论
+            # - comment.parent_id 为空：编辑 CommentThread 的顶级评论
             # - comment.parent_id 不为空：编辑针对 comment 的子评论
             comment = CommentQuery.find(comment_id.not_nil!)
 
@@ -83,7 +83,7 @@ HEREDOC
             text = "修改"
           end
         else
-          # 为 doc 新建评论
+          # 为 CommentThread 新建顶级评论
           thread_id = comment_thread_id.not_nil!
           opts = opts.merge(
             hx_vals: %({"user_id": #{me.id}, "comment_thread_id": #{thread_id}}),

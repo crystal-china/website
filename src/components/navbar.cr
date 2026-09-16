@@ -23,6 +23,10 @@ class Navbar < BaseComponent
             end
 
             li do
+              link "论坛", to: Forum::Index, class: nav_item_class(active: current_path.starts_with?("/forum"))
+            end
+
+            li do
               a "本站源码", href: "https://github.com/crystal-china/website", class: nav_item_class
             end
 
