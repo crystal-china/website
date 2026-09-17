@@ -1,11 +1,9 @@
-class Htmx::Comments::Edit < DocAction
-  param user_id : Int64
+class Htmx::Comments::Edit < CommentAction
   param order_by : String?
 
   get "/htmx/comments/edit/:id" do
     me = current_user
     return head 401 if me.nil?
-    return head 403 if user_id != me.id
 
     comment = CommentQuery.find(id)
 

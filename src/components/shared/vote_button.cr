@@ -15,9 +15,9 @@ class Shared::VoteButton < BaseComponent
 
       if current_user
         if comment_id
-          hx_values = %({"user_id": #{current_user.not_nil!.id}, "vote_type": "#{emoji}", "comment_id": #{comment_id.not_nil!}})
+          hx_values = %({"vote_type": "#{emoji}", "comment_id": #{comment_id.not_nil!}})
         else
-          hx_values = %({"user_id": #{current_user.not_nil!.id}, "vote_type": "#{emoji}", "doc_id": #{doc_id.not_nil!}})
+          hx_values = %({"vote_type": "#{emoji}", "doc_id": #{doc_id.not_nil!}})
         end
 
         config = config.merge(

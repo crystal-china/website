@@ -1,5 +1,4 @@
-class Htmx::Comments::CreateOrUpdate < DocAction
-  param user_id : Int64
+class Htmx::Comments::CreateOrUpdate < CommentAction
   param content : String
   param order_by : String = "desc"
   param comment_thread_id : Int64?
@@ -13,7 +12,6 @@ class Htmx::Comments::CreateOrUpdate < DocAction
   post "/htmx/comments" do
     me = current_user
     return head 401 if me.nil?
-    return head 403 if user_id != me.id
     return head 400 if content.blank?
     return head 400 if id.nil? && comment_thread_id.nil?
 
@@ -46,7 +44,7 @@ class Htmx::Comments::CreateOrUpdate < DocAction
         root_id = comment.root_id || comment.id
         pagination = comments_pagination(root_id: root_id, order_by: order_by)
         html_id = "comment-#{root_id}-comments"
-        comment = SaveComment.create!(user_id: user_id, parent_id: comment.id, content: content)
+        comment = SaveComment.create!(user_id: me.id, parent_id: comment.id, content: content)
       else
         return head 400
       end
@@ -56,7 +54,7 @@ class Htmx::Comments::CreateOrUpdate < DocAction
       CommentThreadQuery.find(comment_thread_id)
       pagination = comments_pagination(comment_thread_id: comment_thread_id, order_by: order_by)
       html_id = "comments"
-      comment = SaveComment.create!(user_id: user_id, comment_thread_id: comment_thread_id, content: content)
+      comment = SaveComment.create!(user_id: me.id, comment_thread_id: comment_thread_id, content: content)
     end
 
     component(

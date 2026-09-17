@@ -1,4 +1,4 @@
-class Htmx::Comments::Index < DocAction
+class Htmx::Comments::Index < CommentAction
   param order_by : String = "desc"
   param comment_thread_id : Int64?
   param root_id : Int64?

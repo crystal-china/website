@@ -60,7 +60,7 @@ HEREDOC
             # 为评论新增评论
             target_id = target_comment_id || comment_id
             opts = opts.merge(
-              hx_vals: %({"user_id": #{me.id}, "id": #{comment_id}, "op": "new"}),
+              hx_vals: %({"id": #{comment_id}, "op": "new"}),
               hx_target: "#comment-#{target_id}-comments",
               hx_swap: "outerHTML"
             )
@@ -78,7 +78,7 @@ HEREDOC
             end
 
             opts = opts.merge(
-              hx_vals: %({"user_id": #{me.id}, "id": #{comment_id}, "op": "edit"}),
+              hx_vals: %({"id": #{comment_id}, "op": "edit"}),
               hx_swap: "outerHTML",
             )
             text = "修改"
@@ -87,7 +87,7 @@ HEREDOC
           # 为 CommentThread 新建顶级评论
           thread_id = comment_thread_id.not_nil!
           opts = opts.merge(
-            hx_vals: %({"user_id": #{me.id}, "comment_thread_id": #{thread_id}}),
+            hx_vals: %({"comment_thread_id": #{thread_id}}),
           )
         end
       end

@@ -1,12 +1,8 @@
 class Htmx::OnlineUsers < BrowserAction
   include Auth::AllowGuests
 
-  param user_id : Int64?
-
   patch "/htmx/online_users" do
-    me = UserQuery.find(user_id.not_nil!) if user_id
-
-    if me
+    if (me = current_user)
       COUNTER_MUTEX.synchronize do
         ONLINE_USER_COUNTER.write(me.id.to_s, Time.local.to_unix)
       end

@@ -1,12 +1,10 @@
-class Htmx::Comments::New < DocAction
-  param user_id : Int64
+class Htmx::Comments::New < CommentAction
   param order_by : String?
   param id : Int64
 
   get "/htmx/comments/new" do
     me = current_user
     return head 401 if me.nil?
-    return head 403 if user_id != me.id
 
     comment = CommentQuery.find(id)
     # target_comment_id 用于确定提交成功后替换哪个线程：顶级评论用自身 ID，子评论用所属根 ID。
