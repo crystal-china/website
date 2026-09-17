@@ -3,5 +3,6 @@ class UpdateComment < Comment::SaveOperation
 
   before_save do
     validate_required content
+    edited_at.value = Time.utc if content.changed?
   end
 end

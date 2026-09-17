@@ -14,6 +14,9 @@ class CreateComments::V20260908100000 < Avram::Migrator::Migration::V1
       add_belongs_to user : User, on_delete: :cascade
       add content : String
 
+      # 只在评论正文确实被修改时写入；投票和计数器更新不会影响它。
+      add edited_at : Time?
+
       # 当前作用域内的显示楼层：顶级评论按 CommentThread 编号，子评论按 root 分支编号。
       # assign_comment_floor BEFORE INSERT trigger 自动分配该值。
       add floor : Int32

@@ -42,11 +42,22 @@ class Comments::ListMore < BaseComponent
 
       render_parent_comment_hint(comment)
 
-      div class: "flex shrink-0 items-center gap-2" do
-        a href: "#comment-#{comment.id}" do
-          span TimeInWords::Helpers(TimeInWords::I18n::ZH_CN).from(past_time: comment.created_at), class: "text-xs text-sky-700 underline decoration-dotted underline-offset-2"
+      div class: "flex shrink-0 items-center gap-2 text-xs leading-none" do
+        a(
+          TimeInWords::Helpers(TimeInWords::I18n::ZH_CN).from(past_time: comment.created_at),
+          href: "#comment-#{comment.id}",
+          class: "inline-flex items-center text-sky-700 underline decoration-dotted underline-offset-2"
+        )
+
+        if (edited_at = comment.edited_at)
+          span(
+            "已编辑于 #{TimeInWords::Helpers(TimeInWords::I18n::ZH_CN).from(past_time: edited_at)}",
+            class: "text-gray-500",
+            title: edited_at.to_local.to_s("%Y-%m-%d %H:%M:%S")
+          )
         end
-        span "#{comment.floor} 楼", class: "inline-flex items-center rounded-full border border-gray-300 bg-white px-2.5 py-0.5 text-xs font-medium text-gray-800"
+
+        span "#{comment.floor} 楼", class: "inline-flex items-center rounded-full border border-gray-300 bg-white px-2.5 py-0.5 font-medium text-gray-800"
 
         if comment_id == comment.id
           output(

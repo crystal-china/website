@@ -27,7 +27,8 @@ class Htmx::Comments::CreateOrUpdate < DocAction
         # - 针对 comment 的子评论
         return head 403 if comment.user_id != me.id
 
-        SaveComment.update!(comment, content: content)
+        UpdateComment.update!(comment, content: content)
+
         if comment.parent_id
           # 编辑子评论
           # 子评论创建时已经保存所属线程，因此编辑后直接刷新这个根评论下的整个子评论列表。
