@@ -1,6 +1,3 @@
-require "ecr"
-require "digest/md5"
-
 module PageHelpers
   PAGINATION_RELATION_MAPPING = {
     "/docs/index"                                    => {title: "前言", sub_title: "写在开始之前"},
@@ -70,13 +67,6 @@ module PageHelpers
 
   def current_path
     context.request.path
-  end
-
-  private def find_or_create_doc
-    doc = DocQuery.new.path_index(current_path).first?
-    doc = SaveDoc.create!(path_index: current_path) if doc.nil?
-
-    doc
   end
 
   def print_doc_info(doc)

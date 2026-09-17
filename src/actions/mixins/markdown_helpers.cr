@@ -3,7 +3,7 @@ require "../../../tasks/db/seed/hourly_availability"
 module MarkdownHelpers
   FRONT_MATTER_RE = /\A---[ \t]*\n(?<yaml>.*?)\n---[ \t]*\n?/m
 
-  def markdown_path
+  def markdown_path : String
     request_path = current_path.sub(%r{\A/docs/}, "")
 
     MarkdownFile.resolve(request_path).not_nil!
@@ -41,21 +41,23 @@ module MarkdownHelpers
     end
   end
 
-  private def markdown_front_matter
-    source = File.read(markdown_path)
-
-    source.match(FRONT_MATTER_RE).try do |match|
+  private memoize def markdown_front_matter : YAML::Any?
+    markdown_source.match(FRONT_MATTER_RE).try do |match|
       YAML.parse(match["yaml"])
     end
   end
 
-  private def markdown_body
-    source = File.read(markdown_path)
+  private def markdown_body : String
+    source = markdown_source
 
     source.match(FRONT_MATTER_RE).try do |match|
       return source.byte_slice(match[0].bytesize, source.bytesize - match[0].bytesize)
     end
 
     source
+  end
+
+  private memoize def markdown_source : String
+    File.read(markdown_path)
   end
 end

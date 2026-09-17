@@ -1,5 +1,4 @@
 class User < BaseModel
-  skip_schema_enforcer
   include Carbon::Emailable
   include Authentic::PasswordAuthenticatable
 

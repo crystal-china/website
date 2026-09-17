@@ -45,6 +45,10 @@ abstract class DocLayout
     PAGINATION_RELATION_MAPPING.has_key?(current_path)
   end
 
+  private memoize def find_or_create_doc : Doc
+    DocQuery.new.path_index(current_path).first? || SaveDoc.create!(path_index: current_path)
+  end
+
   private def render_paginated_doc
     mount Navbar, current_user: current_user
     mount Shared::PageFlash, flash: context.flash
