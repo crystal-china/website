@@ -10,7 +10,6 @@ class Comments::Form < BaseComponent
     mount(
       Comments::Editor,
       content: content,
-      comment_id: comment_id,
       current_user: current_user,
       html_id: html_id
     ) do
