@@ -1,7 +1,5 @@
 /* eslint no-console:0 */
 
-import { initializeApp } from "firebase/app";
-import { getAnalytics, logEvent } from "firebase/analytics";
 import htmx from "htmx.org";
 // HTMX 4 将 hx-prompt 移出核心；加载扩展以恢复属性及 HX-Prompt 请求头。
 import "htmx.org/dist/ext/hx-prompt.js";
@@ -11,6 +9,7 @@ import "hyperscript.org";
 
 import createAssetUrl from "./assetUrl.js";
 import copyCodeButton from "./copyCodeButton.js";
+import trackPageView from "./firebaseAnalytics.js";
 import setupHtmxErrorAlert from "./htmxErrorAlert.js";
 import setupLogo from "./logoViewer.js";
 import pasteImage from "./pasteImage.js";
@@ -31,14 +30,6 @@ const frontendConfig = JSON.parse(
 const assetHost = frontendConfig.assetHost ?? "";
 const assetBasePath = frontendConfig.assetBasePath ?? "/assets";
 const assetUrl = createAssetUrl(assetHost, assetBasePath);
-const firebaseConfig = frontendConfig.firebaseConfig ?? {};
-
-if (firebaseConfig.apiKey != null) {
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-    window.analytics = analytics;
-    window.logEvent = logEvent;
-}
 
 // HTMX 4 puts DELETE parameters in the URL. Send the CSRF token as a header
 // for every state-changing HTMX request so it never appears in the query string.
@@ -61,6 +52,7 @@ function initializeContent(root) {
     setupPasteImage(root);
     setupCopyCodeButton(root);
     void setupStork(root, assetUrl);
+    trackPageView(root);
 }
 
 // 备忘：为什么这里使用 htmx.onLoad
