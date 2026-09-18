@@ -16,7 +16,7 @@ end
 
 def save_view_count
   PageHelpers::PAGINATION_URLS.each do |path|
-    count = VIEW_COUNT_CACHE.keys.select { |key| key.ends_with?(path) }.size
+    count = VIEW_COUNT_CACHE.keys.count &.ends_with?(path)
     doc = DocQuery.new.path_index(path).first?
     SaveDoc.update!(doc, view_count: doc.view_count + count) if doc
   end

@@ -43,6 +43,6 @@ describe SaveComment do
     comments = Array.new(10) { results.receive }
     errors = comments.select(Exception)
     errors.should be_empty
-    comments.compact_map(&.as?(Comment)).map(&.floor).sort.should eq((1..10).to_a)
+    comments.compact_map(&.as?(Comment)).map(&.floor).sort!.should eq((1..10).to_a)
   end
 end

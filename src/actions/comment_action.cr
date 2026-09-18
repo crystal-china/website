@@ -19,10 +19,10 @@ abstract class CommentAction < BrowserAction
 
     q = order_by == "desc" ? q.id.desc_order : q.id.asc_order
     q = q.preload_user
-    q = q.preload_parent { |parent_query| parent_query.preload_user }
+    q = q.preload_parent &.preload_user
 
     if (me = current_user)
-      q = q.preload_votes { |vote_query| vote_query.user_id(me.id) }
+      q = q.preload_votes &.user_id(me.id)
     end
 
     page, comments = paginate(q, per_page: per_page)
