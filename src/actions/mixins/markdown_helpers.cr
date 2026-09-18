@@ -1,5 +1,3 @@
-require "../../../tasks/db/seed/hourly_availability"
-
 module MarkdownHelpers
   FRONT_MATTER_RE             = /\A---[ \t]*\n(?<yaml>.*?)\n---[ \t]*\n?/m
   TABLE_SCHEDULER_RE          = /TableScheduler20250703 year: (\d+), month: (\d+)/
@@ -28,10 +26,6 @@ module MarkdownHelpers
     end
 
     if scheduler
-      year, month = scheduler
-
-      Db::Seed::HourlyAvailabilityTask.run(year, month) if HourlyAvailabilityQuery.new.date("#{year}-#{month}-01").none?
-
       content = content.sub(TABLE_SCHEDULER_RE) { TABLE_SCHEDULER_PLACEHOLDER }
     end
 
