@@ -42,9 +42,9 @@ class Htmx::Comments::CreateOrUpdate < CommentAction
         # 为一条已有评论新建子评论。这里的 comment 是“被回复的那条旧评论”。
         # 回复顶级评论时，它自己就是线程根；回复子评论时，继承该子评论所属的线程根。
         root_id = comment.root_id || comment.id
+        comment = SaveComment.create!(user_id: me.id, parent_id: comment.id, content: content)
         pagination = comments_pagination(root_id: root_id, order_by: order_by)
         html_id = "comment-#{root_id}-comments"
-        comment = SaveComment.create!(user_id: me.id, parent_id: comment.id, content: content)
       else
         return head 400
       end
@@ -52,9 +52,9 @@ class Htmx::Comments::CreateOrUpdate < CommentAction
       # 给 CommentThread 新建顶级评论
       comment_thread_id = self.comment_thread_id.not_nil!
       CommentThreadQuery.find(comment_thread_id)
+      comment = SaveComment.create!(user_id: me.id, comment_thread_id: comment_thread_id, content: content)
       pagination = comments_pagination(comment_thread_id: comment_thread_id, order_by: order_by)
       html_id = "comments"
-      comment = SaveComment.create!(user_id: me.id, comment_thread_id: comment_thread_id, content: content)
     end
 
     component(
