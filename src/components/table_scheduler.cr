@@ -3,7 +3,16 @@ class TableScheduler < BaseComponent
   needs month : Int32
 
   def render
-    today = Time.local.day
+    location = Time::Location.load("Asia/Shanghai")
+    month_start = Time.local(year, month, 1, location: location)
+    month_end = month_start.at_end_of_month
+    today = Time.local(location: location).to_s("%Y-%m-%d")
+    records_by_date = HourlyAvailabilityQuery
+      .new
+      .date.gte(month_start.to_s("%Y-%m-%d"))
+      .date.lte(month_end.to_s("%Y-%m-%d"))
+      .results
+      .group_by(&.date)
 
     div class: "table-container" do
       table do
@@ -27,13 +36,13 @@ class TableScheduler < BaseComponent
         end
 
         tbody do
-          (1..31).each do |date_number|
-            date = Time.local(year, month, date_number, location: Time::Location.load("Asia/Shanghai")).to_s("%Y-%m-%d")
+          (1..month_end.day).each do |date_number|
+            date = Time.local(year, month, date_number, location: location).to_s("%Y-%m-%d")
 
-            tr class: today > date_number ? "disabled" : "" do
+            tr class: today > date ? "disabled" : "" do
               td date_number
 
-              HourlyAvailabilityQuery.new.date(date).hour.asc_order.each do |record|
+              records_by_date.fetch(date, [] of HourlyAvailability).sort_by(&.hour).each do |record|
                 mount(
                   TableSchedulerCell,
                   date: record.date,
