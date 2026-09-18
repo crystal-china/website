@@ -1,9 +1,14 @@
 class Db::Seed::HourlyAvailability < LuckyTask::Task
   summary "Add hourly availability initialize data"
+  arg :year, "Year to initialize", optional: true, format: /^\d{4}$/
+  arg :month, "Month to initialize", optional: true, format: /^(?:[1-9]|1[0-2])$/
 
   def call
     now = Time.local
-    Db::Seed::HourlyAvailabilityTask.run(now.year, now.month)
+    target_year = year.try(&.to_i) || now.year
+    target_month = month.try(&.to_i) || now.month
+
+    Db::Seed::HourlyAvailabilityTask.run(target_year, target_month)
   end
 end
 
