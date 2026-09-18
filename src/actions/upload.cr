@@ -21,11 +21,14 @@ class Upload < BrowserAction
     headers = HTTP::Headers.new
     headers["Content-Type"] = form_data.content_type
 
-    response = HTTP::Client.post(
-      url: "http://127.0.0.1:8080/-/upload",
-      headers: headers,
-      body: reader
-    )
+    upload_uri = URI.parse("http://127.0.0.1:8080/-/upload")
+    response = HTTP::Client.new(upload_uri) do |client|
+      client.connect_timeout = 2.seconds
+      client.write_timeout = 10.seconds
+      client.read_timeout = 15.seconds
+
+      client.post(upload_uri.request_target, headers: headers, body: reader)
+    end
 
     body = JSON.parse(response.body)
 
