@@ -69,6 +69,10 @@ module PageHelpers
     context.request.path
   end
 
+  def canonical_url
+    "#{Lucky::RouteHelper.settings.base_uri}#{current_path}"
+  end
+
   private def render_markdown_with_callouts(text : String, options = MARKDOWN_OPTIONS) : String
     render_plain_markdown(
       text.gsub(INFO_FENCE_RE) do

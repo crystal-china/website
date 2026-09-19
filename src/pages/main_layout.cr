@@ -10,11 +10,22 @@ abstract class MainLayout
     "首页"
   end
 
+  def page_description
+    "Crystal China 是 Crystal 中文社区，提供 Crystal 编程语言文档、经验与讨论。"
+  end
+
   def render
     html_doctype
 
     html lang: "zh-CN" do
-      mount Shared::LayoutHead, page_title: page_title
+      mount(
+        Shared::LayoutHead,
+        seo: SEO.new(
+          page_title: page_title,
+          page_description: page_description,
+          canonical_url: canonical_url
+        )
+      )
 
       body "hx-boost:inherited": "true" do
         # hx-boost 替换 body 时，会对每个顶级子元素分别触发 htmx.onLoad。

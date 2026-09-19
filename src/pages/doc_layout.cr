@@ -16,11 +16,26 @@ abstract class DocLayout
     PAGINATION_RELATION_MAPPING.dig?(current_path, :sub_title) || markdown_page_sub_title
   end
 
+  def page_description
+    if (description = sub_title) && !description.empty?
+      return "#{page_title}：#{description}。"
+    end
+
+    "#{page_title} - Crystal 中文文档。"
+  end
+
   def render
     html_doctype
 
     html lang: "zh-CN" do
-      mount Shared::LayoutHead, page_title: page_title
+      mount(
+        Shared::LayoutHead,
+        seo: SEO.new(
+          page_title: page_title,
+          page_description: page_description,
+          canonical_url: canonical_url
+        )
+      )
 
       body "hx-boost:inherited": "true" do
         # hx-boost 替换 body 时，会对每个顶级子元素分别触发 htmx.onLoad。
