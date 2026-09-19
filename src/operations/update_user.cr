@@ -19,7 +19,7 @@ class UpdateUser < User::SaveOperation
 
   private def validate_avatar_is_a_link
     avatar.value.try do |avatar_value|
-      if !avatar_value.starts_with?(%r{http?s://})
+      if !avatar_value.starts_with?(%r{https?://})
         avatar.add_error "必须是一个合法的 http/https 链接"
       end
     end
