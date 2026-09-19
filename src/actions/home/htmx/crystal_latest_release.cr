@@ -17,8 +17,8 @@ class Home::Htmx::CrystalLatestRelease < BrowserAction
     return UNKNOWN_VERSION if LuckyEnv.development?
 
     HTTP::Client.new("crystal-lang.org", tls: true) do |client|
-      # client.connect_timeout = 3.seconds
-      # client.read_timeout = 5.seconds
+      client.connect_timeout = 3.seconds
+      client.read_timeout = 5.seconds
       res = client.get("/")
 
       if res.success?
