@@ -15,10 +15,13 @@ def update_users_last_active_at
 end
 
 def save_view_count
-  PageHelpers::PAGINATION_URLS.each do |path|
-    count = VIEW_COUNT_CACHE.keys.count &.ends_with?(path)
-    doc = DocQuery.new.path_index(path).first?
-    SaveDoc.update!(doc, view_count: doc.view_count + count) if doc
+  view_keys = VIEW_COUNT_CACHE.keys
+
+  DocQuery.new.each do |doc|
+    count = view_keys.count &.ends_with?(doc.path_index)
+    next if count.zero?
+
+    SaveDoc.update!(doc, view_count: doc.view_count + count)
   end
 end
 
