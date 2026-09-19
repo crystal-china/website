@@ -46,7 +46,13 @@ abstract class DocLayout
   end
 
   private memoize def find_or_create_doc : Doc
-    DocQuery.new.path_index(current_path).first? || SaveDoc.create!(path_index: current_path)
+    begin
+      DocQuery.new.path_index(current_path).first? || SaveDoc.create!(path_index: current_path)
+    rescue error : PQ::PQError
+      raise error unless error.field_message(:constraint) == "docs_path_index_index"
+
+      DocQuery.new.path_index(current_path).first
+    end
   end
 
   private def render_paginated_doc
