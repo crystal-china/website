@@ -11,7 +11,7 @@ class Comments::List < BaseComponent
       mount(
         ::Comments::Toolbar,
         pagination: pagination,
-        hx_target: "##{html_id}"
+        html_id: html_id
       )
 
       mount(

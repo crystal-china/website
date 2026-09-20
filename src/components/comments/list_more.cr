@@ -171,7 +171,8 @@ HYPER
             class: "inline-flex h-6 shrink-0 items-center rounded-full border border-red-400 px-3 text-sm font-medium whitespace-nowrap text-red-500 hover:bg-red-50",
             hx_delete: Htmx::Comments::Delete.with(id: comment.id).path,
             hx_target: "closest article",
-            hx_swap: "outerHTML swap:1s",
+            # 有 partial，同时还想让空主响应删除卡片：需要 swapEmpty:true。
+            hx_swap: "outerHTML swap:1s swapEmpty:true",
             hx_confirm: "删除这条回复？"
           )
         end
