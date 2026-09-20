@@ -15,6 +15,8 @@ class Htmx::Comments::CreateOrUpdate < CommentAction
     return head 400 if content.blank?
     return head 400 if id.nil? && comment_thread_id.nil?
 
+    root_comment : Comment? = nil
+
     if !id.nil?
       comment = CommentQuery.find(id.not_nil!)
 
@@ -45,6 +47,7 @@ class Htmx::Comments::CreateOrUpdate < CommentAction
         comment = SaveComment.create!(user_id: me.id, parent_id: comment.id, content: content)
         pagination = comments_pagination(root_id: root_id, order_by: order_by)
         html_id = "comment-#{root_id}-comments"
+        root_comment = CommentQuery.find(root_id)
       else
         return head 400
       end
@@ -57,13 +60,24 @@ class Htmx::Comments::CreateOrUpdate < CommentAction
       html_id = "comments"
     end
 
-    component(
-      ::Comments::List,
-      formatter: formatter,
-      pagination: pagination,
-      current_user: me,
-      comment_id: comment.id,
-      html_id: html_id.to_s
-    )
+    if root_comment
+      component(
+        ::Comments::ChildCreated,
+        formatter: formatter,
+        pagination: pagination,
+        current_user: me,
+        comment_id: comment.id,
+        root_comment: root_comment
+      )
+    else
+      component(
+        ::Comments::List,
+        formatter: formatter,
+        pagination: pagination,
+        current_user: me,
+        comment_id: comment.id,
+        html_id: html_id.to_s
+      )
+    end
   end
 end
