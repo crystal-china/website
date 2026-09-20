@@ -36,6 +36,7 @@ CACHE_STORE = if LuckyEnv.production?
               end
 
 CAPTCHA_CACHE        = Cache::MemoryStore(String).new(expires_in: 1.minute)
+CAPTCHA_MUTEX        = Mutex.new
 MARKDOWN_CACHE       = CACHE_STORE.new(expires_in: 1.day)
 LATEST_RELEASE_CACHE = CACHE_STORE.new(expires_in: 1.hour)
 ONLINE_USER_COUNTER  = Cache::MemoryStore(Int64).new(expires_in: 3.minutes)

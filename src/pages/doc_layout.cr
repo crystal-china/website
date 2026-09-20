@@ -16,16 +16,33 @@ abstract class DocLayout
     PAGINATION_RELATION_MAPPING.dig?(current_path, :sub_title) || markdown_page_sub_title
   end
 
+  def page_description
+    if (description = sub_title) && !description.empty?
+      return "#{page_title}：#{description}。"
+    end
+
+    "#{page_title} - Crystal 中文文档。"
+  end
+
   def render
     html_doctype
 
     html lang: "zh-CN" do
-      mount Shared::LayoutHead, page_title: page_title
+      mount(
+        Shared::LayoutHead,
+        seo: SEO.new(
+          page_title: page_title,
+          page_description: page_description,
+          canonical_url: canonical_url
+        )
+      )
 
       body "hx-boost:inherited": "true" do
         # hx-boost 替换 body 时，会对每个顶级子元素分别触发 htmx.onLoad。
         # 保持 body 下只有这个根元素，确保整页替换时只触发一次；不要删除。
         div id: "htmx-onload-root" do
+          mount Shared::HtmxErrorAlert
+
           if paginated_doc?
             render_paginated_doc
           else
@@ -33,7 +50,7 @@ abstract class DocLayout
           end
 
           mount Shared::Common, page_title: page_title
-          mount Docs::ReplyDialog
+          mount Comments::Dialog
         end
       end
     end
@@ -41,6 +58,16 @@ abstract class DocLayout
 
   private def paginated_doc?
     PAGINATION_RELATION_MAPPING.has_key?(current_path)
+  end
+
+  private memoize def find_or_create_doc : Doc
+    begin
+      DocQuery.new.path_index(current_path).first? || SaveDoc.create!(path_index: current_path)
+    rescue error : PQ::PQError
+      raise error unless error.field_message(:constraint) == "docs_path_index_index"
+
+      DocQuery.new.path_index(current_path).first
+    end
   end
 
   private def render_paginated_doc
@@ -91,11 +118,17 @@ abstract class DocLayout
           text "欢迎在评论区留下你的见解、问题或建议"
         end
 
-        section id: "form_with_replies", class: "mt-6" do
+        section id: "form_with_comments", class: "mt-6" do
           # 只是一个占位符，会被 htmx 请求覆盖
-          mount ::Docs::ReplyToDocForm, current_user: current_user, doc_path: current_path
+          doc = find_or_create_doc
+          comment_thread = CommentThreadQuery.new.doc_id(doc.id).first
+          mount(
+            ::Comments::Form,
+            current_user: current_user,
+            comment_thread_id: comment_thread.id
+          )
 
-          show_replies_when_revealed
+          show_comments_when_revealed(comment_thread.id)
         end
       end
 
@@ -120,6 +153,43 @@ abstract class DocLayout
         raw print_doc_info(doc)
         print_votes(doc)
       end
+    end
+  end
+
+  private def print_doc_info(doc)
+    doc_info = "创建于：#{doc.created_at.to_s("%Y年%m月%d日")}"
+
+    Lucky::AssetHelpers::ASSET_MANIFEST["docs/markdowns_timestamps.yml"]?.try do |path|
+      timestamp_file = "public#{path}"
+      if File.exists?(timestamp_file)
+        YAML.parse(File.read(timestamp_file))[markdown_path]?.try do |date|
+          doc_info = "#{doc_info}       最后编辑于: #{Time.unix(date.as_i64).to_local.to_s("%Y年%m月%d日")}"
+        end
+      end
+    end
+
+    doc_info = "#{doc_info}  | #{doc.view_count}次阅读" if doc.view_count > 0
+
+    %(<p class="doc-page-meta-text">#{doc_info}</p>)
+  end
+
+  private def print_votes(doc)
+    me = current_user
+
+    voted_types = if me.nil?
+                    [] of String
+                  else
+                    VoteQuery.new.user_id(me.id).doc_id(doc.id).map &.vote_type
+                  end
+
+    div class: "doc-page-votes" do
+      mount(
+        Shared::VoteButton,
+        vote_counts: Hash(String, Int32).from_json(doc.vote_counts.to_json),
+        doc_id: doc.id,
+        current_user: me,
+        voted_types: voted_types
+      )
     end
   end
 

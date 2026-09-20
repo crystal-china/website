@@ -45,7 +45,7 @@ Crystal 是一门受 Ruby 高度启发的计算机程序语言，并且最终编
   作者专门写了本书介绍 [hypermedia](https://hypermedia.systems/) 的概念，建议读一读，非常有意思，这绝对是像我
   这种服务端工程师的最爱。
 - [hyperscript](https://github.com/bigskysoftware/_hyperscript) 专门写在页面标签中的 `script` 或 `_` 属性中的脚本，语法非常接近于
-  口语话的英文，是 htmx 一个非常好的补充，见本站 [src/components/doc/form.cr](https://github.com/crystal-china/website/blob/master/src/components/doc/form.cr) 中的例子。
+  口语话的英文，是 htmx 一个非常好的补充，见本站 [src/components/comments/editor.cr](https://github.com/crystal-china/website/blob/master/src/components/comments/editor.cr) 中的例子。
 - [missing.css](https://missing.style/) 一个非常简陋的 CSS 框架，非常轻量
 - [stork](https://github.com/jameslittle230/stork) 很好用的本地全文搜索库，会编译为 wasm 因此性能很好，缺点是中文支持差一点，
   另外，作者不维护了，有点可惜，目前够用吧。

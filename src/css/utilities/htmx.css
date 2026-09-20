@@ -1,5 +1,5 @@
 @layer utilities {
-  article.box.htmx-swapping {
+  article[id^="comment-"].htmx-swapping {
     opacity: 0;
     transition: opacity 1s ease-out;
   }

@@ -1,4 +1,5 @@
 require "../src/app"
+require "../tasks/db/seed/hourly_availability"
 
 def update_users_last_active_at
   COUNTER_MUTEX.synchronize do
@@ -14,14 +15,22 @@ def update_users_last_active_at
 end
 
 def save_view_count
-  PageHelpers::PAGINATION_URLS.each do |path|
-    count = VIEW_COUNT_CACHE.keys.select { |key| key.ends_with?(path) }.size
-    doc = DocQuery.new.path_index(path).first?
-    SaveDoc.update!(doc, view_count: doc.view_count + count) if doc
+  view_keys = VIEW_COUNT_CACHE.keys
+
+  DocQuery.new.each do |doc|
+    count = view_keys.count &.ends_with?(doc.path_index)
+    next if count.zero?
+
+    SaveDoc.update!(doc, view_count: doc.view_count + count)
   end
 end
 
 CronScheduler.define do
+  at("0 0 1 * *") do
+    now = Time.local
+    Db::Seed::HourlyAvailabilityTask.run(now.year, now.month)
+  end
+
   at("*/5 * * * *") { update_users_last_active_at }
   # 因为 scheduler 表格会在第 59 分的时候做一个判断，让前一个 hour 变暗，
   # 因此，每个小时整点的时候，必须让 cache 无效

@@ -1,10 +1,18 @@
 class Shared::LayoutHead < BaseComponent
-  needs page_title : String
+  needs seo : SEO
 
   def render
     head do
       utf8_charset
-      title "Crystal China - #{@page_title}"
+      title "Crystal China - #{seo.page_title}"
+      meta name: "description", content: seo.page_description
+      tag "link", rel: "canonical", href: seo.canonical_url
+
+      meta property: "og:title", content: seo.page_title
+      meta property: "og:description", content: seo.page_description
+      meta property: "og:url", content: seo.canonical_url
+      meta property: "og:type", content: "website"
+      meta property: "og:locale", content: "zh_CN"
 
       css_link asset("css/app.css")
       script type: "application/json", id: "app-config" do

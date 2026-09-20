@@ -9,6 +9,8 @@ class CreatHourlyAvailabilities::V20250702180203 < Avram::Migrator::Migration::V
 
       add_timestamps
     end
+
+    create_index table_for(HourlyAvailability), [:date, :hour], unique: true
   end
 
   def rollback

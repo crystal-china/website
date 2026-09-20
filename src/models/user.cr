@@ -1,5 +1,4 @@
 class User < BaseModel
-  skip_schema_enforcer
   include Carbon::Emailable
   include Authentic::PasswordAuthenticatable
 
@@ -12,7 +11,8 @@ class User < BaseModel
     # OAuth 登录时密码为空
     column encrypted_password : String?
 
-    has_many replies : Reply
+    has_many comments : Comment
+    has_many topics : Topic
   end
 
   def emailable : Carbon::Address

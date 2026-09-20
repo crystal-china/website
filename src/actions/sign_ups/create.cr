@@ -6,15 +6,23 @@ class SignUps::Create < BrowserAction
 
     return sign_up(params, "验证码无效") if signup_captcha_id.nil?
 
-    signup_captcha_code = CAPTCHA_CACHE.fetch(signup_captcha_id)
-
-    return sign_up(params, "验证码无效") if signup_captcha_code.nil?
-
     captcha_input = params.get?(:captcha)
 
     return sign_up(params, "验证码无效") if captcha_input.nil?
 
-    return sign_up(params, "验证码无效") if captcha_input.downcase != signup_captcha_code.downcase
+    signup_captcha_code = CAPTCHA_MUTEX.synchronize do
+      code = CAPTCHA_CACHE.read(signup_captcha_id)
+
+      next if code.nil?
+      next if captcha_input.downcase != code.downcase
+
+      CAPTCHA_CACHE.delete(signup_captcha_id)
+      code
+    end
+
+    return sign_up(params, "验证码无效") if signup_captcha_code.nil?
+
+    cookies.delete("signup_captcha_id")
 
     sign_up(params, "注册失败", signup_captcha_code)
   end

@@ -22,7 +22,7 @@ class Db::Seed::SampleData < LuckyTask::Task
 
     DocQuery.truncate(cascade: true)
     UserQuery.truncate(cascade: true)
-    ReplyQuery.truncate(cascade: true)
+    CommentQuery.truncate(cascade: true)
 
     me = SignUpUser.create!(
       email: "me@163.com",
@@ -47,10 +47,11 @@ class Db::Seed::SampleData < LuckyTask::Task
     end
 
     docs.each do |doc|
+      comment_thread_id = CommentThreadQuery.new.doc_id(doc.id).first.id
       Timecop.travel(Time.parse_local("2025-01-05 12:33:55", "%F %T"))
 
-      SaveReply.create!(
-        doc_id: doc.id,
+      SaveComment.create!(
+        comment_thread_id: comment_thread_id,
         user_id: user1.id,
         content: <<-'HEREDOC'
 非常感谢分享！这篇文章**非常**好！
@@ -65,8 +66,8 @@ HEREDOC
       )
 
       Timecop.travel(Time.parse_local("2025-01-08 20:05:15", "%F %T"))
-      random_emoji SaveReply.create!(
-        doc_id: doc.id,
+      random_emoji SaveComment.create!(
+        comment_thread_id: comment_thread_id,
         user_id: user2.id,
         content: <<-'HEREDOC'
       我希望分享这篇文章到我的站点
@@ -79,8 +80,8 @@ HEREDOC
 
       Timecop.travel(Time.parse_local("2025-01-08 21:24:00", "%F %T"))
 
-      random_emoji SaveReply.create!(
-        doc_id: doc.id,
+      random_emoji SaveComment.create!(
+        comment_thread_id: comment_thread_id,
         user_id: user2.id,
         content: <<-'HEREDOC'
       真的是很不错的网站！
@@ -89,8 +90,8 @@ HEREDOC
 
       Timecop.travel(Time.parse_local("2025-01-09 01:22:34", "%F %T"))
 
-      random_emoji SaveReply.create!(
-        doc_id: doc.id,
+      random_emoji SaveComment.create!(
+        comment_thread_id: comment_thread_id,
         user_id: user1.id,
         content: <<-'HEREDOC'
       是的，我赞同！
@@ -99,8 +100,8 @@ HEREDOC
 
       Timecop.travel(Time.parse_local("2025-01-10 08:22:34", "%F %T"))
 
-      random_emoji SaveReply.create!(
-        doc_id: doc.id,
+      random_emoji SaveComment.create!(
+        comment_thread_id: comment_thread_id,
         user_id: user1.id,
         content: <<-'HEREDOC'
       我很喜欢这个网站！
@@ -109,8 +110,8 @@ HEREDOC
 
       Timecop.travel(Time.parse_local("2025-01-10 08:33:00", "%F %T"))
 
-      random_emoji SaveReply.create!(
-        doc_id: doc.id,
+      random_emoji SaveComment.create!(
+        comment_thread_id: comment_thread_id,
         user_id: user1.id,
         content: <<-'HEREDOC'
       这个网站的源码在哪里？
@@ -121,8 +122,8 @@ HEREDOC
 
       Timecop.travel(Time.parse_local("2025-01-10 08:34:02", "%F %T"))
 
-      random_emoji SaveReply.create!(
-        doc_id: doc.id,
+      random_emoji SaveComment.create!(
+        comment_thread_id: comment_thread_id,
         user_id: user2.id,
         content: <<-'HEREDOC'
       是啊，想不到 Crystal 语言这么好！
@@ -131,8 +132,8 @@ HEREDOC
 
       Timecop.travel(Time.parse_local("2025-01-10 08:35:48", "%F %T"))
 
-      random_emoji SaveReply.create!(
-        doc_id: doc.id,
+      random_emoji SaveComment.create!(
+        comment_thread_id: comment_thread_id,
         user_id: user1.id,
         content: <<-'HEREDOC'
       国内用的不多，连 Ruby 其实都很小众。
@@ -141,8 +142,8 @@ HEREDOC
 
       Timecop.travel(Time.parse_local("2025-01-10 08:36:20", "%F %T"))
 
-      random_emoji SaveReply.create!(
-        doc_id: doc.id,
+      random_emoji SaveComment.create!(
+        comment_thread_id: comment_thread_id,
         user_id: user2.id,
         content: <<-'HEREDOC'
       是啊，如果不是站长推广，国内都没人知道这个程序语言！
@@ -151,8 +152,8 @@ HEREDOC
 
       Timecop.travel(Time.parse_local("2025-01-10 08:40:12", "%F %T"))
 
-      random_emoji SaveReply.create!(
-        doc_id: doc.id,
+      random_emoji SaveComment.create!(
+        comment_thread_id: comment_thread_id,
         user_id: user2.id,
         content: <<-'HEREDOC'
       希望 Crystal 在国内可以越来越好吧，有人用，才有招聘，有招聘，才有更多的人用。
@@ -161,8 +162,8 @@ HEREDOC
 
       Timecop.travel(Time.parse_local("2025-01-10 08:42:18", "%F %T"))
 
-      random_emoji SaveReply.create!(
-        doc_id: doc.id,
+      random_emoji SaveComment.create!(
+        comment_thread_id: comment_thread_id,
         user_id: user1.id,
         content: <<-'HEREDOC'
       是啊，我相信 Crystal 一定会成功的！
@@ -171,8 +172,8 @@ HEREDOC
 
       Timecop.travel(Time.parse_local("2025-01-10 08:44:00", "%F %T"))
 
-      random_emoji SaveReply.create!(
-        doc_id: doc.id,
+      random_emoji SaveComment.create!(
+        comment_thread_id: comment_thread_id,
         user_id: user2.id,
         content: <<-'HEREDOC'
       对，一定会成功！
@@ -191,10 +192,10 @@ HEREDOC
     exit
   end
 
-  def random_emoji(reply)
-    UpdateReplyVoteCounts.update!(
-      reply,
-      vote_counts: Reply::VoteCounts.from_json({
+  def random_emoji(comment)
+    UpdateCommentVoteCounts.update!(
+      comment,
+      vote_counts: Comment::VoteCounts.from_json({
         "👍":  [0, 0, 0, 0, 1, 2, 5, 8, rand(10..99), rand(100..300)].sample,
         "👎":  [0, 0, 0, 0, 1, 2, 5, 8, rand(10..99), rand(100..300)].sample,
         "😄":  [0, 0, 0, 0, 1, 2, 5, 8, rand(10..99), rand(100..300)].sample,

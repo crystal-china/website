@@ -1,9 +1,9 @@
 class Vote < BaseModel
   table do
     belongs_to user : User
-    belongs_to reply : Reply?
+    belongs_to comment : Comment?
     belongs_to doc : Doc?
-    polymorphic target, associations: [:reply, :doc]
+    polymorphic target, associations: [:comment, :doc]
 
     column vote_type : String
   end
