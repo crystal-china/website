@@ -64,16 +64,9 @@ HEREDOC
               hx_swap: "outerHTML"
             )
           else
-            # 编辑子评论时，Action 会传入所属根评论 ID，用于替换整个子评论列表。
-            # 编辑顶级评论时该值为 nil，沿用默认的 #comments 目标。
-            if target_comment_id
-              opts = opts.merge(
-                hx_target: "#comment-#{target_comment_id}-comments"
-              )
-            end
-
             opts = opts.merge(
               hx_vals: %({"id": #{comment_id}, "op": "edit"}),
+              hx_target: "#comment-#{comment_id}",
               hx_swap: "outerHTML",
             )
             text = "修改"

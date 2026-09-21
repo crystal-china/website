@@ -29,17 +29,18 @@ class Htmx::Comments::CreateOrUpdate < CommentAction
 
         UpdateComment.update!(comment, content: content)
 
-        if comment.parent_id
-          # 编辑子评论
-          # 子评论创建时已经保存所属线程，因此编辑后直接刷新这个根评论下的整个子评论列表。
-          root_id = comment.root_id.not_nil!
-          pagination = comments_pagination(root_id: root_id, order_by: order_by)
-          html_id = "comment-#{root_id}-comments"
-        else
-          # 编辑 CommentThread 的顶级评论
-          pagination = comments_pagination(comment_thread_id: comment.comment_thread_id, order_by: order_by)
-          html_id = "comments"
-        end
+        q = CommentQuery.new.id(comment.id).preload_user
+        q = q.preload_parent &.preload_user
+        q = q.preload_votes &.user_id(me.id)
+
+        return component(
+          ::Comments::Card,
+          formatter: formatter,
+          comment: q.first,
+          order_by: order_by,
+          show_update_success: true,
+          current_user: me
+        )
       when "new"
         # 为一条已有评论新建子评论。这里的 comment 是“被回复的那条旧评论”。
         # 回复顶级评论时，它自己就是线程根；回复子评论时，继承该子评论所属的线程根。
