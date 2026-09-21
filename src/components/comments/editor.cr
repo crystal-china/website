@@ -77,11 +77,12 @@ HEREDOC
     me = current_user
 
     textarea_opt = {
-      id:    "#{html_id}_text_area",
-      rows:  16,
-      cols:  70,
-      name:  "content",
-      class: "min-h-[22rem] w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm leading-7 text-gray-900 shadow-inner transition outline-none placeholder:text-gray-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400",
+      id:       "#{html_id}_text_area",
+      rows:     16,
+      cols:     70,
+      name:     "content",
+      required: "",
+      class:    "min-h-[22rem] w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm leading-7 text-gray-900 shadow-inner transition outline-none placeholder:text-gray-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400",
     }
 
     textarea_opt = textarea_opt.merge(disabled: "") if me.nil?

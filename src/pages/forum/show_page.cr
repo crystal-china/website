@@ -1,4 +1,6 @@
 class Forum::ShowPage < MainLayout
+  include MarkdownFormatter
+
   needs topic : Topic
   needs comment_thread : CommentThread
 
@@ -16,8 +18,8 @@ class Forum::ShowPage < MainLayout
           end
         end
 
-        div class: "my-8 whitespace-pre-wrap text-base leading-7 text-gray-900" do
-          text topic.content
+        div class: "prose prose-neutral my-8 max-w-none text-base leading-7 text-gray-900" do
+          raw user_markdown(topic.content)
         end
 
         section id: "form_with_comments", class: "mt-10" do
