@@ -66,7 +66,7 @@ HEREDOC
           else
             opts = opts.merge(
               hx_vals: %({"id": #{comment_id}, "op": "edit"}),
-              hx_target: "#comment-#{comment_id}",
+              hx_target: "#comment-#{comment_id}-content",
               hx_swap: "outerHTML",
             )
             text = "修改"

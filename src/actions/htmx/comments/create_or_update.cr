@@ -31,13 +31,11 @@ class Htmx::Comments::CreateOrUpdate < CommentAction
 
         q = CommentQuery.new.id(comment.id).preload_user
         q = q.preload_parent &.preload_user
-        q = q.preload_votes &.user_id(me.id)
 
         return component(
-          ::Comments::Card,
+          ::Comments::CardContent,
           formatter: formatter,
           comment: q.first,
-          order_by: order_by,
           show_update_success: true,
           current_user: me
         )
