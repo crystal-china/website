@@ -17,7 +17,7 @@ abstract class CommentAction < BrowserAction
       url = "/htmx/comments?root_id=#{root_id}"
     end
 
-    q = order_by == "desc" ? q.id.desc_order : q.id.asc_order
+    q = order_by == "desc" ? q.floor.desc_order : q.floor.asc_order
     q = q.preload_user
     q = q.preload_parent &.preload_user
 
