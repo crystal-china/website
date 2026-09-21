@@ -2,7 +2,7 @@ class Pager < BaseComponent
   include PageHelpers
 
   def render
-    div class: "flex items-center justify-between pt-[3em]" do
+    div class: "flex flex-wrap items-center justify-between gap-4 pt-[3em]" do
       item = PAGINATION_RELATION_MAPPING[current_path]?
       current_idx = PAGINATION_URLS.index(current_path)
 
@@ -14,7 +14,7 @@ class Pager < BaseComponent
       next_path = PAGINATION_URLS[next_idx]
 
       if item
-        div class: "flex items-center" do
+        div class: "flex w-full items-center sm:w-auto" do
           img src: asset("svgs/previous_page.svg"), alt: "previous_page", class: "h-[24px]"
 
           strong class: "ml-2" do
@@ -26,11 +26,11 @@ class Pager < BaseComponent
           end
         end
 
-        strong class: "text-xl" do
+        strong class: "w-full text-center text-xl sm:w-auto" do
           text item[:title]
         end
 
-        div class: "flex items-center" do
+        div class: "flex w-full items-center justify-end sm:w-auto" do
           strong class: "mr-2" do
             if next_path == current_path
               text "没有下一页了"
