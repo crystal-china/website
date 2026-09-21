@@ -2,3 +2,5 @@
 User-agent: *
 # 'Disallow' with an empty value allows all paths to be crawled
 Disallow:
+
+Sitemap: https://crystal-china.org/sitemap.xml
