@@ -1,4 +1,24 @@
 @layer components {
+  .prose h1,
+  .markdown-preview h1 {
+    @apply mt-10 mb-4 text-[2em] leading-tight font-bold tracking-tight;
+  }
+
+  .prose h2,
+  .markdown-preview h2 {
+    @apply mt-8 mb-3 text-[1.6em] leading-tight font-bold tracking-tight;
+  }
+
+  .prose h3,
+  .markdown-preview h3 {
+    @apply mt-6 mb-3 text-[1.17em] leading-snug font-semibold;
+  }
+
+  .prose p,
+  .markdown-preview p {
+    @apply my-4;
+  }
+
   .prose code,
   .markdown-preview code {
     @apply rounded-md border border-amber-200/80 bg-amber-50 px-1.5 py-0.5 font-mono text-[0.88em] font-medium text-amber-950 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)];

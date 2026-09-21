@@ -24,7 +24,7 @@ class Sidebar < BaseComponent
   end
 
   def render
-    h1 "目录", class: "my-4"
+    h1 "目录", class: "my-4 text-[2em] leading-tight font-bold tracking-tight"
 
     nav do
       ul role: "nested-list" do

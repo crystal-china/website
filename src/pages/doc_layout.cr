@@ -107,7 +107,7 @@ abstract class DocLayout
           end
         end
 
-        para class: "mt-8 text-center text-gray-400" do
+        para class: "mt-8 mb-0 text-center text-gray-400" do
           text "欢迎在评论区留下你的见解、问题或建议"
         end
 

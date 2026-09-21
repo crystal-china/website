@@ -2,8 +2,8 @@ module AuthPageHelpers
   def auth_card(title : String, description : String, &)
     article class: "w-full overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm" do
       header class: "border-b border-gray-200 bg-gradient-to-r from-sky-50 via-white to-cyan-50 px-8 py-7" do
-        h1 title, class: "text-3xl font-semibold tracking-tight text-gray-900"
-        para description, class: "mt-2 text-sm leading-6 text-gray-600"
+        h1 title, class: "m-0 text-3xl font-semibold tracking-tight text-gray-900"
+        para description, class: "mt-2 mb-0 text-sm leading-6 text-gray-600"
       end
 
       yield

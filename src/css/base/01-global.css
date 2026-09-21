@@ -18,23 +18,7 @@
       sans-serif;
   }
 
-  /* ---------------- 基础排版 ---------------- */
-  h1 {
-    @apply mt-10 mb-4 text-[2em] leading-tight font-bold tracking-tight;
-  }
-
-  h2 {
-    @apply mt-8 mb-3 text-[1.6em] leading-tight font-bold tracking-tight;
-  }
-
-  h3 {
-    @apply mt-6 mb-3 text-[1.17em] leading-snug font-semibold;
-  }
-
-  p {
-    @apply my-4;
-  }
-
+  /* ---------------- 基础字重 ---------------- */
   strong,
   b {
     @apply font-bold;

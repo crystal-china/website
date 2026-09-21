@@ -1,8 +1,10 @@
 class Home::IndexPage < MainLayout
   def content
+    link_group_heading_classes = "mt-8 mb-3 text-[1.6em] leading-tight font-bold tracking-tight"
+
     div class: page_container_classes do
       header class: "flex flex-col items-center" do
-        h1 "The Crystal programming language 中文站", class: "text-center"
+        h1 "The Crystal programming language 中文站", class: "mt-10 mb-4 text-center text-[2em] leading-tight font-bold tracking-tight"
 
         div(
           class: "latest-release-info",
@@ -31,7 +33,7 @@ class Home::IndexPage < MainLayout
       # 使用 CSS Grid 布局。子元素不再按普通文档流堆叠，而是放进网格里。
       nav "aria-label": "常用站点链接", class: "mb-10 grid w-full grid-cols-1 items-start gap-x-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[repeat(5,max-content)] xl:justify-between" do
         section do
-          h2 "Official"
+          h2 "Official", class: link_group_heading_classes
           ul do
             li { normal_link("https://www.crystal-lang.org", "Crystal website") }
             li { github_icon_link("https://github.com/crystal-lang", "Crystal lang") }
@@ -41,7 +43,7 @@ class Home::IndexPage < MainLayout
         end
 
         section do
-          h2 "Docs"
+          h2 "Docs", class: link_group_heading_classes
           ul do
             li { normal_link "https://crystal-lang.org/api/latest/", "API document" }
             li { normal_link "https://devdocs.io/crystal", "devdocs Crystal" }
@@ -51,7 +53,7 @@ class Home::IndexPage < MainLayout
         end
 
         section do
-          h2 "Packages"
+          h2 "Packages", class: link_group_heading_classes
           ul do
             li { normal_link "https://shards.info/", "shards.info" }
             li { normal_link "https://shardbox.org/", "shardbox.org" }
@@ -59,7 +61,7 @@ class Home::IndexPage < MainLayout
         end
 
         section do
-          h2 "Organizations"
+          h2 "Organizations", class: link_group_heading_classes
           ul do
             li { github_icon_link("https://github.com/veelenga/awesome-crystal", "Awesome Crystal") }
             li { github_icon_link("https://github.com/crystal-ameba", "Crystal ameba") }
@@ -73,7 +75,7 @@ class Home::IndexPage < MainLayout
         end
 
         section do
-          h2 "Chat"
+          h2 "Chat", class: link_group_heading_classes
           ul do
             li { normal_link "https://discord.gg/YS7YvQy", "Discord", target: "_blank" }
             li { normal_link "https://www.reddit.com/r/crystal_programming/", "Reddit" }

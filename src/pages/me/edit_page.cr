@@ -9,8 +9,8 @@ class Me::EditPage < MainLayout
     div class: "#{page_container_classes} py-10" do
       section class: "mx-auto w-full max-w-3xl overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm" do
         header class: "border-b border-gray-200 bg-gradient-to-r from-sky-50 via-white to-cyan-50 px-8 py-7" do
-          h1 "编辑我的信息", class: "text-3xl font-semibold tracking-tight text-gray-900"
-          para "更新昵称、头像和登录密码。头像目前仅支持 http/https 图片链接。", class: "mt-2 text-sm leading-6 text-gray-600"
+          h1 "编辑我的信息", class: "m-0 text-3xl font-semibold tracking-tight text-gray-900"
+          para "更新昵称、头像和登录密码。头像目前仅支持 http/https 图片链接。", class: "mt-2 mb-0 text-sm leading-6 text-gray-600"
         end
 
         form_for Me::Update, class: "space-y-8 px-8 py-8" do
@@ -65,7 +65,7 @@ class Me::EditPage < MainLayout
         end
       end
 
-      para class: "mt-4 text-sm leading-6 text-gray-600" do
+      para class: "mt-4 mb-0 text-sm leading-6 text-gray-600" do
         text avatar ? "当前将使用上面的图片作为头像。" : "未设置头像时，会显示默认首字母占位图。"
       end
     end
