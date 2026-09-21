@@ -9,6 +9,8 @@ abstract class DocLayout
   needs formatter : Tartrazine::Formatter
   needs doc : Doc
 
+  abstract def content
+
   def page_title
     PAGINATION_RELATION_MAPPING.dig?(current_path, :title) || markdown_page_title
   end

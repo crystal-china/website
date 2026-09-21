@@ -19,7 +19,7 @@ module MarkdownHelpers
     front_matter.try &.["sub_title"]?.try(&.as_s?) || front_matter.try &.["subtitle"]?.try(&.as_s?)
   end
 
-  def content
+  def render_markdown
     content = markdown_body
     scheduler = content.match(TABLE_SCHEDULER_RE).try do |match|
       {match[1].to_i, match[2].to_i}
