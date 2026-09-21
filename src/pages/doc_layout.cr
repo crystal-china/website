@@ -7,6 +7,7 @@ abstract class DocLayout
   # is always required for pages using MainLayout
   needs current_user : User?
   needs formatter : Tartrazine::Formatter
+  needs doc : Doc
 
   def page_title
     PAGINATION_RELATION_MAPPING.dig?(current_path, :title) || markdown_page_title
@@ -60,16 +61,6 @@ abstract class DocLayout
     PAGINATION_RELATION_MAPPING.has_key?(current_path)
   end
 
-  private memoize def find_or_create_doc : Doc
-    begin
-      DocQuery.new.path_index(current_path).first? || SaveDoc.create!(path_index: current_path)
-    rescue error : PQ::PQError
-      raise error unless error.field_message(:constraint) == "docs_path_index_index"
-
-      DocQuery.new.path_index(current_path).first
-    end
-  end
-
   private def render_paginated_doc
     mount Navbar, current_user: current_user
     mount Shared::PageFlash, flash: context.flash
@@ -120,7 +111,6 @@ abstract class DocLayout
 
         section id: "form_with_comments", class: "mt-6" do
           # 只是一个占位符，会被 htmx 请求覆盖
-          doc = find_or_create_doc
           comment_thread = CommentThreadQuery.new.doc_id(doc.id).first
           mount(
             ::Comments::Form,
@@ -149,7 +139,6 @@ abstract class DocLayout
       end
 
       div class: "doc-page-meta" do
-        doc = find_or_create_doc
         raw print_doc_info(doc)
         print_votes(doc)
       end
