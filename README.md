@@ -15,39 +15,47 @@
 
 4. Finally, run `lucky dev`, and you're all set!
 
-## deployment
+## Deployment
 
-There are no runtime dependencies when deploying to a remote Linux environment except
-one static binary with all assets baked into it, and will auto mount when running.
+The application is deployed as a static binary with its frontend assets baked in. Markdown documents deliberately remain outside the binary so they can be updated without recompiling the application.
 
-Following is the process for create the static binary:
+1. Run `shards run index` to generate `public/markdowns/search-index.st` using `bin/stork`. The generated index is ignored by Git and must still be deployed.
 
-1. Run `shards run index` to create an index for all markdown docs into `public/docs/index.st`, using `bin/stork`.
+2. Run `bun run prod` to build and precompress the frontend assets into `public/assets`.
 
-2. Run `bun run prod` to build and precompress assets into `public/assets`.
+3. Build the static binary with `script/build_amd64_static_binary.sh`. This requires Podman or Docker.
 
-3. To build a static binary use `script/build_amd64_static_binary.sh`, you need 
-   install `podman` or `docker`.
+   Alternatively, use the [sb_static](https://github.com/crystal-china/magic-haversack/blob/main/bin/sb_static) script with Zig. See [Use Zig CC as an alternative linker](https://github.com/crystal-china/magic-haversack/blob/main/docs/use_zig_cc_as_an_alternative_linker.md) for details.
 
-   alternatively, you can use [sb_static](https://github.com/crystal-china/magic-haversack/blob/main/bin/sb_static) script with zigcc, for more details 
-   instructions on building a static binary use zigcc, check [use zig gcc as an an alternative linker](https://github.com/crystal-china/magic-haversack/blob/main/docs/use_zig_cc_as_an_alternative_linker.md)
-   
-4. copy the built static binary(`bin/crystal_china`) into remote linux host as `bin/crystal_china`, then 
-   set the necessary ENV in file `.env`, check the [.env.sample](/.env.sample) for a example.
-   You will have the following directory structure.
-	```
-	   .
-	   ├── .env
-	   └── bin/crystal_china
-	```
-    If server was started, you have to stop it before copy the binary successful. a more robust way to do this is
-    use a [binary diff tools](https://github.com/petervas/bsdifflib/) create patch locally, and then send patch file
-    to remote server apply it, this way you can update the binary on the fly, then reboot systemd service is all done.
+4. Synchronize `public/markdowns/` and `public/sitemap.xml` to the server. Use `rsync -a` so Markdown modification times are preserved. The Markdown directory must exist before starting the new binary because the application reads `navigation.yml` during startup.
 
-5. Add a systemd service to start the server, review the configuration for the [crystal_china.service](/nginx/crystal_china.service)
-   consider using [procodile](https://github.com/crystal-china/procodile) as an alternative for above .env and systemd services.
+5. Copy `bin/crystal_china` to the server and configure the environment in `.env`; see [.env.sample](/.env.sample). The deployed application has the following relevant structure:
 
-6. Optionally, use nginx as a reverse proxy. You can find configuration details in [nginx folder](/nginx)
+   ```text
+   .
+   ├── .env
+   ├── bin
+   │   └── crystal_china
+   └── public
+       ├── markdowns
+       │   ├── navigation.yml
+       │   ├── search-index.st
+       │   └── ...
+       └── sitemap.xml
+   ```
+
+6. Add a systemd service to start the server. See [crystal_china.service](/nginx/crystal_china.service). [Procodile](https://github.com/crystal-china/procodile) can be used instead.
+
+7. Optionally, use Nginx as a reverse proxy. Configuration examples are available in the [nginx folder](/nginx).
+
+### Updating documentation
+
+1. Edit files under `public/markdowns/` and update `navigation.yml` when the page should appear in the Sidebar and Pager.
+2. Run `shards run index` locally to rebuild `search-index.st`.
+3. Synchronize the complete directory with `rsync -a public/markdowns/ .../public/markdowns/`.
+4. Refresh the document page. Recompiling or restarting the application is not required.
+
+A Markdown file omitted from `navigation.yml` remains directly accessible as a standalone document, but it will not appear in the Sidebar, Pager, or Stork search index. Restarting the service never rebuilds the search index.
 
 ## Contributing
 

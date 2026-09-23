@@ -1,7 +1,7 @@
 class Sidebar < BaseComponent
   def render_child(ary, this_path)
     if !ary.empty?
-      expanded = ary.any? { |child| current_path.in? [this_path, child.path] } ? "block" : "hidden"
+      expanded = (current_path == this_path || contains_current_path?(ary)) ? "block" : "hidden"
 
       ul class: "#{expanded} pl-5" do
         ary.each do |child|
@@ -15,11 +15,17 @@ class Sidebar < BaseComponent
           end
 
           li do
-            a child.name, a_attr
-            render_child(child.child, child.path)
+            a child.title, a_attr
+            render_child(child.children, child.path)
           end
         end
       end
+    end
+  end
+
+  private def contains_current_path?(pages)
+    pages.any? do |page|
+      current_path == page.path || contains_current_path?(page.children)
     end
   end
 
@@ -28,26 +34,26 @@ class Sidebar < BaseComponent
 
     nav do
       ul role: "nested-list" do
-        PageHelpers::SIDEBAR_LINKS.each do |k, v|
-          _child = v.child
+        DocNavigation.navigation.each do |page|
+          children = page.children
 
-          if _child.empty?
-            a_name = v.name
+          if children.empty?
+            link_title = page.title
           else
-            a_name = "#{v.name}         ➤"
+            link_title = "#{page.title}         ➤"
           end
 
           a_attr = {
-            href: k,
+            href: page.path,
           }
 
-          if current_path == v.path
+          if current_path == page.path
             a_attr = a_attr.merge(class: "active")
           end
 
           li do
-            a a_name, a_attr
-            render_child(_child, v.path)
+            a link_title, a_attr
+            render_child(children, page.path)
           end
         end
       end

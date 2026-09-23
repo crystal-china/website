@@ -3,43 +3,42 @@ class Pager < BaseComponent
 
   def render
     div class: "flex flex-wrap items-center justify-between gap-4 pt-[3em]" do
-      item = PAGINATION_RELATION_MAPPING[current_path]?
-      current_idx = PAGINATION_URLS.index(current_path)
+      pages = DocNavigation.pages
+      current_idx = pages.index { |page| page.path == current_path }
 
       return unless current_idx
 
       prev_idx = [current_idx - 1, 0].max
-      next_idx = [current_idx + 1, PAGINATION_URLS.size - 1].min
-      prev_path = PAGINATION_URLS[prev_idx]
-      next_path = PAGINATION_URLS[next_idx]
+      next_idx = [current_idx + 1, pages.size - 1].min
+      current_page = pages[current_idx]
+      prev_page = pages[prev_idx]
+      next_page = pages[next_idx]
 
-      if item
-        div class: "flex w-full items-center sm:w-auto" do
-          img src: asset("svgs/previous_page.svg"), alt: "previous_page", class: "h-[24px]"
+      div class: "flex w-full items-center sm:w-auto" do
+        img src: asset("svgs/previous_page.svg"), alt: "previous_page", class: "h-[24px]"
 
-          strong class: "ml-2" do
-            if prev_path == current_path
-              text "没有上一页了"
-            else
-              a PAGINATION_RELATION_MAPPING[prev_path][:title], href: prev_path
-            end
+        strong class: "ml-2" do
+          if prev_page.path == current_page.path
+            text "没有上一页了"
+          else
+            a prev_page.title, href: prev_page.path
           end
         end
+      end
 
-        strong class: "w-full text-center text-xl sm:w-auto" do
-          text item[:title]
-        end
+      strong class: "w-full text-center text-xl sm:w-auto" do
+        text current_page.title
+      end
 
-        div class: "flex w-full items-center justify-end sm:w-auto" do
-          strong class: "mr-2" do
-            if next_path == current_path
-              text "没有下一页了"
-            else
-              a PAGINATION_RELATION_MAPPING[next_path][:title], href: next_path
-            end
+      div class: "flex w-full items-center justify-end sm:w-auto" do
+        strong class: "mr-2" do
+          if next_page.path == current_page.path
+            text "没有下一页了"
+          else
+            a next_page.title, href: next_page.path
           end
-          img src: asset("svgs/next_page.svg"), alt: "next_page", class: "h-[24px]"
         end
+        img src: asset("svgs/next_page.svg"), alt: "next_page", class: "h-[24px]"
       end
     end
   end

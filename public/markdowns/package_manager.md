@@ -142,4 +142,3 @@ dependencies:
     github: jgaskins/redis
     branch: master
 ```
-

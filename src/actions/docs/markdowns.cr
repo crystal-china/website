@@ -2,6 +2,7 @@ class Docs::Markdowns < DocAction
   get "/docs/*:requested_path" do
     return redirect(to: Docs::Markdowns.with(requested_path: "index")) if requested_path.nil?
 
+    DocNavigation.load
     raise Lucky::RouteNotFoundError.new(context) if MarkdownFile.resolve(requested_path).nil?
 
     doc = find_or_create_doc

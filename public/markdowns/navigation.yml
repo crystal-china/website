@@ -1,0 +1,50 @@
+- path: /docs/index
+  title: 前言
+  sub_title: 写在开始之前
+
+- path: /docs/introduction
+  title: 简介
+
+- path: /docs/install
+  title: 安装
+  children:
+    - path: /docs/package_manager
+      title: 包管理
+      sub_title: shards 命令
+
+- path: /docs/for_advanced_rubyists
+  title: 写给 Rubyists
+  sub_title: 分类讨论 Crystal 和 Ruby 的异同
+  children:
+    - path: /docs/for_advanced_rubyists/type
+      title: 类型
+    - path: /docs/for_advanced_rubyists/method
+      title: 方法
+    - path: /docs/for_advanced_rubyists/block
+      title: 代码块
+    - path: /docs/for_advanced_rubyists/misc
+      title: 杂项
+    - path: /docs/for_advanced_rubyists/performance
+      title: 性能因素
+    - path: /docs/for_advanced_rubyists/migrate_to_crystal
+      title: 迁移 Ruby 代码到 Crystal
+
+- path: /docs/basic
+  title: 基础知识
+  sub_title: 一些基础知识的简单总结
+
+- path: /docs/profile
+  title: 查找性能瓶颈 (WIP)
+  hide_from_sidebar: true
+
+- path: /docs/cross_compile
+  title: 交叉编译
+
+- path: /docs/concurrency
+  title: 并发原语
+  children:
+    - path: /docs/concurrency/execution_context
+      title: 执行上下文(WIP)
+      hide_from_sidebar: true
+    - path: /docs/concurrency/concurrency_vs_parallelism
+      title: 并发和并行（比较）

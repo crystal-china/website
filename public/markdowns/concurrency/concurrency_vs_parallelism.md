@@ -710,4 +710,3 @@ Channel 这个概念来自 [CSP](http://www.usingcsp.com/cspbook.pdf) ，它们�
 下面是 golang 第一作者，来自 Google 的 Rob Pike 大神 2012 做的 slide 分享及对应视频版本。
 
 [Concurrency is not Parallelism](https://go.dev/talks/2012/waza.slide) 及 [油管视频(带字幕)](https://www.youtube.com/watch?v=oV9rvDllKEg)
-

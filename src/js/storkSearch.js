@@ -10,10 +10,13 @@ async function setupStork(root, assetUrl) {
         return;
     }
 
+    const indexUrl =
+        input.dataset.storkIndexUrl ?? "/markdowns/search-index.st";
+
     try {
         storkReadyPromise ??= (async () => {
             await stork.initialize(await assetUrl("docs/stork.wasm"));
-            await stork.downloadIndex("docs", await assetUrl("docs/index.st"));
+            await stork.downloadIndex("docs", indexUrl);
         })();
 
         await storkReadyPromise;

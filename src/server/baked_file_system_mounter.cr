@@ -1,7 +1,7 @@
 require "baked_file_system_mounter"
 
 BakedFileSystemMounter.assemble([
-  "public/assets", "markdowns",
+  "public/assets",
   "public/bun-manifest.json", "public/favicon.ico", "public/robots.txt",
 ])
 
