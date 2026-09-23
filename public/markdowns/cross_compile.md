@@ -353,4 +353,3 @@ bin/college: Mach-O 64-bit arm64 executable, flags:<NOUNDEFS|DYLDLINK|TWOLEVEL|N
 ------
 
 访问 [magic-haversack](https://github.com/crystal-china/magic-haversack) 项目主页的 REAME 以及 doc 了解更多的信息。
-

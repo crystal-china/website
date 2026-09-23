@@ -12,11 +12,11 @@ abstract class DocLayout
   abstract def content
 
   def page_title
-    PAGINATION_RELATION_MAPPING.dig?(current_path, :title) || markdown_page_title
+    DocNavigation.pages_by_path[current_path]?.try(&.title) || markdown_page_title
   end
 
   def sub_title
-    PAGINATION_RELATION_MAPPING.dig?(current_path, :sub_title) || markdown_page_sub_title
+    DocNavigation.pages_by_path[current_path]?.try(&.sub_title) || markdown_page_sub_title
   end
 
   def page_description
@@ -60,7 +60,7 @@ abstract class DocLayout
   end
 
   private def paginated_doc?
-    PAGINATION_RELATION_MAPPING.has_key?(current_path)
+    DocNavigation.pages_by_path.has_key?(current_path)
   end
 
   private def render_paginated_doc
@@ -149,15 +149,8 @@ abstract class DocLayout
 
   private def print_doc_info(doc)
     doc_info = "创建于：#{doc.created_at.to_s("%Y年%m月%d日")}"
-
-    Lucky::AssetHelpers::ASSET_MANIFEST["docs/markdowns_timestamps.yml"]?.try do |path|
-      timestamp_file = "public#{path}"
-      if File.exists?(timestamp_file)
-        YAML.parse(File.read(timestamp_file))[markdown_path]?.try do |date|
-          doc_info = "#{doc_info}       最后编辑于: #{Time.unix(date.as_i64).to_local.to_s("%Y年%m月%d日")}"
-        end
-      end
-    end
+    modified_at = File.info(markdown_path).modification_time.to_local
+    doc_info = "#{doc_info}       最后编辑于: #{modified_at.to_s("%Y年%m月%d日")}"
 
     doc_info = "#{doc_info}  | #{doc.view_count}次阅读" if doc.view_count > 0
 
@@ -192,9 +185,16 @@ abstract class DocLayout
       label "注意：中文搜索结果通常不准确, 请使用英文关键字！", for: "search-input", class: "titlebar"
 
       div class: "stork-wrapper-flat mt-3" do
-        input data_stork: "docs", class: "stork-input", id: "search-input"
+        input data_stork: "docs", data_stork_index_url: stork_index_url, class: "stork-input", id: "search-input"
         div data_stork: "docs-output", class: "stork-output"
       end
     end
+  end
+
+  private def stork_index_url
+    path = "public/markdowns/search-index.st"
+    version = File.info?(path).try(&.modification_time.to_unix_ms)
+
+    version ? "/markdowns/search-index.st?v=#{version}" : "/markdowns/search-index.st"
   end
 end

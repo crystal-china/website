@@ -1,5 +1,5 @@
 module MarkdownFile
-  ROOT = Path["markdowns"].normalize
+  ROOT = Path["public/markdowns"].normalize
 
   def self.resolve(request_path : String?) : String?
     return unless request_path

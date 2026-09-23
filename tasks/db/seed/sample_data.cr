@@ -42,7 +42,7 @@ class Db::Seed::SampleData < LuckyTask::Task
       password_confirmation: "temp1234"
     )
 
-    docs = PageHelpers::PAGINATION_URLS.sample(3).map do |path|
+    docs = DocNavigation.pages.map(&.path).sample(3).map do |path|
       SaveDoc.create!(path_index: path)
     end
 

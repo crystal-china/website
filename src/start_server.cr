@@ -1,6 +1,8 @@
 require "./app"
 require "./server/baked_file_system_mounter"
 
+DocNavigation.load
+
 Habitat.raise_if_missing_settings!
 
 if LuckyEnv.development?

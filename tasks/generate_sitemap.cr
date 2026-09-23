@@ -1,5 +1,4 @@
 require "xml"
-require "yaml"
 
 class GenerateSitemap < LuckyTask::Task
   summary "Generate public/sitemap.xml"
@@ -17,10 +16,9 @@ module GenerateSitemapTask
       xml.element("urlset", xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9") do
         add_url(xml, host, Home::Index.path)
 
-        markdown_timestamps = Hash(String, Int64).from_yaml(File.read("public/docs/markdowns_timestamps.yml"))
-        markdown_timestamps.keys.sort.each do |file|
-          relative_path = Path[file].relative_to(Path["markdowns"]).to_s.sub(/\.md\z/, "")
-          add_url(xml, host, "/docs/#{relative_path}", Time.unix(markdown_timestamps[file]))
+        Dir["public/markdowns/**/*.md"].sort.each do |file|
+          relative_path = Path[file].relative_to(Path["public/markdowns"]).to_s.sub(/\.md\z/, "")
+          add_url(xml, host, "/docs/#{relative_path}", File.info(file).modification_time)
         end
 
         add_url(xml, host, Forum::Index.path)

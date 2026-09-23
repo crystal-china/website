@@ -29,7 +29,9 @@ module MarkdownHelpers
       content = content.sub(TABLE_SCHEDULER_RE) { TABLE_SCHEDULER_PLACEHOLDER }
     end
 
-    html = MARKDOWN_CACHE.fetch(markdown_path) { markdown content }
+    path = markdown_path
+    modified_at = File.info(path).modification_time.to_unix_ms
+    html = MARKDOWN_CACHE.fetch("#{path}:#{modified_at}") { markdown content }
 
     if scheduler
       year, month = scheduler

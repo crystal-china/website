@@ -22,7 +22,7 @@ one static binary with all assets baked into it, and will auto mount when runnin
 
 Following is the process for create the static binary:
 
-1. Run `shards run index` to create an index for all markdown docs into `public/docs/index.st`, using `bin/stork`.
+1. Run `shards run index` to create an index for all markdown docs into `public/markdowns/search-index.st`, using `bin/stork`.
 
 2. Run `bun run prod` to build and precompress assets into `public/assets`.
 
