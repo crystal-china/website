@@ -1,7 +1,7 @@
 class Sidebar < BaseComponent
   def render_child(ary, this_path)
     if !ary.empty?
-      expanded = ary.any? { |child| current_path.in? [this_path, child.path] } ? "block" : "hidden"
+      expanded = (current_path == this_path || contains_current_path?(ary)) ? "block" : "hidden"
 
       ul class: "#{expanded} pl-5" do
         ary.each do |child|
@@ -20,6 +20,12 @@ class Sidebar < BaseComponent
           end
         end
       end
+    end
+  end
+
+  private def contains_current_path?(pages)
+    pages.any? do |page|
+      current_path == page.path || contains_current_path?(page.children)
     end
   end
 
