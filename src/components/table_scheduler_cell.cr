@@ -6,33 +6,34 @@ class TableSchedulerCell < BaseComponent
 
   def render
     me = current_user
-
     cell_hour_time = Time.parse("#{date} #{hour}:59", "%Y-%m-%d %H:%M", Time::Location.load("Asia/Shanghai"))
-    if Time.local > cell_hour_time
-      class_name = "disabled"
-    else
-      class_name = ""
-      hx_prompt = "修改预约（#{date} #{hour}:00）"
-      hx_post = Htmx::HourlySchedule.path_without_query_params
-    end
+    expired = Time.local > cell_hour_time
+    admin = me && me.email == ENV["ADMIN_EMAIL"]?
 
     opts = {
-      class: class_name,
+      class: expired ? "disabled" : "",
     }
 
-    if me && me.email == ENV["ADMIN_EMAIL"]?
-      opts = opts.merge(
-        {
-          hx_swap: "outerHTML",
-          hx_vals: %({"date": "#{date}", "hour": "#{hour}"}),
-        })
-
-      opts = opts.merge(hx_prompt: hx_prompt) if hx_prompt
-      opts = opts.merge(hx_post: hx_post) if hx_post
-
+    if admin
       opts = opts.merge(data_tooltip: comment.to_s) if comment.present?
     end
 
-    td(available? ? "🟢" : "🔴", opts)
+    td(opts) do
+      if admin && !expired
+        button(
+          available? ? "🟢" : "🔴",
+          type: "button",
+          class: "block w-full",
+          "aria-label": "修改 #{date} #{hour}:00 的预约",
+          hx_post: Htmx::HourlySchedule.path_without_query_params,
+          hx_prompt: "修改预约（#{date} #{hour}:00）",
+          hx_target: "closest td",
+          hx_swap: "outerHTML",
+          hx_vals: %({"date": "#{date}", "hour": "#{hour}"})
+        )
+      else
+        text available? ? "🟢" : "🔴"
+      end
+    end
   end
 end
