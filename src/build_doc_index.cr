@@ -14,4 +14,4 @@ end
 Dir.mkdir_p("tmp")
 File.write("tmp/index.toml", str)
 
-system("bin/stork build --input tmp/index.toml --output public/markdowns/search-index.st")
+abort "Failed to build document search index" unless system("bin/stork build --input tmp/index.toml --output public/markdowns/search-index.st")
