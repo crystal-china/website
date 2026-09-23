@@ -1,13 +1,14 @@
 let hideTimer;
 
-function showError(message) {
+function showError(message, networkError = false) {
     const alert = document.getElementById("htmx-error-alert");
 
     if (alert == null) {
         return;
     }
 
-    alert.textContent = message;
+    alert.querySelector("[data-htmx-error-icon]").hidden = !networkError;
+    alert.querySelector("[data-htmx-error-message]").textContent = message;
     alert.hidden = false;
 
     clearTimeout(hideTimer);
@@ -42,6 +43,6 @@ export default function setupHtmxErrorAlert() {
     });
 
     document.addEventListener("htmx:error", () => {
-        showError("网络请求失败，请检查网络后重试。");
+        showError("网络请求失败，请检查网络后重试。", true);
     });
 }
