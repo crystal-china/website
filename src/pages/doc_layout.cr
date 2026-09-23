@@ -197,7 +197,8 @@ abstract class DocLayout
 
   private def stork_index_url
     path = "public/markdowns/search-index.st"
-    version = File.info?(path).try(&.modification_time.to_unix_ms)
+    version_path = "#{path}.version"
+    version = File.read(version_path).strip if File.file?(version_path)
 
     version ? "/markdowns/search-index.st?v=#{version}" : "/markdowns/search-index.st"
   end

@@ -19,7 +19,7 @@
 
 The application is deployed as a static binary with its frontend assets baked in. Markdown documents deliberately remain outside the binary so they can be updated without recompiling the application.
 
-1. Run `shards run index` to generate `public/markdowns/search-index.st` using `bin/stork`. The generated index is ignored by Git and must still be deployed.
+1. Run `shards run index` to generate `public/markdowns/search-index.st` and its content-based version file. Both generated files are ignored by Git and must still be deployed.
 
 2. Run `bun run prod` to build and precompress the frontend assets into `public/assets`.
 
@@ -27,7 +27,7 @@ The application is deployed as a static binary with its frontend assets baked in
 
    Alternatively, use the [sb_static](https://github.com/crystal-china/magic-haversack/blob/main/bin/sb_static) script with Zig. See [Use Zig CC as an alternative linker](https://github.com/crystal-china/magic-haversack/blob/main/docs/use_zig_cc_as_an_alternative_linker.md) for details.
 
-4. Synchronize `public/markdowns/` and `public/sitemap.xml` to the server. Use `rsync -a` so Markdown modification times are preserved. The Markdown directory must exist before starting the new binary because the application reads `navigation.yml` during startup.
+4. Synchronize `public/markdowns/` and `public/sitemap.xml` to the server with `rsync -a`. The Markdown directory must exist before starting the new binary because the application reads `navigation.yml` during startup.
 
 5. Copy `bin/crystal_china` to the server and configure the environment in `.env`; see [.env.sample](/.env.sample). The deployed application has the following relevant structure:
 
@@ -40,6 +40,7 @@ The application is deployed as a static binary with its frontend assets baked in
        ├── markdowns
        │   ├── navigation.yml
        │   ├── search-index.st
+       │   ├── search-index.st.version
        │   └── ...
        └── sitemap.xml
    ```

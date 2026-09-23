@@ -1,4 +1,5 @@
 require "./actions/mixins/page_helpers"
+require "digest/md5"
 
 str = String.build do |io|
   io << "[input]\n"
@@ -14,4 +15,7 @@ end
 Dir.mkdir_p("tmp")
 File.write("tmp/index.toml", str)
 
-abort "Failed to build document search index" unless system("bin/stork build --input tmp/index.toml --output public/markdowns/search-index.st")
+index_path = "public/markdowns/search-index.st"
+abort "Failed to build document search index" unless system("bin/stork build --input tmp/index.toml --output #{index_path}")
+
+File.write("#{index_path}.version", Digest::MD5.new.file(index_path).hexfinal)
