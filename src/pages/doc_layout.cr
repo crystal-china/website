@@ -8,6 +8,8 @@ abstract class DocLayout
   needs current_user : User?
   needs formatter : Tartrazine::Formatter
   needs doc : Doc
+  needs markdown_path : String
+  needs markdown_source : String
 
   abstract def content
 
@@ -149,8 +151,10 @@ abstract class DocLayout
 
   private def print_doc_info(doc)
     doc_info = "创建于：#{doc.created_at.to_s("%Y年%m月%d日")}"
-    modified_at = File.info(markdown_path).modification_time.to_local
-    doc_info = "#{doc_info}       最后编辑于: #{modified_at.to_s("%Y年%m月%d日")}"
+
+    if (modified_at = doc.content_updated_at)
+      doc_info = "#{doc_info}       最后编辑于: #{modified_at.to_local.to_s("%Y年%m月%d日")}"
+    end
 
     doc_info = "#{doc_info}  | #{doc.view_count}次阅读" if doc.view_count > 0
 

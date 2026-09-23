@@ -3,12 +3,17 @@ class Docs::Markdowns < DocAction
     return redirect(to: Docs::Markdowns.with(requested_path: "index")) if requested_path.nil?
 
     DocNavigation.load
-    raise Lucky::RouteNotFoundError.new(context) if MarkdownFile.resolve(requested_path).nil?
+    markdown_path = MarkdownFile.resolve(requested_path)
+    raise Lucky::RouteNotFoundError.new(context) if markdown_path.nil?
 
-    doc = find_or_create_doc
+    markdown_source = File.read(markdown_path)
+    doc = DocContent.sync(find_or_create_doc, markdown_source)
     record_view(doc)
 
-    html Docs::MarkdownsPage, doc: doc
+    html Docs::MarkdownsPage,
+      doc: doc,
+      markdown_path: markdown_path,
+      markdown_source: markdown_source
   end
 
   private def find_or_create_doc : Doc
