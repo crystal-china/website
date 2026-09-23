@@ -83,7 +83,7 @@ HEREDOC
       if !comment_id.nil? && !me.nil?
         button(
           "取消",
-          script: "on click close the closest <dialog/>",
+          script: "on click send closeRequested to the closest <dialog/>",
           class: "inline-flex items-center justify-center rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:border-gray-400 hover:bg-gray-50"
         )
       end
