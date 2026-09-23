@@ -9,7 +9,7 @@ module DocNavigation
     getter path : String
     getter title : String
     getter sub_title : String = ""
-    getter hidden : Bool = false
+    getter hide_from_sidebar : Bool = false
     getter children : Array(Page) = [] of Page
   end
 
@@ -25,7 +25,7 @@ module DocNavigation
     navigation = Array(Page).from_yaml(File.read(CONFIG_PATH))
     pages = navigation.flat_map { |page| flatten(page) }
     validate(pages)
-    remove_hidden_pages(navigation)
+    remove_pages_hidden_from_sidebar(navigation)
 
     @@navigation = navigation
     @@pages = pages
@@ -61,8 +61,8 @@ module DocNavigation
     [page] + page.children.flat_map { |child| flatten(child) }
   end
 
-  private def self.remove_hidden_pages(pages : Array(Page)) : Nil
-    pages.reject!(&.hidden)
-    pages.each { |page| remove_hidden_pages(page.children) }
+  private def self.remove_pages_hidden_from_sidebar(pages : Array(Page)) : Nil
+    pages.reject!(&.hide_from_sidebar)
+    pages.each { |page| remove_pages_hidden_from_sidebar(page.children) }
   end
 end
