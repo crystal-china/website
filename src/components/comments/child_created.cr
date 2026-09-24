@@ -1,6 +1,6 @@
 class Comments::ChildCreated < BaseComponent
   needs formatter : Tartrazine::Formatter
-  needs pagination : {count: Int32 | Int64, comments: CommentQuery, page: Lucky::Paginator?, url: String, order_by: String}
+  needs pagination : Comments::Pagination
   needs comment_id : Int64
   needs root_comment : Comment
 

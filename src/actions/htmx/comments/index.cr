@@ -24,11 +24,7 @@ class Htmx::Comments::Index < CommentAction
         comment_id: root_id
       )
     else
-      html_id = if root_id
-                  "comment-#{root_id}-comments"
-                else
-                  "comments"
-                end
+      html_id = root_id ? "comment-#{root_id}-comments" : "comments"
 
       component(
         ::Comments::List,
