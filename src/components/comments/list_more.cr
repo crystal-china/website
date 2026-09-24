@@ -1,13 +1,11 @@
 class Comments::ListMore < BaseComponent
   needs formatter : Tartrazine::Formatter
-  needs pagination : {count: Int32 | Int64, comments: CommentQuery, page: Lucky::Paginator?, url: String, order_by: String}
+  needs pagination : Comments::Pagination
   needs page_number : Int32
   needs comment_id : Int64?
 
   def render
-    comments = pagination[:comments].results
-
-    comments.each do |comment|
+    pagination[:comments].results.each do |comment|
       mount(
         Comments::Card,
         formatter: formatter,

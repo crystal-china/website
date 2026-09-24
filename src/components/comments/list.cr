@@ -1,6 +1,6 @@
 class Comments::List < BaseComponent
   needs formatter : Tartrazine::Formatter
-  needs pagination : {count: Int32 | Int64, comments: CommentQuery, page: Lucky::Paginator?, url: String, order_by: String}
+  needs pagination : Comments::Pagination
   needs html_id : String
   needs comment_id : Int64?
 

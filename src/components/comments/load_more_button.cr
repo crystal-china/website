@@ -1,5 +1,5 @@
 class Comments::LoadMoreButton < BaseComponent
-  needs pagination : {count: Int32 | Int64, comments: CommentQuery, page: Lucky::Paginator?, url: String, order_by: String}
+  needs pagination : Comments::Pagination
   needs page_number : Int32
 
   def render
