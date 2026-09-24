@@ -21,7 +21,7 @@ CronScheduler.define do
     Db::Seed::HourlyAvailabilityTask.run(now.year, now.month)
   end
 
-  at("17 2 * * *") { GenerateSitemapTask.run }
+  at("17 2 * * *") { GenerateSitemapTask.run } if LuckyEnv.production?
   # MemoryStore 读取 keys 时会顺便删除已经过期的浏览记录。
   at("23 3 * * *") { VIEW_COUNT_CACHE.keys }
   at("*/5 * * * *") { update_users_last_active_at }
