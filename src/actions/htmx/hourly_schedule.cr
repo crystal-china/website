@@ -3,7 +3,6 @@ class Htmx::HourlySchedule < BrowserAction
   param hour : String
 
   post "/htmx/hourly_schedule" do
-    return head 401 if current_user.nil?
     me = current_user
 
     return head 401 if me.email != ENV["ADMIN_EMAIL"]?

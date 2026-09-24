@@ -6,6 +6,8 @@ module Auth::RequireSignIn
   private def require_sign_in
     if current_user?
       continue
+    elsif context.request.headers["HX-Request-Type"]? == "partial"
+      head 401
     else
       Authentic.remember_requested_path(self)
       flash.info = "请首先登录"

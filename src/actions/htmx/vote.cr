@@ -4,7 +4,6 @@ class Htmx::Vote < BrowserAction
   param vote_type : String
 
   patch "/htmx/vote" do
-    return head 401 if current_user.nil?
     return head 400 if comment_id.nil? && doc_id.nil?
     return head 400 if comment_id && doc_id
 
