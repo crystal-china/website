@@ -42,7 +42,17 @@ export default function setupHtmxErrorAlert() {
         showError(messageForStatus(event.detail.ctx.response.status));
     });
 
-    document.addEventListener("htmx:error", () => {
-        showError("网络请求失败，请检查网络后重试。", true);
+    document.addEventListener("htmx:error", (event) => {
+        const { ctx, error } = event.detail;
+
+        if (!navigator.onLine) {
+            showError("网络连接已断开，请检查网络后重试。", true);
+        } else if (error?.name === "AbortError") {
+            showError("请求超时，请稍后重试。");
+        } else if (ctx != null && ctx.response == null) {
+            showError("无法连接服务器，请稍后重试。", true);
+        } else {
+            showError("页面交互失败，请刷新后重试。");
+        }
     });
 }
