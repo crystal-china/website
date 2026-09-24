@@ -3,13 +3,13 @@ require "../tasks/db/seed/hourly_availability"
 require "../tasks/generate_sitemap"
 
 def update_users_last_active_at
-  COUNTER_MUTEX.synchronize do
-    user_ids = ONLINE_USER_COUNTER.keys
+  ONLINE_PRESENCE_MUTEX.synchronize do
+    user_ids = ONLINE_USERS.keys
 
     user_ids.each do |user_id|
       user = UserQuery.find(user_id)
-      if (value = ONLINE_USER_COUNTER.read(user_id))
-        User::SaveOperation.update!(user, last_active_at: Time.unix(value))
+      if (last_active_at = ONLINE_USERS.read(user_id))
+        User::SaveOperation.update!(user, last_active_at: last_active_at)
       end
     end
   end

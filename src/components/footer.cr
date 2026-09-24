@@ -13,7 +13,7 @@ class Footer < BaseComponent
           hx_trigger: "load,every 2m",
           hx_patch: Htmx::OnlineUsers.path,
         ) do
-          text "在线用户 #{ONLINE_USER_COUNTER.keys.size} 人, 游客 #{ONLINE_IP_COUNTER.keys.size} 人"
+          text "正在统计在线人数..."
         end
 
         nav "aria-label": "页脚链接", class: "inline-flex items-center gap-3" do

@@ -39,10 +39,11 @@ CAPTCHA_CACHE        = Cache::MemoryStore(String).new(expires_in: 1.minute)
 CAPTCHA_MUTEX        = Mutex.new
 MARKDOWN_CACHE       = CACHE_STORE.new(expires_in: 1.day)
 LATEST_RELEASE_CACHE = CACHE_STORE.new(expires_in: 1.hour)
-ONLINE_USER_COUNTER  = Cache::MemoryStore(Int64).new(expires_in: 3.minutes)
-COUNTER_MUTEX        = Mutex.new
 
-ONLINE_IP_COUNTER = CACHE_STORE.new(expires_in: 3.minutes)
+# 浏览器每两分钟刷新一次；三分钟没有刷新即视为离线。
+ONLINE_USERS          = Cache::MemoryStore(Time).new(expires_in: 3.minutes)
+ONLINE_GUESTS         = Cache::MemoryStore(Bool).new(expires_in: 3.minutes)
+ONLINE_PRESENCE_MUTEX = Mutex.new
 
 VIEW_COUNT_CACHE = Cache::MemoryStore(Bool).new(expires_in: 30.minutes)
 VIEW_COUNT_MUTEX = Mutex.new

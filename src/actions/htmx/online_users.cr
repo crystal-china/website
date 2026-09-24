@@ -2,14 +2,16 @@ class Htmx::OnlineUsers < BrowserAction
   include Auth::AllowGuests
 
   patch "/htmx/online_users" do
-    if (me = current_user)
-      COUNTER_MUTEX.synchronize do
-        ONLINE_USER_COUNTER.write(me.id.to_s, Time.local.to_unix)
+    user_count, guest_count = ONLINE_PRESENCE_MUTEX.synchronize do
+      if (me = current_user)
+        ONLINE_USERS.write(me.id.to_s, Time.local)
+      else
+        ONLINE_GUESTS.write(context.request.remote_ip || "0.0.0.0", true)
       end
-    else
-      ONLINE_IP_COUNTER.write(context.request.remote_ip || "0.0.0.0", "")
+
+      {ONLINE_USERS.keys.size, ONLINE_GUESTS.keys.size}
     end
 
-    plain_text "在线用户 #{ONLINE_USER_COUNTER.keys.size} 人, 游客 #{ONLINE_IP_COUNTER.keys.size} 人"
+    plain_text "在线用户 #{user_count} 人, 游客 #{guest_count} 人"
   end
 end
