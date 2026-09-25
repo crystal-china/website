@@ -10,7 +10,7 @@ class SignIns::NewPage < AuthLayout
 
     auth_page_with_oauth do
       auth_card("登录", "使用邮箱和密码登录你的账号。") do
-        form_for SignIns::Create, class: "px-8 py-8" do
+        form_for SignIns::Create, class: "panel-body" do
           auth_form_fields do
             mount Shared::Field, attribute: op.email, label_text: "电子邮件", &.email_input(autofocus: "true")
             mount Shared::Field, attribute: op.password, label_text: "密码", &.password_input

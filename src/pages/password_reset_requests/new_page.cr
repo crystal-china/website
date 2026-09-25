@@ -10,7 +10,7 @@ class PasswordResetRequests::NewPage < AuthLayout
 
     auth_page_single_column do
       auth_card("重置密码", "输入注册邮箱，我们会向你发送一封包含重置链接的邮件。") do
-        form_for PasswordResetRequests::Create, class: "px-8 py-8" do
+        form_for PasswordResetRequests::Create, class: "panel-body" do
           auth_form_fields do
             mount Shared::Field, attribute: op.email, label_text: "电子邮件", &.email_input(autofocus: "true", placeholder: "you@example.com")
 

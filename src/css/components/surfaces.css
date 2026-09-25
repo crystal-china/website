@@ -6,4 +6,24 @@
       0 1px 2px rgb(15 23 42 / 0.06),
       0 8px 24px rgb(15 23 42 / 0.04);
   }
+
+  .panel-header {
+    @apply border-b border-gray-200 bg-gray-50/70 px-6 py-5 sm:px-8;
+  }
+
+  .panel-title {
+    @apply m-0 text-2xl font-semibold tracking-tight text-gray-900;
+  }
+
+  .panel-description {
+    @apply mt-1.5 mb-0 text-sm leading-6 text-gray-600;
+  }
+
+  .panel-body {
+    @apply px-6 py-6 sm:px-8 sm:py-8;
+  }
+
+  .panel-toolbar {
+    @apply border-b border-gray-200 bg-gray-50/70;
+  }
 }

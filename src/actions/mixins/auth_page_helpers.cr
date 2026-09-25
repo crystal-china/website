@@ -1,9 +1,9 @@
 module AuthPageHelpers
   def auth_card(title : String, description : String, &)
     article class: "app-panel w-full overflow-hidden" do
-      header class: "border-b border-gray-200 bg-gradient-to-r from-sky-50 via-white to-cyan-50 px-8 py-7" do
-        h1 title, class: "m-0 text-3xl font-semibold tracking-tight text-gray-900"
-        para description, class: "mt-2 mb-0 text-sm leading-6 text-gray-600"
+      header class: "panel-header" do
+        h1 title, class: "panel-title"
+        para description, class: "panel-description"
       end
 
       yield

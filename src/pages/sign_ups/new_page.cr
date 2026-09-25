@@ -10,7 +10,7 @@ class SignUps::NewPage < AuthLayout
 
     auth_page_with_oauth do
       auth_card("注册", "创建新账号并设置登录密码。完成后即可使用邮箱、密码或第三方账号登录。") do
-        form_for SignUps::Create, class: "px-8 py-8" do
+        form_for SignUps::Create, class: "panel-body" do
           auth_form_fields do
             mount Shared::Field, attribute: op.email, label_text: "电子邮件", &.email_input(autofocus: "true", required: "", placeholder: "you@example.com")
             mount Shared::Field, attribute: op.password, label_text: "密码", &.password_input(required: "", placeholder: "设置登录密码")

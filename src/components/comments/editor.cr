@@ -28,7 +28,7 @@ class Comments::Editor < BaseComponent
         script: "bind @disabled to (the value of ##{html_id}_text_area is empty)",
       )
 
-      div class: "doc-form-toolbar grid gap-4 border-b border-gray-200 p-4 md:grid-cols-[auto_1fr_auto] md:items-center" do
+      div class: "panel-toolbar doc-form-toolbar grid gap-4 p-4 md:grid-cols-[auto_1fr_auto] md:items-center" do
         div class: "segmented-control" do
           label(
             "输入",
