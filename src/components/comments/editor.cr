@@ -6,6 +6,7 @@ class Comments::Editor < BaseComponent
     me = current_user
     id_input = "#{html_id}1"
     id_preview = "#{html_id}2"
+    editor_height = "h-[11rem] min-h-[11rem] max-h-[40rem]"
 
     div class: "app-panel", id: "#{html_id}-form" do
       input(
@@ -43,6 +44,12 @@ class Comments::Editor < BaseComponent
             flow_id: "#{html_id}-preview_comment",
             class: "segmented-option label2 cursor-pointer",
             script: <<-HEREDOC
+  on click
+    set textarea to ##{html_id}_text_area
+    set preview to ##{html_id}_preview
+    set preview.style.height to `${textarea.offsetHeight}px`
+  end
+
   on mouseenter
     if the value of ##{html_id}_text_area is empty
       set my *cursor to "not-allowed"
@@ -64,25 +71,24 @@ HEREDOC
       end
 
       div class: "panel1 hidden p-4" do
-        render_form
+        render_form(editor_height)
       end
 
       div class: "panel2 hidden p-4" do
-        render_preview
+        render_preview(editor_height)
       end
     end
   end
 
-  private def render_form
+  private def render_form(editor_height : String)
     me = current_user
 
     textarea_opt = {
       id:       "#{html_id}_text_area",
-      rows:     16,
-      cols:     70,
+      rows:     5,
       name:     "content",
       required: "",
-      class:    "min-h-[22rem] w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm leading-7 text-gray-900 shadow-inner transition outline-none placeholder:text-gray-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400",
+      class:    "#{editor_height} block w-full resize-y overflow-y-auto rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm leading-7 text-gray-900 shadow-inner transition outline-none placeholder:text-gray-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400",
     }
 
     textarea_opt = textarea_opt.merge(disabled: "") if me.nil?
@@ -92,9 +98,9 @@ HEREDOC
     end
   end
 
-  private def render_preview
-    div class: "min-h-[22rem] rounded-xl border border-gray-200 bg-gray-50/60 px-4 py-3" do
-      div class: "markdown-preview min-h-[18rem]"
+  private def render_preview(editor_height : String)
+    div id: "#{html_id}_preview", class: "#{editor_height} overflow-y-auto rounded-xl border border-gray-200 bg-gray-50/60 px-4 py-3" do
+      div class: "markdown-preview"
       mount Shared::Spinner, text: "正在预览..."
     end
   end
