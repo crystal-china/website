@@ -38,8 +38,6 @@ class Navbar < BaseComponent
                   class: nav_item_class,
                   to: SignIns::Delete,
                   flow_id: "sign-out-button",
-                  hx_target: "body",
-                  hx_push_url: "true",
                   hx_delete: SignIns::Delete.path,
                 )
               end
@@ -47,7 +45,7 @@ class Navbar < BaseComponent
               li { link me.email, to: Me::Edit, class: nav_item_class(active: current_path == Me::Edit.path) }
             else
               li { link "注册", to: SignUps::New, class: nav_item_class(active: current_path == SignUps::New.path) }
-              li { link "登录", to: SignIns::New, class: nav_item_class(active: current_path == SignIns::New.path) }
+              li { link "登录", to: SignIns::New.with(return_to: context.request.resource), class: nav_item_class(active: current_path == SignIns::New.path) }
             end
           end
         end

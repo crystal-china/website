@@ -4,10 +4,10 @@ class SignIns::Delete < BrowserAction
     flash.success = "取消登录成功"
 
     if context.request.headers["HX-Request"]?
-      context.response.headers["HX-Redirect"] = SignIns::New.path
+      context.response.headers["HX-Refresh"] = "true"
       head 200
     else
-      redirect to: SignIns::New
+      redirect_back fallback: SignIns::New
     end
   end
 end
