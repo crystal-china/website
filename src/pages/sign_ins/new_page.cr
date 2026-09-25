@@ -16,9 +16,9 @@ class SignIns::NewPage < AuthLayout
             mount Shared::Field, attribute: op.password, label_text: "密码", &.password_input
 
             auth_form_actions do
-              link "重置密码", to: PasswordResetRequests::New, class: "form-secondary"
-
               submit "登录", type: "submit", class: "form-submit", flow_id: "sign-in-button"
+
+              link "重置密码", to: PasswordResetRequests::New, class: "form-secondary"
             end
           end
         end

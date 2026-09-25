@@ -15,8 +15,8 @@ class PasswordResetRequests::NewPage < AuthLayout
             mount Shared::Field, attribute: op.email, label_text: "电子邮件", &.email_input(autofocus: "true", placeholder: "you@example.com")
 
             auth_form_actions do
-              link "返回登录", to: SignIns::New, class: "form-secondary"
               submit "发送重置邮件", class: "form-submit", flow_id: "request-password-reset-button"
+              link "返回登录", to: SignIns::New, class: "form-secondary"
             end
           end
         end

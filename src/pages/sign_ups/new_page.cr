@@ -46,9 +46,9 @@ class SignUps::NewPage < AuthLayout
             end
 
             auth_form_actions do
-              link "已有账号？去登录", to: SignIns::New, class: "form-secondary"
-
               submit "注册", type: "submit", flow_id: "sign-up-button", class: "form-submit"
+
+              link "已有账号？去登录", to: SignIns::New, class: "form-secondary"
             end
           end
         end
