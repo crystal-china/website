@@ -3,13 +3,13 @@ class Comments::Toolbar < BaseComponent
   needs html_id : String
 
   def render
-    selected = "inline-flex items-center rounded-lg border border-gray-300 bg-white px-4 py-1.5 text-sm font-semibold text-gray-950 shadow-[0_1px_2px_rgb(15_23_42/0.08)]"
-    unselected = "inline-flex items-center rounded-lg border border-transparent px-4 py-1.5 text-sm font-medium text-gray-600 transition hover:border-gray-300/70 hover:bg-white/70 hover:text-gray-900"
+    selected = "segmented-option segmented-option-active"
+    unselected = "segmented-option"
 
     div class: "mt-4 flex items-center justify-between gap-4" do
       span "共 #{pagination[:count]} 条回复", id: "#{html_id}-count", class: "text-base font-medium text-gray-900"
 
-      div class: "flex items-center gap-1 rounded-xl border border-gray-200 bg-gray-100 p-1 shadow-inner" do
+      div class: "segmented-control" do
         [{"最早", "asc"}, {"最新", "desc"}].each do |title, order|
           a(
             title,

@@ -1,0 +1,35 @@
+@layer components {
+  .action-button {
+    @apply inline-flex h-7 shrink-0 items-center justify-center gap-1.5 rounded-lg border px-3 text-sm leading-none font-medium whitespace-nowrap shadow-[0_1px_2px_rgb(15_23_42/0.06)] transition-[color,background-color,border-color,box-shadow,transform] duration-150 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .action-button-neutral {
+    @apply border-gray-300 bg-white text-gray-700 hover:border-gray-400 hover:bg-gray-50 hover:shadow-[0_3px_8px_rgb(15_23_42/0.08)];
+  }
+
+  .action-button-accent {
+    @apply border-sky-300 bg-sky-50 text-sky-800 hover:border-sky-400 hover:bg-sky-100;
+  }
+
+  .action-button-danger {
+    @apply border-red-300 bg-white text-red-600 hover:border-red-400 hover:bg-red-50;
+  }
+
+  .vote-button {
+    @apply inline-flex h-7 min-w-11 items-center justify-center gap-1 rounded-full border bg-transparent px-2.5 text-sm leading-none whitespace-nowrap transition-[color,background-color,border-color,transform] duration-150 hover:border-gray-300 hover:bg-white/70 active:translate-y-px;
+  }
+
+  .segmented-control {
+    @apply inline-flex items-center gap-1 rounded-xl border border-gray-200 bg-gray-100 p-1 shadow-inner;
+  }
+
+  .segmented-option {
+    @apply inline-flex items-center justify-center rounded-lg border border-transparent px-4 py-1.5 text-sm font-medium text-gray-600 transition-[color,background-color,border-color,box-shadow] duration-150 hover:border-gray-300/70 hover:bg-white/70 hover:text-gray-900;
+  }
+
+  .segmented-option-active,
+  .input1:checked ~ .doc-form-toolbar .label1,
+  .input2:checked ~ .doc-form-toolbar .label2 {
+    @apply border-gray-300 bg-white font-semibold text-gray-950 shadow-[0_1px_2px_rgb(15_23_42/0.08)];
+  }
+}

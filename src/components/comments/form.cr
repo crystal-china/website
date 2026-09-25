@@ -38,7 +38,7 @@ HEREDOC
                    end
 
       opts = {
-        class:      "inline-flex items-center justify-center rounded-xl bg-sky-700 px-5 py-2 text-sm font-semibold text-white transition hover:bg-sky-800 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500",
+        class:      "form-submit py-2 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500",
         hx_target:  "#comments",
         hx_include: hx_include,
         hx_post:    Htmx::Comments::CreateOrUpdate.path_without_query_params,
@@ -84,7 +84,7 @@ HEREDOC
         button(
           "取消",
           script: "on click send closeRequested to the closest <dialog/>",
-          class: "inline-flex items-center justify-center rounded-xl border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:border-gray-400 hover:bg-gray-50"
+          class: "form-secondary px-4 py-2"
         )
       end
 

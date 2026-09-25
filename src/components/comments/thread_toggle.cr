@@ -47,6 +47,6 @@ HYPER
   end
 
   private def button_class
-    "inline-flex h-8 items-center justify-center gap-1.5 rounded-full border border-sky-200 bg-sky-50 px-3 text-sm font-medium text-sky-800 transition hover:border-sky-300 hover:bg-sky-100"
+    "action-button action-button-accent"
   end
 end

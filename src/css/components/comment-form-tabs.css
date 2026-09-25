@@ -1,18 +1,5 @@
 @layer utilities {
   /* ---------------- 文档评论表单 tabs ---------------- */
-  .label1:hover,
-  .label2:hover {
-    @apply border-gray-300/70 bg-white/70 text-gray-900;
-  }
-
-  .input1:checked ~ .doc-form-toolbar .label1 {
-    @apply border-gray-300 bg-white text-gray-950 shadow-[0_1px_2px_rgb(15_23_42/0.08)];
-  }
-
-  .input2:checked ~ .doc-form-toolbar .label2 {
-    @apply border-gray-300 bg-white text-gray-950 shadow-[0_1px_2px_rgb(15_23_42/0.08)];
-  }
-
   .input1:checked ~ .panel1 {
     @apply !block;
   }

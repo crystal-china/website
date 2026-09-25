@@ -33,7 +33,7 @@ class Comments::CardFooter < BaseComponent
   private def render_comment_actions(me : User)
     opts = {
       type:       "button",
-      class:      "inline-flex h-6 shrink-0 items-center rounded-full border border-sky-600 px-3 text-sm font-medium whitespace-nowrap text-sky-700 hover:bg-sky-50",
+      class:      "action-button action-button-accent",
       hx_target:  Comments::Dialog.comment_form_target,
       hx_swap:    "outerHTML",
       hx_disable: "this",
@@ -50,7 +50,7 @@ class Comments::CardFooter < BaseComponent
           button(
             "删除",
             type: "button",
-            class: "inline-flex h-6 shrink-0 items-center rounded-full border border-red-400 px-3 text-sm font-medium whitespace-nowrap text-red-500 hover:bg-red-50",
+            class: "action-button action-button-danger",
             hx_delete: Htmx::Comments::Delete.with(id: comment.id).path,
             hx_target: "closest article",
             hx_swap: "outerHTML swap:1s",

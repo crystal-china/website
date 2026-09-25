@@ -7,9 +7,9 @@ class Shared::VoteButton < BaseComponent
   def render
     vote_counts.each do |(emoji, count)|
       gray = count == 0 ? "grayscale-[50%] text-gray-300" : ""
-      voted = emoji.in?(voted_types) ? "border border-black" : "border-transparent"
+      voted = emoji.in?(voted_types) ? "border-black bg-white" : "border-transparent"
       config = {
-        class: "inline-flex h-6 min-w-11 items-center justify-center gap-1 whitespace-nowrap rounded-full border bg-transparent px-2.5 text-sm leading-none #{gray} #{voted}",
+        class: "vote-button #{gray} #{voted}",
         type:  "button",
       }
 

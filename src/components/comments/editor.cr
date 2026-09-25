@@ -29,19 +29,19 @@ class Comments::Editor < BaseComponent
       )
 
       div class: "doc-form-toolbar grid gap-4 border-b border-gray-200 p-4 md:grid-cols-[auto_1fr_auto] md:items-center" do
-        div class: "inline-flex items-center gap-1 rounded-xl border border-gray-200 bg-gray-100 p-1 shadow-inner" do
+        div class: "segmented-control" do
           label(
             "输入",
             for: id_input,
             flow_id: "#{html_id}-input_comment",
-            class: "label1 cursor-pointer rounded-lg border border-transparent bg-transparent px-4 py-1.5 text-sm font-medium text-gray-600 transition"
+            class: "segmented-option label1 cursor-pointer"
           )
 
           label(
             "预览",
             for: id_preview,
             flow_id: "#{html_id}-preview_comment",
-            class: "label2 cursor-pointer rounded-lg border border-transparent bg-transparent px-4 py-1.5 text-sm font-medium text-gray-600 transition",
+            class: "segmented-option label2 cursor-pointer",
             script: <<-HEREDOC
   on mouseenter
     if the value of ##{html_id}_text_area is empty
