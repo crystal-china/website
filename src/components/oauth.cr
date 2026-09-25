@@ -1,6 +1,6 @@
 class Component::OAuth < BaseComponent
   def render
-    aside class: "flex h-full flex-col justify-center gap-6 rounded-3xl border border-gray-200 bg-white p-6 shadow-sm" do
+    aside class: "app-panel flex h-full flex-col justify-center gap-6 p-6" do
       header do
         h2 "快捷登录", class: "m-0 text-lg font-semibold text-gray-900"
         para "如果你之前绑定过第三方账号，可以直接使用。", class: "mt-2 mb-0 text-sm leading-6 text-gray-600"

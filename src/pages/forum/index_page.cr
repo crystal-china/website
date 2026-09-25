@@ -20,11 +20,11 @@ class Forum::IndexPage < MainLayout
       end
 
       if current_topics.empty?
-        para "还没有主题。", class: "m-0 rounded-2xl border border-gray-200 bg-white px-6 py-10 text-center text-gray-500"
+        para "还没有主题。", class: "app-panel m-0 px-6 py-10 text-center text-gray-500"
       else
-        div class: "divide-y divide-gray-200 overflow-hidden rounded-2xl border border-gray-200 bg-white" do
+        div class: "app-panel divide-y divide-gray-200 overflow-hidden" do
           current_topics.each do |topic|
-            article class: "px-6 py-5 hover:bg-gray-50" do
+            article class: "px-6 py-5 transition-colors hover:bg-gray-50" do
               h2 class: "m-0 text-lg font-semibold" do
                 link topic.title, to: Forum::Show.with(id: topic.id), class: "text-[#145591] no-underline hover:underline"
               end

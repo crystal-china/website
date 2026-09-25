@@ -6,7 +6,7 @@
 
   /* ---------------- 站点画布 ---------------- */
   body {
-    @apply mx-auto max-w-[1920px] bg-[#F8FAFB] px-0 pb-5 text-gray-900 sm:px-6 lg:px-10;
+    @apply mx-auto max-w-[1920px] bg-[#F4F6F8] px-0 pb-5 text-gray-900 sm:px-6 lg:px-10;
     font-family:
       "Noto Sans SC",
       "Source Han Sans SC",

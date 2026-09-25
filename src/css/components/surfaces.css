@@ -1,0 +1,9 @@
+@layer components {
+  .app-panel {
+    @apply rounded-2xl border bg-white;
+    border-color: #d9dee5;
+    box-shadow:
+      0 1px 2px rgb(15 23 42 / 0.06),
+      0 8px 24px rgb(15 23 42 / 0.04);
+  }
+}

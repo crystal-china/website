@@ -7,7 +7,7 @@ class Comments::Editor < BaseComponent
     id_input = "#{html_id}1"
     id_preview = "#{html_id}2"
 
-    div class: "rounded-2xl border border-gray-300 bg-white shadow-sm", id: "#{html_id}-form" do
+    div class: "app-panel", id: "#{html_id}-form" do
       input(
         type: "radio",
         checked: "",

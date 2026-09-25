@@ -25,7 +25,7 @@ class Comments::Card < BaseComponent
   end
 
   private def comment_card_classes
-    classes = "mt-6 rounded-2xl border border-gray-300 px-4 py-2 shadow-sm sm:px-7"
+    classes = "app-panel mt-6 px-4 py-2 sm:px-7"
     classes += comment.parent_id ? " bg-green-100 sm:ml-8" : " bg-white"
     classes
   end

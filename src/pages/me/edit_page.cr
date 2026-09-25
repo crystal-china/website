@@ -7,7 +7,7 @@ class Me::EditPage < MainLayout
 
   def content
     div class: "#{page_container_classes} py-10" do
-      section class: "mx-auto w-full max-w-3xl overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm" do
+      section class: "app-panel mx-auto w-full max-w-3xl overflow-hidden" do
         header class: "border-b border-gray-200 bg-gradient-to-r from-sky-50 via-white to-cyan-50 px-8 py-7" do
           h1 "编辑我的信息", class: "m-0 text-3xl font-semibold tracking-tight text-gray-900"
           para "更新昵称、头像和登录密码。头像目前仅支持 http/https 图片链接。", class: "mt-2 mb-0 text-sm leading-6 text-gray-600"
