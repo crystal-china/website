@@ -109,6 +109,16 @@ abstract class DocLayout
           end
         end
 
+        div class: "mt-6 flex justify-end" do
+          a(
+            "在 GitHub 编辑此页",
+            href: "https://github.com/crystal-china/website/edit/master/#{URI.encode_path(markdown_path)}",
+            target: "_blank",
+            rel: "noopener",
+            class: "text-sm text-gray-500 underline decoration-dotted underline-offset-4 transition hover:text-sky-700 hover:decoration-solid"
+          )
+        end
+
         para class: "mt-8 mb-0 text-center text-gray-400" do
           text "欢迎在评论区留下你的见解、问题或建议"
         end
