@@ -14,12 +14,15 @@
   }
 
   #sidebar a {
-    @apply inline-flex items-center rounded-md px-2 py-1 text-base font-medium text-gray-800 no-underline transition hover:bg-gray-200 hover:text-gray-950;
+    @apply inline-flex items-center rounded-lg border border-transparent px-2 py-1 text-base font-medium text-gray-700 no-underline transition-[color,background-color,border-color,box-shadow] duration-150 hover:bg-gray-200 hover:text-gray-950;
   }
 
-  #sidebar nav a.active,
-  #sidebar nav a:active {
-    @apply bg-gray-300 text-gray-950;
+  #sidebar nav a.active {
+    @apply border-gray-300 bg-white text-gray-950 shadow-[0_1px_2px_rgb(15_23_42/0.08)];
+  }
+
+  #sidebar nav a:not(.active):active {
+    @apply bg-gray-200;
   }
 
   #sidebar nav a:focus-visible {
