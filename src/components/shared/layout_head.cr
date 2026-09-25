@@ -2,6 +2,8 @@ class Shared::LayoutHead < BaseComponent
   needs seo : SEO
 
   def render
+    social_preview_url = "#{Lucky::RouteHelper.settings.base_uri}/social-preview.png"
+
     head do
       utf8_charset
       title "Crystal China - #{seo.page_title}"
@@ -14,6 +16,15 @@ class Shared::LayoutHead < BaseComponent
       meta property: "og:url", content: seo.canonical_url
       meta property: "og:type", content: "website"
       meta property: "og:locale", content: "zh_CN"
+      meta property: "og:image", content: social_preview_url
+      meta property: "og:image:width", content: "1200"
+      meta property: "og:image:height", content: "630"
+      meta property: "og:image:alt", content: "Crystal China 中文社区"
+
+      meta name: "twitter:card", content: "summary_large_image"
+      meta name: "twitter:title", content: seo.page_title
+      meta name: "twitter:description", content: seo.page_description
+      meta name: "twitter:image", content: social_preview_url
 
       css_link asset("css/app.css")
       script type: "application/json", id: "app-config" do

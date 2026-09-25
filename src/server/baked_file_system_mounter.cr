@@ -2,7 +2,7 @@ require "baked_file_system_mounter"
 
 BakedFileSystemMounter.assemble([
   "public/assets",
-  "public/bun-manifest.json", "public/favicon.ico", "public/robots.txt",
+  "public/bun-manifest.json", "public/favicon.ico", "public/robots.txt", "public/social-preview.png",
 ])
 
 if LuckyEnv.production?
