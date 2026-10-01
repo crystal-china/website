@@ -1,6 +1,15 @@
-class Admin::Topics::Delete < AdminAction
-  delete "/admin/topics/:id" do
+class Forum::Delete < BrowserAction
+  delete "/forum/:id" do
     topic = TopicQuery.find(id)
+    me = current_user
+
+    return head 403 unless me.admin? || topic.user_id == me.id
+
+    unless me.admin?
+      comment_thread = CommentThreadQuery.new.topic_id(topic.id).first
+
+      return head 409 if comment_thread.comments_query.any?
+    end
 
     DeleteTopic.delete!(topic)
     flash.success = "主题已删除"

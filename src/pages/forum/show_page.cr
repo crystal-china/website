@@ -3,6 +3,7 @@ class Forum::ShowPage < MainLayout
 
   needs topic : Topic
   needs comment_thread : CommentThread
+  needs can_delete_topic : Bool
 
   def page_title
     topic.title
@@ -23,12 +24,12 @@ class Forum::ShowPage < MainLayout
                   link "编辑", to: Forum::Edit.with(id: topic.id), class: "action-button action-button-neutral h-8"
                 end
 
-                if me.admin?
+                if can_delete_topic?
                   button(
                     "删除",
                     type: "button",
                     class: "action-button action-button-danger h-8",
-                    hx_delete: Admin::Topics::Delete.with(id: topic.id).path,
+                    hx_delete: Forum::Delete.with(id: topic.id).path,
                     hx_confirm: "删除后，主题及其评论将不可见。确定继续？",
                     hx_disable: "this"
                   )
