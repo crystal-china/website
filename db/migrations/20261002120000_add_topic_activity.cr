@@ -2,7 +2,7 @@ class AddTopicActivity::V20261002120000 < Avram::Migrator::Migration::V1
   def migrate
     alter table_for(Topic) do
       # 当前可见回复总数，包含子评论；根评论已删除的整个分支不参与统计。
-      # 评论变更 trigger 调用 refresh_topic_activity，在新增、删除和恢复后重新计算。
+      # Comment::SaveOperation 的 callback 在新增、软删除和恢复后重新计算。
       add replies_count : Int32, default: 0
 
       # 最后一条可见回复的作者；没有回复时为空，不复制可能变更的用户名。

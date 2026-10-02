@@ -47,11 +47,13 @@ describe "Topic activity" do
 
     DeleteTopic.delete!(topic)
     AppDatabase.exec "UPDATE topics SET replies_count = 0, last_reply_user_id = NULL WHERE id = $1", topic.id
-    2.times { AppDatabase.exec "SELECT refresh_topic_activity(id) FROM topics ORDER BY id" }
+    2.times { TopicActivity.refresh(thread) }
     TopicQuery.new.only_soft_deleted.id(topic.id).first.restore
     activity.call.should eq({3, author.id, grandchild_at})
 
-    AppDatabase.exec "DELETE FROM comments WHERE id = $1", grandchild.id
+    # 批量查询及物理删除不经过 SaveOperation，需显式重算。
+    CommentQuery.new.id(grandchild.id).delete
+    TopicActivity.refresh(thread)
     activity.call.should eq({2, replier.id, child_at})
   end
 end

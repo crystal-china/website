@@ -1,5 +1,5 @@
 class Forum::IndexPage < MainLayout
-  needs topics : Array(Topic)
+  needs topics : TopicQuery
   needs pages : Lucky::Paginator
   needs nodes : Array(Node)
   needs node : Node? = nil
@@ -10,6 +10,7 @@ class Forum::IndexPage < MainLayout
 
   def content
     time_in_words = TimeInWords::Helpers(TimeInWords::I18n::ZH_CN)
+    current_topics = topics.results
     current_node = node
     heading = current_node.try(&.name) || "社区"
     description = current_node.try(&.summary) || "讨论 Crystal 语言及其生态。"
@@ -28,7 +29,7 @@ class Forum::IndexPage < MainLayout
             link "发布主题", to: Forum::New, class: "form-submit" if current_user
           end
 
-          render_topic_list(topics, time_in_words)
+          render_topic_list(current_topics, time_in_words)
         end
       end
     end
@@ -81,7 +82,7 @@ class Forum::IndexPage < MainLayout
   end
 
   private def render_topic(topic : Topic, time_in_words)
-    article class: "flex flex-col gap-3 px-6 py-5 transition-colors hover:bg-gray-50 sm:flex-row sm:items-center sm:justify-between" do
+    article class: "flex flex-col gap-3 px-6 py-5 transition-colors hover:bg-gray-50 sm:flex-row sm:items-center" do
       div class: "min-w-0 flex-1" do
         h2 class: "m-0 text-lg font-semibold" do
           link topic.title, to: Forum::Show.with(id: topic.id), class: "text-[#145591] no-underline hover:underline"
