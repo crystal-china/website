@@ -1,5 +1,6 @@
 class Forum::IndexPage < MainLayout
-  needs topics : TopicQuery
+  needs topics : Array(Topic)
+  needs topic_activity : Hash(Int64, NamedTuple(comments_count: Int64, last_commenter: String, last_commented_at: Time))
   needs pages : Lucky::Paginator
   needs nodes : Array(Node)
   needs node : Node? = nil
@@ -10,7 +11,6 @@ class Forum::IndexPage < MainLayout
 
   def content
     time_in_words = TimeInWords::Helpers(TimeInWords::I18n::ZH_CN)
-    current_topics = topics.results
     current_node = node
     heading = current_node.try(&.name) || "社区"
     description = current_node.try(&.summary) || "讨论 Crystal 语言及其生态。"
@@ -29,7 +29,7 @@ class Forum::IndexPage < MainLayout
             link "发布主题", to: Forum::New, class: "form-submit" if current_user
           end
 
-          render_topic_list(current_topics, time_in_words)
+          render_topic_list(topics, time_in_words)
         end
       end
     end
@@ -82,25 +82,39 @@ class Forum::IndexPage < MainLayout
   end
 
   private def render_topic(topic : Topic, time_in_words)
-    article class: "px-6 py-5 transition-colors hover:bg-gray-50" do
-      h2 class: "m-0 text-lg font-semibold" do
-        link topic.title, to: Forum::Show.with(id: topic.id), class: "text-[#145591] no-underline hover:underline"
+    activity = topic_activity[topic.id]?
+    last_active_at = activity ? activity[:last_commented_at] : topic.created_at
+
+    article class: "flex flex-col gap-3 px-6 py-5 transition-colors hover:bg-gray-50 sm:flex-row sm:items-center sm:justify-between" do
+      div class: "min-w-0 flex-1" do
+        h2 class: "m-0 text-lg font-semibold" do
+          link topic.title, to: Forum::Show.with(id: topic.id), class: "text-[#145591] no-underline hover:underline"
+        end
+
+        para class: "mt-2 mb-0 flex flex-wrap items-center gap-x-1 text-xs text-gray-500" do
+          link(
+            to: Forum::Index.with(node: topic.node.slug),
+            title: topic.node.name,
+            "aria-label": "节点：#{topic.node.name}",
+            class: "inline-flex h-5 w-5 items-center justify-center rounded-full no-underline hover:bg-gray-200"
+          ) do
+            span class: "h-2.5 w-2.5 rounded-full", style: "background-color: #{topic.node.color}"
+          end
+          text "#{topic.user.name} 发布于 #{time_in_words.from(past_time: topic.created_at)}"
+
+          if (edited_at = topic.edited_at)
+            text " · 编辑于 #{time_in_words.from(past_time: edited_at)}"
+          end
+        end
       end
 
-      para class: "mt-2 mb-0 flex flex-wrap items-center gap-x-1 text-xs text-gray-500" do
-        link(
-          to: Forum::Index.with(node: topic.node.slug),
-          title: topic.node.name,
-          "aria-label": "节点：#{topic.node.name}",
-          class: "inline-flex h-5 w-5 items-center justify-center rounded-full no-underline hover:bg-gray-200"
-        ) do
-          span class: "h-2.5 w-2.5 rounded-full", style: "background-color: #{topic.node.color}"
-        end
-        text "#{topic.user.name} 发布于 #{time_in_words.from(past_time: topic.created_at)}"
-
-        if (edited_at = topic.edited_at)
-          text " · 编辑于 #{time_in_words.from(past_time: edited_at)}"
-        end
+      div class: "flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500 sm:shrink-0 sm:flex-col sm:items-end" do
+        span "#{activity ? activity[:comments_count] : 0} 条回复", class: "font-medium text-gray-700"
+        span "最后回复：#{activity[:last_commenter]}" if activity
+        span(
+          "最后活跃于 #{time_in_words.from(past_time: last_active_at)}",
+          title: last_active_at.to_local.to_s("%Y-%m-%d %H:%M:%S")
+        )
       end
     end
   end
