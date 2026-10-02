@@ -13,8 +13,9 @@ class Navbar < BaseComponent
               if current_path.starts_with?("/docs") && current_user
                 button(
                   "搜索文档",
+                  type: "button",
                   class: nav_item_class(active: true),
-                  onclick: "document.getElementById('doc_search_dialog').showModal();",
+                  script: "on click call #search_dialog.showModal()",
                   flow_id: "doc_index"
                 )
               else
@@ -23,7 +24,16 @@ class Navbar < BaseComponent
             end
 
             li do
-              link "社区", to: Forum::Index, class: nav_item_class(active: current_path.starts_with?("/forum"))
+              if current_path.starts_with?("/forum") && current_user
+                button(
+                  "搜索社区",
+                  type: "button",
+                  class: nav_item_class(active: true),
+                  script: "on click call #search_dialog.showModal()"
+                )
+              else
+                link "社区", to: Forum::Index, class: nav_item_class(active: current_path.starts_with?("/forum"))
+              end
             end
 
             li do
