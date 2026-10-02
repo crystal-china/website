@@ -34,6 +34,7 @@ describe "Topic activity" do
     DeleteComment.delete!(grandchild)
     activity.call.should eq({2, replier.id, child_at})
     CommentQuery.new.only_soft_deleted.id(grandchild.id).first.restore
+    activity.call.should eq({3, author.id, grandchild_at})
     DeleteComment.delete!(child)
     activity.call.should eq({2, author.id, grandchild_at})
 
@@ -55,5 +56,14 @@ describe "Topic activity" do
     CommentQuery.new.id(grandchild.id).delete
     TopicActivity.refresh(thread)
     activity.call.should eq({2, replier.id, child_at})
+
+    # 不经过 SaveOperation 的插入也更新统计；最后新增的回复直接更新作者和时间。
+    # 创建时间较早也不能让这条刚新增的回复被忽略。
+    AppDatabase.exec <<-SQL, root.id
+      INSERT INTO comments (comment_thread_id, user_id, content, vote_counts, created_at)
+      SELECT comment_thread_id, user_id, '较早的回复', vote_counts, created_at
+      FROM comments WHERE id = $1
+      SQL
+    activity.call.should eq({3, author.id, root_at})
   end
 end
