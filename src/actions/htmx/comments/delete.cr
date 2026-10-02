@@ -10,10 +10,10 @@ class Htmx::Comments::Delete < CommentAction
 
     AppDatabase.transaction do
       comment = CommentQuery.new.id(id).for_update.first
-
       next status = 404 unless comment_available?(comment)
       next status = 403 unless comment.user_id == me.id || me.admin?
-      next status = 409 if comment.children_count > 0 && !me.admin?
+      # 软删除不会移除子评论记录；作者只要有直接回复，就不能删除。
+      next status = 409 if !me.admin? && CommentQuery.new.with_soft_deleted.parent_id(comment.id).any?
 
       DeleteComment.delete!(comment)
       deleted_comment = comment

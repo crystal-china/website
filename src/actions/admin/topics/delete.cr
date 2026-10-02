@@ -8,7 +8,7 @@ class Forum::Delete < BrowserAction
     unless me.admin?
       comment_thread = CommentThreadQuery.new.topic_id(topic.id).first
 
-      return head 409 if comment_thread.comments_query.any?
+      return head 409 if comment_thread.comments_query.with_soft_deleted.any?
     end
 
     DeleteTopic.delete!(topic)

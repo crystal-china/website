@@ -7,7 +7,7 @@ class Forum::Show < BrowserAction
     can_delete_topic = false
 
     if (me = current_user)
-      can_delete_topic = me.admin? || (me.id == topic.user_id && !comment_thread.comments_query.any?)
+      can_delete_topic = me.admin? || (me.id == topic.user_id && !comment_thread.comments_query.with_soft_deleted.any?)
     end
 
     html Forum::ShowPage, topic: topic, comment_thread: comment_thread, can_delete_topic: can_delete_topic
