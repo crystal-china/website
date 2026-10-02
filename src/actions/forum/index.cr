@@ -5,7 +5,7 @@ class Forum::Index < ForumAction
   param node : String?
 
   get "/forum" do
-    query = TopicQuery.new.id.desc_order.preload_user.preload_node
+    query = TopicQuery.new.last_active_at.desc_order.id.desc_order.preload_user.preload_node.preload_last_reply_user
 
     if (node_slug = node)
       current_node = NodeQuery.new.slug(node_slug).first?

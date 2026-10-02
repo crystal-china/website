@@ -11,7 +11,7 @@
 
 1. First, install Crystal. You can check out the instructions here: https://crystal-lang.org/install/
 
-3. Run `script/setup`, Just make sure you’ve got `pg` and `bun` installed before running this.
+3. Run `crystal run script/setup.cr`, Just make sure you’ve got `pg` and `bun` installed before running this.
 
 4. Finally, run `lucky dev`, and you're all set!
 

@@ -39,7 +39,7 @@ class Comments::CardAction < BaseComponent
       if me.id == comment.user_id || me.admin?
         button("编辑", opts, hx_get: Htmx::Comments::Edit.with(id: comment.id, order_by: order_by).path)
 
-        if comment.children_count == 0 || me.admin?
+        if me.admin? || !CommentQuery.new.with_soft_deleted.parent_id(comment.id).any?
           confirmation = if comment.root_id.nil? && comment.descendants_count > 0
                            "删除后，子回复也将不可见。确定继续？"
                          else

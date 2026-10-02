@@ -82,25 +82,38 @@ class Forum::IndexPage < MainLayout
   end
 
   private def render_topic(topic : Topic, time_in_words)
-    article class: "px-6 py-5 transition-colors hover:bg-gray-50" do
-      h2 class: "m-0 text-lg font-semibold" do
-        link topic.title, to: Forum::Show.with(id: topic.id), class: "text-[#145591] no-underline hover:underline"
+    article class: "flex flex-col gap-3 px-6 py-5 transition-colors hover:bg-gray-50 sm:flex-row sm:items-center" do
+      div class: "min-w-0 flex-1" do
+        h2 class: "m-0 text-lg font-semibold" do
+          link topic.title, to: Forum::Show.with(id: topic.id), class: "text-[#145591] no-underline hover:underline"
+        end
+
+        para class: "mt-2 mb-0 flex flex-wrap items-center gap-x-1 text-xs text-gray-500" do
+          link(
+            to: Forum::Index.with(node: topic.node.slug),
+            title: topic.node.name,
+            "aria-label": "节点：#{topic.node.name}",
+            class: "inline-flex h-5 w-5 items-center justify-center rounded-full no-underline hover:bg-gray-200"
+          ) do
+            span class: "h-2.5 w-2.5 rounded-full", style: "background-color: #{topic.node.color}"
+          end
+          text "#{topic.user.name} 发布于 #{time_in_words.from(past_time: topic.created_at)}"
+
+          if (edited_at = topic.edited_at)
+            text " · 编辑于 #{time_in_words.from(past_time: edited_at)}"
+          end
+        end
       end
 
-      para class: "mt-2 mb-0 flex flex-wrap items-center gap-x-1 text-xs text-gray-500" do
-        link(
-          to: Forum::Index.with(node: topic.node.slug),
-          title: topic.node.name,
-          "aria-label": "节点：#{topic.node.name}",
-          class: "inline-flex h-5 w-5 items-center justify-center rounded-full no-underline hover:bg-gray-200"
-        ) do
-          span class: "h-2.5 w-2.5 rounded-full", style: "background-color: #{topic.node.color}"
+      div class: "flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500 sm:shrink-0 sm:flex-col sm:items-end" do
+        span "#{topic.replies_count} 条回复", class: "font-medium text-gray-700"
+        if (last_reply_user = topic.last_reply_user)
+          span "最后回复：#{last_reply_user.name}"
         end
-        text "#{topic.user.name} 发布于 #{time_in_words.from(past_time: topic.created_at)}"
-
-        if (edited_at = topic.edited_at)
-          text " · 编辑于 #{time_in_words.from(past_time: edited_at)}"
-        end
+        span(
+          "最后活跃于 #{time_in_words.from(past_time: topic.last_active_at)}",
+          title: topic.last_active_at.to_local.to_s("%Y-%m-%d %H:%M:%S")
+        )
       end
     end
   end

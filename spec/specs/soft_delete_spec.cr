@@ -1,8 +1,22 @@
 require "../spec_helper"
 
 describe "Soft deletion" do
+  around_each do |example|
+    admin_emails = ENV["ADMIN_EMAILS"]?
+    ENV["ADMIN_EMAILS"] = "soft-delete-admin@example.com"
+
+    example.run
+  ensure
+    if admin_emails
+      ENV["ADMIN_EMAILS"] = admin_emails
+    else
+      ENV.delete("ADMIN_EMAILS")
+    end
+  end
+
   it "hides and restores comments without losing descendants or visible counts" do
     user = UserFactory.create
+    admin = UserFactory.create &.email("soft-delete-admin@example.com")
     doc = SaveDoc.create!(path_index: "/docs/soft-delete-spec")
     thread = CommentThreadQuery.new.doc_id(doc.id).first
     root = SaveComment.create!(user_id: user.id, comment_thread_id: thread.id, content: "root")
@@ -16,7 +30,8 @@ describe "Soft deletion" do
     CommentQuery.new.id(grandchild.id).first?.should_not be_nil
     CommentQuery.find(root.id).descendants_count.should eq(1)
     CommentQuery.new.with_soft_deleted.id(child.id).first.children_count.should eq(1)
-    ApiClient.new.get("/admin/trash?backdoor_user_id=#{user.id}").status_code.should eq(200)
+    ApiClient.new.get("/admin/trash?backdoor_user_id=#{user.id}").status_code.should eq(404)
+    ApiClient.new.get("/admin/trash?backdoor_user_id=#{admin.id}").status_code.should eq(200)
 
     thread_response = ApiClient.new.get("/htmx/comments?root_id=#{root.id}")
     thread_response.status_code.should eq(200)
@@ -39,6 +54,7 @@ describe "Soft deletion" do
 
   it "hides and restores topics without deleting their comment threads" do
     user = UserFactory.create
+    admin = UserFactory.create &.email("soft-delete-admin@example.com")
     node = SaveNode.create!(name: "测试", slug: "soft-delete-test", summary: "测试", color: "#16a34a", position: 0)
     topic = SaveTopic.create!(user_id: user.id, node_id: node.id, title: "可恢复主题", content: "内容")
     thread_id = CommentThreadQuery.new.topic_id(topic.id).first.id
@@ -52,7 +68,8 @@ describe "Soft deletion" do
     CommentQuery.find(comment.id).content.should eq("保留评论")
     ApiClient.new.get("/forum/#{topic.id}").status_code.should eq(404)
     ApiClient.new.get("/htmx/comments?comment_thread_id=#{thread_id}").status_code.should eq(404)
-    ApiClient.new.get("/admin/trash?kind=topics&backdoor_user_id=#{user.id}").status_code.should eq(200)
+    ApiClient.new.get("/admin/trash?kind=topics&backdoor_user_id=#{user.id}").status_code.should eq(404)
+    ApiClient.new.get("/admin/trash?kind=topics&backdoor_user_id=#{admin.id}").status_code.should eq(200)
 
     TopicQuery.new.only_soft_deleted.id(topic.id).first.restore
 
