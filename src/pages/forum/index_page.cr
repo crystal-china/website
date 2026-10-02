@@ -1,6 +1,5 @@
 class Forum::IndexPage < MainLayout
   needs topics : Array(Topic)
-  needs topic_activity : Hash(Int64, NamedTuple(comments_count: Int64, last_commenter: String, last_commented_at: Time))
   needs pages : Lucky::Paginator
   needs nodes : Array(Node)
   needs node : Node? = nil
@@ -82,9 +81,6 @@ class Forum::IndexPage < MainLayout
   end
 
   private def render_topic(topic : Topic, time_in_words)
-    activity = topic_activity[topic.id]?
-    last_active_at = activity ? activity[:last_commented_at] : topic.created_at
-
     article class: "flex flex-col gap-3 px-6 py-5 transition-colors hover:bg-gray-50 sm:flex-row sm:items-center sm:justify-between" do
       div class: "min-w-0 flex-1" do
         h2 class: "m-0 text-lg font-semibold" do
@@ -109,11 +105,13 @@ class Forum::IndexPage < MainLayout
       end
 
       div class: "flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500 sm:shrink-0 sm:flex-col sm:items-end" do
-        span "#{activity ? activity[:comments_count] : 0} 条回复", class: "font-medium text-gray-700"
-        span "最后回复：#{activity[:last_commenter]}" if activity
+        span "#{topic.replies_count} 条回复", class: "font-medium text-gray-700"
+        if (last_reply_user = topic.last_reply_user)
+          span "最后回复：#{last_reply_user.name}"
+        end
         span(
-          "最后活跃于 #{time_in_words.from(past_time: last_active_at)}",
-          title: last_active_at.to_local.to_s("%Y-%m-%d %H:%M:%S")
+          "最后活跃于 #{time_in_words.from(past_time: topic.last_active_at)}",
+          title: topic.last_active_at.to_local.to_s("%Y-%m-%d %H:%M:%S")
         )
       end
     end
