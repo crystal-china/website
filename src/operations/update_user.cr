@@ -4,6 +4,7 @@ class UpdateUser < User::SaveOperation
   attribute password_confirmation : String
 
   before_save do
+    validate_username
     validate_uniqueness_of name
     validate_avatar_is_a_link
     if !password.value.nil?

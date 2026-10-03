@@ -3,9 +3,13 @@ class Comments::Card < BaseComponent
   needs comment : Comment
   needs order_by : String
   needs show_update_success : Bool = false
+  needs focused_comment : Comment? = nil
 
   def render
-    article class: comment_card_classes, id: "comment-#{comment.id}" do
+    focus = focused_comment
+    expand_thread = focus.try(&.root_id) == comment.id
+
+    article class: comment_card_classes, id: "comment-#{comment.id}", data_focus_comment: focus.try(&.id) == comment.id ? "true" : "false" do
       mount(
         Comments::CardContent,
         formatter: formatter,
@@ -31,10 +35,22 @@ class Comments::Card < BaseComponent
         mount Comments::CardAction,
           comment: comment,
           order_by: order_by,
+          thread_expanded: expand_thread,
           current_user: me
       end
 
-      div id: "comment-#{comment.id}-comments" do
+      if expand_thread && focus
+        div(
+          id: "comment-#{comment.id}-comments",
+          hx_get: Htmx::Comments::Index.with(root_id: comment.id, comment_id: focus.id, order_by: order_by).path,
+          hx_trigger: "load",
+          hx_swap: "outerHTML"
+        ) do
+          mount Shared::Spinner, text: "正在定位评论..."
+        end
+      else
+        div id: "comment-#{comment.id}-comments" do
+        end
       end
     end
   end

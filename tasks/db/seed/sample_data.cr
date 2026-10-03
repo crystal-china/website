@@ -23,7 +23,7 @@ class Db::Seed::SampleData < LuckyTask::Task
     users = [
       {"admin@crystal-china.org", "社区管理员"},
       {"me@163.com", "小明"},
-      {"user1@163.com", "Ruby 转 Crystal"},
+      {"user1@163.com", "Ruby转Crystal"},
       {"user2@163.com", "并发学习者"},
     ].map do |email, name|
       user = SignUpUser.create!(

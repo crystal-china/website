@@ -19,5 +19,6 @@ class SignUpUser < User::SaveOperation
         break
       end
     end
+    validate_username
   end
 end

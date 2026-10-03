@@ -58,6 +58,25 @@ The application is deployed as a static binary with its frontend assets baked in
 
 A Markdown file omitted from `navigation.yml` remains directly accessible and searchable, but it will not appear in the Sidebar or Pager. Visiting a document also syncs its content into the search index.
 
+## Notifications
+
+After deploying this feature, run `bin/tasks db.migrate`, then
+`bin/tasks db.fix.usernames` to remove whitespace from existing usernames.
+The username task preserves uniqueness, logs changes, and is safe to rerun.
+Restart the server after migrating; no historical notifications are generated.
+
+Signed-in users can open **通知** in the navbar. New replies notify the topic
+author and the directly replied-to user, excluding the sender and duplicates.
+Typing `@` followed by a username prefix in the Markdown editor offers autocomplete;
+each publication or edit mentions at most five users. Editing can notify newly mentioned
+users, but does not repeat notifications already sent for that content.
+Only the first 20 distinct mention candidates are looked up. Code examples do
+not send mentions. Renames do not rewrite old `@name` text.
+
+Unread notifications show a red dot on subsequent page loads, without background
+polling. Opening the list does not mark everything read; clicking a notification
+marks it read and locates its comment, including nested replies on later pages.
+
 ## Contributing
 
 1. Fork it (<https://github.com/zw963/website/fork>)

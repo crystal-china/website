@@ -3,6 +3,7 @@ class Comments::List < BaseComponent
   needs pagination : Comments::Pagination
   needs html_id : String
   needs comment_id : Int64?
+  needs focused_comment : Comment? = nil
 
   def render
     div role: "feed", id: html_id do
@@ -18,9 +19,10 @@ class Comments::List < BaseComponent
         ::Comments::ListMore,
         formatter: formatter,
         pagination: pagination,
-        page_number: 1,
+        page_number: pagination[:page].try(&.page) || 1,
         current_user: current_user,
-        comment_id: comment_id
+        comment_id: comment_id,
+        focused_comment: focused_comment
       )
     end
   end
