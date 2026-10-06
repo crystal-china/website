@@ -19,10 +19,11 @@ module DocNavigation
   @@modified_at : Time? = nil
 
   def self.load : Nil
-    modified_at = File.info(CONFIG_PATH).modification_time
-    return if @@modified_at == modified_at
+    modified_at = File.info?(CONFIG_PATH).try(&.modification_time)
+    return if @@navigation && @@modified_at == modified_at
 
-    navigation = Array(Page).from_yaml(File.read(CONFIG_PATH))
+    source = modified_at ? File.read(CONFIG_PATH) : ""
+    navigation = source.strip.empty? ? [] of Page : Array(Page).from_yaml(source)
     pages = navigation.flat_map { |page| flatten(page) }
     validate(pages)
     remove_pages_hidden_from_sidebar(navigation)

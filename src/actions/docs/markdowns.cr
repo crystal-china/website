@@ -3,11 +3,20 @@ class Docs::Markdowns < DocAction
     return redirect(to: Docs::Markdowns.with(requested_path: "index")) if requested_path.nil?
 
     markdown_path = MarkdownFile.resolve(requested_path)
-    raise Lucky::RouteNotFoundError.new(context) if markdown_path.nil?
     raise Lucky::RouteNotFoundError.new(context) unless current_path == "/docs/#{requested_path}"
 
+    if requested_path == "index"
+      missing_files = [] of String
+      missing_files << DocNavigation::CONFIG_PATH unless File.file?(DocNavigation::CONFIG_PATH)
+      missing_files << "public/markdowns/index.md" if markdown_path.nil?
+
+      return html Docs::SetupPage, missing_files: missing_files unless missing_files.empty?
+    end
+
+    raise Lucky::RouteNotFoundError.new(context) if markdown_path.nil?
+
     DocNavigation.load
-    
+
     markdown_source = File.read(markdown_path)
     doc = DocContent.sync(current_path, markdown_source)
     record_view(doc)

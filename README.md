@@ -25,7 +25,9 @@ The application is deployed as a static binary with its frontend assets baked in
 
    Alternatively, use the [sb_static](https://github.com/crystal-china/magic-haversack/blob/main/bin/sb_static) script with Zig. See [Use Zig CC as an alternative linker](https://github.com/crystal-china/magic-haversack/blob/main/docs/use_zig_cc_as_an_alternative_linker.md) for details.
 
-3. Synchronize `public/markdowns/` with `rsync -a --delete` (apply `--delete` only to that directory) and `public/sitemap.xml` with `rsync -a`. The Markdown directory must exist before starting the new binary because the application reads `navigation.yml` during startup.
+3. Synchronize `public/markdowns/` with `rsync -a --delete` (apply `--delete` only to that directory) and `public/sitemap.xml` with `rsync -a`. Missing or blank `navigation.yml` means no Sidebar or Pager. If `navigation.yml` or `index.md` is missing, `/docs/index` shows a setup page listing the missing files; no files are created automatically.
+
+   The setup page includes file format examples and a "Generate starter files" button for signed-in administrators listed in `ADMIN_EMAILS`. The button creates only missing files and never overwrites existing files. The server needs write permission for `public/markdowns/` to use it.
 
 4. Copy `bin/crystal_china` and `bin/tasks` to the server and configure the environment in `.env`; see [.env.sample](/.env.sample). The deployed application has the following relevant structure:
 
