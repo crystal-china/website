@@ -41,6 +41,10 @@ abstract class MainLayout
 
           mount Footer, current_user: current_user
 
+          if current_user && current_path.starts_with?("/forum")
+            mount Search::Dialog, scope: "topics", current_user: current_user
+          end
+
           mount Shared::Common, page_title: page_title
         end
       end
