@@ -11,19 +11,18 @@ class Navbar < BaseComponent
           ul class: "m-0 flex list-none flex-wrap items-center justify-center gap-x-2 gap-y-2 p-0 sm:gap-x-4 md:justify-end lg:gap-x-6" do
             li do
               if current_path.starts_with?("/docs") && current_user
-                button(
-                  "搜索文档",
-                  class: nav_item_class(active: true),
-                  onclick: "document.getElementById('doc_search_dialog').showModal();",
-                  flow_id: "doc_index"
-                )
+                render_search_button
               else
-                a "学习文档", href: "/docs/index", flow_id: "doc_index", class: nav_item_class
+                link "文档", to: Docs::Markdowns.with(requested_path: "index"), class: nav_item_class(active: current_path.starts_with?("/docs"))
               end
             end
 
             li do
-              link "社区", to: Forum::Index, class: nav_item_class(active: current_path.starts_with?("/forum"))
+              if current_path.starts_with?("/forum") && current_user
+                render_search_button
+              else
+                link "社区", to: Forum::Index, class: nav_item_class(active: current_path.starts_with?("/forum"))
+              end
             end
 
             li do
@@ -55,6 +54,15 @@ class Navbar < BaseComponent
         end
       end
     end
+  end
+
+  private def render_search_button
+    button(
+      "搜索",
+      type: "button",
+      class: nav_item_class(active: true),
+      script: "on click call #search_dialog.showModal()"
+    )
   end
 
   private def nav_item_class(*, active : Bool = false)
