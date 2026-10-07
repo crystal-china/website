@@ -12,13 +12,13 @@ class Navbar < BaseComponent
             li do
               if current_path.starts_with?("/docs") && current_user
                 button(
-                  "搜索",
+                  "搜索文档",
                   class: nav_item_class(active: true),
                   onclick: "document.getElementById('doc_search_dialog').showModal();",
                   flow_id: "doc_index"
                 )
               else
-                a "文档", href: "/docs/index", flow_id: "doc_index", class: nav_item_class
+                a "学习文档", href: "/docs/index", flow_id: "doc_index", class: nav_item_class
               end
             end
 
