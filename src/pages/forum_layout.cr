@@ -32,8 +32,8 @@ abstract class ForumLayout < MainLayout
     active_classes = "bg-gray-900 text-white"
     inactive_classes = "text-gray-700 hover:bg-gray-100 hover:text-gray-950"
 
-    aside class: "app-panel min-w-0 w-full shrink-0 p-3 lg:sticky lg:top-24 lg:w-56" do
-      nav "aria-label": "社区节点" do
+    aside class: "min-w-0 w-full shrink-0 lg:w-56" do
+      nav class: "desktop-sidebar app-panel p-3 lg:w-56 lg:[--sidebar-gap:2.5rem]", "aria-label": "社区节点" do
         ul class: "m-0 flex list-none gap-1 overflow-x-auto p-0 lg:flex-col lg:overflow-visible" do
           li class: "shrink-0" do
             link(

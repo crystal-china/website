@@ -44,7 +44,7 @@ abstract class DocLayout < MainLayout
 
     main class: "#{page_frame_classes} flex flex-col items-stretch lg:flex-row lg:items-start" do
       aside class: "w-full border-b border-gray-300 bg-[#F2F4F6] lg:w-80 lg:shrink-0 lg:self-stretch lg:border-r lg:border-b-0" do
-        header id: "sidebar", class: "#{page_gutter_classes} py-2 lg:sticky lg:top-6" do
+        header id: "sidebar", class: "desktop-sidebar #{page_gutter_classes} py-2 lg:w-80" do
           mount Sidebar, current_user: current_user
         end
       end

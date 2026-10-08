@@ -3,14 +3,14 @@ class Navbar < BaseComponent
 
   def render
     header class: "sticky top-0 z-50" do
-      div class: "flex translate-y-px flex-col items-center gap-3 border-b border-gray-300/80 bg-[#F2F4F6] pt-3 pb-3 shadow-[0_1px_2px_rgb(15_23_42/0.06)] md:flex-row md:justify-between md:pt-4 #{page_frame_classes} #{page_gutter_classes}" do
+      div class: "flex translate-y-px flex-col items-center gap-3 border-b border-gray-300/80 bg-[#F2F4F6] pt-3 pb-3 shadow-[0_1px_2px_rgb(15_23_42/0.06)] md:flex-row md:justify-between md:pt-4 lg:h-[var(--navbar-height)] lg:translate-y-0 lg:py-0 #{page_frame_classes} #{page_gutter_classes}" do
         a href: "/", class: "inline-flex shrink-0 items-center" do
           img src: asset("svgs/crystal.svg"), alt: "crystal-china", class: "w-[140px] sm:w-[180px]"
           span "China", class: "ml-3 text-base font-semibold tracking-wide text-black uppercase sm:ml-6 sm:text-lg"
         end
 
         nav class: "w-full md:ml-auto md:w-auto" do
-          ul class: "m-0 flex list-none flex-wrap items-center justify-center gap-x-2 gap-y-2 p-0 sm:gap-x-4 md:justify-end lg:gap-x-6" do
+          ul class: "m-0 flex list-none flex-wrap items-center justify-center gap-x-2 gap-y-2 p-0 sm:gap-x-4 md:justify-end lg:flex-nowrap lg:gap-x-2 xl:gap-x-6" do
             li do
               if search_scope == "docs" && current_user
                 render_search_button
@@ -47,7 +47,11 @@ class Navbar < BaseComponent
                 )
               end
 
-              li { link me.email, to: Me::Edit, class: nav_item_class(active: current_path == Me::Edit.path) }
+              li do
+                link to: Me::Edit, class: nav_item_class(active: current_path == Me::Edit.path), title: me.email do
+                  span me.email, class: "block lg:max-w-[10rem] lg:truncate xl:max-w-[16rem]"
+                end
+              end
             else
               li { link "注册", to: SignUps::New, class: nav_item_class(active: current_path == SignUps::New.path) }
               li { link "登录", to: SignIns::New.with(return_to: context.request.resource), class: nav_item_class(active: current_path == SignIns::New.path) }
@@ -68,7 +72,7 @@ class Navbar < BaseComponent
   end
 
   private def nav_item_class(*, active : Bool = false)
-    base = "inline-flex items-center rounded-lg border px-3 py-1.5 text-sm font-medium no-underline transition-[color,background-color,border-color,box-shadow] duration-150"
+    base = "inline-flex items-center rounded-lg border px-3 py-1.5 text-sm font-medium no-underline transition-[color,background-color,border-color,box-shadow] duration-150 lg:px-2 lg:whitespace-nowrap xl:px-3"
     active_classes = "border-gray-300 bg-white text-gray-950 shadow-[0_1px_2px_rgb(15_23_42/0.08)]"
     inactive_classes = "border-transparent text-gray-700 hover:bg-gray-200 hover:text-gray-950"
 
