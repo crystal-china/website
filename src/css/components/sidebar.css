@@ -1,6 +1,17 @@
 @layer components {
   /* ---------------- 侧边栏 ---------------- */
 
+  @media (width >= 64rem) {
+    /* 外层 aside 保留列宽；内部侧栏固定，长目录只在侧栏内滚动。 */
+    .desktop-sidebar {
+      position: fixed;
+      top: calc(var(--navbar-height) + var(--sidebar-gap, 0px));
+      max-height: calc(100dvh - var(--navbar-height) - var(--sidebar-gap, 0px) - 1rem);
+      overflow-y: auto;
+      overscroll-behavior-y: contain;
+    }
+  }
+
   #sidebar ul {
     @apply my-0 list-none ps-0;
   }

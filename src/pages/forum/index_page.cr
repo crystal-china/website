@@ -1,70 +1,33 @@
-class Forum::IndexPage < MainLayout
+class Forum::IndexPage < ForumLayout
   needs topics : TopicQuery
   needs pages : Lucky::Paginator
-  needs nodes : Array(Node)
   needs node : Node? = nil
 
   def page_title
     node.try { |current_node| "#{current_node.name} - 社区" } || "社区"
   end
 
-  def content
+  def forum_content
     time_in_words = TimeInWords::Helpers(TimeInWords::I18n::ZH_CN)
     current_topics = topics.results
     current_node = node
     heading = current_node.try(&.name) || "社区"
     description = current_node.try(&.summary) || "讨论 Crystal 语言及其生态。"
 
-    section class: "#{page_container_classes} py-10" do
-      div class: "flex flex-col items-start gap-8 lg:flex-row" do
-        render_node_navigation(current_node)
-
-        main class: "min-w-0 flex-1" do
-          header class: "mb-8 flex flex-wrap items-center justify-between gap-4" do
-            div do
-              h1 heading, class: "m-0 text-3xl font-semibold tracking-tight text-gray-900"
-              para description, class: "mt-2 mb-0 text-sm text-gray-600"
-            end
-
-            link "发布主题", to: Forum::New, class: "form-submit" if current_user
-          end
-
-          render_topic_list(current_topics, time_in_words)
-        end
+    header class: "mb-8 flex flex-wrap items-center justify-between gap-4" do
+      div do
+        h1 heading, class: "m-0 text-3xl font-semibold tracking-tight text-gray-900"
+        para description, class: "mt-2 mb-0 text-sm text-gray-600"
       end
+
+      link "发布主题", to: Forum::New, class: "form-submit" if current_user
     end
+
+    render_topic_list(current_topics, time_in_words)
   end
 
-  private def render_node_navigation(current_node : Node?)
-    link_classes = "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium no-underline transition-colors"
-    active_classes = "bg-gray-900 text-white"
-    inactive_classes = "text-gray-700 hover:bg-gray-100 hover:text-gray-950"
-
-    aside class: "app-panel w-full shrink-0 p-3 lg:sticky lg:top-24 lg:w-56" do
-      nav "aria-label": "社区节点" do
-        ul class: "m-0 flex list-none flex-wrap gap-1 p-0 lg:flex-col" do
-          li do
-            link(
-              "全部主题",
-              to: Forum::Index,
-              class: "#{link_classes} #{current_node.nil? ? active_classes : inactive_classes}"
-            )
-          end
-
-          nodes.each do |listed_node|
-            li do
-              link(
-                to: Forum::Index.with(node: listed_node.slug),
-                class: "#{link_classes} #{current_node.try(&.id) == listed_node.id ? active_classes : inactive_classes}"
-              ) do
-                span class: "h-2.5 w-2.5 shrink-0 rounded-sm", style: "background-color: #{listed_node.color}"
-                text listed_node.name
-              end
-            end
-          end
-        end
-      end
-    end
+  private def current_node : Node?
+    node
   end
 
   private def render_topic_list(current_topics : Array(Topic), time_in_words)

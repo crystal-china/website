@@ -21,7 +21,7 @@ import pasteImage from "./pasteImage.js";
 // htmx.config.mode = "cors";
 
 htmx.config.noSwap.push("4xx", "5xx");
-setupHtmxErrorAlert();
+setupHtmxErrorAlert(htmx);
 
 const frontendConfig = JSON.parse(
     document.getElementById("app-config")?.textContent ?? "{}",

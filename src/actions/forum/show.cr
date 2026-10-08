@@ -1,4 +1,4 @@
-class Forum::Show < BrowserAction
+class Forum::Show < ForumAction
   include Auth::AllowGuests
 
   get "/forum/:id" do

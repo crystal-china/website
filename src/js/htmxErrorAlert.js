@@ -37,13 +37,34 @@ function messageForStatus(status) {
     }
 }
 
-export default function setupHtmxErrorAlert() {
+export default function setupHtmxErrorAlert(htmx) {
+    document.addEventListener("htmx:before:request", (event) => {
+        const { ctx } = event.detail;
+        const timeout = ctx.request.timeout != null
+            ? htmx.parseInterval(ctx.request.timeout)
+            : htmx.config.defaultTimeout;
+
+        // HTMX 4 的主动取消和超时都是 AbortError，只有计时器触发才标记为超时。
+        // 沿用 requestTimeout，让 HTMX 在请求结束时清理计时器。
+        clearTimeout(ctx.requestTimeout);
+        if (timeout) {
+            ctx.requestTimeout = setTimeout(() => {
+                ctx.requestTimedOut = true;
+                ctx.request.abort();
+            }, timeout);
+        }
+    });
+
     document.addEventListener("htmx:response:error", (event) => {
         showError(messageForStatus(event.detail.ctx.response.status));
     });
 
     document.addEventListener("htmx:error", (event) => {
         const { ctx, error } = event.detail;
+
+        if (error?.name === "AbortError" && !ctx?.requestTimedOut) {
+            return;
+        }
 
         if (!navigator.onLine) {
             showError("网络连接已断开，请检查网络后重试。", true);
