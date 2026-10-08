@@ -15,8 +15,6 @@ abstract class MainLayout
   end
 
   def render
-    scope = search_scope
-
     html_doctype
 
     html lang: "zh-CN" do
@@ -34,23 +32,33 @@ abstract class MainLayout
         # 保持 body 下只有这个根元素，确保整页替换时只触发一次；不要删除。
         div id: "htmx-onload-root" do
           mount Shared::HtmxErrorAlert
-          mount Navbar, current_user: current_user, search_scope: scope
-          mount Shared::PageFlash, flash: context.flash
-
-          main do
-            content
-          end
-
-          mount Footer, current_user: current_user
-
-          if current_user && scope
-            mount Search::Dialog, scope: scope, current_user: current_user
-          end
-
-          mount Shared::Common, page_title: page_title
+          render_body
         end
       end
     end
+  end
+
+  private def render_body
+    scope = search_scope
+
+    render_navbar_and_flash
+
+    main do
+      content
+    end
+
+    mount Footer, current_user: current_user
+
+    if current_user && scope
+      mount Search::Dialog, scope: scope, current_user: current_user
+    end
+
+    mount Shared::Common, page_title: page_title
+  end
+
+  private def render_navbar_and_flash
+    mount Navbar, current_user: current_user, search_scope: search_scope
+    mount Shared::PageFlash, flash: context.flash
   end
 
   private def search_scope : String?

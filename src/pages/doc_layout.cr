@@ -1,17 +1,12 @@
-abstract class DocLayout
-  include Lucky::HTMLPage
-  include PageHelpers
+require "./main_layout"
+
+abstract class DocLayout < MainLayout
   include MarkdownHelpers
 
-  # 'needs current_user : User' makes it so that the current_user
-  # is always required for pages using MainLayout
-  needs current_user : User?
   needs formatter : Tartrazine::Formatter
   needs doc : Doc
   needs markdown_path : String
   needs markdown_source : String
-
-  abstract def content
 
   def page_title
     DocNavigation.pages_by_path[current_path]?.try(&.title) || markdown_page_title
@@ -29,36 +24,15 @@ abstract class DocLayout
     "#{page_title} - Crystal 中文文档。"
   end
 
-  def render
-    html_doctype
-
-    html lang: "zh-CN" do
-      mount(
-        Shared::LayoutHead,
-        seo: SEO.new(
-          page_title: page_title,
-          page_description: page_description,
-          canonical_url: canonical_url
-        )
-      )
-
-      body "hx-boost:inherited": "true" do
-        # hx-boost 替换 body 时，会对每个顶级子元素分别触发 htmx.onLoad。
-        # 保持 body 下只有这个根元素，确保整页替换时只触发一次；不要删除。
-        div id: "htmx-onload-root" do
-          mount Shared::HtmxErrorAlert
-
-          if paginated_doc?
-            render_paginated_doc
-          else
-            render_standalone_doc
-          end
-
-          mount Shared::Common, page_title: page_title
-          mount Comments::Dialog
-        end
-      end
+  private def render_body
+    if paginated_doc?
+      render_paginated_doc
+    else
+      render_standalone_doc
     end
+
+    mount Shared::Common, page_title: page_title
+    mount Comments::Dialog
   end
 
   private def paginated_doc?
@@ -66,8 +40,7 @@ abstract class DocLayout
   end
 
   private def render_paginated_doc
-    mount Navbar, current_user: current_user, search_scope: "docs"
-    mount Shared::PageFlash, flash: context.flash
+    render_navbar_and_flash
 
     main class: "#{page_frame_classes} flex flex-col items-stretch lg:flex-row lg:items-start" do
       aside class: "w-full border-b border-gray-300 bg-[#F2F4F6] lg:w-80 lg:shrink-0 lg:self-stretch lg:border-r lg:border-b-0" do
@@ -83,7 +56,7 @@ abstract class DocLayout
       )
     end
 
-    mount Search::Dialog, scope: "docs", current_user: current_user if current_user
+    mount Search::Dialog, scope: search_scope, current_user: current_user if current_user
   end
 
   private def render_standalone_doc
@@ -189,5 +162,9 @@ abstract class DocLayout
         voted_types: voted_types
       )
     end
+  end
+
+  private def search_scope : String
+    "docs"
   end
 end
