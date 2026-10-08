@@ -1,4 +1,4 @@
-class Forum::ShowPage < MainLayout
+class Forum::ShowPage < ForumLayout
   include MarkdownFormatter
 
   needs topic : Topic

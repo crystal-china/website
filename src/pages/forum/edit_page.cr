@@ -1,4 +1,4 @@
-class Forum::EditPage < MainLayout
+class Forum::EditPage < ForumLayout
   needs topic : Topic
   needs operation : UpdateTopic
   needs nodes : Array(Node)

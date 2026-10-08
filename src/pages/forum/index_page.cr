@@ -1,4 +1,4 @@
-class Forum::IndexPage < MainLayout
+class Forum::IndexPage < ForumLayout
   needs topics : TopicQuery
   needs pages : Lucky::Paginator
   needs nodes : Array(Node)

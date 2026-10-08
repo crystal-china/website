@@ -66,7 +66,7 @@ abstract class DocLayout
   end
 
   private def render_paginated_doc
-    mount Navbar, current_user: current_user
+    mount Navbar, current_user: current_user, search_scope: "docs"
     mount Shared::PageFlash, flash: context.flash
 
     main class: "#{page_frame_classes} flex flex-col items-stretch lg:flex-row lg:items-start" do

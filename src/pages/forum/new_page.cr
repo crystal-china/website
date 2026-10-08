@@ -1,4 +1,4 @@
-class Forum::NewPage < MainLayout
+class Forum::NewPage < ForumLayout
   needs operation : SaveTopic
   needs nodes : Array(Node)
 

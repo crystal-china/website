@@ -1,4 +1,6 @@
 class Navbar < BaseComponent
+  needs search_scope : String? = nil
+
   def render
     header class: "sticky top-0 z-50" do
       div class: "flex translate-y-px flex-col items-center gap-3 border-b border-gray-300/80 bg-[#F2F4F6] pt-3 pb-3 shadow-[0_1px_2px_rgb(15_23_42/0.06)] md:flex-row md:justify-between md:pt-4 #{page_frame_classes} #{page_gutter_classes}" do
@@ -10,7 +12,7 @@ class Navbar < BaseComponent
         nav class: "w-full md:ml-auto md:w-auto" do
           ul class: "m-0 flex list-none flex-wrap items-center justify-center gap-x-2 gap-y-2 p-0 sm:gap-x-4 md:justify-end lg:gap-x-6" do
             li do
-              if current_path.starts_with?("/docs") && current_user
+              if search_scope == "docs" && current_user
                 render_search_button
               else
                 link "文档", to: Docs::Markdowns.with(requested_path: "index"), class: nav_item_class(active: current_path.starts_with?("/docs"))
@@ -18,7 +20,7 @@ class Navbar < BaseComponent
             end
 
             li do
-              if current_path.starts_with?("/forum") && current_user
+              if search_scope == "topics" && current_user
                 render_search_button
               else
                 link "社区", to: Forum::Index, class: nav_item_class(active: current_path.starts_with?("/forum"))
