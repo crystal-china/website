@@ -3,6 +3,7 @@ class Comments::ListMore < BaseComponent
   needs pagination : Comments::Pagination
   needs page_number : Int32
   needs comment_id : Int64?
+  needs focused_comment : Comment? = nil
 
   def render
     pagination[:comments].results.each do |comment|
@@ -12,7 +13,8 @@ class Comments::ListMore < BaseComponent
         comment: comment,
         order_by: pagination[:order_by],
         show_update_success: comment_id == comment.id,
-        current_user: current_user
+        current_user: current_user,
+        focused_comment: focused_comment
       )
     end
 
