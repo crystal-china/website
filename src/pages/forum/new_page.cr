@@ -6,7 +6,7 @@ class Forum::NewPage < ForumLayout
   end
 
   def forum_content
-    article class: "app-panel mx-auto w-full max-w-3xl overflow-hidden" do
+    article class: "app-panel w-full overflow-hidden" do
       header class: "panel-header" do
         h1 "发布主题", class: "panel-title"
       end
