@@ -4,6 +4,10 @@ class UpdateUser < User::SaveOperation
   attribute password_confirmation : String
 
   before_save do
+    validate_format_of name,
+      with: /[\s\p{Z}]/,
+      match: false,
+      message: "不能包含空格或其他空白字符"
     validate_uniqueness_of name
     validate_avatar_is_a_link
     if !password.value.nil?

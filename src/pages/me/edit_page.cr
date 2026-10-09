@@ -16,7 +16,7 @@ class Me::EditPage < MainLayout
         form_for Me::Update, class: "panel-body space-y-8" do
           div class: "grid gap-8 md:grid-cols-[minmax(0,1fr)_15rem]" do
             div class: "space-y-6" do
-              mount Shared::Field, attribute: op.name, label_text: "昵称", &.text_input(placeholder: "输入你希望显示的名字")
+              mount Shared::Field, attribute: op.name, label_text: "用户名", &.text_input(placeholder: "不能包含空白；其他人可通过 @用户名 提及你")
 
               mount Shared::Field, attribute: op.avatar, label_text: "头像链接", &.text_input(placeholder: "https://example.com/avatar.png", autofocus: true)
 
