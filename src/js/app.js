@@ -13,6 +13,7 @@ import trackPageView from "./firebaseAnalytics.js";
 import setupHtmxErrorAlert from "./htmxErrorAlert.js";
 import setupLogo from "./logoViewer.js";
 import pasteImage from "./pasteImage.js";
+import setupMentions from "./mentions.js";
 
 // 调试 HTMX 时临时取消注释；错误和警告默认始终输出。
 // htmx.config.logAll = true;
@@ -50,6 +51,7 @@ function initializeContent(root) {
     void setupLogo(root, assetUrl);
     setupPasteImage(root);
     setupCopyCodeButton(root);
+    findElements(root, "textarea[data-mentions-url]").forEach(setupMentions);
     trackPageView(root);
 }
 
