@@ -2,7 +2,12 @@ class Forum::Show < ForumAction
   include Auth::AllowGuests
 
   get "/forum/:id" do
-    topic = TopicQuery.new.id(id).preload_user.preload_node.first
+    topic = TopicQuery.new.id(id).preload_user.preload_node.first?
+
+    if topic.nil?
+      return html_with_status Errors::ContentUnavailablePage, 404, content_name: "主题"
+    end
+
     comment_thread = CommentThreadQuery.new.topic_id(topic.id).first
     can_delete_topic = false
 
