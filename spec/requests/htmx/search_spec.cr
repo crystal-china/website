@@ -4,8 +4,8 @@ describe Htmx::Search do
   it "searches topic titles and content, highlights safely, and excludes deleted topics" do
     user = UserFactory.create
     node = SaveNode.create!(name: "搜索", slug: "search", summary: "测试", color: "#16a34a", position: 0)
-    topic = SaveTopic.create!(user_id: user.id, node_id: node.id, title: "Crystal 并发模型", content: "Ruby 通道实践 <img src=x onerror=alert(1)> 与消息传递。")
-    deleted_topic = SaveTopic.create!(user_id: user.id, node_id: node.id, title: "Crystal 已删除的主题", content: "Ruby 通道实践")
+    topic = CreateTopic.create!(user_id: user.id, node_id: node.id, title: "Crystal 并发模型", content: "Ruby 通道实践 <img src=x onerror=alert(1)> 与消息传递。")
+    deleted_topic = CreateTopic.create!(user_id: user.id, node_id: node.id, title: "Crystal 已删除的主题", content: "Ruby 通道实践")
     DeleteTopic.delete!(deleted_topic)
     client = ApiClient.new
 

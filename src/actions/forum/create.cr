@@ -2,7 +2,7 @@ class Forum::Create < ForumAction
   param content : String = ""
 
   post "/forum" do
-    SaveTopic.create(params, user_id: current_user.id, content: content) do |operation, topic|
+    CreateTopic.create(params, user_id: current_user.id, content: content) do |operation, topic|
       if topic
         redirect Forum::Show.with(id: topic.id)
       else

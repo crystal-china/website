@@ -74,7 +74,7 @@ class Db::Seed::SampleData < LuckyTask::Task
     topics = topic_data.each_with_index.map do |data, index|
       slug, title, background, question = data
 
-      SaveTopic.create!(
+      CreateTopic.create!(
         user_id: users[index % users.size].id,
         node_id: nodes[slug].id,
         title: title,
@@ -95,12 +95,12 @@ class Db::Seed::SampleData < LuckyTask::Task
     topics.each_with_index do |topic, index|
       thread_id = CommentThreadQuery.new.topic_id(topic.id).first.id
 
-      SaveComment.create!(
+      CreateComment.create!(
         comment_thread_id: thread_id,
         user_id: users[(index + 1) % users.size].id,
         content: "我也遇到过类似场景。#{topic_data[index][2]} 我倾向于先写一个能复现问题的小例子，再决定是否抽象成通用方案。"
       )
-      SaveComment.create!(
+      CreateComment.create!(
         comment_thread_id: thread_id,
         user_id: users[(index + 2) % users.size].id,
         content: "这个问题值得继续讨论。#{topic_data[index][3]} 如果能补上实际的代码和运行环境，其他人更容易给出有针对性的建议。"
@@ -108,14 +108,14 @@ class Db::Seed::SampleData < LuckyTask::Task
     end
 
     first_topic_thread_id = CommentThreadQuery.new.topic_id(topics.first.id).first.id
-    topic_root = SaveComment.create!(
+    topic_root = CreateComment.create!(
       comment_thread_id: first_topic_thread_id,
       user_id: users[1].id,
       content: "我会先选一个输入明确的小脚本来迁移，而不是一次搬整个项目。这样每处理一个 Nil 联合类型，都能马上运行对应示例验证行为。"
     )
 
     10.times do |index|
-      SaveComment.create!(
+      CreateComment.create!(
         comment_thread_id: first_topic_thread_id,
         user_id: users[(index + 2) % users.size].id,
         content: "补充第 #{index + 1} 个迁移时遇到的细节：先把输入和输出类型写在方法边界，再逐个处理可能为 Nil 的值。这样报错位置更集中，也方便后来的人阅读。"
@@ -123,7 +123,7 @@ class Db::Seed::SampleData < LuckyTask::Task
     end
 
     12.times do |index|
-      SaveComment.create!(
+      CreateComment.create!(
         parent_id: topic_root.id,
         user_id: users[(index + 2) % users.size].id,
         content: "关于第 #{index + 1} 处类型处理，我会先为外部输入写一个明确的转换方法，再让内部代码使用更窄的类型。这样不用到处加 not_nil!，测试也更容易覆盖失败分支。"
@@ -136,7 +136,7 @@ class Db::Seed::SampleData < LuckyTask::Task
     end
 
     doc_thread_id = CommentThreadQuery.new.doc_id(DocQuery.new.path_index("/docs/index").first.id).first.id
-    doc_root = SaveComment.create!(
+    doc_root = CreateComment.create!(
       comment_thread_id: doc_thread_id,
       user_id: users[2].id,
       content: <<-MARKDOWN
@@ -150,7 +150,7 @@ class Db::Seed::SampleData < LuckyTask::Task
       MARKDOWN
     )
 
-    doc_child = SaveComment.create!(
+    doc_child = CreateComment.create!(
       parent_id: doc_root.id,
       user_id: users[1].id,
       content: <<-MARKDOWN
@@ -165,7 +165,7 @@ class Db::Seed::SampleData < LuckyTask::Task
       如果示例还介绍 PGroonga 中文搜索，后续就能把读取的内容存入数据库并验证检索结果。
       MARKDOWN
     )
-    doc_grandchild = SaveComment.create!(
+    doc_grandchild = CreateComment.create!(
       parent_id: doc_child.id,
       user_id: users[3].id,
       content: <<-MARKDOWN
@@ -185,12 +185,12 @@ class Db::Seed::SampleData < LuckyTask::Task
 
     # Later floors put the root, child and grandchild on page 2 in descending order.
     12.times do |index|
-      SaveComment.create!(
+      CreateComment.create!(
         comment_thread_id: doc_thread_id,
         user_id: users[(index + 1) % users.size].id,
         content: "阅读前言后的第 #{index + 1} 个问题：我正在把一个 Ruby 小工具迁到 Crystal。最有帮助的是完整示例，包括依赖安装、运行命令和常见类型错误的解释。"
       )
-      SaveComment.create!(
+      CreateComment.create!(
         parent_id: doc_root.id,
         user_id: users[(index + 2) % users.size].id,
         content: "第 #{index + 1} 条补充：可以先把文件读取和内容解析拆开，再单独处理失败情况。这样同一段示例既能演示类型推断，也能说明错误消息从哪里来。"
@@ -198,7 +198,7 @@ class Db::Seed::SampleData < LuckyTask::Task
     end
 
     concurrency_thread_id = CommentThreadQuery.new.doc_id(DocQuery.new.path_index("/docs/concurrency").first.id).first.id
-    SaveComment.create!(
+    CreateComment.create!(
       comment_thread_id: concurrency_thread_id,
       user_id: users[3].id,
       content: <<-MARKDOWN

@@ -1,4 +1,4 @@
-class SaveTopic < Topic::SaveOperation
+class CreateTopic < Topic::SaveOperation
   permit_columns user_id, node_id, title, content
   after_save create_comment_thread, if: :new_record?
 

@@ -1,5 +1,5 @@
 class Forum::NewPage < ForumLayout
-  needs operation : SaveTopic
+  needs operation : CreateTopic
 
   def page_title
     "发布主题"

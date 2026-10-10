@@ -5,8 +5,8 @@ describe "Topic activity" do
     author = UserFactory.create
     replier = UserFactory.create
     node = SaveNode.create!(name: "活跃测试", slug: "topic-activity", summary: "测试", color: "#16a34a", position: 0)
-    topic = SaveTopic.create!(user_id: author.id, node_id: node.id, title: "旧主题", content: "内容")
-    newer_topic = SaveTopic.create!(user_id: author.id, node_id: node.id, title: "新主题", content: "内容")
+    topic = CreateTopic.create!(user_id: author.id, node_id: node.id, title: "旧主题", content: "内容")
+    newer_topic = CreateTopic.create!(user_id: author.id, node_id: node.id, title: "新主题", content: "内容")
     thread = CommentThreadQuery.new.topic_id(topic.id).first
     root_at = newer_topic.created_at + 1.minute
     child_at = root_at + 1.minute
@@ -19,9 +19,9 @@ describe "Topic activity" do
     activity.call.should eq({0, nil, topic.last_active_at})
     TopicQuery.new.last_active_at.desc_order.id.desc_order.first.id.should eq(newer_topic.id)
 
-    root = SaveComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "根评论", created_at: root_at)
-    child = SaveComment.create!(user_id: replier.id, parent_id: root.id, content: "子评论", created_at: child_at)
-    grandchild = SaveComment.create!(user_id: author.id, parent_id: child.id, content: "后代评论", created_at: grandchild_at)
+    root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "根评论", created_at: root_at)
+    child = CreateComment.create!(user_id: replier.id, parent_id: root.id, content: "子评论", created_at: child_at)
+    grandchild = CreateComment.create!(user_id: author.id, parent_id: child.id, content: "后代评论", created_at: grandchild_at)
 
     activity.call.should eq({3, author.id, grandchild_at})
     TopicQuery.new.last_active_at.desc_order.id.desc_order.first.id.should eq(topic.id)

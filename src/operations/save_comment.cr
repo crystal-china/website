@@ -1,4 +1,4 @@
-class SaveComment < Comment::SaveOperation
+class CreateComment < Comment::SaveOperation
   permit_columns user_id, comment_thread_id, parent_id, content
 
   before_save do
