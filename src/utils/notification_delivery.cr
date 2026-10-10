@@ -32,17 +32,17 @@ module NotificationDelivery
     deliver(record, recipients, actor_id)
   end
 
-  def self.edited(record : Comment | Topic, actor_id : Int64)
+  def self.edited_by_admin(record : Comment | Topic, actor_id : Int64)
     kind = record.is_a?(Topic) ? Notification::Kind::TopicEdited : Notification::Kind::CommentEdited
 
     notify_author(record, actor_id, kind)
   end
 
-  def self.topic_moved(topic : Topic, actor_id : Int64)
+  def self.topic_moved_by_admin(topic : Topic, actor_id : Int64)
     notify_author(topic, actor_id, :topic_moved, "新节点：#{NodeQuery.find(topic.node_id).name}")
   end
 
-  def self.deleted(record : Comment | Topic, actor_id : Int64)
+  def self.deleted_by_admin(record : Comment | Topic, actor_id : Int64)
     kind = record.is_a?(Topic) ? Notification::Kind::TopicDeleted : Notification::Kind::CommentDeleted
 
     notify_author(record, actor_id, kind)
