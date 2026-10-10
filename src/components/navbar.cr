@@ -33,6 +33,15 @@ class Navbar < BaseComponent
 
             me = current_user
             if me
+              li do
+                link to: Notifications::Index, class: nav_item_class(active: current_path.starts_with?("/notifications")) do
+                  text "通知"
+                  if NotificationQuery.new.user_id(me.id).read_at.is_nil.any?
+                    span class: "ml-1.5 h-2 w-2 rounded-full bg-red-500", "aria-label": "有未读通知"
+                  end
+                end
+              end
+
               if me.admin?
                 li { link "后台", to: Admin::Index, class: nav_item_class(active: current_path.starts_with?("/admin")) }
               end
