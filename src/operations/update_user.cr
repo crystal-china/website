@@ -1,5 +1,5 @@
 class UpdateUser < User::SaveOperation
-  permit_columns name, avatar
+  permit_columns name, avatar, mention_notifications_enabled
   attribute password : String
   attribute password_confirmation : String
 
@@ -45,7 +45,7 @@ class UpdateUser < User::SaveOperation
         .changed_column_name(column_name)
 
       if exists_pending_record.any?
-        exists_pending_record.update(sync_state: UserAudit::SyncStatus::Staled)
+        exists_pending_record.update(sync_state: :staled)
       end
 
       SaveUserAudit.create!(

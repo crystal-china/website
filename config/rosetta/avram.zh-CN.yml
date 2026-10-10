@@ -29,6 +29,7 @@ zh-CN:
       last_active_at: "最后活跃时间"
       last_reply_user_id: "最后回复用户"
       kind: "通知类型"
+      mention_notifications_enabled: "接收 @提及 通知"
       name: "昵称"
       node_id: "节点"
       parent_id: "父评论"

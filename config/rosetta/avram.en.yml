@@ -29,6 +29,7 @@ en:
       last_active_at: "Last active at"
       last_reply_user_id: "Last reply user"
       kind: "Notification type"
+      mention_notifications_enabled: "Mention notifications"
       name: "Name"
       node_id: "Node"
       parent_id: "Parent comment"

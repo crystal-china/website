@@ -19,8 +19,8 @@ class CreateNotifications::V20261004120000 < Avram::Migrator::Migration::V1
       add_timestamps
     end
 
-    # 同一收件人对同一目标只通知一次，包括编辑后新增的提及。
-    create_index table_for(Notification), [:user_id, :url], unique: true
+    # 加速代码中的回复/提及去重查询，不限制管理操作的重复通知。
+    create_index table_for(Notification), [:user_id, :url, :kind]
     create_index table_for(Notification), [:user_id, :id]
     execute "CREATE INDEX notifications_unread_user_index ON notifications (user_id) WHERE read_at IS NULL"
   end

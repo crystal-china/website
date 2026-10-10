@@ -30,6 +30,15 @@ class Me::EditPage < MainLayout
             render_avatar_preview
           end
 
+          div class: "space-y-2 border-t border-gray-200 pt-6" do
+            label_for op.mention_notifications_enabled, class: "flex cursor-pointer items-center gap-3 text-sm font-medium text-gray-800" do
+              checkbox op.mention_notifications_enabled, class: "h-4 w-4 rounded border-gray-300 accent-sky-600", "aria-describedby": "mention-notifications-help"
+              text "接收 @提及通知"
+            end
+            para "关闭后，不接收任何人的 @提及通知；正常回复和管理通知不受影响，已有通知仍保留。", id: "mention-notifications-help", class: "m-0 text-sm leading-6 text-gray-500"
+            mount Shared::FieldErrors, op.mention_notifications_enabled
+          end
+
           div class: "flex flex-wrap items-center justify-end gap-3 border-t border-gray-200 pt-6" do
             a(
               "返回",
