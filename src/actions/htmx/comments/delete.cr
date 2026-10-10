@@ -15,7 +15,7 @@ class Htmx::Comments::Delete < CommentAction
       # 软删除不会移除子评论记录；作者只要有直接回复，就不能删除。
       next status = 409 if !me.admin? && CommentQuery.new.with_soft_deleted.parent_id(comment.id).any?
 
-      DeleteComment.delete!(comment)
+      DeleteComment.delete!(comment, actor_id: me.id)
       deleted_comment = comment
     end
 

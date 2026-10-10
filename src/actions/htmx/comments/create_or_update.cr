@@ -28,7 +28,7 @@ class Htmx::Comments::CreateOrUpdate < CommentAction
         # - 针对 comment 的子评论
         return head 403 unless comment.user_id == me.id || me.admin?
 
-        UpdateComment.update!(comment, content: content)
+        UpdateComment.update!(comment, content: content, actor_id: me.id)
 
         q = CommentQuery.new.id(comment.id).preload_user
         q = q.preload_parent &.preload_user
