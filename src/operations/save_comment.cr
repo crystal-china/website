@@ -34,4 +34,9 @@ class SaveComment < Comment::SaveOperation
 
     validate_required user_id, content, comment_thread_id
   end
+
+  # 新增才发送回复通知。
+  after_save do |comment|
+    NotificationDelivery.comment_created(comment) if new_record?
+  end
 end
