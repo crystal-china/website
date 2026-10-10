@@ -175,7 +175,7 @@ describe "Management notifications" do
 end
 
 describe "Mention notification preferences" do
-  it "defaults to enabled and lets users save the setting without hiding them from autocomplete" do
+  it "defaults to enabled and hides opted-out users from autocomplete until re-enabled" do
     user = UserFactory.create
     other = UserFactory.create
     user.mention_notifications_enabled.should be_true
@@ -192,11 +192,17 @@ describe "Mention notification preferences" do
       UserAuditQuery.new.user_id(user.id).any?.should be_false
 
       response = ApiClient.new.get("/htmx/mentions?q=#{URI.encode_path(user.name)}&backdoor_user_id=#{user.id}")
-      Array(String).from_json(response.body).should contain(user.name)
+      Array(String).from_json(response.body).should_not contain(user.name)
+
+      response = ApiClient.new.get("/htmx/mentions?q=#{URI.encode_path(user.name)}&backdoor_user_id=#{other.id}")
+      Array(String).from_json(response.body).should_not contain(user.name)
 
       response = ApiClient.new.put("/me/update?backdoor_user_id=#{user.id}", user: {mention_notifications_enabled: "true"})
       response.status_code.should eq(303)
       UserQuery.find(user.id).mention_notifications_enabled.should be_true
+
+      response = ApiClient.new.get("/htmx/mentions?q=#{URI.encode_path(user.name)}&backdoor_user_id=#{user.id}")
+      Array(String).from_json(response.body).should contain(user.name)
     end
   end
 
@@ -512,7 +518,11 @@ describe "Notifications" do
     child_response.status_code.should eq(200)
     child_response.body.should contain("要定位的子评论")
     child_response.body.should contain("scroll to the middle of me smoothly")
-    ApiClient.new.get("/comments/#{child.id}").headers["Location"].should contain("?comment_id=#{child.id}#comment-#{child.id}")
+    [root, child].each do |comment|
+      location = ApiClient.new.get("/comments/#{comment.id}").headers["Location"]
+      location.should contain("?comment_id=#{comment.id}")
+      URI.parse(location).fragment.should be_nil
+    end
   end
 
   it "requires authentication for autocomplete and treats LIKE wildcards literally" do

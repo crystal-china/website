@@ -19,6 +19,6 @@ class Comments::Show < CommentAction
              doc.path_index
            end
 
-    redirect to: "#{path}?comment_id=#{comment.id}#comment-#{comment.id}"
+    redirect to: "#{path}?comment_id=#{comment.id}"
   end
 end
