@@ -34,9 +34,7 @@ class Navbar < BaseComponent
             me = current_user
             if me
               li class: "ml-1 flex items-center gap-2 border-l border-gray-300/70 pl-3" do
-                mount Navbar::NotificationLink,
-                  active: current_path.starts_with?("/notifications"),
-                  current_user: me
+                mount Navbar::NotificationLink, current_user: me
                 mount Navbar::UserMenu, current_user: me
               end
             else

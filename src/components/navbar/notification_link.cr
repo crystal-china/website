@@ -1,20 +1,24 @@
 class Navbar::NotificationLink < BaseComponent
-  needs active : Bool
-
   def render
     user = current_user
 
     return if user.nil?
 
     unread = NotificationQuery.new.user_id(user.id).read_at.is_nil.any?
-    classes = active? ? "nav-icon-link is-active" : "nav-icon-link"
 
     span id: "notification-status", class: "inline-flex" do
-      link(
-        to: Notifications::Index,
-        class: classes,
+      button(
+        type: "button",
+        class: "nav-icon-link cursor-pointer",
         title: "通知",
-        "aria-label": unread ? "通知，有未读通知" : "通知"
+        "aria-label": unread ? "通知，有未读通知" : "通知",
+        "aria-haspopup": "dialog",
+        "aria-controls": "notifications-dialog",
+        hx_get: Notifications::Index.path,
+        hx_target: "#notifications-content",
+        hx_swap: "innerHTML",
+        hx_sync: "#notifications-dialog:replace",
+        script: "on click open #notifications-dialog"
       ) do
         img src: asset("svgs/notification-bell.svg"), alt: "", class: "h-5 w-5"
 

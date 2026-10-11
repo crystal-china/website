@@ -59,6 +59,7 @@ abstract class MainLayout
   private def render_navbar_and_flash
     mount Navbar, current_user: current_user, search_scope: search_scope
     mount Shared::PageFlash, flash: context.flash
+    mount ::Notifications::Dialog, current_user: current_user if current_user
   end
 
   private def search_scope : String?
