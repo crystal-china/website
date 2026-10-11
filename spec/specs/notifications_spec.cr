@@ -250,6 +250,42 @@ describe "Mention notification preferences" do
 end
 
 describe "Notifications" do
+  it "refreshes the current user's bell through heartbeats without marking notifications read" do
+    user = UserFactory.create
+    other = UserFactory.create
+    doc = SaveDoc.create!(path_index: "/docs/notification-status", content: "文档正文")
+    thread = CommentThreadQuery.new.doc_id(doc.id).first
+    client = ApiClient.new.headers("HX-Current-URL": "http://localhost/notifications", "HX-Request-Type": "partial")
+    path = "/htmx/online_users?backdoor_user_id=#{user.id}"
+
+    Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
+      response = client.patch(path)
+      response.status_code.should eq(200)
+      response.body.should contain("在线用户")
+      response.body.should contain(%(hx-target="#notification-status"))
+      response.body.should_not contain("通知，有未读通知")
+      response.body.should contain("nav-icon-link is-active")
+
+      response = client.post("/htmx/comments?backdoor_user_id=#{user.id}", comment_thread_id: thread.id, content: "@#{user.name} 提交后更新通知")
+      response.status_code.should eq(200)
+      response.body.should_not contain(%(hx-target="#notification-status"))
+      NotificationQuery.new.user_id(user.id).read_at.is_nil.select_count.should eq(1)
+
+      client.patch(path).body.should contain("通知，有未读通知")
+      client.patch("/htmx/online_users?backdoor_user_id=#{other.id}").body.should_not contain("通知，有未读通知")
+
+      NotificationQuery.new.user_id(user.id).update(read_at: Time.utc)
+      client.patch(path).body.should_not contain("通知，有未读通知")
+
+      response = client.patch("/htmx/online_users")
+      response.status_code.should eq(200)
+      response.body.should contain("在线用户")
+      response.body.should_not contain("<hx-partial")
+    end
+
+    client.get("/forum?backdoor_user_id=#{user.id}").body.should_not contain("nav-icon-link is-active")
+  end
+
   it "deduplicates topic and direct-reply recipients and excludes implicit self-notifications" do
     author = UserFactory.create
     responder = UserFactory.create

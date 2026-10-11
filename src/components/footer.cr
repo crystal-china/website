@@ -14,7 +14,8 @@ class Footer < BaseComponent
         end
 
         span(
-          hx_trigger: "load,every 2m",
+          # 停留在页面时保持在线登记，并定时更新通知状态。
+          hx_trigger: "load, every 2m",
           hx_patch: Htmx::OnlineUsers.path,
         ) do
           text "正在统计在线人数..."
