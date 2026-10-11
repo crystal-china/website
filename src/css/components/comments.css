@@ -7,7 +7,8 @@
     scroll-margin-top: 5.5rem;
   }
 
-  article[id^="comment-"]:target {
+  article[id^="comment-"]:target,
+  article[id^="comment-"].comment-focused {
     animation: comment-target-flash 2s ease-out;
   }
 

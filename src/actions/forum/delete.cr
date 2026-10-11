@@ -11,7 +11,7 @@ class Forum::Delete < BrowserAction
       return head 409 if comment_thread.comments_query.with_soft_deleted.any?
     end
 
-    DeleteTopic.delete!(topic)
+    DeleteTopic.delete!(topic, actor_id: me.id)
     flash.success = "主题已删除"
 
     if context.request.headers["HX-Request"]?

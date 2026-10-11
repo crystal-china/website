@@ -1,4 +1,4 @@
-class SaveComment < Comment::SaveOperation
+class CreateComment < Comment::SaveOperation
   permit_columns user_id, comment_thread_id, parent_id, content
 
   before_save do
@@ -33,5 +33,10 @@ class SaveComment < Comment::SaveOperation
     end
 
     validate_required user_id, content, comment_thread_id
+  end
+
+  # 新增才发送回复通知。
+  after_save do |comment|
+    NotificationDelivery.comment_created(comment) if new_record?
   end
 end

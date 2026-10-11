@@ -33,24 +33,9 @@ class Navbar < BaseComponent
 
             me = current_user
             if me
-              if me.admin?
-                li { link "后台", to: Admin::Index, class: nav_item_class(active: current_path.starts_with?("/admin")) }
-              end
-
-              li do
-                link(
-                  "登出",
-                  class: nav_item_class,
-                  to: SignIns::Delete,
-                  flow_id: "sign-out-button",
-                  hx_delete: SignIns::Delete.path,
-                )
-              end
-
-              li do
-                link to: Me::Edit, class: nav_item_class(active: current_path == Me::Edit.path), title: me.email do
-                  span me.email, class: "block lg:max-w-[10rem] lg:truncate xl:max-w-[16rem]"
-                end
+              li class: "ml-1 flex items-center gap-2 border-l border-gray-300/70 pl-3" do
+                mount Navbar::NotificationLink, current_user: me
+                mount Navbar::UserMenu, current_user: me
               end
             else
               li { link "注册", to: SignUps::New, class: nav_item_class(active: current_path == SignUps::New.path) }

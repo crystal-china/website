@@ -7,6 +7,7 @@ class User < BaseModel
     column name : String
     column avatar : String?
     column last_active_at : Time?
+    column mention_notifications_enabled : Bool = true
 
     # OAuth 登录时密码为空
     column encrypted_password : String?

@@ -4,7 +4,8 @@ class Search::Dialog < BaseComponent
   def render
     dialog(
       id: "search_dialog",
-      class: "mx-auto mt-[8vh] max-h-[calc(100vh_-_2rem)] w-[calc(100%_-_2rem)] max-w-xl rounded-xl border border-gray-300 bg-white p-0 shadow-xl sm:mt-[16vh]"
+      class: "mx-auto mt-[8vh] max-h-[calc(100vh_-_2rem)] w-[calc(100%_-_2rem)] max-w-xl rounded-xl border border-gray-300 bg-white p-0 shadow-xl sm:mt-[16vh]",
+      script: dialog_outside_click("close me")
     ) do
       div class: "border-b border-gray-200 p-4" do
         div class: "flex items-center justify-between gap-3" do

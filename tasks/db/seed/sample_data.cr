@@ -23,7 +23,7 @@ class Db::Seed::SampleData < LuckyTask::Task
     users = [
       {"admin@crystal-china.org", "社区管理员"},
       {"me@163.com", "小明"},
-      {"user1@163.com", "Ruby 转 Crystal"},
+      {"user1@163.com", "Ruby转Crystal"},
       {"user2@163.com", "并发学习者"},
     ].map do |email, name|
       user = SignUpUser.create!(
@@ -74,7 +74,7 @@ class Db::Seed::SampleData < LuckyTask::Task
     topics = topic_data.each_with_index.map do |data, index|
       slug, title, background, question = data
 
-      SaveTopic.create!(
+      CreateTopic.create!(
         user_id: users[index % users.size].id,
         node_id: nodes[slug].id,
         title: title,
@@ -95,12 +95,12 @@ class Db::Seed::SampleData < LuckyTask::Task
     topics.each_with_index do |topic, index|
       thread_id = CommentThreadQuery.new.topic_id(topic.id).first.id
 
-      SaveComment.create!(
+      CreateComment.create!(
         comment_thread_id: thread_id,
         user_id: users[(index + 1) % users.size].id,
         content: "我也遇到过类似场景。#{topic_data[index][2]} 我倾向于先写一个能复现问题的小例子，再决定是否抽象成通用方案。"
       )
-      SaveComment.create!(
+      CreateComment.create!(
         comment_thread_id: thread_id,
         user_id: users[(index + 2) % users.size].id,
         content: "这个问题值得继续讨论。#{topic_data[index][3]} 如果能补上实际的代码和运行环境，其他人更容易给出有针对性的建议。"
@@ -108,14 +108,14 @@ class Db::Seed::SampleData < LuckyTask::Task
     end
 
     first_topic_thread_id = CommentThreadQuery.new.topic_id(topics.first.id).first.id
-    topic_root = SaveComment.create!(
+    topic_root = CreateComment.create!(
       comment_thread_id: first_topic_thread_id,
       user_id: users[1].id,
       content: "我会先选一个输入明确的小脚本来迁移，而不是一次搬整个项目。这样每处理一个 Nil 联合类型，都能马上运行对应示例验证行为。"
     )
 
     10.times do |index|
-      SaveComment.create!(
+      CreateComment.create!(
         comment_thread_id: first_topic_thread_id,
         user_id: users[(index + 2) % users.size].id,
         content: "补充第 #{index + 1} 个迁移时遇到的细节：先把输入和输出类型写在方法边界，再逐个处理可能为 Nil 的值。这样报错位置更集中，也方便后来的人阅读。"
@@ -123,7 +123,7 @@ class Db::Seed::SampleData < LuckyTask::Task
     end
 
     12.times do |index|
-      SaveComment.create!(
+      CreateComment.create!(
         parent_id: topic_root.id,
         user_id: users[(index + 2) % users.size].id,
         content: "关于第 #{index + 1} 处类型处理，我会先为外部输入写一个明确的转换方法，再让内部代码使用更窄的类型。这样不用到处加 not_nil!，测试也更容易覆盖失败分支。"
@@ -136,7 +136,7 @@ class Db::Seed::SampleData < LuckyTask::Task
     end
 
     doc_thread_id = CommentThreadQuery.new.doc_id(DocQuery.new.path_index("/docs/index").first.id).first.id
-    doc_root = SaveComment.create!(
+    doc_root = CreateComment.create!(
       comment_thread_id: doc_thread_id,
       user_id: users[2].id,
       content: <<-MARKDOWN
@@ -145,16 +145,52 @@ class Db::Seed::SampleData < LuckyTask::Task
       > 能否再加一个小型迁移示例？
 
       我想先试一个只读配置文件并输出报告的脚本。
+
+      @#{users[0].name} 这个示例适合放在前言后面吗？
       MARKDOWN
     )
 
+    doc_child = CreateComment.create!(
+      parent_id: doc_root.id,
+      user_id: users[1].id,
+      content: <<-MARKDOWN
+      我赞成从读取配置文件开始。这个练习能同时覆盖文件路径、字符串处理和可能失败的输入，比一开始迁移完整 Web 项目更容易定位问题。
+
+      可以分三步实现：
+
+      1. 读取文件并输出原始内容。
+      2. 解析 JSON，再为配置定义明确的类型。
+      3. 为文件不存在、字段缺失和格式错误分别给出提示。
+
+      如果示例还介绍 PGroonga 中文搜索，后续就能把读取的内容存入数据库并验证检索结果。
+      MARKDOWN
+    )
+    doc_grandchild = CreateComment.create!(
+      parent_id: doc_child.id,
+      user_id: users[3].id,
+      content: <<-MARKDOWN
+      @#{users[1].name} 我按这个顺序试了一遍，确实容易理解。补充一个细节：外部输入可能为空，但转换后的内部配置可以保持非空，避免在每个方法里重复处理 Nil。
+
+      ```crystal
+      require "json"
+
+      config = JSON.parse(File.read("config.json"))
+      title = config["title"].as_s
+      puts title
+      ```
+
+      @#{users[2].name} 可以先运行这段最小示例，再补上异常处理。这条是对子评论的回复，页面应显示我回复的是小明，而不是根评论作者。
+      MARKDOWN
+    )
+
+    # Later floors put the root, child and grandchild on page 2 in descending order.
     12.times do |index|
-      SaveComment.create!(
+      CreateComment.create!(
         comment_thread_id: doc_thread_id,
         user_id: users[(index + 1) % users.size].id,
         content: "阅读前言后的第 #{index + 1} 个问题：我正在把一个 Ruby 小工具迁到 Crystal。最有帮助的是完整示例，包括依赖安装、运行命令和常见类型错误的解释。"
       )
-      SaveComment.create!(
+      CreateComment.create!(
         parent_id: doc_root.id,
         user_id: users[(index + 2) % users.size].id,
         content: "第 #{index + 1} 条补充：可以先把文件读取和内容解析拆开，再单独处理失败情况。这样同一段示例既能演示类型推断，也能说明错误消息从哪里来。"
@@ -162,7 +198,7 @@ class Db::Seed::SampleData < LuckyTask::Task
     end
 
     concurrency_thread_id = CommentThreadQuery.new.doc_id(DocQuery.new.path_index("/docs/concurrency").first.id).first.id
-    SaveComment.create!(
+    CreateComment.create!(
       comment_thread_id: concurrency_thread_id,
       user_id: users[3].id,
       content: <<-MARKDOWN
@@ -176,6 +212,12 @@ class Db::Seed::SampleData < LuckyTask::Task
 
     puts "Created #{topics.size} topics, #{users.size} users and comments on two searchable Markdown documents."
     puts "Try /forum?page=2, /forum/#{topics.first.id}, /docs/index, and search for PGroonga."
+    puts "Foreword: 13 root comments and 14 replies in the first root's branch (10 per page)."
+    puts "Jump to page 2 in descending order:"
+    puts "  Root: /comments/#{doc_root.id}"
+    puts "  Child: /comments/#{doc_child.id}"
+    puts "  Grandchild: /comments/#{doc_grandchild.id}"
+    puts "Sign in as admin@crystal-china.org, me@163.com or user1@163.com to test notification jumps."
   end
 
   def print_exit(reason)

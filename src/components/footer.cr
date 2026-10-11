@@ -14,7 +14,8 @@ class Footer < BaseComponent
         end
 
         span(
-          hx_trigger: "load,every 2m",
+          # 停留在页面时保持在线登记，并定时更新通知状态。
+          hx_trigger: "load, every 2m",
           hx_patch: Htmx::OnlineUsers.path,
         ) do
           text "正在统计在线人数..."
@@ -45,7 +46,13 @@ class Footer < BaseComponent
   end
 
   private def icon_link(title, href, src, alt)
-    a href: href, target: "_blank", rel: "nofollow", title: title, class: "inline-flex items-center" do
+    a(
+      href: href,
+      target: "_blank",
+      rel: "nofollow",
+      title: title,
+      class: "inline-flex items-center"
+    ) do
       img src: src, alt: alt, class: "h-5 w-5"
     end
   end

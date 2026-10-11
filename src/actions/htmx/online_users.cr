@@ -12,6 +12,9 @@ class Htmx::OnlineUsers < BrowserAction
       {ONLINE_USERS.keys.size, ONLINE_GUESTS.keys.size}
     end
 
-    plain_text "在线用户 #{user_count} 人, 游客 #{guest_count} 人"
+    component Shared::OnlineUsers,
+      user_count: user_count,
+      guest_count: guest_count,
+      current_user: current_user
   end
 end

@@ -6,7 +6,7 @@ class Forum::Update < ForumAction
 
     return head 403 unless topic.user_id == current_user.id || current_user.admin?
 
-    UpdateTopic.update(topic, params, content: content) do |operation, _updated_topic|
+    UpdateTopic.update(topic, params, content: content, actor_id: current_user.id) do |operation, _updated_topic|
       if operation.saved?
         flash.success = "主题已更新"
 

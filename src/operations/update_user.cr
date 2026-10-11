@@ -1,9 +1,13 @@
 class UpdateUser < User::SaveOperation
-  permit_columns name, avatar
+  permit_columns name, avatar, mention_notifications_enabled
   attribute password : String
   attribute password_confirmation : String
 
   before_save do
+    validate_format_of name,
+      with: /[\s\p{Z}]/,
+      match: false,
+      message: "不能包含空格或其他空白字符"
     validate_uniqueness_of name
     validate_avatar_is_a_link
     if !password.value.nil?
@@ -41,7 +45,7 @@ class UpdateUser < User::SaveOperation
         .changed_column_name(column_name)
 
       if exists_pending_record.any?
-        exists_pending_record.update(sync_state: UserAudit::SyncStatus::Staled)
+        exists_pending_record.update(sync_state: :staled)
       end
 
       SaveUserAudit.create!(

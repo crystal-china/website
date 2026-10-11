@@ -19,9 +19,9 @@ describe "Soft deletion" do
     admin = UserFactory.create &.email("soft-delete-admin@example.com")
     doc = SaveDoc.create!(path_index: "/docs/soft-delete-spec")
     thread = CommentThreadQuery.new.doc_id(doc.id).first
-    root = SaveComment.create!(user_id: user.id, comment_thread_id: thread.id, content: "root")
-    child = SaveComment.create!(user_id: user.id, parent_id: root.id, content: "child")
-    grandchild = SaveComment.create!(user_id: user.id, parent_id: child.id, content: "grandchild")
+    root = CreateComment.create!(user_id: user.id, comment_thread_id: thread.id, content: "root")
+    child = CreateComment.create!(user_id: user.id, parent_id: root.id, content: "child")
+    grandchild = CreateComment.create!(user_id: user.id, parent_id: child.id, content: "grandchild")
 
     DeleteComment.delete!(child)
 
@@ -56,9 +56,9 @@ describe "Soft deletion" do
     user = UserFactory.create
     admin = UserFactory.create &.email("soft-delete-admin@example.com")
     node = SaveNode.create!(name: "测试", slug: "soft-delete-test", summary: "测试", color: "#16a34a", position: 0)
-    topic = SaveTopic.create!(user_id: user.id, node_id: node.id, title: "可恢复主题", content: "内容")
+    topic = CreateTopic.create!(user_id: user.id, node_id: node.id, title: "可恢复主题", content: "内容")
     thread_id = CommentThreadQuery.new.topic_id(topic.id).first.id
-    comment = SaveComment.create!(user_id: user.id, comment_thread_id: thread_id, content: "保留评论")
+    comment = CreateComment.create!(user_id: user.id, comment_thread_id: thread_id, content: "保留评论")
 
     DeleteTopic.delete!(topic)
 

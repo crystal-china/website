@@ -52,9 +52,17 @@ HTML
   end
 
   private def show_comments_when_revealed(comment_thread_id : Int64)
-    trigger = context.request.headers["Referer"]? ? "revealed" : "load"
+    focus_id = context.request.query_params["comment_id"]?.try(&.to_i64?)
+    trigger = focus_id ? "load" : (context.request.headers["Referer"]? ? "revealed" : "load")
+    path = Htmx::Comments::Index.with(comment_thread_id: comment_thread_id, comment_id: focus_id).path
 
-    div role: "feed", id: "comments", hx_get: "/htmx/comments?comment_thread_id=#{comment_thread_id}", hx_trigger: trigger, hx_swap: "outerHTML" do
+    div(
+      role: "feed",
+      id: "comments",
+      hx_get: path,
+      hx_trigger: trigger,
+      hx_swap: "outerHTML"
+    ) do
       mount Shared::Spinner, text: "正在读取评论..."
     end
   end
@@ -77,6 +85,18 @@ on htmx:after:request(ctx)[ctx.response.raw.ok]
 #{script}
 end
 HEREDOC
+  end
+
+  # 背景点击的 target 也是 dialog；检查坐标，避免点击内部空白时关闭。
+  private def dialog_outside_click(action : String) : String
+    <<-HYPER
+on click[target is me]
+  set bounds to my.getBoundingClientRect()
+  if event.clientX < bounds.left or event.clientX > bounds.right or event.clientY < bounds.top or event.clientY > bounds.bottom
+    #{action}
+  end
+end
+HYPER
   end
 
   # def asset_host

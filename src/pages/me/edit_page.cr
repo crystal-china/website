@@ -16,7 +16,7 @@ class Me::EditPage < MainLayout
         form_for Me::Update, class: "panel-body space-y-8" do
           div class: "grid gap-8 md:grid-cols-[minmax(0,1fr)_15rem]" do
             div class: "space-y-6" do
-              mount Shared::Field, attribute: op.name, label_text: "昵称", &.text_input(placeholder: "输入你希望显示的名字")
+              mount Shared::Field, attribute: op.name, label_text: "用户名", &.text_input(placeholder: "不能包含空白；其他人可通过 @用户名 提及你")
 
               mount Shared::Field, attribute: op.avatar, label_text: "头像链接", &.text_input(placeholder: "https://example.com/avatar.png", autofocus: true)
 
@@ -28,6 +28,15 @@ class Me::EditPage < MainLayout
             end
 
             render_avatar_preview
+          end
+
+          div class: "space-y-2 border-t border-gray-200 pt-6" do
+            label_for op.mention_notifications_enabled, class: "flex cursor-pointer items-center gap-3 text-sm font-medium text-gray-800" do
+              checkbox op.mention_notifications_enabled, class: "h-4 w-4 rounded border-gray-300 accent-sky-600", "aria-describedby": "mention-notifications-help"
+              text "接收 @提及通知"
+            end
+            para "关闭后，不接收任何人的 @提及通知；正常回复和管理通知不受影响，已有通知仍保留。", id: "mention-notifications-help", class: "m-0 text-sm leading-6 text-gray-500"
+            mount Shared::FieldErrors, op.mention_notifications_enabled
           end
 
           div class: "flex flex-wrap items-center justify-end gap-3 border-t border-gray-200 pt-6" do

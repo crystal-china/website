@@ -1,13 +1,13 @@
 require "../spec_helper"
 
-describe SaveComment do
+describe CreateComment do
   it "rejects both comment targets on creation" do
     user = UserFactory.create
     doc = SaveDoc.create!(path_index: "/docs/save-reply-target")
     comment_thread_id = CommentThreadQuery.new.doc_id(doc.id).first.id
-    parent = SaveComment.create!(user_id: user.id, comment_thread_id: comment_thread_id, content: "parent")
+    parent = CreateComment.create!(user_id: user.id, comment_thread_id: comment_thread_id, content: "parent")
 
-    SaveComment.create(user_id: user.id, comment_thread_id: comment_thread_id, parent_id: parent.id, content: "invalid") do |operation, comment|
+    CreateComment.create(user_id: user.id, comment_thread_id: comment_thread_id, parent_id: parent.id, content: "invalid") do |operation, comment|
       comment.should be_nil
       operation.not_nil!.errors[:comment_thread_id_or_parent_id].should contain("不能同时指定评论区和父评论")
     end
@@ -17,10 +17,10 @@ describe SaveComment do
     user = UserFactory.create
     doc = SaveDoc.create!(path_index: "/docs/save-reply-floors")
     comment_thread_id = CommentThreadQuery.new.doc_id(doc.id).first.id
-    first_root = SaveComment.create!(user_id: user.id, comment_thread_id: comment_thread_id, content: "first root")
-    second_root = SaveComment.create!(user_id: user.id, comment_thread_id: comment_thread_id, content: "second root")
-    first_child = SaveComment.create!(user_id: user.id, parent_id: first_root.id, content: "first child")
-    second_child = SaveComment.create!(user_id: user.id, parent_id: first_child.id, content: "second child")
+    first_root = CreateComment.create!(user_id: user.id, comment_thread_id: comment_thread_id, content: "first root")
+    second_root = CreateComment.create!(user_id: user.id, comment_thread_id: comment_thread_id, content: "second root")
+    first_child = CreateComment.create!(user_id: user.id, parent_id: first_root.id, content: "first child")
+    second_child = CreateComment.create!(user_id: user.id, parent_id: first_child.id, content: "second child")
 
     {first_root.floor, second_root.floor}.should eq({1, 2})
     {first_child.floor, second_child.floor}.should eq({1, 2})
@@ -34,7 +34,7 @@ describe SaveComment do
 
     10.times do |index|
       spawn do
-        results.send SaveComment.create!(user_id: user.id, comment_thread_id: comment_thread_id, content: "comment #{index}")
+        results.send CreateComment.create!(user_id: user.id, comment_thread_id: comment_thread_id, content: "comment #{index}")
       rescue error
         results.send error
       end
