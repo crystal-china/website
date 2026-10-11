@@ -81,6 +81,18 @@ end
 HEREDOC
   end
 
+  # 背景点击的 target 也是 dialog；检查坐标，避免点击内部空白时关闭。
+  private def dialog_outside_click(action : String) : String
+    <<-HYPER
+on click[target is me]
+  set bounds to my.getBoundingClientRect()
+  if event.clientX < bounds.left or event.clientX > bounds.right or event.clientY < bounds.top or event.clientY > bounds.bottom
+    #{action}
+  end
+end
+HYPER
+  end
+
   # def asset_host
   #   Lucky::Server.settings.asset_host
   # end

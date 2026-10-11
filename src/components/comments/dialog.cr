@@ -32,6 +32,9 @@ on closeRequested
   end
 end
 
+-- 框外点击同样走未保存确认。
+#{dialog_outside_click("send closeRequested to me")}
+
 on keydown[event.key is "Escape"]
   halt the event
   send closeRequested to me
