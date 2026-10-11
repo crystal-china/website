@@ -45,7 +45,12 @@ on keydown[event.key is "Escape"]
 end
 HYPER
       ) do
-        mount Forum::TopicFields, operation: operation, nodes: nodes, current_user: current_user do
+        mount(
+          Forum::TopicFields,
+          operation: operation,
+          nodes: nodes,
+          current_user: current_user
+        ) do
           button(
             "取消",
             type: "button",

@@ -46,7 +46,13 @@ class Footer < BaseComponent
   end
 
   private def icon_link(title, href, src, alt)
-    a href: href, target: "_blank", rel: "nofollow", title: title, class: "inline-flex items-center" do
+    a(
+      href: href,
+      target: "_blank",
+      rel: "nofollow",
+      title: title,
+      class: "inline-flex items-center"
+    ) do
       img src: src, alt: alt, class: "h-5 w-5"
     end
   end

@@ -21,9 +21,11 @@ class Comments::Deleted < BaseComponent
     end
 
     if root
-      tag "hx-partial",
+      tag(
+        "hx-partial",
         hx_target: "#comment-#{root.id}-actions",
-        hx_swap: "outerHTML swap:1s" do
+        hx_swap: "outerHTML swap:1s"
+      ) do
         mount(
           Comments::CardAction,
           comment: root,

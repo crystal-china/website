@@ -5,7 +5,9 @@ class Navbar::UserMenu < BaseComponent
     return if user.nil?
 
     # 原生 details 负责展开和键盘操作；只补上点击外部及 Esc 关闭。
-    details class: "nav-user-menu", script: <<-HYPER do
+    details(
+      class: "nav-user-menu",
+      script: <<-HYPER
 on click from elsewhere
   remove @open from me
 end
@@ -16,7 +18,13 @@ on keydown[event.key is "Escape"]
   focus the first <summary/> in me
 end
 HYPER
-      summary class: "nav-user-trigger", title: "用户菜单", "aria-label": "#{user.name} 的用户菜单", "aria-controls": "nav-user-panel" do
+    ) do
+      summary(
+        class: "nav-user-trigger",
+        title: "用户菜单",
+        "aria-label": "#{user.name} 的用户菜单",
+        "aria-controls": "nav-user-panel"
+      ) do
         span class: "relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-800 text-sm font-semibold text-white ring-1 ring-black/5" do
           text user.name[0].to_s.upcase
 
@@ -33,7 +41,11 @@ HYPER
         span class: "nav-user-chevron", "aria-hidden": "true"
       end
 
-      nav id: "nav-user-panel", class: "nav-user-panel", "aria-label": "账户操作" do
+      nav(
+        id: "nav-user-panel",
+        class: "nav-user-panel",
+        "aria-label": "账户操作"
+      ) do
         div class: "mb-1 border-b border-gray-100 px-3 pt-2 pb-3" do
           strong user.name, class: "block truncate text-sm font-semibold text-gray-900"
           span user.email, class: "mt-1 block truncate text-xs text-gray-500", title: user.email

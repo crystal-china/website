@@ -25,7 +25,11 @@ HYPER
         )
       end
 
-      div id: "notifications-content", class: "max-h-[60vh] overflow-y-auto", "aria-live": "polite" do
+      div(
+        id: "notifications-content",
+        class: "max-h-[60vh] overflow-y-auto",
+        "aria-live": "polite"
+      ) do
         para "正在读取通知...", class: "m-0 px-4 py-6 text-center text-sm text-gray-500"
       end
     end
