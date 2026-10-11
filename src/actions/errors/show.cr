@@ -58,6 +58,7 @@ class Errors::Show < Lucky::ErrorAction
   end
 
   private def report(error : Exception) : Nil
+    Lucky::Log.error(exception: error) { "" }
     # Send to Rollbar, send an email, etc.
   end
 end
