@@ -271,12 +271,15 @@ describe "Notifications" do
     response.body.should_not contain("<!DOCTYPE")
     response.body.should contain(%(hx-target="closest section"))
     response.body.should contain("第 1 / 2 页")
+    response.body.should contain("通知，21 条未读通知")
+    XML.parse_html(response.body).xpath_node("//*[@id='notification-status']//span[@aria-hidden='true']").not_nil!.content.should eq("21")
     NotificationQuery.new.user_id(user.id).read_at.is_nil.select_count.should eq(21)
 
     response = client.get("/notifications?page=2&backdoor_user_id=#{user.id}")
     response.body.should contain("弹窗通知0")
     response.body.should_not contain("弹窗通知20")
     response.body.should contain("第 2 / 2 页")
+    response.body.should contain("通知，21 条未读通知")
 
     oldest_id = NotificationQuery.new.user_id(user.id).id.asc_order.first.id
     NotificationQuery.new.user_id(user.id).id.not.eq(oldest_id).update(read_at: Time.utc)
@@ -291,7 +294,7 @@ describe "Notifications" do
       response.body.should contain("第 1 / 2 页")
       response.body.should contain(%(hx-get="/notifications?page=2"))
       response.body.should contain(%(hx-target="#notification-status"))
-      response.body.should_not contain("通知，有未读通知")
+      response.body.should_not contain("条未读通知")
       XML.parse_html(response.body).xpath_node("//button[@hx-post='/notifications/read_all'][@disabled]").should_not be_nil
       NotificationQuery.new.user_id(user.id).read_at.is_nil.any?.should be_false
       NotificationQuery.find(foreign_notification.id).read_at.should be_nil
@@ -299,7 +302,7 @@ describe "Notifications" do
 
     response = client.get("/notifications?backdoor_user_id=#{user.id}")
     response.body.should contain(%(hx-target="#notification-status"))
-    response.body.should_not contain("通知，有未读通知")
+    response.body.should_not contain("条未读通知")
     client.get("/notifications").status_code.should eq(401)
   end
 
@@ -316,7 +319,7 @@ describe "Notifications" do
       response.status_code.should eq(200)
       response.body.should contain("在线用户")
       response.body.should contain(%(hx-target="#notification-status"))
-      response.body.should_not contain("通知，有未读通知")
+      response.body.should_not contain("条未读通知")
       response.body.should contain(%(aria-controls="notifications-dialog"))
 
       response = client.post("/htmx/comments?backdoor_user_id=#{user.id}", comment_thread_id: thread.id, content: "@#{user.name} 提交后更新通知")
@@ -324,11 +327,15 @@ describe "Notifications" do
       response.body.should_not contain(%(hx-target="#notification-status"))
       NotificationQuery.new.user_id(user.id).read_at.is_nil.select_count.should eq(1)
 
-      client.patch(path).body.should contain("通知，有未读通知")
-      client.patch("/htmx/online_users?backdoor_user_id=#{other.id}").body.should_not contain("通知，有未读通知")
+      response = client.patch(path)
+      response.body.should contain("通知，1 条未读通知")
+      XML.parse_html(response.body).xpath_node("//*[@id='notification-status']//span[@aria-hidden='true']").not_nil!.content.should eq("1")
+      client.patch("/htmx/online_users?backdoor_user_id=#{other.id}").body.should_not contain("条未读通知")
 
       NotificationQuery.new.user_id(user.id).update(read_at: Time.utc)
-      client.patch(path).body.should_not contain("通知，有未读通知")
+      response = client.patch(path)
+      response.body.should_not contain("条未读通知")
+      XML.parse_html(response.body).xpath_node("//*[@id='notification-status']//span[@aria-hidden='true']").should be_nil
 
       response = client.patch("/htmx/online_users")
       response.status_code.should eq(200)
@@ -339,6 +346,19 @@ describe "Notifications" do
     response = client.get("/forum?backdoor_user_id=#{user.id}")
     response.body.should contain(%(id="notifications-dialog"))
     response.body.should_not contain("nav-icon-link is-active")
+  end
+
+  it "caps the bell badge at 99+ while keeping the exact unread count accessible" do
+    user = UserFactory.create
+    actor = UserFactory.create
+    100.times do
+      SaveNotification.create!(user_id: user.id, actor_id: actor.id, kind: :mention,
+        url: "/docs/index", source_title: "通知", excerpt: "摘要")
+    end
+
+    response = ApiClient.new.get("/notifications?backdoor_user_id=#{user.id}")
+    response.body.should contain("通知，100 条未读通知")
+    XML.parse_html(response.body).xpath_node("//*[@id='notification-status']//span[@aria-hidden='true']").not_nil!.content.should eq("99+")
   end
 
   it "deduplicates topic and direct-reply recipients and excludes implicit self-notifications" do
