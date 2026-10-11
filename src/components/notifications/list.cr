@@ -1,6 +1,7 @@
 class Notifications::List < BaseComponent
   needs notifications : NotificationQuery
   needs pages : Lucky::Paginator
+  needs has_unread : Bool
 
   def render
     section class: "bg-white" do
@@ -8,10 +9,11 @@ class Notifications::List < BaseComponent
         button(
           "全部标为已读",
           type: "button",
+          attrs: has_unread? ? [] of Symbol : [:disabled],
           hx_post: Notifications::ReadAll.path,
           hx_target: "closest section",
           hx_swap: "outerHTML",
-          class: "form-secondary"
+          class: "form-secondary disabled:cursor-not-allowed disabled:opacity-50"
         )
       end
 

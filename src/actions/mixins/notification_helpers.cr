@@ -3,6 +3,7 @@ module NotificationHelpers
 
   private def render_notifications
     query = NotificationQuery.new.user_id(current_user.id)
+    has_unread = query.clone.read_at.is_nil.any?
     pages = Lucky::Paginator.new(
       page: paginator_page,
       per_page: 20,
@@ -19,6 +20,7 @@ module NotificationHelpers
       ::Notifications::List,
       notifications: notifications,
       pages: pages,
+      has_unread: has_unread,
       current_user: current_user
     )
   end

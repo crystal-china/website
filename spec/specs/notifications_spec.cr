@@ -253,6 +253,9 @@ describe "Notifications" do
   it "loads and paginates dialog content without reading notifications automatically" do
     user = UserFactory.create
     other = UserFactory.create
+    response = ApiClient.new.get("/notifications?backdoor_user_id=#{user.id}")
+    XML.parse_html(response.body).xpath_node("//button[@hx-post='/notifications/read_all'][@disabled]").should_not be_nil
+
     21.times do |index|
       SaveNotification.create!(user_id: user.id, actor_id: other.id, kind: :mention,
         url: "/docs/index", source_title: "弹窗通知#{index}", excerpt: "通知摘要")
@@ -275,6 +278,11 @@ describe "Notifications" do
     response.body.should_not contain("弹窗通知20")
     response.body.should contain("第 2 / 2 页")
 
+    oldest_id = NotificationQuery.new.user_id(user.id).id.asc_order.first.id
+    NotificationQuery.new.user_id(user.id).id.not.eq(oldest_id).update(read_at: Time.utc)
+    response = client.get("/notifications?backdoor_user_id=#{user.id}")
+    XML.parse_html(response.body).xpath_node("//button[@hx-post='/notifications/read_all'][@disabled]").should be_nil
+
     Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
       response = client.post("/notifications/read_all?backdoor_user_id=#{user.id}")
       response.status_code.should eq(200)
@@ -284,6 +292,7 @@ describe "Notifications" do
       response.body.should contain(%(hx-get="/notifications?page=2"))
       response.body.should contain(%(hx-target="#notification-status"))
       response.body.should_not contain("通知，有未读通知")
+      XML.parse_html(response.body).xpath_node("//button[@hx-post='/notifications/read_all'][@disabled]").should_not be_nil
       NotificationQuery.new.user_id(user.id).read_at.is_nil.any?.should be_false
       NotificationQuery.find(foreign_notification.id).read_at.should be_nil
     end
