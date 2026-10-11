@@ -1,43 +1,61 @@
-class Notifications::IndexPage < MainLayout
+class Notifications::List < BaseComponent
   needs notifications : NotificationQuery
   needs pages : Lucky::Paginator
 
-  def page_title
-    "通知"
-  end
+  def render
+    section class: "bg-white" do
+      header class: "flex justify-end border-b border-gray-200 px-4 py-3" do
+        button(
+          "全部标为已读",
+          type: "button",
+          hx_post: Notifications::ReadAll.path,
+          hx_target: "closest section",
+          hx_swap: "outerHTML",
+          class: "form-secondary"
+        )
+      end
 
-  def content
-    div class: "#{page_container_classes} py-8 sm:py-10" do
-      section class: "mx-auto max-w-3xl" do
-        header class: "mb-6 flex flex-wrap items-center justify-between gap-4" do
-          h1 "通知", class: "m-0 text-2xl font-semibold text-gray-900"
-          form_for Notifications::ReadAll do
-            submit "全部标为已读", class: "form-secondary"
-          end
+      items = notifications.results
+
+      if items.empty?
+        para "还没有通知。有人回复或提及你时，会显示在这里。", class: "m-0 px-6 py-12 text-center text-gray-500"
+      else
+        div class: "divide-y divide-gray-200" do
+          items.each { |notification| render_notification(notification) }
         end
+      end
 
-        items = notifications.results
-        if items.empty?
-          para "还没有通知。有人回复或提及你时，会显示在这里。", class: "app-panel m-0 px-6 py-12 text-center text-gray-500"
-        else
-          div class: "app-panel divide-y divide-gray-200 overflow-hidden" do
-            items.each { |notification| render_notification(notification) }
+      if pages.total > 1
+        nav class: "flex items-center justify-center gap-4 border-t border-gray-200 p-4", "aria-label": "通知分页" do
+          if (path = pages.path_to_previous)
+            render_page_link("上一页", path)
           end
-        end
-
-        unless pages.one_page?
-          nav class: "mt-6 flex items-center justify-center gap-4", "aria-label": "通知分页" do
-            if (path = pages.path_to_previous)
-              a "上一页", href: path, class: "form-secondary"
-            end
-            span "第 #{pages.page} / #{pages.total} 页", class: "text-sm text-gray-600"
-            if (path = pages.path_to_next)
-              a "下一页", href: path, class: "form-secondary"
-            end
+          span "第 #{pages.page} / #{pages.total} 页", class: "text-sm text-gray-600"
+          if (path = pages.path_to_next)
+            render_page_link("下一页", path)
           end
         end
       end
     end
+
+    tag(
+      "hx-partial",
+      hx_target: "#notification-status",
+      hx_swap: "outerHTML"
+    ) do
+      mount Navbar::NotificationLink, current_user: current_user
+    end
+  end
+
+  private def render_page_link(label : String, path : String)
+    a(
+      label,
+      href: path,
+      hx_get: path,
+      hx_target: "closest section",
+      hx_swap: "outerHTML",
+      class: "form-secondary"
+    )
   end
 
   private def render_notification(notification : Notification)
@@ -64,7 +82,7 @@ class Notifications::IndexPage < MainLayout
               text " #{description}"
             end
             span notification.source_title, class: "mt-1 block truncate text-sm font-medium text-sky-700"
-            span notification.excerpt, class: "mt-1 block line-clamp-2 break-words text-xs text-gray-500"
+            span notification.excerpt, class: "line-clamp-2 mt-1 block text-xs break-words text-gray-500"
             span(
               TimeInWords::Helpers(TimeInWords::I18n::ZH_CN).from(past_time: notification.created_at),
               class: "mt-2 block text-xs text-gray-400",

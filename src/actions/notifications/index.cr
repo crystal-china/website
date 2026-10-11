@@ -1,10 +1,7 @@
 class Notifications::Index < BrowserAction
-  include Lucky::Paginator::BackendHelpers
+  include NotificationHelpers
 
   get "/notifications" do
-    query = NotificationQuery.new.user_id(current_user.id).id.desc_order.preload_actor
-    pages, notifications = paginate(query, per_page: 20)
-
-    html Notifications::IndexPage, notifications: notifications, pages: pages
+    render_notifications
   end
 end

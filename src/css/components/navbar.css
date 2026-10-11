@@ -3,10 +3,6 @@
     @apply relative inline-flex h-10 w-10 items-center justify-center rounded-lg border border-transparent text-gray-600 transition-colors hover:bg-gray-200 hover:text-gray-950;
   }
 
-  .nav-icon-link.is-active {
-    @apply border-gray-300 bg-white text-gray-950 shadow-sm;
-  }
-
   .nav-user-menu {
     @apply relative;
   }

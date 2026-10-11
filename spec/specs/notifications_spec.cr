@@ -250,6 +250,50 @@ describe "Mention notification preferences" do
 end
 
 describe "Notifications" do
+  it "loads and paginates dialog content without reading notifications automatically" do
+    user = UserFactory.create
+    other = UserFactory.create
+    21.times do |index|
+      SaveNotification.create!(user_id: user.id, actor_id: other.id, kind: :mention,
+        url: "/docs/index", source_title: "弹窗通知#{index}", excerpt: "通知摘要")
+    end
+    foreign_notification = SaveNotification.create!(user_id: other.id, actor_id: user.id, kind: :mention,
+      url: "/docs/index", source_title: "其他用户的通知", excerpt: "不应显示")
+    client = ApiClient.new.headers("HX-Request-Type": "partial")
+    response = ApiClient.new.get("/notifications?backdoor_user_id=#{user.id}")
+    response.status_code.should eq(200)
+    response.body.should contain("弹窗通知20")
+    response.body.should_not contain("弹窗通知0<")
+    response.body.should_not contain("其他用户的通知")
+    response.body.should_not contain("<!DOCTYPE")
+    response.body.should contain(%(hx-target="closest section"))
+    response.body.should contain("第 1 / 2 页")
+    NotificationQuery.new.user_id(user.id).read_at.is_nil.select_count.should eq(21)
+
+    response = client.get("/notifications?page=2&backdoor_user_id=#{user.id}")
+    response.body.should contain("弹窗通知0")
+    response.body.should_not contain("弹窗通知20")
+    response.body.should contain("第 2 / 2 页")
+
+    Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
+      response = client.post("/notifications/read_all?backdoor_user_id=#{user.id}")
+      response.status_code.should eq(200)
+      response.headers["Location"]?.should be_nil
+      response.body.should contain("弹窗通知20")
+      response.body.should contain("第 1 / 2 页")
+      response.body.should contain(%(hx-get="/notifications?page=2"))
+      response.body.should contain(%(hx-target="#notification-status"))
+      response.body.should_not contain("通知，有未读通知")
+      NotificationQuery.new.user_id(user.id).read_at.is_nil.any?.should be_false
+      NotificationQuery.find(foreign_notification.id).read_at.should be_nil
+    end
+
+    response = client.get("/notifications?backdoor_user_id=#{user.id}")
+    response.body.should contain(%(hx-target="#notification-status"))
+    response.body.should_not contain("通知，有未读通知")
+    client.get("/notifications").status_code.should eq(401)
+  end
+
   it "refreshes the current user's bell through heartbeats without marking notifications read" do
     user = UserFactory.create
     other = UserFactory.create
@@ -264,7 +308,7 @@ describe "Notifications" do
       response.body.should contain("在线用户")
       response.body.should contain(%(hx-target="#notification-status"))
       response.body.should_not contain("通知，有未读通知")
-      response.body.should contain("nav-icon-link is-active")
+      response.body.should contain(%(aria-controls="notifications-dialog"))
 
       response = client.post("/htmx/comments?backdoor_user_id=#{user.id}", comment_thread_id: thread.id, content: "@#{user.name} 提交后更新通知")
       response.status_code.should eq(200)
@@ -283,7 +327,9 @@ describe "Notifications" do
       response.body.should_not contain("<hx-partial")
     end
 
-    client.get("/forum?backdoor_user_id=#{user.id}").body.should_not contain("nav-icon-link is-active")
+    response = client.get("/forum?backdoor_user_id=#{user.id}")
+    response.body.should contain(%(id="notifications-dialog"))
+    response.body.should_not contain("nav-icon-link is-active")
   end
 
   it "deduplicates topic and direct-reply recipients and excludes implicit self-notifications" do
@@ -530,7 +576,7 @@ describe "Notifications" do
         source_title: notification.source_title,
         excerpt: comment.content[0, 120]
       )
-      ApiClient.new.post("/notifications/read_all?backdoor_user_id=#{author.id}").status_code.should eq(303)
+      ApiClient.new.post("/notifications/read_all?backdoor_user_id=#{author.id}").status_code.should eq(200)
       NotificationQuery.find(other.id).read_at.should be_nil
     end
   end
