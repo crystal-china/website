@@ -67,3 +67,10 @@ en:
     validate_numeric_nil: "must not be nil"
     validate_required: "is required"
     validate_uniqueness_of: "is already taken"
+    errors:
+      username_whitespace: "must not contain whitespace"
+      avatar_url: "must be a valid http/https URL"
+      email_not_registered: "must be a valid registered email address"
+      password_incorrect: "is incorrect"
+      email_not_found: "is not registered"
+      comment_target_conflict: "must not specify both a comment thread and a parent comment"

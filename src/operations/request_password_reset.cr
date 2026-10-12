@@ -19,7 +19,7 @@ class RequestPasswordReset < Avram::Operation
   def validate(user : User?)
     validate_required email
     if user.nil?
-      email.add_error "不是合法的已注册邮箱地址"
+      email.add_error Rosetta.find("avram.errors.email_not_registered").t
     end
   end
 end

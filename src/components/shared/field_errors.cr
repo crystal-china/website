@@ -5,16 +5,8 @@ class Shared::FieldErrors(T) < BaseComponent
   def render
     unless attribute.valid?
       div class: "error" do
-        text "#{label_text} #{attribute.errors.first}"
+        text ValidationErrors.format(attribute.name, attribute.errors.first)
       end
     end
-  end
-
-  def label_text : String
-    # Wordsmith::Inflector.humanize(attribute.name.to_s)
-    Rosetta.find(
-      "avram.attribute_variants",
-      Wordsmith::Inflector.humanize(attribute.name.to_s)
-    ).t(variant: attribute.name.to_s)
   end
 end

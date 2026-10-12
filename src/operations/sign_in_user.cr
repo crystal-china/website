@@ -28,13 +28,13 @@ class SignInUser < Avram::Operation
   private def validate_credentials(user)
     if user
       unless Authentic.correct_password?(user, password.value.to_s)
-        password.add_error "is wrong"
+        password.add_error Rosetta.find("avram.errors.password_incorrect").t
       end
     else
       # Usually ok to say that an email is not in the system:
       # https://kev.inburke.com/kevin/invalid-username-or-password-useless/
       # https://github.com/luckyframework/lucky_cli/issues/192
-      email.add_error "is not in our system"
+      email.add_error Rosetta.find("avram.errors.email_not_found").t
     end
   end
 end

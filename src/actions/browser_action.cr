@@ -46,7 +46,7 @@ abstract class BrowserAction < Lucky::Action
   def build_failed_flash(op)
     msg = String.build do |io|
       op.errors.each do |(k, v)|
-        io << "#{k} #{v.first}\n"
+        io << ValidationErrors.format(k, v.first) << '\n'
       end
     end
     flash.failure = msg

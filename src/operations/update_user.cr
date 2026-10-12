@@ -7,7 +7,7 @@ class UpdateUser < User::SaveOperation
     validate_format_of name,
       with: /[\s\p{Z}]/,
       match: false,
-      message: "不能包含空格或其他空白字符"
+      message: Rosetta.find("avram.errors.username_whitespace").t
     validate_uniqueness_of name
     validate_avatar_is_a_link
     if !password.value.nil?
@@ -24,7 +24,7 @@ class UpdateUser < User::SaveOperation
   private def validate_avatar_is_a_link
     avatar.value.try do |avatar_value|
       if !avatar_value.starts_with?(%r{https?://})
-        avatar.add_error "必须是一个合法的 http/https 链接"
+        avatar.add_error Rosetta.find("avram.errors.avatar_url").t
       end
     end
   end
