@@ -31,6 +31,8 @@ en:
       kind: "Notification type"
       mention_notifications_enabled: "Mention notifications"
       name: "Name"
+      nickname: "Nickname"
+      login_name: "Login name"
       node_id: "Node"
       parent_id: "Parent comment"
       path_index: "Document path"
@@ -68,7 +70,7 @@ en:
     validate_required: "is required"
     validate_uniqueness_of: "is already taken"
     errors:
-      username_whitespace: "must not contain whitespace"
+      login_name_format: "may only contain English letters, numbers, underscores (_), hyphens (-) and dots (.)"
       avatar_url: "must be a valid http/https URL"
       email_not_registered: "must be a valid registered email address"
       password_incorrect: "is incorrect"
