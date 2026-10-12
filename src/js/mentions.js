@@ -20,7 +20,7 @@ export default function setupMentions(textarea) {
 
     let timer;
     let request;
-    let names = [];
+    let users = [];
     let selected = 0;
     let token;
 
@@ -37,7 +37,7 @@ export default function setupMentions(textarea) {
         clearTimeout(timer);
         request?.abort();
         list.hidden = true;
-        names = [];
+        users = [];
         textarea.removeAttribute("aria-activedescendant");
     }
 
@@ -62,7 +62,7 @@ export default function setupMentions(textarea) {
             close();
             return;
         }
-        textarea.setRangeText(`@${names[index]} `, current.start, current.end, "end");
+        textarea.setRangeText(`@${users[index].login_name} `, current.start, current.end, "end");
         close();
         textarea.focus();
         textarea.dispatchEvent(new Event("input", { bubbles: true }));
@@ -94,23 +94,23 @@ export default function setupMentions(textarea) {
                     return;
                 }
 
-                names = suggestions;
+                users = suggestions;
                 selected = 0;
                 list.replaceChildren();
-                names.forEach((name, index) => {
+                users.forEach((user, index) => {
                     const button = document.createElement("button");
                     button.type = "button";
                     button.id = `${list.id}-${index}`;
                     button.setAttribute("role", "option");
                     button.tabIndex = -1;
                     button.className = "block w-full cursor-pointer px-4 py-2 text-left text-sm text-sky-800 hover:bg-sky-50";
-                    button.textContent = `@${name}`;
+                    button.textContent = `${user.nickname} @${user.login_name}`;
                     button.addEventListener("pointerdown", (event) => event.preventDefault());
                     button.addEventListener("click", () => choose(index));
                     list.append(button);
                 });
-                list.hidden = names.length === 0;
-                if (names.length) {
+                list.hidden = users.length === 0;
+                if (users.length) {
                     highlight();
                 }
             } catch (error) {
@@ -139,7 +139,7 @@ export default function setupMentions(textarea) {
             } else if (event.key === "Enter" || event.key === "Tab") {
                 choose(selected);
             } else {
-                selected = (selected + (event.key === "ArrowDown" ? 1 : -1) + names.length) % names.length;
+                selected = (selected + (event.key === "ArrowDown" ? 1 : -1) + users.length) % users.length;
                 highlight();
             }
         }

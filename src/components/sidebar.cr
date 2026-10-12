@@ -87,13 +87,14 @@ class Sidebar < BaseComponent
   private def render_current_user_name(user)
     div class: "min-w-0 space-y-1" do
       div "当前用户", class: "text-xs tracking-wide text-gray-500"
-      strong user.name, class: "block truncate text-sm font-semibold text-gray-900"
+      strong user.nickname, class: "block truncate text-sm font-semibold text-gray-900"
+      span "@#{user.login_name}", class: "block truncate text-xs text-gray-500"
     end
   end
 
   private def render_avatar_fallback(user)
     div class: "flex h-10 w-10 items-center justify-center rounded-full bg-gray-900 text-sm font-semibold text-white" do
-      text user.name[0].to_s.upcase
+      text user.nickname[0].to_s.upcase
     end
   end
 end

@@ -21,7 +21,10 @@ class Comments::CardContent < BaseComponent
     header class: "flex flex-wrap items-start justify-between gap-3 sm:flex-nowrap" do
       div class: "flex min-w-0 items-center gap-3" do
         img src: user.avatar || asset("svgs/crystal-lang-icon.svg"), class: "h-6 w-6 rounded-md border border-gray-300 bg-white object-cover p-0.5"
-        span user.name, class: "truncate text-xs font-semibold text-gray-900"
+        div class: "min-w-0" do
+          span user.nickname, class: "block truncate text-xs font-semibold text-gray-900"
+          span "@#{user.login_name}", class: "block truncate text-xs text-gray-500"
+        end
       end
 
       render_parent_comment_hint
@@ -66,7 +69,7 @@ class Comments::CardContent < BaseComponent
     div class: "order-3 min-w-0 basis-full self-center px-2 text-center text-xs font-medium text-green-700 sm:order-none sm:flex-1 sm:basis-auto" do
       if parent_comment && !parent_comment.soft_deleted?
         a(
-          "回复 #{parent_comment.floor} 楼 @#{parent_comment.user.name}",
+          "回复 #{parent_comment.floor} 楼 @#{parent_comment.user.login_name}",
           href: "#comment-#{parent_comment.id}",
           class: "inline-block truncate underline decoration-dotted underline-offset-2 hover:text-green-800"
         )

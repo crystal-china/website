@@ -43,7 +43,7 @@ class Admin::IndexPage < AdminLayout
 
                 para class: "mt-1.5 mb-0 flex flex-wrap items-center gap-x-1 text-xs text-gray-500" do
                   span class: "h-2.5 w-2.5 rounded-full", style: "background-color: #{topic.node.color}"
-                  text "#{topic.node.name} · #{topic.user.name} · #{time_in_words.from(past_time: topic.created_at)}"
+                  text "#{topic.node.name} · #{topic.user.nickname} (@#{topic.user.login_name}) · #{time_in_words.from(past_time: topic.created_at)}"
                 end
               end
             end

@@ -60,7 +60,9 @@ class Forum::IndexPage < ForumLayout
           ) do
             span class: "h-2.5 w-2.5 rounded-full", style: "background-color: #{topic.node.color}"
           end
-          text "#{topic.user.name} 发布于 #{time_in_words.from(past_time: topic.created_at)}"
+          text "#{topic.user.nickname} "
+          span "@#{topic.user.login_name}", class: "text-gray-400"
+          text " 发布于 #{time_in_words.from(past_time: topic.created_at)}"
 
           if (edited_at = topic.edited_at)
             text " · 编辑于 #{time_in_words.from(past_time: edited_at)}"
@@ -71,7 +73,7 @@ class Forum::IndexPage < ForumLayout
       div class: "flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500 sm:shrink-0 sm:flex-col sm:items-end" do
         span "#{topic.replies_count} 条回复", class: "font-medium text-gray-700"
         if (last_reply_user = topic.last_reply_user)
-          span "最后回复：#{last_reply_user.name}"
+          span "最后回复：#{last_reply_user.nickname} (@#{last_reply_user.login_name})"
         end
         span(
           "最后活跃于 #{time_in_words.from(past_time: topic.last_active_at)}",

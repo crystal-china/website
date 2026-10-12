@@ -22,11 +22,11 @@ HYPER
       summary(
         class: "nav-user-trigger",
         title: "用户菜单",
-        "aria-label": "#{user.name} 的用户菜单",
+        "aria-label": "#{user.nickname} 的用户菜单",
         "aria-controls": "nav-user-panel"
       ) do
         span class: "relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-800 text-sm font-semibold text-white ring-1 ring-black/5" do
-          text user.name[0].to_s.upcase
+          text user.nickname[0].to_s.upcase
 
           if (avatar = user.avatar.presence)
             img(
@@ -47,7 +47,8 @@ HYPER
         "aria-label": "账户操作"
       ) do
         div class: "mb-1 border-b border-gray-100 px-3 pt-2 pb-3" do
-          strong user.name, class: "block truncate text-sm font-semibold text-gray-900"
+          strong user.nickname, class: "block truncate text-sm font-semibold text-gray-900"
+          span "@#{user.login_name}", class: "mt-1 block truncate text-xs text-gray-500"
           span user.email, class: "mt-1 block truncate text-xs text-gray-500", title: user.email
         end
 

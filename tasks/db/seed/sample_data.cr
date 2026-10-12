@@ -21,18 +21,19 @@ class Db::Seed::SampleData < LuckyTask::Task
     CommentQuery.truncate(cascade: true)
 
     users = [
-      {"admin@crystal-china.org", "社区管理员"},
-      {"me@163.com", "小明"},
-      {"user1@163.com", "Ruby转Crystal"},
-      {"user2@163.com", "并发学习者"},
-    ].map do |email, name|
-      user = SignUpUser.create!(
+      {"admin@crystal-china.org", "社区管理员", "admin"},
+      {"me@163.com", "小明", "xiaoming"},
+      {"user1@163.com", "Ruby 转 Crystal", "ruby_to_crystal"},
+      {"user2@163.com", "并发学习者", "concurrency"},
+    ].map do |email, nickname, login_name|
+      SignUpUser.create!(
         email: email,
+        nickname: nickname,
+        login_name: login_name,
         password: "temp1234",
         password_confirmation: "temp1234",
         captcha_code: "sample-data"
       )
-      UpdateUser.update!(user, name: name)
     end
 
     nodes = {} of String => Node
@@ -146,7 +147,7 @@ class Db::Seed::SampleData < LuckyTask::Task
 
       我想先试一个只读配置文件并输出报告的脚本。
 
-      @#{users[0].name} 这个示例适合放在前言后面吗？
+      @#{users[0].login_name} 这个示例适合放在前言后面吗？
       MARKDOWN
     )
 
@@ -169,7 +170,7 @@ class Db::Seed::SampleData < LuckyTask::Task
       parent_id: doc_child.id,
       user_id: users[3].id,
       content: <<-MARKDOWN
-      @#{users[1].name} 我按这个顺序试了一遍，确实容易理解。补充一个细节：外部输入可能为空，但转换后的内部配置可以保持非空，避免在每个方法里重复处理 Nil。
+      @#{users[1].login_name} 我按这个顺序试了一遍，确实容易理解。补充一个细节：外部输入可能为空，但转换后的内部配置可以保持非空，避免在每个方法里重复处理 Nil。
 
       ```crystal
       require "json"
@@ -179,7 +180,7 @@ class Db::Seed::SampleData < LuckyTask::Task
       puts title
       ```
 
-      @#{users[2].name} 可以先运行这段最小示例，再补上异常处理。这条是对子评论的回复，页面应显示我回复的是小明，而不是根评论作者。
+      @#{users[2].login_name} 可以先运行这段最小示例，再补上异常处理。这条是对子评论的回复，页面应显示我回复的是小明，而不是根评论作者。
       MARKDOWN
     )
 

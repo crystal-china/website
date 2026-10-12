@@ -7,7 +7,7 @@ class Forum::AuthorCard < BaseComponent
 
       div class: "flex items-center gap-3" do
         div class: "relative h-10 w-10 shrink-0" do
-          span user.name[0].to_s.upcase, class: "flex h-10 w-10 items-center justify-center rounded-full bg-gray-900 text-sm font-semibold text-white"
+          span user.nickname[0].to_s.upcase, class: "flex h-10 w-10 items-center justify-center rounded-full bg-gray-900 text-sm font-semibold text-white"
 
           if (avatar = user.avatar.presence)
             img(
@@ -19,7 +19,10 @@ class Forum::AuthorCard < BaseComponent
           end
         end
 
-        strong user.name, class: "min-w-0 break-words text-sm font-semibold text-gray-900"
+        div class: "min-w-0" do
+          strong user.nickname, class: "block break-words text-sm font-semibold text-gray-900"
+          span "@#{user.login_name}", class: "mt-1 block break-words text-xs text-gray-500"
+        end
       end
 
       para "加入于 #{user.created_at.to_local.to_s("%Y-%m-%d")}", class: "mt-4 mb-0 text-xs text-gray-500"

@@ -43,7 +43,8 @@ class Forum::ShowPage < ForumLayout
             to: Forum::Index.with(node: topic.node.slug),
             class: "font-medium text-[#145591] no-underline hover:text-[#0f477b] hover:underline"
           )
-          text " · #{topic.user.name} "
+          text " · #{topic.user.nickname} "
+          span "@#{topic.user.login_name} · ", class: "text-xs text-gray-400"
           span(
             "发布于 #{time_in_words.from(past_time: topic.created_at)}",
             title: topic.created_at.to_local.to_s("%Y-%m-%d %H:%M:%S")
