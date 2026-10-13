@@ -1,14 +1,12 @@
 class UpdateUser < User::SaveOperation
-  permit_columns name, avatar, mention_notifications_enabled
+  include UserNameValidations
+
+  permit_columns nickname, login_name, avatar, mention_notifications_enabled
   attribute password : String
   attribute password_confirmation : String
 
   before_save do
-    validate_format_of name,
-      with: /[\s\p{Z}]/,
-      match: false,
-      message: Rosetta.find("avram.errors.username_whitespace").t
-    validate_uniqueness_of name
+    validate_user_names
     validate_avatar_is_a_link
     if !password.value.nil?
       validate_confirmation_of password, with: password_confirmation
@@ -35,7 +33,7 @@ class UpdateUser < User::SaveOperation
 
       # Record only public profile changes. Do not audit credentials or future
       # private attributes by default.
-      next unless column_name.in? ["name", "avatar"]
+      next unless column_name.in? ["nickname", "login_name", "avatar"]
 
       user_id = saved_user.id
 
