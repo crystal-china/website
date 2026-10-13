@@ -71,7 +71,7 @@ export default function setupMentions(textarea) {
     textarea.addEventListener("input", (event) => {
         close();
         token = currentToken();
-        if (event.isComposing || !token?.prefix) {
+        if (event.isComposing || !token || token.prefix.length < 2) {
             return;
         }
 
