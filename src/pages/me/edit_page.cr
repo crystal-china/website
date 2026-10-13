@@ -16,7 +16,12 @@ class Me::EditPage < MainLayout
         form_for Me::Update, class: "panel-body space-y-8" do
           div class: "grid gap-8 md:grid-cols-[minmax(0,1fr)_15rem]" do
             div class: "space-y-6" do
-              mount Shared::Field, attribute: op.name, label_text: "用户名", &.text_input(placeholder: "不能包含空白；其他人可通过 @用户名 提及你")
+              div class: "space-y-2" do
+                mount Shared::Field, attribute: op.login_name, label_text: "唯一用户名", &.text_input(placeholder: "用于 @提及", minlength: UserLoginName::MIN_LENGTH, maxlength: UserLoginName::MAX_LENGTH)
+                para "长度为 2–20 个字符，仅允许英文字母、数字、_、-、.，不区分大小写。", class: "m-0 text-xs leading-6 text-gray-500"
+              end
+
+              mount Shared::Field, attribute: op.nickname, label_text: "昵称", &.text_input(placeholder: "留空使用用户名")
 
               mount Shared::Field, attribute: op.avatar, label_text: "头像链接", &.text_input(placeholder: "https://example.com/avatar.png", autofocus: true)
 

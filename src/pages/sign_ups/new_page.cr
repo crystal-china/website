@@ -13,6 +13,35 @@ class SignUps::NewPage < AuthLayout
         form_for SignUps::Create, class: "panel-body" do
           auth_form_fields do
             mount Shared::Field, attribute: op.email, label_text: "电子邮件", &.email_input(autofocus: "true", required: "", placeholder: "you@example.com")
+
+            div class: "space-y-2" do
+              div class: "grid gap-5 sm:grid-cols-2" do
+                mount(
+                  Shared::Field,
+                  attribute: op.login_name,
+                  label_text: "唯一用户名"
+                ) do |field|
+                  field.text_input(
+                    required: "",
+                    autocomplete: "username",
+                    minlength: UserLoginName::MIN_LENGTH,
+                    maxlength: UserLoginName::MAX_LENGTH,
+                    placeholder: "用于 @提及"
+                  )
+                end
+
+                mount(
+                  Shared::Field,
+                  attribute: op.nickname,
+                  label_text: "昵称（可选）"
+                ) do |field|
+                  field.text_input(placeholder: "留空使用用户名")
+                end
+              end
+
+              para "唯一用户名长度为 2–20 个字符，仅允许英文字母、数字、_、-、.，不区分大小写；昵称可以重复，支持中文、空格和 emoji。登录仍使用邮箱。", class: "m-0 text-xs leading-6 text-gray-500"
+            end
+
             mount Shared::Field, attribute: op.password, label_text: "密码", &.password_input(required: "", placeholder: "设置登录密码")
             mount Shared::Field, attribute: op.password_confirmation, label_text: "确认密码", &.password_input(required: "", placeholder: "再次输入密码")
 
