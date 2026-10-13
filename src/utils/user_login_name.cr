@@ -2,6 +2,10 @@ module UserLoginName
   # Unique handles use ASCII characters; nicknames remain unrestricted.
   # Like Discourse: allow a leading underscore, require an alphanumeric end,
   # and forbid adjacent separators, including mixed pairs such as ._ or -_.
+  # 校验整个登录用户名：仅允许 ASCII 字母、数字、_、.、-；以字母、数字或 _ 开头，
+  # 多字符用户名必须以字母或数字结尾；特殊符号不能连续出现（如 __、._、-_）。
+  # 例如 _zw_963、a_b_c、some.user 合法，.abc、abc_、a__b 不合法。
+  # 正则也接受单个字母、数字或 _；valid? 另行限制长度为 2 到 20 个字符。
   FORMAT     = /\A(?!.*[_.-]{2})[A-Za-z0-9_](?:[A-Za-z0-9_.-]*[A-Za-z0-9])?\z/
   MIN_LENGTH =  2
   MAX_LENGTH = 20

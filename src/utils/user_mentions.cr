@@ -1,23 +1,28 @@
 module UserMentions
+  # 提取 @登录用户名候选，供通知提取和页面链接生成共用；捕获组 1 是用户名，不含 @。
+  # @ 前不能紧接 ASCII 字母、数字或 @；用户名以字母、数字或 _ 开头，
+  # 中间允许字母、数字、_、.、-，以字母或数字结尾；中文可直接跟在用户名后面。
+  # 长度和连续特殊符号等完整规则由 UserLoginName.valid? 校验。
+
+  # (?<![A-Za-z0-9@])@ 意思是：找到一个 @，但它前面不能紧接英文字母、数字或另一个 @。
+  # (?<!...) 是否定后向断言：检查当前位置前面，不能匹配括号里的规则，但不把前面的字符算进匹配结果
+  PATTERN = /(?<![A-Za-z0-9@])@([A-Za-z0-9_][A-Za-z0-9_.-]*[A-Za-z0-9])/
+
   def self.user_ids(content : String) : Array(Int64)
-    names = Set(String).new
-    walker = Markd::Parser.parse(content, Markd::Options.new(gfm: true)).walker
+    _, login_names = UserMentionMarkdown.parse(content)
 
-    # 只检查 Markdown 文本节点，跳过代码节点、链接 URL 和原始 HTML 节点。
-    while (event = walker.next)
-      node, entering = event
-      next unless entering && node.type.text?
+    return [] of Int64 if login_names.empty?
 
-      node.text.scan(/(?<![A-Za-z0-9_@])@([^\s\p{Z}<>`,，。!！?？:：;；]+)/) do |match|
-        names << match[1]
-        break if names.size >= 20
-      end
-      # 限制候选数，避免超长正文生成巨大的 SQL IN 列表。
-      break if names.size >= 20
+    UserQuery.new.with_login_names(login_names.to_a).id.asc_order.results.map(&.id)
+  end
+
+  # 通知提取和页面链接使用同一套提及边界与用户名规则。
+  def self.each_mention(text : String, &)
+    text.scan(PATTERN) do |match|
+      next unless UserLoginName.valid?(match[1])
+      next if text[match.end]? == '@'
+
+      yield match
     end
-
-    return [] of Int64 if names.empty?
-
-    UserQuery.new.name.in(names.to_a).id.asc_order.limit(5).results.map(&.id)
   end
 end

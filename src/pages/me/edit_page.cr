@@ -18,7 +18,7 @@ class Me::EditPage < MainLayout
             div class: "space-y-6" do
               div class: "space-y-2" do
                 mount Shared::Field, attribute: op.login_name, label_text: "登录用户名", &.text_input(placeholder: "用于 @提及", minlength: UserLoginName::MIN_LENGTH, maxlength: UserLoginName::MAX_LENGTH)
-                para "长度为 2–20 个字符，仅允许英文字母、数字、_、-、.，不区分大小写唯一。", class: "m-0 text-xs leading-6 text-gray-500"
+                para "长度为 2–20 个字符，以英文字母、数字或 _ 开头，以字母或数字结尾；中间允许 _、-、.，但符号不能相邻，不区分大小写唯一。", class: "m-0 text-xs leading-6 text-gray-500"
               end
 
               mount Shared::Field, attribute: op.nickname, label_text: "昵称", &.text_input(placeholder: "留空使用用户名")
