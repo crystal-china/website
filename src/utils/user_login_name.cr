@@ -1,6 +1,8 @@
 module UserLoginName
   # Unique handles use ASCII characters; nicknames remain unrestricted.
-  FORMAT     = /\A[A-Za-z0-9_.-]+\z/
+  # Like Discourse: allow a leading underscore, require an alphanumeric end,
+  # and forbid adjacent separators, including mixed pairs such as ._ or -_.
+  FORMAT     = /\A(?!.*[_.-]{2})[A-Za-z0-9_](?:[A-Za-z0-9_.-]*[A-Za-z0-9])?\z/
   MIN_LENGTH =  2
   MAX_LENGTH = 20
 
@@ -10,7 +12,10 @@ module UserLoginName
 
   def self.generate(preferred : String? = nil) : String
     # 删除非法的字符。
-    base = preferred.to_s.gsub(/[^A-Za-z0-9_.-]+/, "")[0, MAX_LENGTH]
+    base = preferred.to_s.gsub(/[^A-Za-z0-9_.-]+/, "")
+    base = base.sub(/\A[.-]+/, "").gsub(/[_.-]{2,}/, "_")
+    # 注意，只要截断一次，就有可能非法字符结尾，就必须再 rstrip 一次。
+    base = base[0, MAX_LENGTH].rstrip("._-")
 
     if base.size < MIN_LENGTH
       base = "Crystalist"
@@ -21,7 +26,7 @@ module UserLoginName
 
     while UserQuery.new.with_login_name(candidate).any?
       # Reserve seven characters for the underscore and six-digit suffix.
-      candidate = "#{base[0, MAX_LENGTH - 7]}_#{rand(100000..999999)}"
+      candidate = "#{base[0, MAX_LENGTH - 7].rstrip("._-")}_#{rand(100000..999999)}"
     end
 
     candidate
