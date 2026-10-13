@@ -1,14 +1,12 @@
 class SignInUser < Avram::Operation
   param_key :user
-  # You can modify this in src/operations/mixins/user_from_email.cr
-  include UserFromEmail
 
-  attribute email : String
+  attribute login : String
   attribute password : String
 
   # Run validations and yields the operation and the user if valid
   def run
-    user = user_from_email
+    user = user_from_login
     validate_credentials(user)
 
     if valid?
@@ -18,23 +16,28 @@ class SignInUser < Avram::Operation
     end
   end
 
+  private def user_from_login : User?
+    value = login.value.to_s.strip
+
+    return nil if value.empty?
+
+    if value.includes?('@')
+      UserQuery.new.email(value).first?
+    else
+      UserQuery.new.with_login_name(value).first?
+    end
+  end
+
   # `validate_credentials` determines if a user can sign in.
   #
   # If desired, you can add additional checks in this method, e.g.
   #
   #    if user.locked?
-  #      email.add_error "is locked out"
+  #      login.add_error "is locked out"
   #    end
   private def validate_credentials(user)
-    if user
-      unless Authentic.correct_password?(user, password.value.to_s)
-        password.add_error Rosetta.find("avram.errors.password_incorrect").t
-      end
-    else
-      # Usually ok to say that an email is not in the system:
-      # https://kev.inburke.com/kevin/invalid-username-or-password-useless/
-      # https://github.com/luckyframework/lucky_cli/issues/192
-      email.add_error Rosetta.find("avram.errors.email_not_found").t
+    if user.nil? || !Authentic.correct_password?(user, password.value.to_s)
+      login.add_error Rosetta.find("avram.errors.credentials_incorrect").t
     end
   end
 end

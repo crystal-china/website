@@ -19,7 +19,7 @@ class SignUps::NewPage < AuthLayout
                 mount(
                   Shared::Field,
                   attribute: op.login_name,
-                  label_text: "唯一用户名"
+                  label_text: "登录用户名"
                 ) do |field|
                   field.text_input(
                     required: "",
@@ -39,7 +39,7 @@ class SignUps::NewPage < AuthLayout
                 end
               end
 
-              para "唯一用户名长度为 2–20 个字符，仅允许英文字母、数字、_、-、.，不区分大小写；昵称可以重复，支持中文、空格和 emoji。登录仍使用邮箱。", class: "m-0 text-xs leading-6 text-gray-500"
+              para "登录用户名长度为 2–20 个字符，仅允许英文字母、数字、_、-、.，不区分大小写唯一；昵称可以重复，支持中文、空格和 emoji。登录支持邮箱或登录用户名。", class: "m-0 text-xs leading-6 text-gray-500"
             end
 
             mount Shared::Field, attribute: op.password, label_text: "密码", &.password_input(required: "", placeholder: "设置登录密码")
