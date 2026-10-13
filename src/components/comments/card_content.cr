@@ -22,7 +22,7 @@ class Comments::CardContent < BaseComponent
       div class: "flex min-w-0 items-center gap-3" do
         img src: user.avatar || asset("svgs/crystal-lang-icon.svg"), class: "h-6 w-6 rounded-md border border-gray-300 bg-white object-cover p-0.5"
         div class: "min-w-0" do
-          span user.nickname, class: "block truncate text-xs font-semibold text-gray-900"
+          link user.nickname, to: Users::Show.with(login_name: user.login_name), class: "block truncate text-xs font-semibold text-sky-800 no-underline hover:underline"
           span "@#{user.login_name}", class: "block truncate text-xs text-gray-500"
         end
       end

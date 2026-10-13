@@ -20,7 +20,7 @@ class Forum::AuthorCard < BaseComponent
         end
 
         div class: "min-w-0" do
-          strong user.nickname, class: "block break-words text-sm font-semibold text-gray-900"
+          link user.nickname, to: Users::Show.with(login_name: user.login_name), class: "block break-words text-sm font-semibold text-sky-800 no-underline hover:underline"
           span "@#{user.login_name}", class: "mt-1 block break-words text-xs text-gray-500"
         end
       end
