@@ -61,7 +61,7 @@ class Forum::ShowPage < ForumLayout
       end
 
       div class: "prose prose-neutral my-8 max-w-none text-base leading-7 text-gray-900" do
-        raw user_markdown(topic.content)
+        raw(topic.content_html || user_markdown(topic.content))
       end
 
       section id: "form_with_comments", class: "mt-10" do

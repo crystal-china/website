@@ -10,7 +10,7 @@ class Comments::CardContent < BaseComponent
       hr class: "my-2 border-0 border-t border-gray-300"
 
       div class: "prose-neutral max-w-none prose text-base leading-7" do
-        raw user_markdown(comment.content)
+        raw(comment.content_html || user_markdown(comment.content))
       end
     end
   end
