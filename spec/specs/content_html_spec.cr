@@ -11,7 +11,7 @@ private def assert_stored_html(record, source : String)
   record.content.should eq(source)
   record.content_html.should eq(UserMarkdown.render(source)[:html])
   record.content_html.not_nil!.should contain("<strong>hello</strong>")
-  record.content_html.not_nil!.should contain(%(href="/users/a_b_c"))
+  record.content_html.not_nil!.should contain(%(href="/users/a_b_c/profile"))
   record.content_html.not_nil!.should_not contain("onerror")
 end
 
@@ -97,7 +97,7 @@ describe "Stored content HTML" do
     ["script", "style", "textarea", "title"].each do |tag|
       rendered = UserMarkdown.render("text <#{tag}>@zw963</#{tag}>")
 
-      rendered[:html].should_not contain(%(href="/users/zw963"))
+      rendered[:html].should_not contain(%(href="/users/zw963/profile"))
       rendered[:mentions].should be_empty
     end
   end

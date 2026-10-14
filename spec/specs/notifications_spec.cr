@@ -511,8 +511,8 @@ describe "Notifications" do
     notifications = NotificationQuery.new.url("/forum/#{topic.id}").results
     notifications.map(&.user_id).should eq([mentioned.id])
     notifications.first.kind.should eq(Notification::Kind::Mention)
-    topic.content_html.not_nil!.should contain(%(href="/users/#{mentioned.login_name}"))
-    topic.content_html.not_nil!.should_not contain(%(href="/users/#{ignored.login_name}"))
+    topic.content_html.not_nil!.should contain(%(href="/users/#{mentioned.login_name}/profile"))
+    topic.content_html.not_nil!.should_not contain(%(href="/users/#{ignored.login_name}/profile"))
   end
 
   it "matches full usernames while treating trailing separators as punctuation" do

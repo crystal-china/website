@@ -65,7 +65,7 @@ describe UserHtmlSanitizer do
     html = renderer.user_markdown(content)
 
     ["_zw_963", "a_b_c", "Some.User-23", "Crystalist_123456"].each do |login_name|
-      html.should contain(%(href="/users/#{login_name}"))
+      html.should contain(%(href="/users/#{login_name}/profile"))
       html.should contain(">@#{login_name}</a>")
     end
     content.should eq(original)
@@ -74,17 +74,17 @@ describe UserHtmlSanitizer do
   it "preserves formatting and punctuation around mentions" do
     html = renderer.user_markdown("**@zw963** _@a_b_c_ @some.user. @zw963 @zw963")
 
-    html.should contain(%(<strong><a href="/users/zw963"))
-    html.should contain(%(<em><a href="/users/a_b_c"))
+    html.should contain(%(<strong><a href="/users/zw963/profile"))
+    html.should contain(%(<em><a href="/users/a_b_c/profile"))
     html.should contain(">@some.user</a>.")
-    html.scan(%(href="/users/zw963")).size.should eq(3)
+    html.scan(%(href="/users/zw963/profile")).size.should eq(3)
   end
 
   it "links mentions next to Chinese text or after an underscore" do
     ["@zw963中文", "hello_@zw963", "_@zw963_"].each do |content|
       html = renderer.user_markdown(content)
 
-      html.should contain(%(href="/users/zw963"))
+      html.should contain(%(href="/users/zw963/profile"))
       html.should contain(">@zw963</a>")
     end
   end
@@ -123,18 +123,18 @@ describe UserHtmlSanitizer do
     html.should contain("USERMENTIONTOKEN0END")
     html.should contain(%(class="box info"))
     html.should contain("@zw963")
-    html.should_not contain(%(href="/users/zw963"))
+    html.should_not contain(%(href="/users/zw963/profile"))
   end
 
   it "links only the first five distinct handles and permits repeated mentions" do
     content = "@Person5 @PERSON5 @Person4 @Person3 @Person2 @Person1 @Person0 @Person5"
     html = renderer.user_markdown(content)
     ["Person5", "PERSON5", "Person4", "Person3", "Person2", "Person1"].each do |login_name|
-      html.should contain(%(href="/users/#{login_name}"))
+      html.should contain(%(href="/users/#{login_name}/profile"))
     end
-    html.should_not contain(%(href="/users/Person0"))
+    html.should_not contain(%(href="/users/Person0/profile"))
     html.should contain("@Person0")
-    html.scan(%(href="/users/Person5")).size.should eq(2)
+    html.scan(%(href="/users/Person5/profile")).size.should eq(2)
   end
 end
 

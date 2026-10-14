@@ -31,6 +31,8 @@ bin/tasks db.rebuild.content_html
 
 服务器停止时可以重复执行该任务。渲染器、提及规则或 sanitizer 发生变化后，也可以用它更新已有 HTML。
 
+用户主页路径使用 `/users/:login_name/profile`，避免用户名末尾的 `.html`、`.xml` 等被 Lucky 当成请求格式后缀。升级之前已经保存的 HTML 可能仍包含旧的 `/users/:login_name` 提及链接，需要运行重建任务更新；只修改路由不会自动改写数据库里的 HTML。
+
 如果重建失败，应修复原因后重新执行。尤其是收紧安全清洗规则后，不要继续使用尚未重建的旧 HTML。
 
 ## 空值与写入约束
