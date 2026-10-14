@@ -7,7 +7,7 @@ class CreateTopic < Topic::SaveOperation
   end
 
   after_save do |topic|
-    NotificationDelivery.mentions_updated(topic, topic.user_id) if new_record? && content.changed?
+    NotificationDelivery.mentions_updated(topic, topic.user_id, mentioned_login_names) if new_record? && content.changed?
   end
 
   private def create_comment_thread(topic : Topic)

@@ -12,7 +12,7 @@ class UpdateTopic < Topic::SaveOperation
   after_save do |topic|
     actor_id = self.actor_id.value || topic.user_id
 
-    NotificationDelivery.mentions_updated(topic, actor_id) if content.changed?
+    NotificationDelivery.mentions_updated(topic, actor_id, mentioned_login_names) if content.changed?
     NotificationDelivery.edited_by_admin(topic, actor_id) if title.changed? || content.changed?
     NotificationDelivery.topic_moved_by_admin(topic, actor_id) if node_id.changed?
   end

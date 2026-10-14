@@ -1,5 +1,5 @@
 module NotificationDelivery
-  def self.comment_created(comment : Comment)
+  def self.comment_created(comment : Comment, login_names : Array(String))
     # 接收通知的 user_id => 通知类型
     recipients = {} of Int64 => Notification::Kind
     thread = comment.comment_thread!
@@ -15,17 +15,17 @@ module NotificationDelivery
     # 普通回复不通知自己；明确 @自己 时仍允许通知。
     recipients.delete(comment.user_id)
 
-    mentioned_user_ids(comment).each do |user_id|
+    mentioned_user_ids(login_names).each do |user_id|
       recipients[user_id] = :mention
     end
 
     deliver(comment, recipients, comment.user_id)
   end
 
-  def self.mentions_updated(record : Comment | Topic, actor_id : Int64)
+  def self.mentions_updated(record : Comment | Topic, actor_id : Int64, login_names : Array(String))
     recipients = {} of Int64 => Notification::Kind
 
-    mentioned_user_ids(record).each do |user_id|
+    mentioned_user_ids(login_names).each do |user_id|
       recipients[user_id] = :mention
     end
 
@@ -103,12 +103,12 @@ module NotificationDelivery
     end
   end
 
-  private def self.mentioned_user_ids(record : Comment | Topic)
-    user_ids = UserMentions.user_ids(record.content)
-
-    return user_ids if user_ids.empty?
+  private def self.mentioned_user_ids(login_names : Array(String))
+    return [] of Int64 if login_names.empty?
 
     # 在合并提及收件人之前过滤，关闭提及通知的用户仍能收到正常回复通知。
-    UserQuery.new.id.in(user_ids).mention_notifications_enabled(true).results.map(&.id)
+    UserQuery.new.with_login_names(login_names)
+      .mention_notifications_enabled(true)
+      .id.asc_order.results.map(&.id)
   end
 end

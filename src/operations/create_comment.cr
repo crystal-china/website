@@ -37,6 +37,6 @@ class CreateComment < Comment::SaveOperation
 
   # 新增才发送回复通知。
   after_save do |comment|
-    NotificationDelivery.comment_created(comment) if new_record?
+    NotificationDelivery.comment_created(comment, mentioned_login_names) if new_record?
   end
 end
