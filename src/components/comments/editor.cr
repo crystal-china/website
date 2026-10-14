@@ -77,6 +77,12 @@ HEREDOC
       div class: "panel2 hidden p-4" do
         render_preview(editor_height)
       end
+
+      para(
+        "最多提及 #{UserMarkdownParser::MAX_MENTIONS} 个用户，超出部分不发送通知。",
+        id: "#{html_id}_mention_help",
+        class: "m-0 border-t border-gray-100 px-4 py-2 text-xs text-gray-500"
+      )
     end
   end
 
@@ -84,13 +90,14 @@ HEREDOC
     me = current_user
 
     textarea_opt = {
-      id:                "#{html_id}_text_area",
-      rows:              5,
-      name:              "content",
-      placeholder:       "支持 Markdown；输入 @用户名 前缀可自动补全",
-      required:          "",
-      data_mentions_url: Htmx::Mentions.path,
-      class:             "#{editor_height} block w-full resize-y overflow-y-auto rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm leading-7 text-gray-900 shadow-inner transition outline-none placeholder:text-gray-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400",
+      id:                 "#{html_id}_text_area",
+      rows:               5,
+      name:               "content",
+      placeholder:        "支持 Markdown；输入 @用户名 前缀可自动补全",
+      "aria-describedby": "#{html_id}_mention_help",
+      required:           "",
+      data_mentions_url:  Htmx::Mentions.path,
+      class:              "#{editor_height} block w-full resize-y overflow-y-auto rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm leading-7 text-gray-900 shadow-inner transition outline-none placeholder:text-gray-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400",
     }
 
     textarea_opt = textarea_opt.merge(disabled: "") if me.nil?
