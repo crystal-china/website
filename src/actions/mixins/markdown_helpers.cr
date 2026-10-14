@@ -23,7 +23,7 @@ module MarkdownHelpers
       content = content.sub(TABLE_SCHEDULER_RE) { TABLE_SCHEDULER_PLACEHOLDER }
     end
 
-    html = MARKDOWN_CACHE.fetch("#{markdown_path}:#{doc.content_digest}") { markdown content }
+    html = MARKDOWN_CACHE.fetch("#{markdown_path}:#{doc.content_digest}") { doc_markdown content }
 
     if scheduler
       year, month = scheduler

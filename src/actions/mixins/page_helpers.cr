@@ -3,12 +3,12 @@ require "../../utils/doc_navigation"
 module PageHelpers
   MARKDOWN_OPTIONS = Markd::Options.new(gfm: true, toc: true)
 
-  def markdown(text) : String
+  def doc_markdown(text) : String
     render_markdown_with_info_boxes(text)
   end
 
   # User-authored Markdown may contain raw HTML, so sanitize the rendered HTML
-  # before inserting it into the page. Trusted documentation uses #markdown.
+  # before inserting it into the page. Trusted documentation uses #doc_markdown.
   def user_markdown(text) : String
     UserMarkdown.render(text, formatter)[:html]
   end

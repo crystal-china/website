@@ -142,7 +142,7 @@ describe "Documentation Markdown" do
   renderer = UserMarkdownHarness.new
 
   it "renders info callouts inside blockquotes" do
-    html = renderer.markdown(<<-MARKDOWN)
+    html = renderer.doc_markdown(<<-MARKDOWN)
     > ```info
     > **callout body** @zw963
     > ```
@@ -156,7 +156,7 @@ describe "Documentation Markdown" do
   end
 
   it "leaves info examples inside longer code fences unchanged" do
-    html = renderer.markdown(<<-MARKDOWN)
+    html = renderer.doc_markdown(<<-MARKDOWN)
     ````
     ```info
     example body
@@ -170,7 +170,7 @@ describe "Documentation Markdown" do
   end
 
   it "preserves documentation heading anchors and trusted HTML" do
-    html = renderer.markdown("# Heading\n\n<div data-table-scheduler></div>")
+    html = renderer.doc_markdown("# Heading\n\n<div data-table-scheduler></div>")
 
     html.should contain("#anchor-Heading")
     html.should contain(%(<div data-table-scheduler></div>))
