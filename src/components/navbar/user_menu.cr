@@ -46,13 +46,23 @@ HYPER
         class: "nav-user-panel",
         "aria-label": "账户操作"
       ) do
-        div class: "mb-1 border-b border-gray-100 px-3 pt-2 pb-3" do
-          strong user.nickname, class: "block truncate text-sm font-semibold text-gray-900"
-          span "@#{user.login_name}", class: "mt-1 block truncate text-xs text-gray-500"
-          span user.email, class: "mt-1 block truncate text-xs text-gray-500", title: user.email
+        div class: "nav-user-identity" do
+          div class: "relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-800 text-base font-semibold text-white" do
+            text user.nickname[0].to_s.upcase
+
+            if (avatar = user.avatar.presence)
+              img src: avatar, alt: "", class: "absolute inset-0 h-full w-full object-cover", onerror: "this.remove()"
+            end
+          end
+
+          div class: "min-w-0" do
+            strong user.nickname, class: "block truncate text-sm font-semibold text-gray-900"
+            span "@#{user.login_name}", class: "mt-0.5 block truncate text-xs text-gray-500"
+          end
         end
 
-        link "个人设置", to: Me::Edit, class: menu_link_class(active: current_path == Me::Edit.path)
+        link "个人主页", to: Users::Show.with(login_name: user.login_name), class: menu_link_class
+        # link "个人设置", to: Me::Edit, class: menu_link_class(active: current_path == Me::Edit.path)
 
         if user.admin?
           link "管理后台", to: Admin::Index, class: menu_link_class(active: current_path.starts_with?("/admin"))
