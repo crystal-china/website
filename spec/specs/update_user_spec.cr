@@ -20,7 +20,7 @@ describe UpdateUser do
 
   it "rejects characters outside the ASCII login-name whitelist" do
     user = UserFactory.create
-    ["有 空格", "有\t制表符", "有\n换行", "全角　空格", "小明", "user😀", "O'Neil", "SomeUser(he/him)", "zero\u200bwidth"].each do |name|
+    ["有 空格", "有\t制表符", "有\n换行", "全角　空格", "小明", "user😀", "O'Neil", "SomeUser(he/him)", "zero\u200bwidth", "_ab_", "__ab", ".ab", "-ab", "ab.", "ab-", "ab__cd", "ab._cd"].each do |name|
       UpdateUser.update(user, login_name: name) do |operation, _|
         operation.saved?.should be_false
         operation.errors[:login_name].should_not be_empty
@@ -47,7 +47,7 @@ describe UpdateUser do
 
   it "generates a usable identity when the provider supplies no name" do
     user = OAuthUser.create!(email: "unnamed@example.com")
-    user.login_name.should start_with("User")
+    user.login_name.should match(/\ACrystalist_[0-9]{6}\z/)
     user.nickname.should eq(user.login_name)
   end
 
@@ -55,7 +55,7 @@ describe UpdateUser do
     user = OAuthUser.create!(email: "short-oauth@example.com", nickname: "A", login_name: "A")
 
     user.nickname.should eq("A")
-    user.login_name.should start_with("User")
+    user.login_name.should match(/\ACrystalist_[0-9]{6}\z/)
     user.login_name.size.in?(UserLoginName::MIN_LENGTH..UserLoginName::MAX_LENGTH).should be_true
   end
 
@@ -63,7 +63,7 @@ describe UpdateUser do
     user = OAuthUser.create!(email: "chinese-oauth@example.com", nickname: "小明 😀")
 
     user.nickname.should eq("小明 😀")
-    user.login_name.should start_with("User")
+    user.login_name.should match(/\ACrystalist_[0-9]{6}\z/)
     UserLoginName::FORMAT.matches?(user.login_name).should be_true
   end
 
@@ -77,22 +77,41 @@ describe UpdateUser do
     user.login_name.should start_with(preferred[0, UserLoginName::MAX_LENGTH - 7] + "_")
   end
 
+  it "normalizes OAuth separators and keeps the original display name" do
+    {"..Billy__Zheng.-" => "Billy_Zheng", "__Billy..Zheng" => "_Billy_Zheng", "-a-_b-" => "a_b"}.each_with_index do |(preferred, expected), index|
+      user = OAuthUser.create!(email: "normalized-oauth-#{index}@example.com", nickname: preferred, login_name: preferred)
+
+      user.nickname.should eq(preferred)
+      user.login_name.should eq(expected)
+      UserLoginName.valid?(user.login_name).should be_true
+    end
+  end
+
+  it "does not join two separators when adding a collision suffix" do
+    preferred = "a" * 12 + "_" + "b" * 7
+    UserFactory.create &.login_name(preferred)
+    user = OAuthUser.create!(email: "separator-collision@example.com", login_name: preferred)
+
+    user.login_name.should match(/\Aa{12}_[0-9]{6}\z/)
+    UserLoginName.valid?(user.login_name).should be_true
+  end
+
   it "defaults a cleared nickname without changing mention identity" do
     user = UserFactory.create
     user = UpdateUser.update!(user, nickname: "")
 
     user.nickname.should eq(user.login_name)
-    UserMentions.user_ids("@#{user.login_name}").should eq([user.id])
+    UserQuery.new.with_login_names(UserMarkdown.render("@#{user.login_name}")[:mentions]).id.asc_order.results.map(&.id).should eq([user.id])
   end
 
   it "allows duplicate display names and keeps mention identity unchanged" do
     first = UpdateUser.update!(UserFactory.create, nickname: "Billy Zheng")
     second = UpdateUser.update!(UserFactory.create, nickname: "Billy Zheng")
     first.login_name.should_not eq(second.login_name)
-    UserMentions.user_ids("@#{first.login_name}").should eq([first.id])
+    UserQuery.new.with_login_names(UserMarkdown.render("@#{first.login_name}")[:mentions]).id.asc_order.results.map(&.id).should eq([first.id])
     UpdateUser.update!(first, nickname: "新 昵称")
-    UserMentions.user_ids("@#{first.login_name}").should eq([first.id])
-    UserMentions.user_ids("@Billy").should be_empty
+    UserQuery.new.with_login_names(UserMarkdown.render("@#{first.login_name}")[:mentions]).id.asc_order.results.map(&.id).should eq([first.id])
+    UserQuery.new.with_login_names(UserMarkdown.render("@Billy")[:mentions]).results.should be_empty
   end
 
   it "rejects duplicate login names and mention delimiters" do
@@ -111,7 +130,7 @@ describe UpdateUser do
     user = UpdateUser.update!(UserFactory.create, login_name: "Billy")
     user.login_name.should eq("Billy")
     user.login_name_lower.should eq("billy")
-    UserMentions.user_ids("@billy @BILLY").should eq([user.id])
+    UserQuery.new.with_login_names(UserMarkdown.render("@billy @BILLY")[:mentions]).id.asc_order.results.map(&.id).should eq([user.id])
     user = UpdateUser.update!(user, login_name: "bIlLy")
     user.login_name.should eq("bIlLy")
     user.login_name_lower.should eq("billy")
@@ -134,13 +153,13 @@ describe UpdateUser do
 
     user = UserQuery.find(user.id)
     user.login_name_lower.should eq("mixedcase")
-    UserMentions.user_ids("@MIXEDCASE").should eq([user.id])
+    UserQuery.new.with_login_names(UserMarkdown.render("@MIXEDCASE")[:mentions]).id.asc_order.results.map(&.id).should eq([user.id])
   end
 
   it "looks up quoted login names safely" do
     user = UpdateUser.update!(UserFactory.create, login_name: "ONeil")
-    UserMentions.user_ids("@o'neil").should be_empty
-    UserMentions.user_ids("@oneil").should eq([user.id])
+    UserQuery.new.with_login_names(UserMarkdown.render("@o'neil")[:mentions]).results.should be_empty
+    UserQuery.new.with_login_names(UserMarkdown.render("@oneil")[:mentions]).id.asc_order.results.map(&.id).should eq([user.id])
   end
 
   it "rejects passwords outside the shared length range" do

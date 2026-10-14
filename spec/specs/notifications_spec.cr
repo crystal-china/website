@@ -27,7 +27,7 @@ describe "Management notifications" do
     reply_notification = NotificationQuery.new.user_id(author.id).first
     SaveNotification.update!(reply_notification, read_at: Time.utc)
 
-    comment = UpdateComment.update!(comment, content: "@#{author.name} 补充说明", actor_id: responder.id)
+    comment = UpdateComment.update!(comment, content: "@#{author.login_name} 补充说明", actor_id: responder.id)
     UpdateComment.update!(comment, content: "#{comment.content} 再次编辑", actor_id: responder.id)
 
     notifications = NotificationQuery.new.user_id(author.id).id.asc_order.results
@@ -74,7 +74,7 @@ describe "Management notifications" do
     thread = CommentThreadQuery.new.doc_id(doc.id).first
     comment = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "原评论")
 
-    comment = UpdateComment.update!(comment, content: "@#{mentioned.name} 管理员补充", actor_id: admin.id)
+    comment = UpdateComment.update!(comment, content: "@#{mentioned.login_name} 管理员补充", actor_id: admin.id)
     comment = UpdateComment.update!(comment, content: "再次补充", actor_id: admin.id)
     UpdateComment.update!(comment, content: comment.content, actor_id: admin.id)
 
@@ -161,7 +161,7 @@ describe "Management notifications" do
     comment = CreateComment.create!(user_id: responder.id, comment_thread_id: thread.id, content: "普通回复")
     NotificationQuery.new.delete
 
-    2.times { NotificationDelivery.comment_created(comment) }
+    2.times { NotificationDelivery.comment_created(comment, [] of String) }
     NotificationQuery.new.select_count.should eq(1)
 
     AppDatabase.transaction do
@@ -191,18 +191,18 @@ describe "Mention notification preferences" do
       UserQuery.find(other.id).mention_notifications_enabled.should be_true
       UserAuditQuery.new.user_id(user.id).any?.should be_false
 
-      response = ApiClient.new.get("/htmx/mentions?q=#{URI.encode_path(user.name)}&backdoor_user_id=#{user.id}")
-      Array(String).from_json(response.body).should_not contain(user.name)
+      response = ApiClient.new.get("/htmx/mentions?q=#{URI.encode_path(user.login_name)}&backdoor_user_id=#{user.id}")
+      JSON.parse(response.body).as_a.map { |candidate| candidate["login_name"].as_s }.should_not contain(user.login_name)
 
-      response = ApiClient.new.get("/htmx/mentions?q=#{URI.encode_path(user.name)}&backdoor_user_id=#{other.id}")
-      Array(String).from_json(response.body).should_not contain(user.name)
+      response = ApiClient.new.get("/htmx/mentions?q=#{URI.encode_path(user.login_name)}&backdoor_user_id=#{other.id}")
+      JSON.parse(response.body).as_a.map { |candidate| candidate["login_name"].as_s }.should_not contain(user.login_name)
 
       response = ApiClient.new.put("/me/update?backdoor_user_id=#{user.id}", user: {mention_notifications_enabled: "true"})
       response.status_code.should eq(303)
       UserQuery.find(user.id).mention_notifications_enabled.should be_true
 
-      response = ApiClient.new.get("/htmx/mentions?q=#{URI.encode_path(user.name)}&backdoor_user_id=#{user.id}")
-      Array(String).from_json(response.body).should contain(user.name)
+      response = ApiClient.new.get("/htmx/mentions?q=#{URI.encode_path(user.login_name)}&backdoor_user_id=#{user.id}")
+      JSON.parse(response.body).as_a.map { |candidate| candidate["login_name"].as_s }.should contain(user.login_name)
     end
   end
 
@@ -212,19 +212,19 @@ describe "Mention notification preferences" do
     editor = UserFactory.create
     topic = notification_topic(author)
     thread = CommentThreadQuery.new.topic_id(topic.id).first
-    CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "@#{mentioned.name} 原有提及")
+    CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "@#{mentioned.login_name} 原有提及")
     historical = NotificationQuery.new.user_id(mentioned.id).first
 
     mentioned = UpdateUser.update!(mentioned, mention_notifications_enabled: false)
-    topic = UpdateTopic.update!(topic, content: "@#{mentioned.name} 主题提及", actor_id: author.id)
-    comment = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "@#{mentioned.name} 新评论提及")
-    UpdateComment.update!(comment, content: "@#{mentioned.name} 他人编辑提及", actor_id: editor.id)
-    CreateComment.create!(user_id: mentioned.id, comment_thread_id: thread.id, content: "@#{mentioned.name} 提及自己")
+    topic = UpdateTopic.update!(topic, content: "@#{mentioned.login_name} 主题提及", actor_id: author.id)
+    comment = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "@#{mentioned.login_name} 新评论提及")
+    UpdateComment.update!(comment, content: "@#{mentioned.login_name} 他人编辑提及", actor_id: editor.id)
+    CreateComment.create!(user_id: mentioned.id, comment_thread_id: thread.id, content: "@#{mentioned.login_name} 提及自己")
     NotificationQuery.new.user_id(mentioned.id).select_count.should eq(1)
-    NotificationQuery.find(historical.id).excerpt.should eq("@#{mentioned.name} 原有提及")
+    NotificationQuery.find(historical.id).excerpt.should eq("@#{mentioned.login_name} 原有提及")
 
     UpdateUser.update!(mentioned, mention_notifications_enabled: true)
-    UpdateTopic.update!(topic, content: "@#{mentioned.name} 重新接收提及", actor_id: author.id)
+    UpdateTopic.update!(topic, content: "@#{mentioned.login_name} 重新接收提及", actor_id: author.id)
     NotificationQuery.new.user_id(mentioned.id).url("/forum/#{topic.id}").first.kind.should eq(Notification::Kind::Mention)
   end
 
@@ -236,12 +236,12 @@ describe "Mention notification preferences" do
     root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "根评论")
     UpdateUser.update!(author, mention_notifications_enabled: false)
 
-    top = CreateComment.create!(user_id: responder.id, comment_thread_id: thread.id, content: "@#{author.name} 普通主题回复")
-    child = CreateComment.create!(user_id: responder.id, parent_id: root.id, content: "@#{author.name} 直接回复")
+    top = CreateComment.create!(user_id: responder.id, comment_thread_id: thread.id, content: "@#{author.login_name} 普通主题回复")
+    child = CreateComment.create!(user_id: responder.id, parent_id: root.id, content: "@#{author.login_name} 直接回复")
     NotificationQuery.new.user_id(author.id).url("/comments/#{top.id}").first.kind.should eq(Notification::Kind::TopicReply)
     NotificationQuery.new.user_id(author.id).url("/comments/#{child.id}").first.kind.should eq(Notification::Kind::CommentReply)
 
-    root = UpdateComment.update!(root, content: "@#{author.name} 编辑根评论", actor_id: responder.id)
+    root = UpdateComment.update!(root, content: "@#{author.login_name} 编辑根评论", actor_id: responder.id)
     DeleteComment.delete!(root, actor_id: responder.id)
     notifications = NotificationQuery.new.user_id(author.id).url("/comments/#{root.id}").id.asc_order.results
     notifications.map(&.kind).should eq([Notification::Kind::CommentEdited, Notification::Kind::CommentDeleted])
@@ -271,7 +271,7 @@ describe "Notifications" do
     response.body.should_not contain("<!DOCTYPE")
     response.body.should contain(%(hx-target="closest section"))
     response.body.should contain("第 1 / 2 页")
-    response.body.should contain("通知，21 条未读通知")
+    response.body.should contain("21 条未读通知")
     XML.parse_html(response.body).xpath_node("//*[@id='notification-status']//span[@aria-hidden='true']").not_nil!.content.should eq("21")
     NotificationQuery.new.user_id(user.id).read_at.is_nil.select_count.should eq(21)
 
@@ -279,7 +279,7 @@ describe "Notifications" do
     response.body.should contain("弹窗通知0")
     response.body.should_not contain("弹窗通知20")
     response.body.should contain("第 2 / 2 页")
-    response.body.should contain("通知，21 条未读通知")
+    response.body.should contain("21 条未读通知")
 
     oldest_id = NotificationQuery.new.user_id(user.id).id.asc_order.first.id
     NotificationQuery.new.user_id(user.id).id.not.eq(oldest_id).update(read_at: Time.utc)
@@ -322,13 +322,13 @@ describe "Notifications" do
       response.body.should_not contain("条未读通知")
       response.body.should contain(%(aria-controls="notifications-dialog"))
 
-      response = client.post("/htmx/comments?backdoor_user_id=#{user.id}", comment_thread_id: thread.id, content: "@#{user.name} 提交后更新通知")
+      response = client.post("/htmx/comments?backdoor_user_id=#{user.id}", comment_thread_id: thread.id, content: "@#{user.login_name} 提交后更新通知")
       response.status_code.should eq(200)
       response.body.should_not contain(%(hx-target="#notification-status"))
       NotificationQuery.new.user_id(user.id).read_at.is_nil.select_count.should eq(1)
 
       response = client.patch(path)
-      response.body.should contain("通知，1 条未读通知")
+      response.body.should contain("1 条未读通知")
       XML.parse_html(response.body).xpath_node("//*[@id='notification-status']//span[@aria-hidden='true']").not_nil!.content.should eq("1")
       client.patch("/htmx/online_users?backdoor_user_id=#{other.id}").body.should_not contain("条未读通知")
 
@@ -357,7 +357,7 @@ describe "Notifications" do
     end
 
     response = ApiClient.new.get("/notifications?backdoor_user_id=#{user.id}")
-    response.body.should contain("通知，100 条未读通知")
+    response.body.should contain("100 条未读通知")
     XML.parse_html(response.body).xpath_node("//*[@id='notification-status']//span[@aria-hidden='true']").not_nil!.content.should eq("99+")
   end
 
@@ -378,29 +378,29 @@ describe "Notifications" do
     grandchild = CreateComment.create!(user_id: author.id, parent_id: child.id, content: "再次回复")
     NotificationQuery.new.url("/comments/#{grandchild.id}").first.user_id.should eq(responder.id)
 
-    mentioned_reply = CreateComment.create!(user_id: responder.id, parent_id: root.id, content: "@#{author.name} 明确提及")
+    mentioned_reply = CreateComment.create!(user_id: responder.id, parent_id: root.id, content: "@#{author.login_name} 明确提及")
     NotificationQuery.new.url("/comments/#{mentioned_reply.id}").select_count.should eq(1)
     NotificationQuery.new.url("/comments/#{mentioned_reply.id}").first.kind.should eq(Notification::Kind::Mention)
   end
 
   it "allows explicit self-mentions but does not notify ordinary self-replies" do
-    author = UserFactory.create &.name("小明")
+    author = UserFactory.create &.login_name("xiaoming")
     topic = notification_topic(author)
     thread = CommentThreadQuery.new.topic_id(topic.id).first
     root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "自己的主题")
     CreateComment.create!(user_id: author.id, parent_id: root.id, content: "回复自己")
     NotificationQuery.new.select_count.should eq(0)
 
-    child = CreateComment.create!(user_id: author.id, parent_id: root.id, content: "@小明 明确提及自己")
+    child = CreateComment.create!(user_id: author.id, parent_id: root.id, content: "@xiaoming 明确提及自己")
     notification = NotificationQuery.new.url("/comments/#{child.id}").first
     notification.user_id.should eq(author.id)
     notification.kind.should eq(Notification::Kind::Mention)
 
-    UpdateComment.update!(root, content: "@小明 编辑时提及自己")
+    UpdateComment.update!(root, content: "@xiaoming 编辑时提及自己")
     NotificationQuery.new.url("/comments/#{root.id}").first.user_id.should eq(author.id)
-    UpdateTopic.update!(topic, content: "@小明 主题里提及自己")
+    UpdateTopic.update!(topic, content: "@xiaoming 主题里提及自己")
     NotificationQuery.new.url("/forum/#{topic.id}").first.user_id.should eq(author.id)
-    new_topic = CreateTopic.create!(user_id: author.id, node_id: topic.node_id, title: "自我提及", content: "@小明")
+    new_topic = CreateTopic.create!(user_id: author.id, node_id: topic.node_id, title: "自我提及", content: "@xiaoming")
     NotificationQuery.new.url("/forum/#{new_topic.id}").first.user_id.should eq(author.id)
   end
 
@@ -431,26 +431,26 @@ describe "Notifications" do
 
   it "ignores code and email mentions, and notifies new mentions only once after editing" do
     author = UserFactory.create
-    mentioned = UserFactory.create &.name("小明")
-    added = UserFactory.create &.name("新朋友")
-    code_user = UserFactory.create &.name("示例用户")
+    mentioned = UserFactory.create &.login_name("xiaoming")
+    added = UserFactory.create &.login_name("new_friend")
+    code_user = UserFactory.create &.login_name("example_user")
     thread = CommentThreadQuery.new.topic_id(notification_topic(author).id).first
     comment = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: <<-MARKDOWN)
-      请@小明，看看这个例子。`@示例用户` 并不是提及。
+      请@xiaoming，看看这个例子。`@example_user` 并不是提及。
 
       ```crystal
-      @示例用户
+      @example_user
       ```
 
-      email@示例用户
+      email@example_user
       MARKDOWN
 
     NotificationQuery.new.url("/comments/#{comment.id}").results.map(&.user_id).should eq([mentioned.id])
     NotificationQuery.new.user_id(code_user.id).any?.should be_false
     NotificationQuery.new.user_id(mentioned.id).update(read_at: Time.utc)
 
-    comment = UpdateComment.update!(comment, content: "@小明 @新朋友 @新朋友")
-    UpdateComment.update!(comment, content: "@小明 @新朋友 再次编辑")
+    comment = UpdateComment.update!(comment, content: "@xiaoming @new_friend @new_friend")
+    UpdateComment.update!(comment, content: "@xiaoming @new_friend 再次编辑")
     NotificationQuery.new.url("/comments/#{comment.id}").select_count.should eq(2)
     NotificationQuery.new.user_id(mentioned.id).first.read_at.should_not be_nil
     NotificationQuery.new.user_id(added.id).first.kind.should eq(Notification::Kind::Mention)
@@ -458,14 +458,14 @@ describe "Notifications" do
 
   it "supports mentions in topics and limits mention recipients" do
     author = UserFactory.create
-    users = 7.times.map { |index| UserFactory.create &.name("被提及#{index}") }.to_a
+    users = 7.times.map { |index| UserFactory.create &.nickname("被提及#{index}") }.to_a
     topic = notification_topic(author)
-    topic = UpdateTopic.update!(topic, content: users.map { |user| "@#{user.name}" }.join(" "))
+    topic = UpdateTopic.update!(topic, content: users.map { |user| "@#{user.login_name}" }.join(" "))
     NotificationQuery.new.url("/forum/#{topic.id}").select_count.should eq(5)
     UpdateTopic.update!(topic, content: "#{topic.content} 再次编辑")
     NotificationQuery.new.url("/forum/#{topic.id}").select_count.should eq(5)
 
-    new_topic = CreateTopic.create!(user_id: author.id, node_id: topic.node_id, title: "提及", content: "@#{users.last.name}")
+    new_topic = CreateTopic.create!(user_id: author.id, node_id: topic.node_id, title: "提及", content: "@#{users.last.login_name}")
     notification = NotificationQuery.new.url("/forum/#{new_topic.id}").first
     notification.user_id.should eq(users.last.id)
     notification.actor_id.should eq(author.id)
@@ -473,13 +473,73 @@ describe "Notifications" do
     notification.excerpt.should eq(new_topic.content)
   end
 
-  it "matches usernames exactly without stripping punctuation" do
-    plain = UserFactory.create &.name("some.user")
-    dotted = UserFactory.create &.name("some.user.")
-    parentheses = UserFactory.create &.name("SomeUser(he/him)")
-    UserMentions.user_ids("@SomeUser(he/him) @some.user.").should eq([dotted.id, parentheses.id])
-    UserMentions.user_ids("@some.user").should eq([plain.id])
-    UserMentions.user_ids("@some.user..").should be_empty
+  it "uses linked handles in content order for the five-recipient limit" do
+    author = UserFactory.create
+    users = 7.times.map { UserFactory.create }.to_a.reverse
+    topic = notification_topic(author)
+    content = users.map { |user| "@#{user.login_name}" }.join(" ")
+
+    UpdateTopic.update!(topic, content: content)
+
+    recipients = NotificationQuery.new.url("/forum/#{topic.id}").results.map(&.user_id)
+    recipients.to_set.should eq(users.first(5).map(&.id).to_set)
+
+    response = ApiClient.new.get("/forum/new?backdoor_user_id=#{author.id}")
+    response.status_code.should eq(200)
+    response.body.should contain("最多提及 5 个用户，超出部分不发送通知。")
+  end
+
+  it "uses rendered links for notifications, skipping callouts, existing links and code" do
+    author = UserFactory.create
+    mentioned = UserFactory.create &.login_name("_zw_963")
+    ignored = UserFactory.create &.login_name("ignored_user")
+    topic = notification_topic(author)
+    content = <<-MARKDOWN
+    [@#{ignored.login_name}](https://example.com)
+    `@#{ignored.login_name}`
+    <a href="https://example.com">@#{ignored.login_name}</a>
+    <code>@#{ignored.login_name}</code>
+
+    ```info
+    谢谢 @#{ignored.login_name}中文。
+    ```
+
+    正文里提及 @#{mentioned.login_name}中文。
+    MARKDOWN
+    topic = UpdateTopic.update!(topic, content: content)
+
+    notifications = NotificationQuery.new.url("/forum/#{topic.id}").results
+    notifications.map(&.user_id).should eq([mentioned.id])
+    notifications.first.kind.should eq(Notification::Kind::Mention)
+    topic.content_html.not_nil!.should contain(%(href="/users/#{mentioned.login_name}"))
+    topic.content_html.not_nil!.should_not contain(%(href="/users/#{ignored.login_name}"))
+  end
+
+  it "matches full usernames while treating trailing separators as punctuation" do
+    plain = UserFactory.create &.login_name("some.user")
+    compound = UserFactory.create &.login_name("SomeUser_he-him")
+    UserQuery.new.with_login_names(UserMarkdown.render("@SomeUser_he-him @some.user.")[:mentions]).id.asc_order.results.map(&.id).should eq([plain.id, compound.id])
+    UserQuery.new.with_login_names(UserMarkdown.render("@some.user")[:mentions]).id.asc_order.results.map(&.id).should eq([plain.id])
+    UserQuery.new.with_login_names(UserMarkdown.render("@some.user.. @some.user_ @some.user-")[:mentions]).id.asc_order.results.map(&.id).should eq([plain.id])
+    UserQuery.new.with_login_names(UserMarkdown.render("@some.user..other @some__user @some.user@other")[:mentions]).results.should be_empty
+  end
+
+  it "preserves leading underscores and recognizes mentions next to Markdown formatting" do
+    ["_zw_963", "a_b_c", "zw_96_3", "some.user", "Name-23"].each do |login_name|
+      user = UserFactory.create &.login_name(login_name)
+
+      ["@#{login_name}", "谢谢 @#{login_name}.", "(@#{login_name})", "@#{login_name} hello_", "**@#{login_name}**", "_@#{login_name}_", "请@#{login_name}，看看。", "@#{login_name}中文", "hello_@#{login_name}"].each do |content|
+        UserQuery.new.with_login_names(UserMarkdown.render(content)[:mentions]).id.asc_order.results.map(&.id).should eq([user.id])
+      end
+    end
+  end
+
+  it "does not notify for mentions inside code, links, image labels or HTML attributes" do
+    user = UserFactory.create &.login_name("_zw_963")
+
+    ["`@#{user.login_name}`", "```\n@#{user.login_name}\n```", "[@#{user.login_name}](https://example.com)", "[link](https://example.com/@#{user.login_name})", "![@#{user.login_name}](https://example.com/image.png)", %(<span title="@#{user.login_name}">text</span>), "mail@#{user.login_name}"].each do |content|
+      UserQuery.new.with_login_names(UserMarkdown.render(content)[:mentions]).results.should be_empty
+    end
   end
 
   it "keeps historical snapshots but blocks navigation to hidden content" do
@@ -533,7 +593,7 @@ describe "Notifications" do
     response.status_code.should eq(404)
     response.body.should contain("评论已删除或暂不可见")
 
-    topic = UpdateTopic.update!(topic, content: "@#{responder.name}")
+    topic = UpdateTopic.update!(topic, content: "@#{responder.login_name}")
     notification = NotificationQuery.new.url("/forum/#{topic.id}").first
 
     TopicQuery.new.id(topic.id).delete
@@ -558,7 +618,7 @@ describe "Notifications" do
     notification.excerpt.should eq(content[0, 120])
     notification.excerpt.size.should eq(120)
 
-    UpdateUser.update!(responder, name: "新名字")
+    UpdateUser.update!(responder, nickname: "新名字")
     UpdateTopic.update!(topic, title: "新主题标题", content: "编辑后的主题正文")
     UpdateComment.update!(comment, content: "编辑后的评论正文")
     notification = NotificationQuery.find(notification.id)
@@ -636,14 +696,54 @@ describe "Notifications" do
     end
   end
 
+  it "requires at least two characters for mention autocomplete" do
+    user = UserFactory.create &.login_name("zw963")
+
+    ["", "z", " z ", "_"].each do |prefix|
+      response = ApiClient.new.get("/htmx/mentions?q=#{URI.encode_path(prefix)}&backdoor_user_id=#{user.id}")
+
+      response.status_code.should eq(200)
+      JSON.parse(response.body).as_a.should be_empty
+    end
+
+    response = ApiClient.new.get("/htmx/mentions?q=zw&backdoor_user_id=#{user.id}")
+
+    response.status_code.should eq(200)
+    JSON.parse(response.body).as_a.map { |candidate| candidate["login_name"].as_s }.should eq([user.login_name])
+  end
+
   it "requires authentication for autocomplete and treats LIKE wildcards literally" do
     user = UserFactory.create
-    UserFactory.create &.name("明月")
-    UserFactory.create &.name("明天")
-    UserFactory.create &.name("明_天")
-    ApiClient.new.headers("HX-Request-Type": "partial").get("/htmx/mentions?q=#{URI.encode_path("明")}").status_code.should eq(401)
-    response = ApiClient.new.get("/htmx/mentions?q=#{URI.encode_path("明_")}&backdoor_user_id=#{user.id}")
+    UserFactory.create &.login_name("MingMoon")
+    UserFactory.create &.login_name("MingSky")
+    UserFactory.create &.login_name("Ming_Sky")
+    ApiClient.new.headers("HX-Request-Type": "partial").get("/htmx/mentions?q=#{URI.encode_path("Ming")}").status_code.should eq(401)
+    response = ApiClient.new.get("/htmx/mentions?q=#{URI.encode_path("ming_")}&backdoor_user_id=#{user.id}")
     response.status_code.should eq(200)
-    Array(String).from_json(response.body).should eq(["明_天"])
+    JSON.parse(response.body).as_a.map { |candidate| candidate["login_name"].as_s }.should eq(["Ming_Sky"])
+  end
+
+  it "searches only login names while displaying nicknames" do
+    first = UserFactory.create do |user|
+      user.nickname("Billy Zheng")
+      user.login_name("zw963")
+    end
+    second = UserFactory.create do |user|
+      user.nickname("Billy Zheng")
+      user.login_name("another_billy")
+    end
+
+    response = ApiClient.new.get("/htmx/mentions?q=bILLY&backdoor_user_id=#{first.id}")
+    JSON.parse(response.body).as_a.should be_empty
+
+    response = ApiClient.new.get("/htmx/mentions?q=another&backdoor_user_id=#{first.id}")
+    candidates = JSON.parse(response.body).as_a
+    candidates.map { |candidate| candidate["login_name"].as_s }.should eq([second.login_name])
+    candidates.first["nickname"].as_s.should eq("Billy Zheng")
+
+    response = ApiClient.new.get("/htmx/mentions?q=ZW9&backdoor_user_id=#{first.id}")
+    JSON.parse(response.body).as_a.first["login_name"].as_s.should eq(first.login_name)
+    UserQuery.new.with_login_names(UserMarkdown.render("@zw963")[:mentions]).id.asc_order.results.map(&.id).should eq([first.id])
+    UserQuery.new.with_login_names(UserMarkdown.render("@Billy")[:mentions]).results.should be_empty
   end
 end

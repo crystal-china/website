@@ -23,7 +23,7 @@ describe SignUpUser do
   it "rejects occupied and invalid login names without silently renaming them" do
     UserFactory.create &.login_name("Billy")
 
-    ["bIlLy", "", "a", "有 空格", "小明", "user😀", "invalid@name", "a" * (UserLoginName::MAX_LENGTH + 1)].each do |login_name|
+    ["bIlLy", "", "a", "有 空格", "小明", "user😀", "invalid@name", ".abc", "-abc", "abc_", "abc.", "abc-", "a__b", "a..b", "a--b", "a._b", "a-_b", "a" * (UserLoginName::MAX_LENGTH + 1)].each do |login_name|
       SignUpUser.create(email: "invalid-signup@example.com", login_name: login_name,
         password: "password", password_confirmation: "password", captcha_code: "sample") do |operation, user|
         user.should be_nil
@@ -40,6 +40,15 @@ describe SignUpUser do
         password: "password", password_confirmation: "password", captcha_code: "sample")
 
       user.login_name.size.should eq(length)
+    end
+  end
+
+  it "accepts a leading underscore and separated punctuation inside login names" do
+    ["_zw_963", "a_b_c", "zw_96_3", "a.b-c_d9", "Crystalist_123456"].each_with_index do |login_name, index|
+      user = SignUpUser.create!(email: "format-#{index}@example.com", login_name: login_name,
+        password: "password", password_confirmation: "password", captcha_code: "sample")
+
+      user.login_name.should eq(login_name)
     end
   end
 
