@@ -43,7 +43,7 @@ abstract class BrowserAction < Lucky::Action
     UserQuery.new.id(id).first?
   end
 
-  def build_failed_flash(op)
+  def build_failed_flash(op) : Nil
     msg = String.build do |io|
       op.errors.each do |(k, v)|
         io << ValidationErrors.format(k, v.first) << '\n'

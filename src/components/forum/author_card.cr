@@ -1,7 +1,7 @@
 class Forum::AuthorCard < BaseComponent
   needs user : User
 
-  def render
+  def render : Nil
     section class: "app-panel p-4" do
       h2 "主题作者", class: "m-0 mb-4 text-sm font-semibold text-gray-900"
 

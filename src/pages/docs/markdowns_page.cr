@@ -1,5 +1,5 @@
 class Docs::MarkdownsPage < DocLayout
-  def content
+  def content : Nil
     render_markdown
   end
 end

@@ -5,7 +5,7 @@ class Comments::Card < BaseComponent
   needs show_update_success : Bool = false
   needs focused_comment : Comment? = nil
 
-  def render
+  def render : Nil
     focus = focused_comment
 
     # **当前卡片是不是目标评论所属的根评论？**如果是，就自动展开它，才能找到目标子评论。
@@ -70,7 +70,7 @@ HYPER
     end
   end
 
-  private def comment_card_classes
+  private def comment_card_classes : String
     classes = "app-panel mt-6 px-4 py-2 sm:px-7"
     classes += comment.parent_id ? " bg-green-100 sm:ml-8" : " bg-white"
     classes

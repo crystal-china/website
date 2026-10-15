@@ -1,5 +1,5 @@
 class Sidebar < BaseComponent
-  def render_child(ary, this_path)
+  def render_child(ary, this_path) : Nil
     if !ary.empty?
       expanded = (current_path == this_path || contains_current_path?(ary)) ? "block" : "hidden"
 
@@ -23,13 +23,13 @@ class Sidebar < BaseComponent
     end
   end
 
-  private def contains_current_path?(pages)
+  private def contains_current_path?(pages) : Bool
     pages.any? do |page|
       current_path == page.path || contains_current_path?(page.children)
     end
   end
 
-  def render
+  def render : Nil
     h1 "目录", class: "my-4 text-[2em] leading-tight font-bold tracking-tight"
 
     nav do
@@ -62,7 +62,7 @@ class Sidebar < BaseComponent
     render_current_user
   end
 
-  private def render_current_user
+  private def render_current_user : Nil
     return unless (user = current_user)
 
     div class: "mt-4 inline-flex items-center gap-3 rounded-full border border-gray-300 bg-white/80 px-3 py-2 shadow-sm" do
@@ -84,7 +84,7 @@ class Sidebar < BaseComponent
     end
   end
 
-  private def render_current_user_name(user)
+  private def render_current_user_name(user) : Nil
     div class: "min-w-0 space-y-1" do
       div "当前用户", class: "text-xs tracking-wide text-gray-500"
       strong user.nickname, class: "block truncate text-sm font-semibold text-gray-900"
@@ -92,7 +92,7 @@ class Sidebar < BaseComponent
     end
   end
 
-  private def render_avatar_fallback(user)
+  private def render_avatar_fallback(user) : Nil
     div class: "flex h-10 w-10 items-center justify-center rounded-full bg-gray-900 text-sm font-semibold text-white" do
       text user.nickname[0].to_s.upcase
     end

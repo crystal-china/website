@@ -3,7 +3,7 @@ class Comments::CardContent < BaseComponent
   needs comment : Comment
   needs show_update_success : Bool = false
 
-  def render
+  def render : Nil
     div id: "comment-#{comment.id}-content" do
       render_avatar_name_and_time
 
@@ -15,7 +15,7 @@ class Comments::CardContent < BaseComponent
     end
   end
 
-  private def render_avatar_name_and_time
+  private def render_avatar_name_and_time : Nil
     user = comment.user
 
     header class: "flex flex-wrap items-start justify-between gap-3 sm:flex-nowrap" do
@@ -58,7 +58,7 @@ class Comments::CardContent < BaseComponent
     end
   end
 
-  private def render_parent_comment_hint
+  private def render_parent_comment_hint : Nil
     # 直接回复根评论时，缩进本身已经说明“这是针对这条顶级评论的回复”，不用再重复显示。
     # 但如果回复的是某条子评论，即使它是那条子评论的第一条回复，也应该显示“回复谁”。
     return unless (parent_id = comment.parent_id)

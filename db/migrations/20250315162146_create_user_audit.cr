@@ -1,5 +1,5 @@
 class CreateUserAudit::V20250315162146 < Avram::Migrator::Migration::V1
-  def migrate
+  def migrate : Nil
     create table_for(UserAudit) do
       primary_key id : Int64
       add_timestamps
@@ -16,7 +16,7 @@ class CreateUserAudit::V20250315162146 < Avram::Migrator::Migration::V1
     create_index table_for(UserAudit), [:sync_state, :user_id, :changed_column_name]
   end
 
-  def rollback
+  def rollback : Nil
     drop table_for(UserAudit)
   end
 end

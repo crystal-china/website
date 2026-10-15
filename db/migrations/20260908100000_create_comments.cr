@@ -1,5 +1,5 @@
 class CreateComments::V20260908100000 < Avram::Migrator::Migration::V1
-  def migrate
+  def migrate : Nil
     create table_for(Comment) do
       primary_key id : Int64
 
@@ -111,7 +111,7 @@ class CreateComments::V20260908100000 < Avram::Migrator::Migration::V1
     )
   end
 
-  def rollback
+  def rollback : Nil
     drop_trigger table_for(Comment), "record_topic_reply_after_insert"
     drop_function "record_topic_reply"
 

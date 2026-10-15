@@ -14,7 +14,7 @@ class Htmx::Vote < BrowserAction
     end
   end
 
-  private def toggle_comment_vote(comment_id : Int64, vote_type : String)
+  private def toggle_comment_vote(comment_id : Int64, vote_type : String) : Lucky::Response
     vote_counts = {} of String => Int32
     user_voted_types = [] of String
     status = 400
@@ -65,7 +65,7 @@ class Htmx::Vote < BrowserAction
     )
   end
 
-  private def toggle_doc_vote(doc_id : Int64, vote_type : String)
+  private def toggle_doc_vote(doc_id : Int64, vote_type : String) : Lucky::Response
     vote_counts = {} of String => Int32
     user_voted_types = [] of String
 
@@ -103,7 +103,7 @@ class Htmx::Vote < BrowserAction
     )
   end
 
-  private def remove_opposite_vote(votes : VoteQuery, vote_type : String, vote_counts : Hash(String, Int32))
+  private def remove_opposite_vote(votes : VoteQuery, vote_type : String, vote_counts : Hash(String, Int32)) : Nil
     return unless vote_type.in?("👍", "👎")
 
     opposite_type = vote_type == "👍" ? "👎" : "👍"

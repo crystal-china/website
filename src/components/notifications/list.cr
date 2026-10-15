@@ -3,7 +3,7 @@ class Notifications::List < BaseComponent
   needs pages : Lucky::Paginator
   needs has_unread : Bool
 
-  def render
+  def render : Nil
     section class: "bg-white" do
       header class: "flex justify-end border-b border-gray-200 px-4 py-3" do
         button(
@@ -49,7 +49,7 @@ class Notifications::List < BaseComponent
     end
   end
 
-  private def render_page_link(label : String, path : String)
+  private def render_page_link(label : String, path : String) : Nil
     a(
       label,
       href: path,
@@ -60,7 +60,7 @@ class Notifications::List < BaseComponent
     )
   end
 
-  private def render_notification(notification : Notification)
+  private def render_notification(notification : Notification) : Nil
     unread = notification.read_at.nil?
     description = case notification.kind
                   in .topic_reply?     then "回复了你的主题"

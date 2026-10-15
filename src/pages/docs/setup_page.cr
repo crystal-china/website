@@ -1,11 +1,11 @@
 class Docs::SetupPage < MainLayout
   needs missing_files : Array(String)
 
-  def page_title
+  def page_title : String
     "Documentation setup"
   end
 
-  def content
+  def content : Nil
     section class: "#{page_container_classes} py-10" do
       article class: "prose-neutral mx-auto max-w-3xl prose" do
         h1 "Set up your documentation"

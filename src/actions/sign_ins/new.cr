@@ -8,7 +8,7 @@ class SignIns::New < BrowserAction
     html NewPage, operation: SignInUser.new
   end
 
-  private def remember_return_to
+  private def remember_return_to : Nil
     return unless (path = return_to)
 
     uri = URI.parse(path)

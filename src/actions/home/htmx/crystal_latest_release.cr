@@ -13,7 +13,7 @@ class Home::Htmx::CrystalLatestRelease < BrowserAction
     HTML
   end
 
-  private def latest_release_version
+  private def latest_release_version : String
     return UNKNOWN_VERSION if LuckyEnv.development?
 
     HTTP::Client.new("crystal-lang.org", tls: true) do |client|

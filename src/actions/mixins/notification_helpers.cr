@@ -1,7 +1,7 @@
 module NotificationHelpers
   include Lucky::Paginator::BackendHelpers
 
-  private def render_notifications
+  private def render_notifications : Lucky::Response
     query = NotificationQuery.new.user_id(current_user.id)
     has_unread = query.clone.read_at.is_nil.any?
     pages = Lucky::Paginator.new(

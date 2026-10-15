@@ -1,5 +1,5 @@
 class CreateTopics::V20260908090000 < Avram::Migrator::Migration::V1
-  def migrate
+  def migrate : Nil
     create table_for(Node) do
       primary_key id : Int64
       add name : String
@@ -55,7 +55,7 @@ class CreateTopics::V20260908090000 < Avram::Migrator::Migration::V1
       SQL
   end
 
-  def rollback
+  def rollback : Nil
     drop table_for(Topic)
     drop table_for(Node)
   end

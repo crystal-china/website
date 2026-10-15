@@ -9,12 +9,12 @@ class PasswordResets::New < BrowserAction
 
   # This is to prevent password reset tokens from being scraped in the HTTP Referer header
   # See more info here: https://github.com/thoughtbot/clearance/pull/707
-  private def redirect_to_edit_form_without_token_param
+  private def redirect_to_edit_form_without_token_param : Lucky::Response
     make_token_available_to_future_actions
     redirect to: PasswordResets::Edit.with(user_id)
   end
 
-  private def make_token_available_to_future_actions
+  private def make_token_available_to_future_actions : Nil
     session.set(:password_reset_token, token)
   end
 end

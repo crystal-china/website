@@ -23,7 +23,7 @@ class User < BaseModel
     Carbon::Address.new(email)
   end
 
-  def admin?
+  def admin? : Bool
     ENV.fetch("ADMIN_EMAILS", "").split(/[\s,]+/).includes?(email)
   end
 end

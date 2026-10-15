@@ -5,7 +5,7 @@ class TabCounter
   @init = 0
   @value : String?
 
-  def value
+  def value : String
     LOCK.synchronize do
       @init += 1
       @value || "tab#{@init}"

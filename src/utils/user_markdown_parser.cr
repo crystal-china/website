@@ -18,7 +18,7 @@ module UserMarkdownParser
   RAW_CLOSE_TAG = /\A<\s*\/\s*#{RAW_TAG_NAMES.source}\s*>/i
 
   # 筛选允许生成提及链接的位置，同时转换 info 提示框；不查询用户，也不发送通知。
-  def self.parse(content : String, options : Markd::Options, formatter : Tartrazine::Formatter)
+  def self.parse(content : String, options : Markd::Options, formatter : Tartrazine::Formatter) : Tuple(Markd::Node, Regex?, Hash(String, String))
     names = {} of String => String
     source = content
     placeholder = nil

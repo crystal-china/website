@@ -1,5 +1,5 @@
 class Navbar::NotificationLink < BaseComponent
-  def render
+  def render : Nil
     user = current_user
 
     return if user.nil?

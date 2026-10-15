@@ -1,5 +1,5 @@
 class Navbar::UserMenu < BaseComponent
-  def render
+  def render : Nil
     user = current_user
 
     return if user.nil?
@@ -81,7 +81,7 @@ HYPER
     end
   end
 
-  private def menu_link_class(*, active : Bool = false)
+  private def menu_link_class(*, active : Bool = false) : String
     active ? "nav-user-link is-active" : "nav-user-link"
   end
 end

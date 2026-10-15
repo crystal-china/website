@@ -34,7 +34,7 @@ module Db::ConstraintHelpers
   # NULL         | 有值
 
   # 例如 reply_id 和 root_reply_id：顶级评论两者都为空，子评论则必须同时记录父评论和根评论。
-  def require_nullability_relation(relation : Symbol, table_name : String, left_column : String, right_column : String)
+  def require_nullability_relation(relation : Symbol, table_name : String, left_column : String, right_column : String) : Nil
     operator = case relation
                when :exactly_one_non_null
                  "<>"
@@ -51,7 +51,7 @@ module Db::ConstraintHelpers
       SQL
   end
 
-  def drop_nullability_relation(relation : Symbol, table_name : String, left_column : String, right_column : String)
+  def drop_nullability_relation(relation : Symbol, table_name : String, left_column : String, right_column : String) : Nil
     execute <<-SQL
       ALTER TABLE #{table_name}
       DROP CONSTRAINT IF EXISTS "#{table_name}_#{left_column}_#{right_column}_check"

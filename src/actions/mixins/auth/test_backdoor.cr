@@ -3,7 +3,7 @@ module Auth::TestBackdoor
     before test_backdoor
   end
 
-  private def test_backdoor
+  private def test_backdoor : Lucky::ActionPipes::Continue
     if LuckyEnv.test? && (user_id = params.get?(:backdoor_user_id))
       user = UserQuery.find(user_id)
       sign_in user

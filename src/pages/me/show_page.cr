@@ -1,11 +1,11 @@
 class Me::ShowPage < MainLayout
-  def content
+  def content : Nil
     h1 "This is your profile", class: "mt-10 mb-4 text-[2em] leading-tight font-bold tracking-tight"
     # h3 "Email:  #{@current_user.email}"
     # helpful_tips
   end
 
-  private def helpful_tips
+  private def helpful_tips : Nil
     h3 "Next, you may want to:", class: "mt-6 mb-3 text-[1.17em] leading-snug font-semibold"
     ul do
       li { link_to_authentication_guides }
@@ -14,7 +14,7 @@ class Me::ShowPage < MainLayout
     end
   end
 
-  private def link_to_authentication_guides
+  private def link_to_authentication_guides : Nil
     a "Check out the authentication guides",
       href: "https://luckyframework.org/guides/authentication"
   end

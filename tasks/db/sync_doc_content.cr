@@ -1,7 +1,7 @@
 class Db::SyncDocContent < LuckyTask::Task
   summary "Sync public/markdowns/*.md into docs for full-text search"
 
-  def call
+  def call : Nil
     files = Dir["public/markdowns/**/*.md"].sort
 
     unless File.file?("public/markdowns/navigation.yml") && !files.empty?

@@ -4,7 +4,7 @@ class Comments::ChildCreated < BaseComponent
   needs comment_id : Int64
   needs root_comment : Comment
 
-  def render
+  def render : Nil
     mount(
       Comments::List,
       formatter: formatter,

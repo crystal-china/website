@@ -8,15 +8,15 @@ abstract class DocLayout < MainLayout
   needs markdown_path : String
   needs markdown_source : String
 
-  def page_title
+  def page_title : String
     DocNavigation.pages_by_path[current_path]?.try(&.title) || markdown_page_title
   end
 
-  def sub_title
+  def sub_title : String?
     DocNavigation.pages_by_path[current_path]?.try(&.sub_title) || markdown_page_sub_title
   end
 
-  def page_description
+  def page_description : String
     if (description = sub_title) && !description.empty?
       return "#{page_title}：#{description}。"
     end
@@ -24,7 +24,7 @@ abstract class DocLayout < MainLayout
     "#{page_title} - Crystal 中文文档。"
   end
 
-  private def render_body
+  private def render_body : Nil
     if paginated_doc?
       render_paginated_doc
     else
@@ -35,11 +35,11 @@ abstract class DocLayout < MainLayout
     mount Comments::Dialog
   end
 
-  private def paginated_doc?
+  private def paginated_doc? : Bool
     DocNavigation.pages_by_path.has_key?(current_path)
   end
 
-  private def render_paginated_doc
+  private def render_paginated_doc : Nil
     render_navbar_and_flash
 
     main class: "#{page_frame_classes} flex flex-col items-stretch lg:flex-row lg:items-start" do
@@ -59,7 +59,7 @@ abstract class DocLayout < MainLayout
     mount Search::Dialog, scope: search_scope, current_user: current_user if current_user
   end
 
-  private def render_standalone_doc
+  private def render_standalone_doc : Nil
     main class: page_container_classes do
       render_content_column(
         section_class: "w-full",
@@ -69,7 +69,7 @@ abstract class DocLayout < MainLayout
     end
   end
 
-  private def render_content_column(*, section_class : String, article_class : String, show_pager : Bool)
+  private def render_content_column(*, section_class : String, article_class : String, show_pager : Bool) : Nil
     section class: section_class do
       article class: article_class do
         render_page_header
@@ -113,7 +113,7 @@ abstract class DocLayout < MainLayout
     end
   end
 
-  private def render_page_header
+  private def render_page_header : Nil
     header class: "doc-page-header" do
       h1 class: "doc-page-title" do
         text page_title
@@ -132,7 +132,7 @@ abstract class DocLayout < MainLayout
     end
   end
 
-  private def print_doc_info(doc)
+  private def print_doc_info(doc) : String
     doc_info = "创建于：#{doc.created_at.to_s("%Y年%m月%d日")}"
 
     if (modified_at = doc.content_updated_at)
@@ -144,7 +144,7 @@ abstract class DocLayout < MainLayout
     %(<p class="doc-page-meta-text">#{doc_info}</p>)
   end
 
-  private def print_votes(doc)
+  private def print_votes(doc) : Nil
     me = current_user
 
     voted_types = if me.nil?

@@ -1,5 +1,5 @@
 class Notifications::Dialog < BaseComponent
-  def render
+  def render : Nil
     dialog(
       id: "notifications-dialog",
       "aria-labelledby": "notifications-title",

@@ -1,11 +1,11 @@
 class PasswordResetRequests::NewPage < AuthLayout
   needs operation : RequestPasswordReset
 
-  def page_title
+  def page_title : String
     "重置密码"
   end
 
-  def content
+  def content : Nil
     op = operation
 
     auth_page_single_column do

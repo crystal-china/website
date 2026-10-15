@@ -5,11 +5,11 @@ class Forum::ShowPage < ForumLayout
   needs comment_thread : CommentThread
   needs can_delete_topic : Bool
 
-  def page_title
+  def page_title : String
     topic.title
   end
 
-  def forum_content
+  def forum_content : Nil
     time_in_words = TimeInWords::Helpers(TimeInWords::I18n::ZH_CN)
 
     article class: "mx-auto w-full max-w-[90ch]" do
@@ -86,7 +86,7 @@ class Forum::ShowPage < ForumLayout
     true
   end
 
-  private def render_right_sidebar
+  private def render_right_sidebar : Nil
     mount Forum::AuthorCard, user: topic.user, current_user: current_user
   end
 end

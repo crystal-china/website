@@ -9,7 +9,7 @@ require "../../../spec/support/factories/**"
 class Db::Seed::RequiredData < LuckyTask::Task
   summary "Add database records required for the app to work"
 
-  def call
+  def call : Nil
     # Using a Avram::Factory:
     #
     # Use the defaults, but override just the email

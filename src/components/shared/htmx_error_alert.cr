@@ -1,5 +1,5 @@
 class Shared::HtmxErrorAlert < BaseComponent
-  def render
+  def render : Nil
     div(
       id: "htmx-error-alert",
       role: "alert",

@@ -4,7 +4,7 @@ module Auth::RedirectSignedInUsers
     before redirect_signed_in_users
   end
 
-  private def redirect_signed_in_users
+  private def redirect_signed_in_users : Lucky::Response | Lucky::ActionPipes::Continue
     if current_user?
       flash.success = "您已经登录"
       redirect to: Home::Index
@@ -14,6 +14,6 @@ module Auth::RedirectSignedInUsers
   end
 
   # current_user returns nil because signed in users are redirected.
-  def current_user
+  def current_user : Nil
   end
 end

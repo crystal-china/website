@@ -3,9 +3,9 @@ require "./main_layout"
 abstract class ForumLayout < MainLayout
   needs nodes : Array(Node)
 
-  abstract def forum_content
+  abstract def forum_content : Nil
 
-  def content
+  def content : Nil
     section class: "#{page_container_classes} py-10" do
       if show_sidebars?
         div class: "flex flex-col items-start gap-8 lg:flex-row" do
@@ -27,7 +27,7 @@ abstract class ForumLayout < MainLayout
     end
   end
 
-  private def render_node_navigation(current_node : Node?)
+  private def render_node_navigation(current_node : Node?) : Nil
     link_classes = "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap no-underline transition-colors"
     active_classes = "bg-gray-900 text-white"
     inactive_classes = "text-gray-700 hover:bg-gray-100 hover:text-gray-950"
@@ -71,7 +71,7 @@ abstract class ForumLayout < MainLayout
     false
   end
 
-  private def render_right_sidebar
+  private def render_right_sidebar : Nil
   end
 
   private def search_scope : String?

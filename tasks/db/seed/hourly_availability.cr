@@ -3,7 +3,7 @@ class Db::Seed::HourlyAvailability < LuckyTask::Task
   arg :year, "Year to initialize", optional: true, format: /^\d{4}$/
   arg :month, "Month to initialize", optional: true, format: /^(?:[1-9]|1[0-2])$/
 
-  def call
+  def call : Nil
     now = Time.local
     target_year = year.try(&.to_i) || now.year
     target_month = month.try(&.to_i) || now.month
@@ -13,7 +13,7 @@ class Db::Seed::HourlyAvailability < LuckyTask::Task
 end
 
 module Db::Seed::HourlyAvailabilityTask
-  def self.run(year, month)
+  def self.run(year, month) : Nil
     start_day = 1
     end_day = Time.local(year, month, 1).at_end_of_month.day
 

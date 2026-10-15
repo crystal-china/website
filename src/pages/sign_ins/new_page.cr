@@ -1,11 +1,11 @@
 class SignIns::NewPage < AuthLayout
   needs operation : SignInUser
 
-  def page_title
+  def page_title : String
     "登录"
   end
 
-  def content
+  def content : Nil
     op = operation
 
     auth_page_with_oauth do

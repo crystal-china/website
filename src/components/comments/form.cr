@@ -6,7 +6,7 @@ class Comments::Form < BaseComponent
   needs comment_id : Int64?
   needs target_comment_id : Int64? = nil
 
-  def render
+  def render : Nil
     mount(
       Comments::Editor,
       content: content,

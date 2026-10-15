@@ -1,7 +1,7 @@
 module UserMarkdown
   OPTIONS = Markd::Options.new(gfm: true, toc: false)
 
-  def self.render(content : String, formatter : Tartrazine::Formatter = MarkdownFormatter.build)
+  def self.render(content : String, formatter : Tartrazine::Formatter = MarkdownFormatter.build) : NamedTuple(html: String, mentions: Array(String))
     document, placeholder, names = UserMarkdownParser.parse(content, OPTIONS, formatter)
     html = Markd::HTMLRenderer.new(OPTIONS).render(document, formatter)
     html, mentions = add_links(html, placeholder, names)
@@ -10,7 +10,7 @@ module UserMarkdown
     {html: html, mentions: mentions.to_a}
   end
 
-  private def self.add_links(html : String, placeholder : Regex?, names : Hash(String, String))
+  private def self.add_links(html : String, placeholder : Regex?, names : Hash(String, String)) : Tuple(String, Set(String))
     linked_names = Set(String).new
 
     return {html, linked_names} if names.empty?

@@ -2,7 +2,7 @@ class Comments::LoadMoreButton < BaseComponent
   needs pagination : Comments::Pagination
   needs page_number : Int32
 
-  def render
+  def render : Nil
     div class: "mt-4 flex justify-center" do
       if pagination[:page].try &.next_page
         button(

@@ -1,6 +1,6 @@
 require "../spec_helper"
 
-private def notification_topic(author : User)
+private def notification_topic(author : User) : Topic
   node = SaveNode.create!(name: "通知测试", slug: "notifications", summary: "测试", color: "#16a34a", position: 0)
   CreateTopic.create!(user_id: author.id, node_id: node.id, title: "通知测试主题", content: "正文")
 end

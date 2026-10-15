@@ -2,7 +2,7 @@ require "../src/app"
 require "../tasks/db/seed/hourly_availability"
 require "../tasks/generate_sitemap"
 
-def update_users_last_active_at
+def update_users_last_active_at : Nil
   ONLINE_PRESENCE_MUTEX.synchronize do
     user_ids = ONLINE_USERS.keys
 

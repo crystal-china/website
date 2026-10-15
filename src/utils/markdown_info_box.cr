@@ -1,5 +1,5 @@
 module MarkdownInfoBox
-  def self.convert(node : Markd::Node, options : Markd::Options, formatter : Tartrazine::Formatter)
+  def self.convert(node : Markd::Node, options : Markd::Options, formatter : Tartrazine::Formatter) : Nil
     node.type = :html_block
     node.text = <<-HTML
     <div class="box info">

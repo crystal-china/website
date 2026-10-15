@@ -8,7 +8,7 @@ class ErrorSerializer < BaseSerializer
   )
   end
 
-  def render
+  def render : NamedTuple(message: String, param: String?, details: String?)
     {message: @message, param: @param, details: @details}
   end
 end

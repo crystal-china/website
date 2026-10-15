@@ -1,7 +1,7 @@
 class Db::Fix::LoginNames < LuckyTask::Task
   summary "Repair legacy @mention identities and case-insensitive conflicts without changing display names"
 
-  def call
+  def call : Nil
     query = UserQuery.new.id.asc_order.limit(200)
     last_id = 0_i64
 

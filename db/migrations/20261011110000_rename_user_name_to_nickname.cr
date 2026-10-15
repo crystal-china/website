@@ -1,5 +1,5 @@
 class RenameUserNameToNickname::V20261011110000 < Avram::Migrator::Migration::V1
-  def migrate
+  def migrate : Nil
     # Nicknames are display-only: duplicates and whitespace are allowed.
     drop_index table_for(User), :name
     drop_index table_for(User), name: "users_name_prefix_index"
@@ -9,7 +9,7 @@ class RenameUserNameToNickname::V20261011110000 < Avram::Migrator::Migration::V1
     end
   end
 
-  def rollback
+  def rollback : Nil
     alter table_for(User) do
       rename :nickname, :name
     end

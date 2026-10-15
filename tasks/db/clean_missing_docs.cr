@@ -2,7 +2,7 @@ class Db::CleanMissingDocs < LuckyTask::Task
   summary "Audit docs without Markdown files; delete empty ones with --apply"
   switch apply, "Delete docs with no comments or votes"
 
-  def call
+  def call : Nil
     unless File.file?("public/markdowns/navigation.yml") && !Dir["public/markdowns/**/*.md"].empty?
       raise "Markdown directory is incomplete; refusing to inspect docs"
     end

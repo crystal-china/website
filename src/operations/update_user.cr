@@ -19,7 +19,7 @@ class UpdateUser < User::SaveOperation
 
   after_save user_audit
 
-  private def validate_avatar_is_a_link
+  private def validate_avatar_is_a_link : Nil
     avatar.value.try do |avatar_value|
       if !avatar_value.starts_with?(%r{https?://})
         avatar.add_error Rosetta.find("avram.errors.avatar_url").t
@@ -27,7 +27,7 @@ class UpdateUser < User::SaveOperation
     end
   end
 
-  private def user_audit(saved_user)
+  private def user_audit(saved_user) : Nil
     attributes.select(&.changed?).each do |attribute|
       column_name = attribute.name.to_s
 

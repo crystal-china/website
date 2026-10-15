@@ -3,7 +3,7 @@ module SINGLETON
   @@instance : self?
 
   macro included
-    def self.instance
+    def self.instance : self
       @@instance || LOCK.synchronize do
         @@instance ||= new
       end

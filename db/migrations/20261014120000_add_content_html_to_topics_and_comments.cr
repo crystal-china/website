@@ -1,5 +1,5 @@
 class AddContentHtmlToTopicsAndComments::V20261014120000 < Avram::Migrator::Migration::V1
-  def migrate
+  def migrate : Nil
     alter table_for(Topic) do
       # Sanitized Markdown body, generated together with content on each body edit.
       # NULL means a legacy record awaiting db.rebuild.content_html; empty HTML is valid.
@@ -12,7 +12,7 @@ class AddContentHtmlToTopicsAndComments::V20261014120000 < Avram::Migrator::Migr
     end
   end
 
-  def rollback
+  def rollback : Nil
     alter table_for(Comment) do
       remove :content_html
     end

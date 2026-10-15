@@ -1,15 +1,15 @@
 class Users::ShowPage < MainLayout
   needs user : User
 
-  def page_title
+  def page_title : String
     "#{user.nickname} (@#{user.login_name})"
   end
 
-  def page_description
+  def page_description : String
     "#{user.nickname} 在 Crystal 中文社区的个人主页。"
   end
 
-  def content
+  def content : Nil
     div class: "#{page_container_classes} py-10 sm:py-16" do
       article class: "app-panel mx-auto max-w-2xl overflow-hidden" do
         div class: "h-24 border-b border-sky-100 bg-gradient-to-r from-sky-100 via-slate-100 to-amber-50 sm:h-32", "aria-hidden": "true"

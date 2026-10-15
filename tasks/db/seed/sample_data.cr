@@ -2,7 +2,7 @@
 class Db::Seed::SampleData < LuckyTask::Task
   summary "Add sample database records helpful for development"
 
-  def call
+  def call : Nil
     abort "db.seed.sample_data 只允许在 development 环境运行" unless LuckyEnv.development?
 
     Signal::INT.trap do
@@ -221,7 +221,7 @@ class Db::Seed::SampleData < LuckyTask::Task
     puts "Sign in as admin@crystal-china.org, me@163.com or user1@163.com to test notification jumps."
   end
 
-  def print_exit(reason)
+  def print_exit(reason) : NoReturn
     STDERR.puts reason
     STDERR.puts "退出 ..."
     exit

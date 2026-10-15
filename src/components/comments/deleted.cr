@@ -3,7 +3,7 @@ class Comments::Deleted < BaseComponent
   needs pagination : Comments::Pagination
   needs root_comment : Comment?
 
-  def render
+  def render : Nil
     root = root_comment
     html_id = root ? "comment-#{root.id}-comments" : "comments"
 

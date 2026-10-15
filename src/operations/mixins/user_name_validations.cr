@@ -1,5 +1,5 @@
 module UserNameValidations
-  private def validate_user_names
+  private def validate_user_names : Nil
     self.nickname.value = login_name.value if nickname.value.blank?
 
     validate_required nickname, login_name

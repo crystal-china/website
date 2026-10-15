@@ -3,7 +3,7 @@ class Comments::ThreadToggle < BaseComponent
   needs order_by : String
   needs expanded : Bool = false
 
-  def render
+  def render : Nil
     wrapper_class = comment.descendants_count > 0 ? "shrink-0" : "hidden"
 
     div id: "comment-#{comment.id}-thread-toggle", class: wrapper_class do
@@ -46,7 +46,7 @@ HYPER
     end
   end
 
-  private def button_class
+  private def button_class : String
     "action-button action-button-accent"
   end
 end

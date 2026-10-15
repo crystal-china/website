@@ -1,5 +1,5 @@
 module Db::CounterHelpers
-  def add_counters_for(*, source_table : String, target_table : String, target_column : String, target_id_column : String)
+  def add_counters_for(*, source_table : String, target_table : String, target_column : String, target_id_column : String) : Nil
     add_counter_functions(
       source_table: source_table,
       target_table: target_table,
@@ -14,7 +14,7 @@ module Db::CounterHelpers
     )
   end
 
-  def add_soft_delete_counters_for(*, source_table : String, target_table : String, target_column : String, target_id_column : String)
+  def add_soft_delete_counters_for(*, source_table : String, target_table : String, target_column : String, target_id_column : String) : Nil
     add_counter_functions(
       source_table: source_table,
       target_table: target_table,
@@ -29,7 +29,7 @@ module Db::CounterHelpers
     )
   end
 
-  private def add_counter_functions(*, source_table : String, target_table : String, target_column : String, target_id_column : String)
+  private def add_counter_functions(*, source_table : String, target_table : String, target_column : String, target_id_column : String) : Nil
     key = "#{source_table}_#{target_table}_#{target_column}"
 
     execute <<-SQL
@@ -71,7 +71,7 @@ $$ LANGUAGE plpgsql;
 SQL
   end
 
-  private def add_counter_triggers(*, source_table : String, target_table : String, target_column : String, when when_clause : String? = nil)
+  private def add_counter_triggers(*, source_table : String, target_table : String, target_column : String, when when_clause : String? = nil) : Nil
     key = "#{source_table}_#{target_table}_#{target_column}"
 
     execute <<-SQL
@@ -91,7 +91,7 @@ EXECUTE FUNCTION decrement_#{key}();
 SQL
   end
 
-  private def add_soft_delete_counter_triggers(*, source_table : String, target_table : String, target_column : String)
+  private def add_soft_delete_counter_triggers(*, source_table : String, target_table : String, target_column : String) : Nil
     key = "#{source_table}_#{target_table}_#{target_column}"
 
     add_counter_triggers(
@@ -118,7 +118,7 @@ EXECUTE FUNCTION increment_#{key}();
 SQL
   end
 
-  def remove_counters_for(*, source_table : String, target_table : String, target_column : String)
+  def remove_counters_for(*, source_table : String, target_table : String, target_column : String) : Nil
     key = "#{source_table}_#{target_table}_#{target_column}"
 
     execute <<-SQL
@@ -138,7 +138,7 @@ DROP FUNCTION IF EXISTS decrement_#{key}();
 SQL
   end
 
-  def remove_soft_delete_counters_for(*, source_table : String, target_table : String, target_column : String)
+  def remove_soft_delete_counters_for(*, source_table : String, target_table : String, target_column : String) : Nil
     key = "#{source_table}_#{target_table}_#{target_column}"
 
     execute "DROP TRIGGER IF EXISTS trigger_soft_delete_#{key} ON #{source_table};"

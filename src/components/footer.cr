@@ -1,5 +1,5 @@
 class Footer < BaseComponent
-  def render
+  def render : Nil
     footer class: "mt-12" do
       hr class: "mx-auto my-1 w-[70%] max-w-4xl border-t border-gray-300"
 
@@ -45,7 +45,7 @@ class Footer < BaseComponent
     end
   end
 
-  private def icon_link(title, href, src, alt)
+  private def icon_link(title, href, src, alt) : Nil
     a(
       href: href,
       target: "_blank",

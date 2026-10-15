@@ -1,5 +1,5 @@
 class AddLoginNameToUsers::V20261011120000 < Avram::Migrator::Migration::V1
-  def migrate
+  def migrate : Nil
     alter table_for(User) do
       # Preserve the user's spelling; login_name_lower will handle identity lookup.
       add login_name : String?
@@ -12,7 +12,7 @@ class AddLoginNameToUsers::V20261011120000 < Avram::Migrator::Migration::V1
 
   end
 
-  def rollback
+  def rollback : Nil
     alter table_for(User) do
       remove :login_name
     end

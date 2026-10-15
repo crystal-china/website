@@ -27,7 +27,7 @@ class SignUps::Create < BrowserAction
     sign_up(params, "注册失败", signup_captcha_code)
   end
 
-  def sign_up(params, flash_msg, captcha_code : String = "")
+  def sign_up(params, flash_msg, captcha_code : String = "") : Lucky::Response
     SignUpUser.create(params, captcha_code: captcha_code) do |operation, user|
       if user
         flash.info = "注册成功"

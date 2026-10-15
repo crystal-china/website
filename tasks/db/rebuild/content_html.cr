@@ -1,12 +1,12 @@
 class Db::Rebuild::ContentHtml < LuckyTask::Task
   summary "Rebuild sanitized Topic and Comment HTML, including soft-deleted records (stop the server first)"
 
-  def call
+  def call : Nil
     rebuild(TopicQuery.new.with_soft_deleted, "topics")
     rebuild(CommentQuery.new.with_soft_deleted, "comments")
   end
 
-  private def rebuild(query, table : String)
+  private def rebuild(query, table : String) : Nil
     last_id = 0_i64
     count = 0
 

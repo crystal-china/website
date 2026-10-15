@@ -5,7 +5,7 @@ class SignInUser < Avram::Operation
   attribute password : String
 
   # Run validations and yields the operation and the user if valid
-  def run
+  def run : User?
     user = user_from_login
     validate_credentials(user)
 
@@ -35,7 +35,7 @@ class SignInUser < Avram::Operation
   #    if user.locked?
   #      login.add_error "is locked out"
   #    end
-  private def validate_credentials(user)
+  private def validate_credentials(user) : Nil
     if user.nil? || !Authentic.correct_password?(user, password.value.to_s)
       login.add_error Rosetta.find("avram.errors.credentials_incorrect").t
     end

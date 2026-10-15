@@ -4,17 +4,17 @@ abstract class MainLayout
 
   needs current_user : User?
 
-  abstract def content
+  abstract def content : Nil
 
-  def page_title
+  def page_title : String
     "首页"
   end
 
-  def page_description
+  def page_description : String
     "Crystal China 是 Crystal 中文社区，提供 Crystal 编程语言文档、经验与讨论。"
   end
 
-  def render
+  def render : Nil
     html_doctype
 
     html lang: "zh-CN" do
@@ -38,7 +38,7 @@ abstract class MainLayout
     end
   end
 
-  private def render_body
+  private def render_body : Nil
     scope = search_scope
 
     render_navbar_and_flash
@@ -56,7 +56,7 @@ abstract class MainLayout
     mount Shared::Common, page_title: page_title
   end
 
-  private def render_navbar_and_flash
+  private def render_navbar_and_flash : Nil
     mount Navbar, current_user: current_user, search_scope: search_scope
     mount Shared::PageFlash, flash: context.flash
     mount ::Notifications::Dialog, current_user: current_user if current_user

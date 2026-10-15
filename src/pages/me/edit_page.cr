@@ -1,11 +1,11 @@
 class Me::EditPage < MainLayout
   needs op : UpdateUser
 
-  def page_title
+  def page_title : String
     "编辑我的信息"
   end
 
-  def content
+  def content : Nil
     div class: "#{page_container_classes} py-10" do
       section class: "app-panel mx-auto w-full max-w-3xl overflow-hidden" do
         header class: "panel-header" do
@@ -61,7 +61,7 @@ class Me::EditPage < MainLayout
     end
   end
 
-  private def render_avatar_preview
+  private def render_avatar_preview : Nil
     avatar = op.avatar.value
 
     figure class: "flex h-full flex-col rounded-2xl border border-gray-200 bg-gray-50/80 p-5" do

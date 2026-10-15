@@ -3,11 +3,11 @@ class Forum::IndexPage < ForumLayout
   needs pages : Lucky::Paginator
   needs node : Node? = nil
 
-  def page_title
+  def page_title : String
     node.try { |current_node| "#{current_node.name} - 社区" } || "社区"
   end
 
-  def forum_content
+  def forum_content : Nil
     time_in_words = TimeInWords::Helpers(TimeInWords::I18n::ZH_CN)
     current_topics = topics.results
     current_node = node
@@ -30,7 +30,7 @@ class Forum::IndexPage < ForumLayout
     node
   end
 
-  private def render_topic_list(current_topics : Array(Topic), time_in_words)
+  private def render_topic_list(current_topics : Array(Topic), time_in_words) : Nil
     if current_topics.empty?
       para "还没有主题。", class: "app-panel m-0 px-6 py-10 text-center text-gray-500"
     else
@@ -44,7 +44,7 @@ class Forum::IndexPage < ForumLayout
     end
   end
 
-  private def render_topic(topic : Topic, time_in_words)
+  private def render_topic(topic : Topic, time_in_words) : Nil
     article class: "flex flex-col gap-3 px-6 py-5 transition-colors hover:bg-gray-50 sm:flex-row sm:items-center" do
       div class: "min-w-0 flex-1" do
         h2 class: "m-0 text-lg font-semibold" do
@@ -83,7 +83,7 @@ class Forum::IndexPage < ForumLayout
     end
   end
 
-  private def render_pagination
+  private def render_pagination : Nil
     nav class: "mt-6 flex items-center justify-center gap-4 text-sm", "aria-label": "社区分页" do
       if (previous_path = pages.path_to_previous)
         a "上一页", href: previous_path, class: "form-secondary"

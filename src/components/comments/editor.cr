@@ -3,7 +3,7 @@ class Comments::Editor < BaseComponent
   needs html_id : String = "tab"
   needs editor_height : String = "h-[11rem] min-h-[11rem] max-h-[40rem]"
 
-  def render(&)
+  def render(&) : Nil
     me = current_user
     id_input = "#{html_id}1"
     id_preview = "#{html_id}2"
@@ -86,7 +86,7 @@ HEREDOC
     end
   end
 
-  private def render_form(editor_height : String)
+  private def render_form(editor_height : String) : Nil
     me = current_user
 
     textarea_opt = {
@@ -107,7 +107,7 @@ HEREDOC
     end
   end
 
-  private def render_preview(editor_height : String)
+  private def render_preview(editor_height : String) : Nil
     div id: "#{html_id}_preview", class: "#{editor_height} overflow-y-auto rounded-xl border border-gray-200 bg-gray-50/60 px-4 py-3" do
       div class: "markdown-preview"
       mount Shared::Spinner, text: "正在预览..."

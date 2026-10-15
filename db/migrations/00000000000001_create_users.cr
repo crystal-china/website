@@ -1,5 +1,5 @@
 class CreateUsers::V00000000000001 < Avram::Migrator::Migration::V1
-  def migrate
+  def migrate : Nil
     enable_extension "pgroonga"
     enable_extension "citext"
 
@@ -21,7 +21,7 @@ class CreateUsers::V00000000000001 < Avram::Migrator::Migration::V1
     execute "CREATE INDEX users_name_prefix_index ON users (name text_pattern_ops)"
   end
 
-  def rollback
+  def rollback : Nil
     drop table_for(User)
     disable_extension "citext"
     execute "DROP EXTENSION IF EXISTS pgroonga"

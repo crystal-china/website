@@ -31,7 +31,7 @@ class Htmx::Search < BrowserAction
     )
   end
 
-  private def search_docs(query : String)
+  private def search_docs(query : String) : Array(NamedTuple(title: String, url: String, snippet: String))
     DocNavigation.load
     pages_by_path = DocNavigation.pages_by_path
 
@@ -61,7 +61,7 @@ class Htmx::Search < BrowserAction
     end
   end
 
-  private def search_topics(query : String)
+  private def search_topics(query : String) : Array(NamedTuple(title: String, url: String, snippet: String))
     # 与表达式索引一致，允许关键词分别出现在标题和正文中。
     sql = <<-SQL
       WITH matches AS MATERIALIZED (

@@ -1,11 +1,11 @@
 class Errors::ContentUnavailablePage < MainLayout
   needs content_name : String
 
-  def page_title
+  def page_title : String
     "#{content_name}已删除或暂不可见"
   end
 
-  def content
+  def content : Nil
     section class: "#{page_container_classes} py-10" do
       div class: "app-panel mx-auto max-w-2xl px-6 py-10 sm:px-8" do
         para "404", class: "m-0 text-sm font-semibold text-gray-400"

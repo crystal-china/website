@@ -1,6 +1,6 @@
 # Add methods that all or most Flows need to share
 class BaseFlow < LuckyFlow
-  def js_eval(script : String, args : Array(String) = [] of String)
+  def js_eval(script : String, args : Array(String) = [] of String) : String
     driver.as(LuckyFlow::Selenium::Driver).execute_script(script, args)
   end
 
@@ -8,7 +8,7 @@ class BaseFlow < LuckyFlow
     js_eval(script, args) == "true"
   end
 
-  def dom_click(css_selector : String)
+  def dom_click(css_selector : String) : String
     js_eval(
       <<-JS,
         const element = document.querySelector(arguments[0]);
@@ -20,7 +20,7 @@ class BaseFlow < LuckyFlow
 end
 
 abstract class LuckyFlow::Selenium::Driver
-  def execute_script(script : String, args : Array(String) = [] of String)
+  def execute_script(script : String, args : Array(String) = [] of String) : String
     session.document_manager.execute_script(script, args)
   end
 end

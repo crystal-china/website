@@ -1,13 +1,13 @@
 require "../spec_helper"
 require "../../tasks/db/rebuild/content_html"
 
-private def html_topic(author : User, content : String = "**hello**")
+private def html_topic(author : User, content : String = "**hello**") : Topic
   node = SaveNode.create!(name: "HTML", slug: "stored-html", summary: "Stored body tests", color: "#16a34a", position: 0)
 
   CreateTopic.create!(user_id: author.id, node_id: node.id, title: "Stored HTML", content: content)
 end
 
-private def assert_stored_html(record, source : String)
+private def assert_stored_html(record, source : String) : Nil
   record.content.should eq(source)
   record.content_html.should eq(UserMarkdown.render(source)[:html])
   record.content_html.not_nil!.should contain("<strong>hello</strong>")

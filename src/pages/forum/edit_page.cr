@@ -2,11 +2,11 @@ class Forum::EditPage < ForumLayout
   needs topic : Topic
   needs operation : UpdateTopic
 
-  def page_title
+  def page_title : String
     "编辑主题"
   end
 
-  def forum_content
+  def forum_content : Nil
     article class: "app-panel w-full overflow-hidden" do
       header class: "panel-header" do
         h1 "编辑主题", class: "panel-title"

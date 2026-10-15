@@ -1,5 +1,5 @@
 class AddLoginNameLowerToUsers::V20261011120050 < Avram::Migrator::Migration::V1
-  def migrate
+  def migrate : Nil
     # Store the normalized identity once on each write. PostgreSQL maintains it
     # for every INSERT/UPDATE, including direct SQL; clients cannot overwrite it.
     execute <<-SQL
@@ -13,7 +13,7 @@ class AddLoginNameLowerToUsers::V20261011120050 < Avram::Migrator::Migration::V1
       SQL
   end
 
-  def rollback
+  def rollback : Nil
     alter table_for(User) do
       remove :login_name_lower
     end

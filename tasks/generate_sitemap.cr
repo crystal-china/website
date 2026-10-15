@@ -3,13 +3,13 @@ require "xml"
 class GenerateSitemap < LuckyTask::Task
   summary "Generate public/sitemap.xml"
 
-  def call
+  def call : Nil
     GenerateSitemapTask.run
   end
 end
 
 module GenerateSitemapTask
-  def self.run
+  def self.run : Nil
     host = Lucky::RouteHelper.settings.base_uri.chomp('/')
     docs_by_path = {} of String => Doc
     DocQuery.new.each { |doc| docs_by_path[doc.path_index] = doc }
@@ -42,7 +42,7 @@ module GenerateSitemapTask
     File.write("public/sitemap.xml", sitemap)
   end
 
-  private def self.add_url(xml : XML::Builder, host : String, path : String, lastmod : Time? = nil)
+  private def self.add_url(xml : XML::Builder, host : String, path : String, lastmod : Time? = nil) : Nil
     xml.element("url") do
       xml.element("loc") { xml.text "#{host}#{path}" }
       xml.element("lastmod") { xml.text lastmod.to_s("%FT%X%:z") } if lastmod

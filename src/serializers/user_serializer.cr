@@ -2,7 +2,7 @@ class UserSerializer < BaseSerializer
   def initialize(@user : User)
   end
 
-  def render
+  def render : NamedTuple(email: String)
     {email: @user.email}
   end
 end

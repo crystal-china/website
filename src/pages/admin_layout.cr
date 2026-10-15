@@ -1,17 +1,17 @@
 require "./main_layout"
 
 abstract class AdminLayout < MainLayout
-  abstract def admin_content
+  abstract def admin_content : Nil
 
-  def page_title
+  def page_title : String
     "后台管理"
   end
 
-  def page_description
+  def page_description : String
     "管理 Crystal 中文社区。"
   end
 
-  def content
+  def content : Nil
     section class: "#{page_container_classes} py-10" do
       header class: "mb-8" do
         h1 "后台管理", class: "m-0 text-3xl font-semibold tracking-tight text-gray-900"
@@ -56,7 +56,7 @@ abstract class AdminLayout < MainLayout
     end
   end
 
-  private def admin_nav_link_classes(*, active : Bool)
+  private def admin_nav_link_classes(*, active : Bool) : String
     base = "flex items-center rounded-lg px-3 py-2 text-sm font-medium no-underline transition-colors"
     state = active ? "bg-gray-900 text-white" : "text-gray-700 hover:bg-gray-100 hover:text-gray-950"
 

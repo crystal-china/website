@@ -1,7 +1,7 @@
 class Db::Fix::SoftDeleteCounts < LuckyTask::Task
   summary "Rebuild visible comment counters after enabling soft deletion (safe to rerun)"
 
-  def call
+  def call : Nil
     AppDatabase.transaction do
       AppDatabase.exec <<-SQL
         UPDATE comments AS parent
