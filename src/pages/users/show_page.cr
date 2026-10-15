@@ -30,8 +30,11 @@ class Users::ShowPage < MainLayout
               end
             end
 
-            if current_user.try(&.id) == user.id
-              link "编辑个人资料", to: Me::Edit, class: "form-secondary"
+            if (me = current_user) && (me.id == user.id || me.admin?)
+              div class: "flex flex-wrap gap-3" do
+                link "编辑个人资料", to: Me::Edit, class: "form-secondary" if me.id == user.id
+                link "账户记录", to: Me::Events.with(user_id: user.id), class: "form-secondary"
+              end
             end
           end
 
