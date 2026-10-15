@@ -9,7 +9,6 @@ class AddLoginNameToUsers::V20261011120000 < Avram::Migrator::Migration::V1
     execute "UPDATE users SET login_name = nickname"
 
     make_required table_for(User), :login_name
-
   end
 
   def rollback : Nil
