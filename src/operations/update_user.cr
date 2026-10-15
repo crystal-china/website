@@ -27,7 +27,7 @@ class UpdateUser < User::SaveOperation
     end
   end
 
-  private def user_audit(saved_user) : Nil
+  private def user_audit(saved_user : User) : Nil
     attributes.select(&.changed?).each do |attribute|
       column_name = attribute.name.to_s
 
@@ -35,23 +35,17 @@ class UpdateUser < User::SaveOperation
       # private attributes by default.
       next unless column_name.in? ["nickname", "login_name", "avatar"]
 
-      user_id = saved_user.id
-
-      exists_pending_record = UserAuditQuery.new
-        .sync_state(UserAudit::SyncStatus::Pending)
-        .user_id(user_id)
-        .changed_column_name(column_name)
-
-      if exists_pending_record.any?
-        exists_pending_record.update(sync_state: :staled)
-      end
-
       SaveUserAudit.create!(
         user_id: saved_user.id,
+        kind: UserAudit::Kind::ProfileChanged,
         changed_column_name: column_name,
-        from: attribute.original_value.to_s,
-        to: attribute.value.to_s
+        from: attribute.original_value.try(&.to_s),
+        to: attribute.value.try(&.to_s)
       )
+    end
+
+    if encrypted_password.changed?
+      SaveUserAudit.create!(user_id: saved_user.id, kind: UserAudit::Kind::PasswordChanged)
     end
   end
 end
