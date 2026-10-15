@@ -36,6 +36,8 @@ class Db::Seed::SampleData < LuckyTask::Task
       )
     end
 
+    seed_account_events(users)
+
     nodes = {} of String => Node
     [
       {"general", "综合讨论", "Crystal 语言及其生态相关的综合讨论。", "#16a34a", 100},
@@ -260,6 +262,52 @@ class Db::Seed::SampleData < LuckyTask::Task
     puts "Set ADMIN_EMAILS=admin@crystal-china.org before starting the app to enable the sample administrator."
     puts "Trash: /admin/trash (#{CommentQuery.new.only_soft_deleted.select_count} comments, including page 2), /admin/trash?kind=topics."
     puts "Notifications include read/unread replies, mentions, and administrator edits, moves and deletions."
+    puts "Account history: /me/events; admin and xiaoming have multiple pages, ruby_to_crystal has one event, concurrency has none."
+  end
+
+  private def seed_account_events(users : Array(User)) : Nil
+    now = Time.utc
+    event_ages = [
+      1095.days, 1094.days, 900.days, 730.days, 600.days,
+      540.days, 365.days, 300.days, 240.days, 180.days,
+      120.days, 90.days, 60.days, 30.days, 21.days,
+      14.days, 7.days, 5.days, 3.days, 2.days,
+      1.day, 12.hours, 6.hours, 1.hour, 10.minutes, 1.minute,
+    ]
+
+    users.first(2).each do |user|
+      nickname = user.nickname
+      login_name = user.login_name
+
+      user = UpdateUser.update!(user, login_name: "#{login_name}_test")
+      user = UpdateUser.update!(user, login_name: login_name)
+
+      10.times do |index|
+        user = UpdateUser.update!(user, nickname: index.even? ? "#{nickname}（学习中）" : nickname)
+        # 模拟成功登录后的事件，不调用外部 OAuth 服务，也不绑定第三方账号。
+        SaveUserAudit.create!(
+          user_id: user.id,
+          kind: :oauth_signed_in,
+          provider: index.even? ? "github" : "google"
+        )
+      end
+
+      user = UpdateUser.update!(user, avatar: "https://example.com/avatar.png")
+      user = UpdateUser.update!(user, avatar: nil)
+      user = UpdateUser.update!(user, password: "sample1234", password_confirmation: "sample1234")
+      user = UpdateUser.update!(user, password: "temp1234", password_confirmation: "temp1234")
+
+      # 真实修改生成事件后，仅调整演示日期；改名事件仍位于注册后前七天。
+      User::SaveOperation.update!(user, created_at: now - 1096.days)
+      UserAuditQuery.new.user_id(user.id).id.asc_order.results.each_with_index do |audit, index|
+        at = now - event_ages[index]
+
+        SaveUserAudit.update!(audit, created_at: at, updated_at: at)
+      end
+    end
+
+    User::SaveOperation.update!(users[2], created_at: now - 2.days)
+    SaveUserAudit.create!(user_id: users[2].id, kind: :oauth_signed_in, provider: "github", created_at: now - 1.day, updated_at: now - 1.day)
   end
 
   private def seed_trash(users : Array(User), node : Node, doc_thread_id : Int64, topic_thread_id : Int64) : Nil
