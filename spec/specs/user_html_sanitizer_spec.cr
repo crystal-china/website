@@ -111,6 +111,28 @@ describe UserHtmlSanitizer do
     html.should contain(%(src="https://example.com/@_zw_963.png"))
   end
 
+  it "respects odd and even backslashes before mentions without changing the source" do
+    ["zw963", "_zw_963", "a_b_c", "some.user"].each do |login_name|
+      (0..5).each do |count|
+        source = "谢谢 #{"\\" * count}@#{login_name}。"
+        original = source.dup
+        rendered = UserMarkdown.render(source)
+        document = XML.parse_html(rendered[:html])
+
+        if count.odd?
+          rendered[:html].should_not contain("/users/")
+          rendered[:mentions].should be_empty
+        else
+          rendered[:html].should contain(%(href="/users/#{login_name}/profile"))
+          rendered[:mentions].should eq([login_name])
+        end
+
+        document.xpath_node("//p").not_nil!.content.should eq("谢谢 #{"\\" * (count // 2)}@#{login_name}。")
+        source.should eq(original)
+      end
+    end
+  end
+
   it "preserves reference links and images without collecting mention recipients" do
     [
       {"[@zw963]", "[@zw963]"},

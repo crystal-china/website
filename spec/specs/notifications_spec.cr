@@ -548,6 +548,28 @@ describe "Notifications" do
     end
   end
 
+  it "only notifies for unescaped mentions when saving topics and comments" do
+    author = UserFactory.create
+    mentioned = UserFactory.create &.login_name("zw963")
+    topic = notification_topic(author)
+    thread = CommentThreadQuery.new.topic_id(topic.id).first
+
+    (1..4).each do |count|
+      source = "谢谢 #{"\\" * count}@#{mentioned.login_name}。"
+      comment = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: source)
+      new_topic = CreateTopic.create!(user_id: author.id, node_id: topic.node_id, title: "转义提及测试", content: source)
+
+      [Comments::Show.with(id: comment.id).path, Forum::Show.with(id: new_topic.id).path].each do |url|
+        notified = NotificationQuery.new.user_id(mentioned.id).url(url).kind(Notification::Kind::Mention).any?
+
+        notified.should eq(count.even?)
+      end
+
+      comment.content.should eq(source)
+      new_topic.content.should eq(source)
+    end
+  end
+
   it "does not notify for mentions inside code, links, image labels or HTML attributes" do
     user = UserFactory.create &.login_name("_zw_963")
 
