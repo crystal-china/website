@@ -80,8 +80,7 @@ class Notifications::List < BaseComponent
           span class: "mt-2 h-2 w-2 shrink-0 rounded-full #{unread ? "bg-red-500" : "bg-transparent"}", "aria-label": unread ? "未读" : "已读"
           span class: "min-w-0 flex-1" do
             span class: "block text-sm text-gray-900" do
-              strong notification.actor.nickname
-              span " @#{notification.actor.login_name}", class: "text-xs text-gray-500"
+              mount Shared::UserName, user: notification.actor, linked: false
               text " #{description}"
             end
             span notification.source_title, class: "mt-1 block truncate text-sm font-medium text-sky-700"

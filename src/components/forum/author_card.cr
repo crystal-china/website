@@ -19,9 +19,8 @@ class Forum::AuthorCard < BaseComponent
           end
         end
 
-        div class: "min-w-0" do
-          link user.nickname, to: Users::Show.with(login_name: user.login_name), class: "block break-words text-sm font-semibold text-sky-800 no-underline hover:underline"
-          span "@#{user.login_name}", class: "mt-1 block break-words text-xs text-gray-500"
+        div class: "min-w-0 text-sm" do
+          mount Shared::UserName, user: user, stacked: true
         end
       end
 

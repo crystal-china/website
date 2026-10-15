@@ -25,8 +25,9 @@ class Users::ShowPage < MainLayout
 
           header class: "mt-5 flex flex-wrap items-start justify-between gap-4" do
             div class: "min-w-0" do
-              h1 user.nickname, class: "m-0 break-words text-2xl font-semibold tracking-tight text-gray-900"
-              para "@#{user.login_name}", class: "mt-1 mb-0 break-all text-sm text-gray-500"
+              h1 class: "m-0 text-2xl font-semibold tracking-tight text-gray-900" do
+                mount Shared::UserName, user: user, linked: false, stacked: true
+              end
             end
 
             if current_user.try(&.id) == user.id

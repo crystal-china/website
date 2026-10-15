@@ -85,10 +85,9 @@ class Sidebar < BaseComponent
   end
 
   private def render_current_user_name(user) : Nil
-    div class: "min-w-0 space-y-1" do
+    div class: "min-w-0 space-y-1 text-sm" do
       div "当前用户", class: "text-xs tracking-wide text-gray-500"
-      strong user.nickname, class: "block truncate text-sm font-semibold text-gray-900"
-      span "@#{user.login_name}", class: "block truncate text-xs text-gray-500"
+      mount Shared::UserName, user: user, stacked: true
     end
   end
 

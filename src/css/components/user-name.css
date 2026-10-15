@@ -1,0 +1,31 @@
+@layer components {
+  .user-name {
+    @apply inline-flex min-w-0 max-w-full flex-wrap items-baseline gap-x-1.5 gap-y-1 align-baseline;
+  }
+
+  .user-name-nickname {
+    @apply min-w-0 font-semibold text-gray-800;
+    overflow-wrap: anywhere;
+  }
+
+  .user-name-login {
+    @apply max-w-full rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-xs font-medium text-slate-500;
+    overflow-wrap: anywhere;
+  }
+
+  a.user-name {
+    @apply rounded-sm no-underline;
+  }
+
+  a.user-name .user-name-nickname {
+    @apply text-sky-800;
+  }
+
+  a.user-name:hover .user-name-nickname {
+    @apply underline underline-offset-2;
+  }
+
+  .user-name-stacked {
+    @apply flex-col items-start;
+  }
+}

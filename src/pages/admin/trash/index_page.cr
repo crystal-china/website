@@ -39,7 +39,11 @@ class Admin::Trash::IndexPage < AdminLayout
               thread = comment.comment_thread
               source = thread.topic_id ? "主题 ##{thread.topic_id}" : "文档 ##{thread.doc_id}"
 
-              para "评论 ##{comment.id} · #{comment.user.nickname} (@#{comment.user.login_name}) · #{source}", class: "m-0 text-xs text-gray-500"
+              para class: "m-0 text-xs text-gray-500" do
+                text "评论 ##{comment.id} · "
+                mount Shared::UserName, user: comment.user
+                text " · #{source}"
+              end
               para comment.content[0, 160], class: "mt-1 mb-0 whitespace-pre-wrap break-words text-sm text-gray-800"
               span deleted_at_text(comment.soft_deleted_at.not_nil!), class: "mt-2 block text-xs text-gray-500"
             end
@@ -62,7 +66,11 @@ class Admin::Trash::IndexPage < AdminLayout
           article class: "flex flex-wrap items-start justify-between gap-4 px-6 py-4" do
             div class: "min-w-0 flex-1" do
               h3 topic.title, class: "m-0 text-base font-semibold text-gray-900"
-              para "##{topic.id} · #{topic.user.nickname} (@#{topic.user.login_name}) · #{deleted_at_text(topic.soft_deleted_at.not_nil!)}", class: "mt-1 mb-0 text-xs text-gray-500"
+              para class: "mt-1 mb-0 text-xs text-gray-500" do
+                text "##{topic.id} · "
+                mount Shared::UserName, user: topic.user
+                text " · #{deleted_at_text(topic.soft_deleted_at.not_nil!)}"
+              end
             end
 
             form_for Admin::Trash::RestoreTopic.with(id: topic.id) do

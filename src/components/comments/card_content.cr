@@ -21,9 +21,8 @@ class Comments::CardContent < BaseComponent
     header class: "flex flex-wrap items-start justify-between gap-3 sm:flex-nowrap" do
       div class: "flex min-w-0 items-center gap-3" do
         img src: user.avatar || asset("svgs/crystal-lang-icon.svg"), class: "h-6 w-6 rounded-md border border-gray-300 bg-white object-cover p-0.5"
-        div class: "min-w-0" do
-          link user.nickname, to: Users::Show.with(login_name: user.login_name), class: "block truncate text-xs font-semibold text-sky-800 no-underline hover:underline"
-          span "@#{user.login_name}", class: "block truncate text-xs text-gray-500"
+        div class: "min-w-0 text-xs" do
+          mount Shared::UserName, user: user, stacked: true
         end
       end
 

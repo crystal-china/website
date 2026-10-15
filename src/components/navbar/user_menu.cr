@@ -55,9 +55,8 @@ HYPER
             end
           end
 
-          div class: "min-w-0" do
-            strong user.nickname, class: "block truncate text-sm font-semibold text-gray-900"
-            span "@#{user.login_name}", class: "mt-0.5 block truncate text-xs text-gray-500"
+          div class: "min-w-0 text-sm" do
+            mount Shared::UserName, user: user, stacked: true
           end
         end
 
