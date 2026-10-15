@@ -111,6 +111,53 @@ describe UserHtmlSanitizer do
     html.should contain(%(src="https://example.com/@_zw_963.png"))
   end
 
+  it "preserves reference links and images without collecting mention recipients" do
+    [
+      {"[@zw963]", "[@zw963]"},
+      {"[@Zw963]", "[@ZW963]"},
+      {"[@a_b_c][]", "[@A_B_C]"},
+      {"[@some.user][@some.user]", "[@SOME.USER]"},
+      {"[manual link][@Name-23]", "[@name-23]"},
+      {"[@aW]", "[@aw]"},
+      {"[@a0E]", "[@A0e]"},
+      {"![@a_b_c][]", "[@A_B_C]"},
+    ].each do |label, definition|
+      source = "#{label}\n\n#{definition}: https://example.com/reference"
+      rendered = UserMarkdown.render(source)
+
+      rendered[:html].should contain("https://example.com/reference")
+      rendered[:html].should_not contain("/users/")
+      rendered[:mentions].should be_empty
+    end
+  end
+
+  it "keeps encoded usernames distinct and preserves their displayed spelling" do
+    [
+      ["a_b", "a01b", "a00b", "foo.END", "abc00"],
+      ["aw", "aW", "a0v", "a0V", "a0E"],
+    ].each do |login_names|
+      rendered = UserMarkdown.render(login_names.map { |name| "@#{name}" }.join(" "))
+
+      login_names.each do |login_name|
+        rendered[:html].should contain(%(href="/users/#{login_name}/profile"))
+        rendered[:html].should contain(">@#{login_name}</a>")
+      end
+      rendered[:mentions].should eq(login_names.map(&.downcase).uniq)
+    end
+  end
+
+  it "does not include following decoded entities in a placeholder" do
+    rendered = UserMarkdown.render("@foo&#69;ND")
+
+    rendered[:html].should contain(">@foo</a>END")
+    rendered[:mentions].should eq(["foo"])
+
+    rendered = UserMarkdown.render("@foo&#48;E")
+
+    rendered[:html].should contain(">@foo</a>0E")
+    rendered[:mentions].should eq(["foo"])
+  end
+
   it "does not link invalid handles, emails, or partial usernames" do
     html = renderer.user_markdown("@a__b @a._b @abcdefghijklmnopqrstu test@some.user @zw963@example.com @x")
 

@@ -10,13 +10,13 @@ module UserMarkdown
     {html: html, mentions: mentions.to_a}
   end
 
-  private def self.add_links(html : String, placeholder : Regex?, names : Array(String))
+  private def self.add_links(html : String, placeholder : Regex?, names : Hash(String, String))
     linked_names = Set(String).new
 
     return {html, linked_names} if names.empty?
 
     html = html.gsub(placeholder.not_nil!) do
-      login_name = names[$1.to_i]
+      login_name = names[$1]
       login_name_lower = login_name.downcase
 
       # 页面也只链接前五个不同用户名

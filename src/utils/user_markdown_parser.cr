@@ -19,7 +19,7 @@ module UserMarkdownParser
 
   # 筛选允许生成提及链接的位置，同时转换 info 提示框；不查询用户，也不发送通知。
   def self.parse(content : String, options : Markd::Options, formatter : Tartrazine::Formatter)
-    names = [] of String
+    names = {} of String => String
     source = content
     placeholder = nil
 
@@ -27,21 +27,25 @@ module UserMarkdownParser
       # 临时占位符避免 @ 用户名被 Markdown 的下划线或 GFM 自动链接拆开。
       # 只处理渲染副本；数据库仍保存用户输入的原文。
       prefix = "USERMENTION#{Random::Secure.hex(8)}TOKEN"
-      placeholder = /#{prefix}(\d+)END/
+      # 0 只按 00、01、0v、0V 读取，因此结尾的 0E 不会被当成用户名编码。
+      placeholder = /#{prefix}((?:[A-Za-z1-9.-]|0[01vV])+)0E/
       offset = 0
 
       # content = "你好 @zw963，再问 @xiaoming。"
       # 下面这段代码会把上面的内容转化为：
-      # source = "你好 TOKEN0END，再问 TOKEN1END。" (数字是下面数组的下标)
-      # names = ["zw963", "xiaoming"]
+      # source = "你好 TOKEN<zw963的编码>0E，再问 TOKEN<xiaoming的编码>0E。" (示意，省略随机前缀)
+      # names 保存编码到原用户名的对应关系。
+      # 同名使用相同占位符；保留字母大小写，让引用式链接仍按 Markdown 规则匹配。
       source = String.build do |io|
         content.scan(PATTERN) do |match|
           next unless UserLoginName.valid?(match[1])
           next if content[match.end]? == '@'
 
+          encoded_name = encode_login_name(match[1])
+
           io << content[offset...match.begin]
-          io << prefix << names.size << "END"
-          names << match[1]
+          io << prefix << encoded_name << "0E"
+          names[encoded_name] = match[1]
           offset = match.end
         end
 
@@ -122,7 +126,26 @@ module UserMarkdownParser
     {document, placeholder, names}
   end
 
-  private def self.restore_mentions(text : String, placeholder : Regex?, names : Array(String)) : String
-    text.gsub(placeholder.not_nil!) { "@#{names[$1.to_i]}" }
+  private def self.encode_login_name(login_name : String) : String
+    # 编码规则：将会被 Markdown 特殊处理的字符转码保存。
+    # 原字符    编码
+    # ━━━━━━━━  ━━━━━━
+    # 0         00   因为所有编码都包含 0 作为转义字符标记，因此，login_name 里面的 0 需要转义。
+    # ────────  ──────
+    # _         01
+    # ────────  ──────
+    # w         0v w 这里会被 markd 作为 www 开头的链接特殊处理。
+    # ────────  ──────
+    # W         0V  确保大小写 w 和 W 原样恢复, v 这个字符随便选的一个无特殊意义的字符。
+    login_name.gsub({
+      '0' => "00",
+      '_' => "01",
+      'w' => "0v",
+      'W' => "0V",
+    })
+  end
+
+  private def self.restore_mentions(text : String, placeholder : Regex?, names : Hash(String, String)) : String
+    text.gsub(placeholder.not_nil!) { "@#{names[$1]}" }
   end
 end

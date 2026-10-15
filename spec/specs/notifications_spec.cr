@@ -515,6 +515,20 @@ describe "Notifications" do
     topic.content_html.not_nil!.should_not contain(%(href="/users/#{ignored.login_name}/profile"))
   end
 
+  it "does not notify users mentioned only in reference links" do
+    author = UserFactory.create
+    mentioned = UserFactory.create &.login_name("_ref_user")
+    topic = notification_topic(author)
+    topic = UpdateTopic.update!(
+      topic,
+      content: "[@#{mentioned.login_name}]\n\n[@#{mentioned.login_name.upcase}]: https://example.com/profile"
+    )
+
+    topic.content_html.not_nil!.should contain(%(href="https://example.com/profile"))
+    topic.content_html.not_nil!.should_not contain("/users/")
+    NotificationQuery.new.user_id(mentioned.id).any?.should be_false
+  end
+
   it "matches full usernames while treating trailing separators as punctuation" do
     plain = UserFactory.create &.login_name("some.user")
     compound = UserFactory.create &.login_name("SomeUser_he-him")
