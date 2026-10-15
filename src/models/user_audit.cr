@@ -1,15 +1,16 @@
 class UserAudit < BaseModel
-  enum SyncStatus
-    Pending = 1
-    Handled = 2
-    Staled  = 3
+  enum Kind
+    ProfileChanged  = 1
+    PasswordChanged = 2
+    OauthSignedIn   = 3
   end
 
   table do
     column user_id : Int64
-    column changed_column_name : String
-    column from : String, allow_blank: true
-    column to : String
-    column sync_state : UserAudit::SyncStatus = 1
+    column kind : UserAudit::Kind
+    column changed_column_name : String?
+    column from : String?, allow_blank: true
+    column to : String?, allow_blank: true
+    column provider : String?
   end
 end
