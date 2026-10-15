@@ -5,7 +5,7 @@ class Comments::List < BaseComponent
   needs comment_id : Int64?
   needs focused_comment : Comment? = nil
 
-  def render
+  def render : Nil
     div role: "feed", id: html_id do
       input type: "hidden", id: "#{html_id}-order-by", name: "order_by", value: pagination[:order_by]
 

@@ -49,7 +49,7 @@ module DocNavigation
     @@pages_by_path.not_nil!
   end
 
-  private def self.validate(pages : Array(Page))
+  private def self.validate(pages : Array(Page)) : Nil
     duplicate_path = pages.group_by(&.path).find { |_, matching_pages| matching_pages.size > 1 }.try(&.[0])
     raise "Duplicate document path in #{CONFIG_PATH}: #{duplicate_path}" if duplicate_path
 

@@ -1,7 +1,7 @@
 class Component::OAuth < BaseComponent
   needs providers : Array(String)
 
-  def render
+  def render : Nil
     aside class: "app-panel flex h-full flex-col justify-center gap-6 p-6" do
       header do
         h2 "快捷登录", class: "m-0 text-lg font-semibold text-gray-900"

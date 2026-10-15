@@ -2,7 +2,7 @@ class Shared::Spinner < BaseComponent
   needs text : String
   needs width : String?
 
-  def render
+  def render : Nil
     div class: "flex flex-col items-center" do
       opts = {
         class: "htmx-indicator",

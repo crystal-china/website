@@ -5,7 +5,7 @@ abstract class BaseEmail < Carbon::Email
     from default_from
   end
 
-  def default_from
+  def default_from : Carbon::Address
     Carbon::Address.new("admin@crystal-china.org")
   end
 end

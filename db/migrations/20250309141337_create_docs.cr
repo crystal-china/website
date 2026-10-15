@@ -1,5 +1,5 @@
 class CreateDocs::V20250309141337 < Avram::Migrator::Migration::V1
-  def migrate
+  def migrate : Nil
     create table_for(Doc) do
       primary_key id : Int64
       add path_index : String, unique: true, index: true
@@ -17,7 +17,7 @@ class CreateDocs::V20250309141337 < Avram::Migrator::Migration::V1
     execute "CREATE INDEX docs_content_pgroonga_index ON docs USING pgroonga (content)"
   end
 
-  def rollback
+  def rollback : Nil
     drop table_for(Doc)
   end
 end

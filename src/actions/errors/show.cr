@@ -6,7 +6,7 @@ class Errors::Show < Lucky::ErrorAction
   default_format :html
   dont_report [Lucky::RouteNotFoundError, Avram::RecordNotFoundError]
 
-  def render(error : Lucky::RouteNotFoundError | Avram::RecordNotFoundError)
+  def render(error : Lucky::RouteNotFoundError | Avram::RecordNotFoundError) : Lucky::Response
     if html?
       error_html "Sorry, we couldn't find that page.", status: 404
     else
@@ -16,7 +16,7 @@ class Errors::Show < Lucky::ErrorAction
 
   # When the request is JSON and an InvalidOperationError is raised, show a
   # helpful error with the param that is invalid, and what was wrong with it.
-  def render(error : Avram::InvalidOperationError)
+  def render(error : Avram::InvalidOperationError) : Lucky::Response
     if html?
       error_html DEFAULT_MESSAGE, status: 500
     else
@@ -30,7 +30,7 @@ class Errors::Show < Lucky::ErrorAction
 
   # Always keep this below other 'render' methods or it may override your
   # custom 'render' methods.
-  def render(error : Lucky::RenderableError)
+  def render(error : Lucky::RenderableError) : Lucky::Response
     if html?
       error_html DEFAULT_MESSAGE, status: error.renderable_status
     else
@@ -48,12 +48,12 @@ class Errors::Show < Lucky::ErrorAction
     end
   end
 
-  private def error_html(message : String, status : Int)
+  private def error_html(message : String, status : Int) : Lucky::Response
     context.response.status_code = status
     html_with_status Errors::ShowPage, status, message: message, status_code: status
   end
 
-  private def error_json(message : String, status : Int, details = nil, param = nil)
+  private def error_json(message : String, status : Int, details = nil, param = nil) : Lucky::Response
     json ErrorSerializer.new(message: message, details: details, param: param), status: status
   end
 

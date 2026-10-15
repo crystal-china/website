@@ -5,9 +5,10 @@ class Forum::Feed < BrowserAction
   include MarkdownFormatter
   include PageHelpers
 
-  accepted_formats [:rss], default: :rss
+  accepted_formats [:xml, :rss], default: :rss
 
-  get "/forum/feed.xml" do
+  # Lucky strips the format suffix before matching: /forum/feed.xml matches this route.
+  get "/forum/feed" do
     topics = TopicQuery.new.created_at.desc_order.limit(20).preload_node.results
 
     body = XML.build(encoding: "UTF-8") do |xml|
@@ -31,7 +32,7 @@ class Forum::Feed < BrowserAction
               xml.element("title") { xml.text topic.title }
               xml.element("category") { xml.text topic.node.name }
               xml.element("link") { xml.text url }
-              xml.element("description") { xml.cdata user_markdown(topic.content) }
+              xml.element("description") { xml.cdata(topic.content_html || user_markdown(topic.content)) }
             end
           end
         end

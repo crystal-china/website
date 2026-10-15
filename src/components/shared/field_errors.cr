@@ -2,7 +2,7 @@ class Shared::FieldErrors(T) < BaseComponent
   needs attribute : Avram::PermittedAttribute(T)
 
   # Customize the markup and styles to match your application
-  def render
+  def render : Nil
     unless attribute.valid?
       div class: "error" do
         text ValidationErrors.format(attribute.name, attribute.errors.first)

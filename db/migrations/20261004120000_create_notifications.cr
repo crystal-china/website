@@ -1,5 +1,5 @@
 class CreateNotifications::V20261004120000 < Avram::Migrator::Migration::V1
-  def migrate
+  def migrate : Nil
     create table_for(Notification) do
       primary_key id : Int64
       # 收件人和触发通知的用户；不能使用客户端提供的收件人列表。
@@ -25,7 +25,7 @@ class CreateNotifications::V20261004120000 < Avram::Migrator::Migration::V1
     execute "CREATE INDEX notifications_unread_user_index ON notifications (user_id) WHERE read_at IS NULL"
   end
 
-  def rollback
+  def rollback : Nil
     drop table_for(Notification)
   end
 end

@@ -1,7 +1,7 @@
 class Shared::FlashMessages < BaseComponent
   needs flash : Lucky::FlashStore
 
-  def render
+  def render : Nil
     flash.each do |flash_type, flash_message|
       flash_class = case flash_type
                     when "failure"

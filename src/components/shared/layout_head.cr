@@ -1,7 +1,7 @@
 class Shared::LayoutHead < BaseComponent
   needs seo : SEO
 
-  def render
+  def render : Nil
     social_preview_url = "#{Lucky::RouteHelper.settings.base_uri}/social-preview.png"
 
     head do
@@ -43,7 +43,19 @@ class Shared::LayoutHead < BaseComponent
     end
   end
 
-  private def frontend_config
+  private def frontend_config : NamedTuple(
+    assetHost: String,
+    assetBasePath: String,
+    firebaseConfig: NamedTuple(
+      apiKey: String?,
+      authDomain: String?,
+      projectId: String?,
+      storageBucket: String?,
+      messagingSenderId: String?,
+      appId: String?,
+      measurementId: String?,
+    ),
+  )
     {
       assetHost:      Lucky::Server.settings.asset_host,
       assetBasePath:  "/assets",

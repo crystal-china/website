@@ -1,5 +1,5 @@
 class CreateCommentThreads::V20260908095000 < Avram::Migrator::Migration::V1
-  def migrate
+  def migrate : Nil
     create table_for(CommentThread) do
       primary_key id : Int64
       add_belongs_to doc : Doc?, on_delete: :cascade, unique: true
@@ -14,7 +14,7 @@ class CreateCommentThreads::V20260908095000 < Avram::Migrator::Migration::V1
     require_nullability_relation(:exactly_one_non_null, "comment_threads", "doc_id", "topic_id")
   end
 
-  def rollback
+  def rollback : Nil
     drop table_for(CommentThread)
   end
 end

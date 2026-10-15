@@ -1,5 +1,5 @@
 class CreateVotes::V20260908101000 < Avram::Migrator::Migration::V1
-  def migrate
+  def migrate : Nil
     create table_for(Vote) do
       primary_key id : Int64
       add vote_type : String
@@ -17,7 +17,7 @@ class CreateVotes::V20260908101000 < Avram::Migrator::Migration::V1
     create_index table_for(Vote), [:vote_type, :user_id, :doc_id], unique: true
   end
 
-  def rollback
+  def rollback : Nil
     drop table_for(Vote)
   end
 end

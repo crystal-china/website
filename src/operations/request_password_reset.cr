@@ -5,7 +5,7 @@ class RequestPasswordReset < Avram::Operation
   attribute email : String
 
   # Run validations and yield the operation and the user if valid
-  def run
+  def run : User?
     user = user_from_email
     validate(user)
 
@@ -16,7 +16,7 @@ class RequestPasswordReset < Avram::Operation
     end
   end
 
-  def validate(user : User?)
+  def validate(user : User?) : Nil
     validate_required email
     if user.nil?
       email.add_error Rosetta.find("avram.errors.email_not_registered").t

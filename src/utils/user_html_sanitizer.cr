@@ -16,7 +16,7 @@ class UserHtmlSanitizer < Sanitize::Policy::HTMLSanitizer
     valid_classes << /language-.+/
   end
 
-  def transform_attributes(tag : String, attributes : Hash(String, String))
+  def transform_attributes(tag : String, attributes : Hash(String, String)) : String | CONTINUE | STOP
     if tag == "span" && attributes["style"]? != LINE_NUMBER_STYLE
       attributes.delete("style")
     end

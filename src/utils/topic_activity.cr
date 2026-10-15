@@ -1,5 +1,5 @@
 module TopicActivity
-  def self.refresh(thread : CommentThread)
+  def self.refresh(thread : CommentThread) : Nil
     topic_id = thread.topic_id
 
     return unless topic_id

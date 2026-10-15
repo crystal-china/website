@@ -1,57 +1,46 @@
 require "../../utils/doc_navigation"
 
 module PageHelpers
-  MARKDOWN_OPTIONS      = Markd::Options.new(gfm: true, toc: true)
-  USER_MARKDOWN_OPTIONS = Markd::Options.new(gfm: true, toc: false)
-  INFO_FENCE_RE         = /(?m)^```info[ \t]*\n([\s\S]*?)^```[ \t]*$/
+  MARKDOWN_OPTIONS = Markd::Options.new(gfm: true, toc: true)
 
-  USER_HTML_SANITIZER = UserHtmlSanitizer.new
-
-  def markdown(text) : String
-    render_markdown_with_callouts(text)
+  def doc_markdown(text) : String
+    render_markdown_with_info_boxes(text)
   end
 
   # User-authored Markdown may contain raw HTML, so sanitize the rendered HTML
-  # before inserting it into the page. Trusted documentation uses #markdown.
+  # before inserting it into the page. Trusted documentation uses #doc_markdown.
   def user_markdown(text) : String
-    USER_HTML_SANITIZER.process(render_markdown_with_callouts(text, USER_MARKDOWN_OPTIONS))
+    UserMarkdown.render(text, formatter)[:html]
   end
 
-  def current_path
+  def current_path : String
     context.request.path
   end
 
-  def canonical_url
+  def canonical_url : String
     "#{Lucky::RouteHelper.settings.base_uri}#{current_path}"
   end
 
-  private def render_markdown_with_callouts(text : String, options = MARKDOWN_OPTIONS) : String
-    render_plain_markdown(
-      text.gsub(INFO_FENCE_RE) do
-        render_markdown_callout($1, options)
-      end,
-      options
-    )
+  private def render_markdown_with_info_boxes(text : String, options = MARKDOWN_OPTIONS) : String
+    if !text.includes?("```") && !text.includes?("~~~")
+      return Markd.to_html(text, options: options, formatter: formatter)
+    end
+
+    document = Markd::Parser.parse(text, options)
+    walker = document.walker
+
+    while (event = walker.next)
+      node, entering = event
+
+      next unless entering && node.type.code_block? && node.fence_language == "info"
+
+      MarkdownInfoBox.convert(node, options, formatter)
+    end
+
+    Markd::HTMLRenderer.new(options).render(document, formatter)
   end
 
-  private def render_plain_markdown(text : String, options = MARKDOWN_OPTIONS) : String
-    Markd.to_html(
-      text,
-      formatter: formatter,
-      options: options
-    )
-  end
-
-  private def render_markdown_callout(content : String, options) : String
-    <<-HTML
-<div class="box info">
-  <strong class="titlebar block">💡 小提示</strong>
-  #{render_plain_markdown(content, options)}
-</div>
-HTML
-  end
-
-  private def show_comments_when_revealed(comment_thread_id : Int64)
+  private def show_comments_when_revealed(comment_thread_id : Int64) : Nil
     focus_id = context.request.query_params["comment_id"]?.try(&.to_i64?)
     trigger = focus_id ? "load" : (context.request.headers["Referer"]? ? "revealed" : "load")
     path = Htmx::Comments::Index.with(comment_thread_id: comment_thread_id, comment_id: focus_id).path
@@ -67,19 +56,19 @@ HTML
     end
   end
 
-  private def page_container_classes
+  private def page_container_classes : String
     "#{page_frame_classes} #{page_gutter_classes}"
   end
 
-  private def page_frame_classes
+  private def page_frame_classes : String
     "mx-auto w-full max-w-7xl"
   end
 
-  private def page_gutter_classes
+  private def page_gutter_classes : String
     "px-4 sm:px-6 lg:px-8"
   end
 
-  private def htmx_success(script)
+  private def htmx_success(script) : String
     <<-HEREDOC
 on htmx:after:request(ctx)[ctx.response.raw.ok]
 #{script}

@@ -3,7 +3,7 @@ class Comments::CardAction < BaseComponent
   needs order_by : String
   needs thread_expanded : Bool = false
 
-  def render
+  def render : Nil
     div id: "comment-#{comment.id}-actions", class: "flex flex-1 flex-wrap items-center justify-end gap-x-4 gap-y-3" do
       if comment.parent_id.nil?
         mount(
@@ -21,7 +21,7 @@ class Comments::CardAction < BaseComponent
     end
   end
 
-  private def render_comment_actions(me : User)
+  private def render_comment_actions(me : User) : Nil
     list_id = comment.root_id ? "comment-#{comment.root_id}-comments" : "comments"
 
     opts = {

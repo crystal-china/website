@@ -1,11 +1,11 @@
 class Me::EditPage < MainLayout
   needs op : UpdateUser
 
-  def page_title
+  def page_title : String
     "编辑我的信息"
   end
 
-  def content
+  def content : Nil
     div class: "#{page_container_classes} py-10" do
       section class: "app-panel mx-auto w-full max-w-3xl overflow-hidden" do
         header class: "panel-header" do
@@ -16,7 +16,12 @@ class Me::EditPage < MainLayout
         form_for Me::Update, class: "panel-body space-y-8" do
           div class: "grid gap-8 md:grid-cols-[minmax(0,1fr)_15rem]" do
             div class: "space-y-6" do
-              mount Shared::Field, attribute: op.name, label_text: "用户名", &.text_input(placeholder: "不能包含空白；其他人可通过 @用户名 提及你")
+              div class: "space-y-2" do
+                mount Shared::Field, attribute: op.login_name, label_text: "登录用户名", &.text_input(placeholder: "用于 @提及", minlength: UserLoginName::MIN_LENGTH, maxlength: UserLoginName::MAX_LENGTH)
+                para "长度为 2–20 个字符，以英文字母、数字或 _ 开头，以字母或数字结尾；中间允许 _、-、.，但符号不能相邻，不区分大小写唯一。", class: "m-0 text-xs leading-6 text-gray-500"
+              end
+
+              mount Shared::Field, attribute: op.nickname, label_text: "昵称", &.text_input(placeholder: "留空使用用户名")
 
               mount Shared::Field, attribute: op.avatar, label_text: "头像链接", &.text_input(placeholder: "https://example.com/avatar.png", autofocus: true)
 
@@ -56,7 +61,7 @@ class Me::EditPage < MainLayout
     end
   end
 
-  private def render_avatar_preview
+  private def render_avatar_preview : Nil
     avatar = op.avatar.value
 
     figure class: "flex h-full flex-col rounded-2xl border border-gray-200 bg-gray-50/80 p-5" do

@@ -1,11 +1,11 @@
 class Forum::NewPage < ForumLayout
   needs operation : CreateTopic
 
-  def page_title
+  def page_title : String
     "发布主题"
   end
 
-  def forum_content
+  def forum_content : Nil
     article class: "app-panel w-full overflow-hidden" do
       header class: "panel-header" do
         h1 "发布主题", class: "panel-title"

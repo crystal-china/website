@@ -6,7 +6,7 @@ module Auth::PasswordResets::RequireToken
   abstract def token : String
   abstract def user : User
 
-  private def require_valid_password_reset_token
+  private def require_valid_password_reset_token : Lucky::Response | Lucky::ActionPipes::Continue
     if Authentic.valid_password_reset_token?(user, token)
       continue
     else

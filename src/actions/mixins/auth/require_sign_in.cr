@@ -3,7 +3,7 @@ module Auth::RequireSignIn
     before require_sign_in
   end
 
-  private def require_sign_in
+  private def require_sign_in : Lucky::Response | Lucky::ActionPipes::Continue
     if current_user?
       continue
     elsif context.request.headers["HX-Request-Type"]? == "partial"

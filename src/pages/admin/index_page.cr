@@ -6,11 +6,11 @@ class Admin::IndexPage < AdminLayout
   needs nodes_count : Int64
   needs recent_topics : Array(Topic)
 
-  def page_title
+  def page_title : String
     "后台概览"
   end
 
-  def admin_content
+  def admin_content : Nil
     time_in_words = TimeInWords::Helpers(TimeInWords::I18n::ZH_CN)
 
     header class: "mb-6" do
@@ -43,7 +43,9 @@ class Admin::IndexPage < AdminLayout
 
                 para class: "mt-1.5 mb-0 flex flex-wrap items-center gap-x-1 text-xs text-gray-500" do
                   span class: "h-2.5 w-2.5 rounded-full", style: "background-color: #{topic.node.color}"
-                  text "#{topic.node.name} · #{topic.user.name} · #{time_in_words.from(past_time: topic.created_at)}"
+                  text "#{topic.node.name} · "
+                  mount Shared::UserName, user: topic.user
+                  text " · #{time_in_words.from(past_time: topic.created_at)}"
                 end
               end
             end
@@ -65,7 +67,7 @@ class Admin::IndexPage < AdminLayout
     end
   end
 
-  private def render_stat(label : String, value : Int64)
+  private def render_stat(label : String, value : Int64) : Nil
     article class: "app-panel p-5" do
       para label, class: "m-0 text-sm font-medium text-gray-600"
       para value.to_s, class: "mt-2 mb-0 text-3xl font-semibold tracking-tight text-gray-950 tabular-nums"

@@ -5,7 +5,7 @@ class Comments::ListMore < BaseComponent
   needs comment_id : Int64?
   needs focused_comment : Comment? = nil
 
-  def render
+  def render : Nil
     pagination[:comments].results.each do |comment|
       mount(
         Comments::Card,

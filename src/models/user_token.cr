@@ -19,7 +19,7 @@ class UserToken
     settings.stubbed_token || create_token(payload)
   end
 
-  def self.create_token(payload)
+  def self.create_token(payload) : String
     JWT.encode(payload, Lucky::Server.settings.secret_key_base, ALGORITHM)
   end
 
@@ -38,7 +38,7 @@ class UserToken
   end
 
   # Used in tests to return a fake token to test against.
-  def self.stub_token(token : String, &)
+  def self.stub_token(token : String, &) : String?
     temp_config(stubbed_token: token) do
       yield
     end

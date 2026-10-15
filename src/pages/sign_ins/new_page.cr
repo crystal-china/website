@@ -1,19 +1,19 @@
 class SignIns::NewPage < AuthLayout
   needs operation : SignInUser
 
-  def page_title
+  def page_title : String
     "登录"
   end
 
-  def content
+  def content : Nil
     op = operation
 
     auth_page_with_oauth do
-      auth_card("登录", "使用邮箱和密码登录你的账号。") do
+      auth_card("登录", "使用邮箱或登录用户名和密码登录你的账号。") do
         form_for SignIns::Create, class: "panel-body" do
           auth_form_fields do
-            mount Shared::Field, attribute: op.email, label_text: "电子邮件", &.email_input(autofocus: "true")
-            mount Shared::Field, attribute: op.password, label_text: "密码", &.password_input
+            mount Shared::Field, attribute: op.login, label_text: "邮箱或登录用户名", &.text_input(autofocus: "true", required: "", autocomplete: "username")
+            mount Shared::Field, attribute: op.password, label_text: "密码", &.password_input(required: "", autocomplete: "current-password")
 
             auth_form_actions do
               link "重置密码", to: PasswordResetRequests::New, class: "form-secondary"

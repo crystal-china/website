@@ -1,5 +1,5 @@
 class CreatHourlyAvailabilities::V20250702180203 < Avram::Migrator::Migration::V1
-  def migrate
+  def migrate : Nil
     create table_for(HourlyAvailability) do
       primary_key id : Int64
       add date : String
@@ -13,7 +13,7 @@ class CreatHourlyAvailabilities::V20250702180203 < Avram::Migrator::Migration::V
     create_index table_for(HourlyAvailability), [:date, :hour], unique: true
   end
 
-  def rollback
+  def rollback : Nil
     drop table_for(HourlyAvailability)
   end
 end

@@ -1,5 +1,5 @@
 class Home::IndexPage < MainLayout
-  def content
+  def content : Nil
     link_group_heading_classes = "mt-8 mb-3 text-[1.6em] leading-tight font-bold tracking-tight"
 
     div class: page_container_classes do
@@ -85,18 +85,18 @@ class Home::IndexPage < MainLayout
     end
   end
 
-  private def normal_link(link, content, **opts)
+  private def normal_link(link, content, **opts) : Nil
     a content, **opts.merge(class: home_link_class), href: link
   end
 
-  private def github_icon_link(link, content)
+  private def github_icon_link(link, content) : Nil
     a href: link, class: "inline-flex items-center gap-1 whitespace-nowrap #{home_link_class}" do
       text "#{content} "
       img src: asset("svgs/github-icon.svg"), alt: "github", class: "h-4 w-4 shrink-0"
     end
   end
 
-  private def home_link_class
+  private def home_link_class : String
     "text-[#145591] underline decoration-dotted underline-offset-2 transition hover:text-[#0f4370] hover:decoration-solid"
   end
 end

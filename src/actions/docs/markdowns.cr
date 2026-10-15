@@ -27,7 +27,7 @@ class Docs::Markdowns < DocAction
       markdown_source: markdown_source
   end
 
-  private def record_view(doc : Doc)
+  private def record_view(doc : Doc) : Nil
     remote_ip = context.request.remote_ip || "0.0.0.0"
 
     VIEW_COUNT_MUTEX.synchronize do

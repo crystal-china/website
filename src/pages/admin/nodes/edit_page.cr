@@ -2,11 +2,11 @@ class Admin::Nodes::EditPage < AdminLayout
   needs node : Node
   needs operation : SaveNode
 
-  def page_title
+  def page_title : String
     "编辑节点"
   end
 
-  def admin_content
+  def admin_content : Nil
     section class: "app-panel w-full max-w-3xl overflow-hidden" do
       header class: "panel-header" do
         h2 "编辑节点", class: "panel-title"

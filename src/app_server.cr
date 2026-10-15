@@ -18,11 +18,11 @@ class AppServer < Lucky::BaseAppServer
     ].select(HTTP::Handler)
   end
 
-  def protocol
+  def protocol : String
     "http"
   end
 
-  def listen
+  def listen : Nil
     server.listen(host, port, reuse_port: false)
   end
 end

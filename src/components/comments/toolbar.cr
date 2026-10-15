@@ -2,7 +2,7 @@ class Comments::Toolbar < BaseComponent
   needs pagination : Comments::Pagination
   needs html_id : String
 
-  def render
+  def render : Nil
     selected = "segmented-option segmented-option-active"
     unselected = "segmented-option"
 

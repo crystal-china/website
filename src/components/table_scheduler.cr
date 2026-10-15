@@ -2,7 +2,7 @@ class TableScheduler < BaseComponent
   needs year : Int32
   needs month : Int32
 
-  def render
+  def render : Nil
     location = Time::Location.load("Asia/Shanghai")
     month_start = Time.local(year, month, 1, location: location)
     month_end = month_start.at_end_of_month

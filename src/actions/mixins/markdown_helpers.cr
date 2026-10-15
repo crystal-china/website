@@ -3,17 +3,17 @@ module MarkdownHelpers
   TABLE_SCHEDULER_RE          = /TableScheduler20250703 year: (\d+), month: (\d+)/
   TABLE_SCHEDULER_PLACEHOLDER = %(<div data-table-scheduler></div>)
 
-  def markdown_page_title
+  def markdown_page_title : String
     markdown_front_matter.try &.["title"]?.try(&.as_s?) || current_path.split("/").last.gsub(/[_-]/, " ").split.map(&.capitalize).join(" ")
   end
 
-  def markdown_page_sub_title
+  def markdown_page_sub_title : String?
     front_matter = markdown_front_matter
 
     front_matter.try &.["sub_title"]?.try(&.as_s?) || front_matter.try &.["subtitle"]?.try(&.as_s?)
   end
 
-  def render_markdown
+  def render_markdown : Nil
     content = markdown_body
     scheduler = content.match(TABLE_SCHEDULER_RE).try do |match|
       {match[1].to_i, match[2].to_i}
@@ -23,7 +23,7 @@ module MarkdownHelpers
       content = content.sub(TABLE_SCHEDULER_RE) { TABLE_SCHEDULER_PLACEHOLDER }
     end
 
-    html = MARKDOWN_CACHE.fetch("#{markdown_path}:#{doc.content_digest}") { markdown content }
+    html = MARKDOWN_CACHE.fetch("#{markdown_path}:#{doc.content_digest}") { doc_markdown content }
 
     if scheduler
       year, month = scheduler

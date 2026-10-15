@@ -41,7 +41,7 @@ class Shared::Field(T) < BaseComponent
   #   mount Shared::FieldErrors, op.email
   # end
 
-  def render(&)
+  def render(&) : Nil
     div class: "form-field" do
       label_for field: attribute, text: label_text, class: "form-label"
 
@@ -59,7 +59,7 @@ class Shared::Field(T) < BaseComponent
   end
 
   # Use a text_input by default
-  def render
+  def render : Nil
     render &.text_input
   end
 end

@@ -18,16 +18,16 @@ Signal::INT.trap do
   app_server.close
 end
 
-private def running_at_background
+private def running_at_background : Colorize::Object(String)
   extra_space_for_emoji = 1
   (" " * (running_at_message.size + extra_space_for_emoji)).colorize.on_cyan
 end
 
-private def running_at_message
+private def running_at_message : String
   "   🎉 App running at http://#{Lucky::ServerSettings.host}:#{Lucky::ServerSettings.port}   "
 end
 
-private def print_running_at
+private def print_running_at : Nil
   STDOUT.puts ""
   STDOUT.puts running_at_background
   STDOUT.puts running_at_message.colorize.on_cyan.black

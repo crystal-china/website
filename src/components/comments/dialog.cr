@@ -2,11 +2,11 @@ class Comments::Dialog < BaseComponent
   private DIALOG_ID = "comment-dialog"
   private FORM_ID   = "comment-form"
 
-  def self.comment_form_target
+  def self.comment_form_target : String
     "div##{FORM_ID}"
   end
 
-  def self.open_comment_dialog
+  def self.open_comment_dialog : String
     <<-HYPER
 on htmx:after:swap(ctx)[ctx.response.raw.ok]
   open ##{DIALOG_ID}
@@ -15,7 +15,7 @@ end
 HYPER
   end
 
-  def render
+  def render : Nil
     dialog(
       id: DIALOG_ID,
       class: "mx-auto mt-[8vh] max-h-[calc(100vh_-_2rem)] w-[calc(100%_-_2rem)] pb-0 sm:mt-[16vh] sm:w-[50em] sm:max-w-full",

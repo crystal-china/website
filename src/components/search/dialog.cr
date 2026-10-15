@@ -1,7 +1,7 @@
 class Search::Dialog < BaseComponent
   needs scope : String
 
-  def render
+  def render : Nil
     dialog(
       id: "search_dialog",
       class: "mx-auto mt-[8vh] max-h-[calc(100vh_-_2rem)] w-[calc(100%_-_2rem)] max-w-xl rounded-xl border border-gray-300 bg-white p-0 shadow-xl sm:mt-[16vh]",

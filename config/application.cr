@@ -23,7 +23,15 @@
 # # `Application.settings.support_email` anywhere you need it.
 # ```
 
-# For htmx hx-boost: true on the body work correct.
+# 项目的 HTMX 4 使用浏览器 fetch()，重定向遵循以下规则：
+
+# 原请求              返回 302      返回 303
+# ━━━━━━━━━━━━━━━━━━  ━━━━━━━━━━━━  ━━━━━━━━━━
+# POST                改用 GET      改用 GET
+# ──────────────────  ────────────  ──────────
+# PUT/PATCH/DELETE    保留原方法    改用 GET
+
+# 303 确保 PUT/PATCH/DELETE 提交后，跳转页面使用 GET
 Lucky::Redirectable.configure do |config|
   config.redirect_status = 303
 end

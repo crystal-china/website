@@ -1,11 +1,11 @@
 class SignUps::NewPage < AuthLayout
   needs operation : SignUpUser
 
-  def page_title
+  def page_title : String
     "注册"
   end
 
-  def content
+  def content : Nil
     op = operation
 
     auth_page_with_oauth do
@@ -13,6 +13,35 @@ class SignUps::NewPage < AuthLayout
         form_for SignUps::Create, class: "panel-body" do
           auth_form_fields do
             mount Shared::Field, attribute: op.email, label_text: "电子邮件", &.email_input(autofocus: "true", required: "", placeholder: "you@example.com")
+
+            div class: "space-y-2" do
+              div class: "grid gap-5 sm:grid-cols-2" do
+                mount(
+                  Shared::Field,
+                  attribute: op.login_name,
+                  label_text: "登录用户名"
+                ) do |field|
+                  field.text_input(
+                    required: "",
+                    autocomplete: "username",
+                    minlength: UserLoginName::MIN_LENGTH,
+                    maxlength: UserLoginName::MAX_LENGTH,
+                    placeholder: "用于 @提及"
+                  )
+                end
+
+                mount(
+                  Shared::Field,
+                  attribute: op.nickname,
+                  label_text: "昵称（可选）"
+                ) do |field|
+                  field.text_input(placeholder: "留空使用用户名")
+                end
+              end
+
+              para "登录用户名为 2–20 个字符，以英文字母、数字或 _ 开头，以字母或数字结尾；中间允许 _、-、.，但符号不能相邻，不区分大小写唯一。昵称可以重复，支持中文、空格和 emoji。登录支持邮箱或登录用户名。", class: "m-0 text-xs leading-6 text-gray-500"
+            end
+
             mount Shared::Field, attribute: op.password, label_text: "密码", &.password_input(required: "", placeholder: "设置登录密码")
             mount Shared::Field, attribute: op.password_confirmation, label_text: "确认密码", &.password_input(required: "", placeholder: "再次输入密码")
 

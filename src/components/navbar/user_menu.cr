@@ -1,5 +1,5 @@
 class Navbar::UserMenu < BaseComponent
-  def render
+  def render : Nil
     user = current_user
 
     return if user.nil?
@@ -22,11 +22,11 @@ HYPER
       summary(
         class: "nav-user-trigger",
         title: "用户菜单",
-        "aria-label": "#{user.name} 的用户菜单",
+        "aria-label": "#{user.nickname} 的用户菜单",
         "aria-controls": "nav-user-panel"
       ) do
         span class: "relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-800 text-sm font-semibold text-white ring-1 ring-black/5" do
-          text user.name[0].to_s.upcase
+          text user.nickname[0].to_s.upcase
 
           if (avatar = user.avatar.presence)
             img(
@@ -46,12 +46,22 @@ HYPER
         class: "nav-user-panel",
         "aria-label": "账户操作"
       ) do
-        div class: "mb-1 border-b border-gray-100 px-3 pt-2 pb-3" do
-          strong user.name, class: "block truncate text-sm font-semibold text-gray-900"
-          span user.email, class: "mt-1 block truncate text-xs text-gray-500", title: user.email
+        div class: "nav-user-identity" do
+          div class: "relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-800 text-base font-semibold text-white" do
+            text user.nickname[0].to_s.upcase
+
+            if (avatar = user.avatar.presence)
+              img src: avatar, alt: "", class: "absolute inset-0 h-full w-full object-cover", onerror: "this.remove()"
+            end
+          end
+
+          div class: "min-w-0 text-sm" do
+            mount Shared::UserName, user: user, stacked: true
+          end
         end
 
-        link "个人设置", to: Me::Edit, class: menu_link_class(active: current_path == Me::Edit.path)
+        link "个人主页", to: Users::Show.with(login_name: user.login_name), class: menu_link_class
+        # link "个人设置", to: Me::Edit, class: menu_link_class(active: current_path == Me::Edit.path)
 
         if user.admin?
           link "管理后台", to: Admin::Index, class: menu_link_class(active: current_path.starts_with?("/admin"))
@@ -70,7 +80,7 @@ HYPER
     end
   end
 
-  private def menu_link_class(*, active : Bool = false)
+  private def menu_link_class(*, active : Bool = false) : String
     active ? "nav-user-link is-active" : "nav-user-link"
   end
 end

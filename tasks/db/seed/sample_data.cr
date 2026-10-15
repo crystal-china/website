@@ -2,7 +2,7 @@
 class Db::Seed::SampleData < LuckyTask::Task
   summary "Add sample database records helpful for development"
 
-  def call
+  def call : Nil
     abort "db.seed.sample_data 只允许在 development 环境运行" unless LuckyEnv.development?
 
     Signal::INT.trap do
@@ -21,18 +21,19 @@ class Db::Seed::SampleData < LuckyTask::Task
     CommentQuery.truncate(cascade: true)
 
     users = [
-      {"admin@crystal-china.org", "社区管理员"},
-      {"me@163.com", "小明"},
-      {"user1@163.com", "Ruby转Crystal"},
-      {"user2@163.com", "并发学习者"},
-    ].map do |email, name|
-      user = SignUpUser.create!(
+      {"admin@crystal-china.org", "社区管理员", "admin"},
+      {"me@163.com", "小明", "xiaoming"},
+      {"user1@163.com", "Ruby 转 Crystal", "ruby_to_crystal"},
+      {"user2@163.com", "并发学习者", "concurrency"},
+    ].map do |email, nickname, login_name|
+      SignUpUser.create!(
         email: email,
+        nickname: nickname,
+        login_name: login_name,
         password: "temp1234",
         password_confirmation: "temp1234",
         captcha_code: "sample-data"
       )
-      UpdateUser.update!(user, name: name)
     end
 
     nodes = {} of String => Node
@@ -146,7 +147,7 @@ class Db::Seed::SampleData < LuckyTask::Task
 
       我想先试一个只读配置文件并输出报告的脚本。
 
-      @#{users[0].name} 这个示例适合放在前言后面吗？
+      @#{users[0].login_name} 这个示例适合放在前言后面吗？
       MARKDOWN
     )
 
@@ -169,7 +170,7 @@ class Db::Seed::SampleData < LuckyTask::Task
       parent_id: doc_child.id,
       user_id: users[3].id,
       content: <<-MARKDOWN
-      @#{users[1].name} 我按这个顺序试了一遍，确实容易理解。补充一个细节：外部输入可能为空，但转换后的内部配置可以保持非空，避免在每个方法里重复处理 Nil。
+      @#{users[1].login_name} 我按这个顺序试了一遍，确实容易理解。补充一个细节：外部输入可能为空，但转换后的内部配置可以保持非空，避免在每个方法里重复处理 Nil。
 
       ```crystal
       require "json"
@@ -179,7 +180,7 @@ class Db::Seed::SampleData < LuckyTask::Task
       puts title
       ```
 
-      @#{users[2].name} 可以先运行这段最小示例，再补上异常处理。这条是对子评论的回复，页面应显示我回复的是小明，而不是根评论作者。
+      @#{users[2].login_name} 可以先运行这段最小示例，再补上异常处理。这条是对子评论的回复，页面应显示我回复的是小明，而不是根评论作者。
       MARKDOWN
     )
 
@@ -210,7 +211,44 @@ class Db::Seed::SampleData < LuckyTask::Task
       MARKDOWN
     )
 
-    puts "Created #{topics.size} topics, #{users.size} users and comments on two searchable Markdown documents."
+    CreateTopic.create!(
+      user_id: users[1].id,
+      node_id: nodes["learning"].id,
+      title: "准备做一个 Crystal 入门练习，欢迎补充建议",
+      content: "我准备从读取配置文件、解析 JSON 和输出 Markdown 报告开始练习。这篇主题暂时没有回复，可以检查列表中的零回复状态，以及作者编辑和删除按钮。"
+    )
+
+    UpdateTopic.update!(
+      topics[2],
+      content: "#{topics[2].content}\n\n## 作者补充\n\n检查失败时应返回非零退出码，方便 CI 阻止继续发布。",
+      actor_id: topics[2].user_id
+    )
+    UpdateTopic.update!(
+      topics[1],
+      node_id: nodes["general"].id,
+      title: "Channel 消费者退出后，生产者应该如何收尾？（补充讨论范围）",
+      actor_id: users[0].id
+    )
+    UpdateComment.update!(
+      doc_child,
+      content: "#{doc_child.content}\n\n补充：每一步都保留可以直接运行的命令，方便读者验证结果。",
+      actor_id: doc_child.user_id
+    )
+    UpdateComment.update!(
+      doc_grandchild,
+      content: "#{doc_grandchild.content}\n\n管理员补充：示例中的配置文件需要先在当前目录创建。",
+      actor_id: users[0].id
+    )
+
+    seed_trash(users, nodes["general"], concurrency_thread_id, first_topic_thread_id)
+
+    users.each do |user|
+      NotificationQuery.new.user_id(user.id).id.asc_order.limit(3).each do |notification|
+        SaveNotification.update!(notification, read_at: Time.utc)
+      end
+    end
+
+    puts "Created #{TopicQuery.new.select_count} visible topics, #{users.size} users and comments on two searchable Markdown documents."
     puts "Try /forum?page=2, /forum/#{topics.first.id}, /docs/index, and search for PGroonga."
     puts "Foreword: 13 root comments and 14 replies in the first root's branch (10 per page)."
     puts "Jump to page 2 in descending order:"
@@ -218,9 +256,111 @@ class Db::Seed::SampleData < LuckyTask::Task
     puts "  Child: /comments/#{doc_child.id}"
     puts "  Grandchild: /comments/#{doc_grandchild.id}"
     puts "Sign in as admin@crystal-china.org, me@163.com or user1@163.com to test notification jumps."
+    puts "All sample accounts use password: temp1234."
+    puts "Set ADMIN_EMAILS=admin@crystal-china.org before starting the app to enable the sample administrator."
+    puts "Trash: /admin/trash (#{CommentQuery.new.only_soft_deleted.select_count} comments, including page 2), /admin/trash?kind=topics."
+    puts "Notifications include read/unread replies, mentions, and administrator edits, moves and deletions."
   end
 
-  def print_exit(reason)
+  private def seed_trash(users : Array(User), node : Node, doc_thread_id : Int64, topic_thread_id : Int64) : Nil
+    admin, author, replier, reader = users
+
+    [{"文档", doc_thread_id}, {"社区", topic_thread_id}].each do |source, thread_id|
+      visible_root = CreateComment.create!(
+        comment_thread_id: thread_id,
+        user_id: author.id,
+        content: "回收站演示：#{source}评论的中间一层被删除后，其他回复仍然保留。展开本分支，可以检查引用已删除评论时的提示。"
+      )
+      deleted_child = CreateComment.create!(
+        parent_id: visible_root.id,
+        user_id: replier.id,
+        content: "这条#{source}子评论将由管理员删除，但它下面仍有一条保留的回复。可以从回收站恢复本条评论，比较恢复前后的引用文字和数量。"
+      )
+      CreateComment.create!(
+        parent_id: deleted_child.id,
+        user_id: reader.id,
+        content: "我回复的是中间一层，而不是根评论。即使中间一层被删除，这条回复仍然可见，页面应提示我回复的是已删除的评论。"
+      )
+      DeleteComment.delete!(deleted_child, actor_id: admin.id)
+
+      deleted_root = CreateComment.create!(
+        comment_thread_id: thread_id,
+        user_id: author.id,
+        content: "回收站演示：这条#{source}根评论被删除后，整个分支暂时不可见，但子评论记录和已生成的 HTML 都应保留。"
+      )
+      hidden_child = CreateComment.create!(
+        parent_id: deleted_root.id,
+        user_id: replier.id,
+        content: "请先单独恢复这条#{source}子评论。由于根评论还在回收站，恢复后仍不可见，后台应该显示相应提示。"
+      )
+      hidden_grandchild = CreateComment.create!(
+        parent_id: hidden_child.id,
+        user_id: reader.id,
+        content: "这条后代评论没有被软删除，只因根评论被删除而不可见。恢复根评论后，可以再次通过原来的跳转链接访问。"
+      )
+      DeleteComment.delete!(hidden_child, actor_id: admin.id)
+      DeleteComment.delete!(deleted_root, actor_id: admin.id)
+
+      # 两种来源各补七条叶子评论，让评论回收站超过每页二十条。
+      7.times do |index|
+        leaf = CreateComment.create!(
+          parent_id: visible_root.id,
+          user_id: author.id,
+          content: "#{source}回收站分页示例 #{index + 1}：这条没有子回复的评论可以由作者删除。恢复后应重新出现在原来的楼层，而不是重新分配楼层号。"
+        )
+        DeleteComment.delete!(leaf, actor_id: index.even? ? author.id : admin.id)
+      end
+
+      puts "#{source} trash example: visible branch /comments/#{visible_root.id}; hidden descendant /comments/#{hidden_grandchild.id}."
+    end
+
+    topic = CreateTopic.create!(
+      user_id: author.id,
+      node_id: node.id,
+      title: "已删除主题：讨论如何验证备份恢复流程",
+      content: <<-MARKDOWN
+      ## 演练目标
+
+      这篇主题由管理员软删除，用来验证主题与评论的恢复顺序。
+
+      - 主题删除后，正文和整个评论区都不可访问。
+      - 先恢复子评论，应提示所属主题仍被删除。
+      - 恢复主题后，未单独删除的评论重新可见；单独删除的评论仍留在回收站。
+
+      @#{reader.login_name} 可以从通知里测试已删除内容的友好提示页。
+      MARKDOWN
+    )
+    thread_id = CommentThreadQuery.new.topic_id(topic.id).first.id
+    root = CreateComment.create!(
+      comment_thread_id: thread_id,
+      user_id: replier.id,
+      content: "这条根评论没有被删除，只是所属主题被删除后暂时不可见。恢复主题时，不需要再单独恢复它。"
+    )
+    child = CreateComment.create!(
+      parent_id: root.id,
+      user_id: reader.id,
+      content: "这条评论在主题删除之前就已经单独删除。只恢复主题，不应该把它一起恢复。"
+    )
+    CreateComment.create!(
+      parent_id: child.id,
+      user_id: author.id,
+      content: "恢复主题后，这条没有被删除的后代评论仍然保留，并显示回复已删除评论的提示。"
+    )
+    DeleteComment.delete!(child, actor_id: admin.id)
+    DeleteTopic.delete!(topic, actor_id: admin.id)
+
+    empty_topic = CreateTopic.create!(
+      user_id: reader.id,
+      node_id: node.id,
+      title: "已删除主题：作者撤回了尚无回复的练习计划",
+      content: "我原本打算发布一个配置文件解析练习，后来发现示例还需要补充。由于没有任何回复，作者可以自己删除；管理员可以从回收站恢复。"
+    )
+    DeleteTopic.delete!(empty_topic, actor_id: reader.id)
+
+    puts "Deleted topic: /forum/#{topic.id}; separately deleted comment: /comments/#{child.id}."
+  end
+
+  def print_exit(reason) : NoReturn
     STDERR.puts reason
     STDERR.puts "退出 ..."
     exit

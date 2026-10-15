@@ -26,7 +26,7 @@ describe Htmx::Search do
 
     response = client.get("/htmx/search?scope=unknown&q=Crystal&backdoor_user_id=#{user.id}")
     response.status_code.should eq(400)
-    ApiClient.new.get("/htmx/search?scope=topics&q=Crystal").status_code.should eq(302)
+    ApiClient.new.get("/htmx/search?scope=topics&q=Crystal").status_code.should eq(303)
   end
 
   it "uses the shared dialog for community pages and preserves document search" do

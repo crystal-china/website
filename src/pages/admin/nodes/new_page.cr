@@ -1,11 +1,11 @@
 class Admin::Nodes::NewPage < AdminLayout
   needs operation : SaveNode
 
-  def page_title
+  def page_title : String
     "新增节点"
   end
 
-  def admin_content
+  def admin_content : Nil
     section class: "app-panel w-full max-w-3xl overflow-hidden" do
       header class: "panel-header" do
         h2 "新增节点", class: "panel-title"

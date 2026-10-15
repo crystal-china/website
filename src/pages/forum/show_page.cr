@@ -5,11 +5,11 @@ class Forum::ShowPage < ForumLayout
   needs comment_thread : CommentThread
   needs can_delete_topic : Bool
 
-  def page_title
+  def page_title : String
     topic.title
   end
 
-  def forum_content
+  def forum_content : Nil
     time_in_words = TimeInWords::Helpers(TimeInWords::I18n::ZH_CN)
 
     article class: "mx-auto w-full max-w-[90ch]" do
@@ -43,7 +43,9 @@ class Forum::ShowPage < ForumLayout
             to: Forum::Index.with(node: topic.node.slug),
             class: "font-medium text-[#145591] no-underline hover:text-[#0f477b] hover:underline"
           )
-          text " · #{topic.user.name} "
+          text " · "
+          mount Shared::UserName, user: topic.user
+          text " · "
           span(
             "发布于 #{time_in_words.from(past_time: topic.created_at)}",
             title: topic.created_at.to_local.to_s("%Y-%m-%d %H:%M:%S")
@@ -60,7 +62,7 @@ class Forum::ShowPage < ForumLayout
       end
 
       div class: "prose prose-neutral my-8 max-w-none text-base leading-7 text-gray-900" do
-        raw user_markdown(topic.content)
+        raw(topic.content_html || user_markdown(topic.content))
       end
 
       section id: "form_with_comments", class: "mt-10" do
@@ -85,7 +87,7 @@ class Forum::ShowPage < ForumLayout
     true
   end
 
-  private def render_right_sidebar
+  private def render_right_sidebar : Nil
     mount Forum::AuthorCard, user: topic.user, current_user: current_user
   end
 end

@@ -4,7 +4,7 @@ class Shared::VoteButton < BaseComponent
   needs vote_counts : Hash(String, Int32)
   needs voted_types : Array(String)
 
-  def render
+  def render : Nil
     vote_counts.each do |(emoji, count)|
       gray = count == 0 ? "grayscale-[50%] text-gray-300" : ""
       voted = emoji.in?(voted_types) ? "border-black bg-white" : "border-transparent"

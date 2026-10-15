@@ -1,7 +1,7 @@
 class Shared::Common < BaseComponent
   needs page_title : String
 
-  def render
+  def render : Nil
     div(
       id: "page-analytics",
       hidden: true,

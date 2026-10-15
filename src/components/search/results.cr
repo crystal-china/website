@@ -3,7 +3,7 @@ class Search::Results < BaseComponent
   needs query : String
   needs too_short : Bool = false
 
-  def render
+  def render : Nil
     if query.empty?
       para "输入关键词开始搜索。", class: "m-0 px-4 py-6 text-center text-sm text-gray-500"
     elsif too_short?

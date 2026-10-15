@@ -9,7 +9,7 @@ require "../../../spec/support/factories/**"
 class Db::Seed::RequiredData < LuckyTask::Task
   summary "Add database records required for the app to work"
 
-  def call
+  def call : Nil
     # Using a Avram::Factory:
     #
     # Use the defaults, but override just the email
@@ -17,13 +17,13 @@ class Db::Seed::RequiredData < LuckyTask::Task
 
     # Using a SaveOperation:
     #
-    # SaveUser.create!(email: "me@example.com", name: "Jane")
+    # SaveUser.create!(email: "me@example.com", nickname: "Jane")
     #
     # You likely want to be able to run this file more than once. To do that,
     # only create the record if it doesn't exist yet:
     #
     # unless UserQuery.new.email("me@example.com").first?
-    #  SaveUser.create!(email: "me@example.com", name: "Jane")
+    #  SaveUser.create!(email: "me@example.com", nickname: "Jane")
     # end
     [
       {"综合讨论", "general", "Crystal 语言及其生态相关的综合讨论。", "#16a34a", 100},

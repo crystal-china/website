@@ -1,7 +1,7 @@
 class Pager < BaseComponent
   include PageHelpers
 
-  def render
+  def render : Nil
     div class: "flex flex-wrap items-center justify-between gap-4 pt-[3em]" do
       pages = DocNavigation.pages
       current_idx = pages.index { |page| page.path == current_path }

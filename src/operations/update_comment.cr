@@ -14,7 +14,7 @@ class UpdateComment < Comment::SaveOperation
     if content.changed?
       actor_id = self.actor_id.value || comment.user_id
 
-      NotificationDelivery.mentions_updated(comment, actor_id)
+      NotificationDelivery.mentions_updated(comment, actor_id, mentioned_login_names)
       NotificationDelivery.edited_by_admin(comment, actor_id)
     end
   end

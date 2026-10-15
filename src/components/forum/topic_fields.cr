@@ -2,7 +2,7 @@ class Forum::TopicFields(T) < BaseComponent
   needs operation : T
   needs nodes : Array(Node)
 
-  def render(&)
+  def render(&) : Nil
     node_id_attribute = operation.node_id
 
     div class: "grid gap-6 sm:grid-cols-[12rem_minmax(0,1fr)] sm:gap-4" do

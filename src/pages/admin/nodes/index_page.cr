@@ -1,11 +1,11 @@
 class Admin::Nodes::IndexPage < AdminLayout
   needs nodes : Array(Node)
 
-  def page_title
+  def page_title : String
     "节点管理"
   end
 
-  def admin_content
+  def admin_content : Nil
     header class: "mb-6 flex flex-wrap items-center justify-between gap-4" do
       div do
         h2 "节点管理", class: "m-0 text-2xl font-semibold tracking-tight text-gray-900"

@@ -3,7 +3,7 @@ abstract class CommentAction < BrowserAction
   include Auth::AllowGuests
   include MarkdownFormatter
 
-  def comment_available?(comment : Comment)
+  def comment_available?(comment : Comment) : Bool
     # 先检查，评论所属主题是否可见？（即：如果主题被软删除，那么它级联的记录全部不可访问）
     return false unless CommentThreadQuery.find(comment.comment_thread_id).target_visible?
 
@@ -15,7 +15,13 @@ abstract class CommentAction < BrowserAction
     CommentQuery.new.id(root_id).any?
   end
 
-  def comments_pagination(comment_thread_id : Int64? = nil, root_id : Int64? = nil, order_by : String = "desc", per_page : Int32 = 10)
+  def comments_pagination(comment_thread_id : Int64? = nil, root_id : Int64? = nil, order_by : String = "desc", per_page : Int32 = 10) : NamedTuple(
+    count: Int32 | Int64,
+    comments: Avram::Queryable(Comment),
+    page: Lucky::Paginator?,
+    url: String,
+    order_by: String,
+  )
     return {count: 0, comments: CommentQuery.new.none, page: nil, url: "", order_by: "desc"} unless order_by.in?("desc", "asc")
 
     raise ArgumentError.new("comment_thread_id 和 root_id 必须且只能提供一个") if comment_thread_id.nil? == root_id.nil?

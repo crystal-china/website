@@ -58,4 +58,190 @@ describe UserHtmlSanitizer do
     html.should contain(%(<pre class="b">))
     html.should contain(%(style="user-select: none;"))
   end
+
+  it "links valid mentions without requiring an existing user or changing the source" do
+    content = "谢谢 @_zw_963，感谢你_。还有 @a_b_c、@Some.User-23 和 @Crystalist_123456。"
+    original = content.dup
+    html = renderer.user_markdown(content)
+
+    ["_zw_963", "a_b_c", "Some.User-23", "Crystalist_123456"].each do |login_name|
+      html.should contain(%(href="/users/#{login_name}/profile"))
+      html.should contain(">@#{login_name}</a>")
+    end
+    content.should eq(original)
+  end
+
+  it "preserves formatting and punctuation around mentions" do
+    html = renderer.user_markdown("**@zw963** _@a_b_c_ @some.user. @zw963 @zw963")
+
+    html.should contain(%(<strong><a href="/users/zw963/profile"))
+    html.should contain(%(<em><a href="/users/a_b_c/profile"))
+    html.should contain(">@some.user</a>.")
+    html.scan(%(href="/users/zw963/profile")).size.should eq(3)
+  end
+
+  it "links mentions next to Chinese text or after an underscore" do
+    ["@zw963中文", "hello_@zw963", "_@zw963_"].each do |content|
+      html = renderer.user_markdown(content)
+
+      html.should contain(%(href="/users/zw963/profile"))
+      html.should contain(">@zw963</a>")
+    end
+  end
+
+  it "does not link mentions in code, existing links, images, or raw HTML links" do
+    html = renderer.user_markdown(<<-MARKDOWN)
+    `@_zw_963`
+
+    ```crystal
+    puts "@_zw_963"
+    ```
+
+    [@_zw_963](https://example.com/@_zw_963)
+    ![@_zw_963](https://example.com/@_zw_963.png)
+    <a href="https://example.com">@_zw_963</a>
+    <code>@_zw_963</code>
+    MARKDOWN
+
+    html.should_not contain("/users/")
+    html.should_not contain("USERMENTIONTOKEN")
+    html.should contain("<code>@_zw_963</code>")
+    html.should contain(%(href="https://example.com/@_zw_963"))
+    html.should contain(%(alt="@_zw_963"))
+    html.should contain(%(src="https://example.com/@_zw_963.png"))
+  end
+
+  it "respects odd and even backslashes before mentions without changing the source" do
+    ["zw963", "_zw_963", "a_b_c", "some.user"].each do |login_name|
+      (0..5).each do |count|
+        source = "谢谢 #{"\\" * count}@#{login_name}。"
+        original = source.dup
+        rendered = UserMarkdown.render(source)
+        document = XML.parse_html(rendered[:html])
+
+        if count.odd?
+          rendered[:html].should_not contain("/users/")
+          rendered[:mentions].should be_empty
+        else
+          rendered[:html].should contain(%(href="/users/#{login_name}/profile"))
+          rendered[:mentions].should eq([login_name])
+        end
+
+        document.xpath_node("//p").not_nil!.content.should eq("谢谢 #{"\\" * (count // 2)}@#{login_name}。")
+        source.should eq(original)
+      end
+    end
+  end
+
+  it "preserves reference links and images without collecting mention recipients" do
+    [
+      {"[@zw963]", "[@zw963]"},
+      {"[@Zw963]", "[@ZW963]"},
+      {"[@a_b_c][]", "[@A_B_C]"},
+      {"[@some.user][@some.user]", "[@SOME.USER]"},
+      {"[manual link][@Name-23]", "[@name-23]"},
+      {"[@aW]", "[@aw]"},
+      {"[@a0E]", "[@A0e]"},
+      {"![@a_b_c][]", "[@A_B_C]"},
+    ].each do |label, definition|
+      source = "#{label}\n\n#{definition}: https://example.com/reference"
+      rendered = UserMarkdown.render(source)
+
+      rendered[:html].should contain("https://example.com/reference")
+      rendered[:html].should_not contain("/users/")
+      rendered[:mentions].should be_empty
+    end
+  end
+
+  it "keeps encoded usernames distinct and preserves their displayed spelling" do
+    [
+      ["a_b", "a01b", "a00b", "foo.END", "abc00"],
+      ["aw", "aW", "a0v", "a0V", "a0E"],
+    ].each do |login_names|
+      rendered = UserMarkdown.render(login_names.map { |name| "@#{name}" }.join(" "))
+
+      login_names.each do |login_name|
+        rendered[:html].should contain(%(href="/users/#{login_name}/profile"))
+        rendered[:html].should contain(">@#{login_name}</a>")
+      end
+      rendered[:mentions].should eq(login_names.map(&.downcase).uniq)
+    end
+  end
+
+  it "does not include following decoded entities in a placeholder" do
+    rendered = UserMarkdown.render("@foo&#69;ND")
+
+    rendered[:html].should contain(">@foo</a>END")
+    rendered[:mentions].should eq(["foo"])
+
+    rendered = UserMarkdown.render("@foo&#48;E")
+
+    rendered[:html].should contain(">@foo</a>0E")
+    rendered[:mentions].should eq(["foo"])
+  end
+
+  it "does not link invalid handles, emails, or partial usernames" do
+    html = renderer.user_markdown("@a__b @a._b @abcdefghijklmnopqrstu test@some.user @zw963@example.com @x")
+
+    html.should_not contain("/users/")
+  end
+
+  it "keeps literal placeholder-like text and displays callout mentions without links" do
+    html = renderer.user_markdown("USERMENTIONTOKEN0END\n\n```info\n谢谢 @zw963\n```")
+
+    html.should contain("USERMENTIONTOKEN0END")
+    html.should contain(%(class="box info"))
+    html.should contain("@zw963")
+    html.should_not contain(%(href="/users/zw963/profile"))
+  end
+
+  it "links only the first five distinct handles and permits repeated mentions" do
+    content = "@Person5 @PERSON5 @Person4 @Person3 @Person2 @Person1 @Person0 @Person5"
+    html = renderer.user_markdown(content)
+    ["Person5", "PERSON5", "Person4", "Person3", "Person2", "Person1"].each do |login_name|
+      html.should contain(%(href="/users/#{login_name}/profile"))
+    end
+    html.should_not contain(%(href="/users/Person0/profile"))
+    html.should contain("@Person0")
+    html.scan(%(href="/users/Person5/profile")).size.should eq(2)
+  end
+end
+
+describe "Documentation Markdown" do
+  renderer = UserMarkdownHarness.new
+
+  it "renders info callouts inside blockquotes" do
+    html = renderer.doc_markdown(<<-MARKDOWN)
+    > ```info
+    > **callout body** @zw963
+    > ```
+    MARKDOWN
+
+    html.should contain("<blockquote>")
+    html.should contain(%(class="box info"))
+    html.should contain("<strong>callout body</strong>")
+    html.should contain("@zw963")
+    html.should_not contain("/users/")
+  end
+
+  it "leaves info examples inside longer code fences unchanged" do
+    html = renderer.doc_markdown(<<-MARKDOWN)
+    ````
+    ```info
+    example body
+    ```
+    ````
+    MARKDOWN
+
+    html.should contain("<pre><code>")
+    html.should contain("```info\nexample body\n```")
+    html.should_not contain(%(class="box info"))
+  end
+
+  it "preserves documentation heading anchors and trusted HTML" do
+    html = renderer.doc_markdown("# Heading\n\n<div data-table-scheduler></div>")
+
+    html.should contain("#anchor-Heading")
+    html.should contain(%(<div data-table-scheduler></div>))
+  end
 end

@@ -1,7 +1,7 @@
 class Navbar < BaseComponent
   needs search_scope : String? = nil
 
-  def render
+  def render : Nil
     header class: "sticky top-0 z-50" do
       div class: "flex translate-y-px flex-col items-center gap-3 border-b border-gray-300/80 bg-[#F2F4F6] pt-3 pb-3 shadow-[0_1px_2px_rgb(15_23_42/0.06)] md:flex-row md:justify-between md:pt-4 lg:h-[var(--navbar-height)] lg:translate-y-0 lg:py-0 #{page_frame_classes} #{page_gutter_classes}" do
         a href: "/", class: "inline-flex shrink-0 items-center" do
@@ -47,7 +47,7 @@ class Navbar < BaseComponent
     end
   end
 
-  private def render_search_button
+  private def render_search_button : Nil
     button(
       "搜索",
       type: "button",
@@ -56,7 +56,7 @@ class Navbar < BaseComponent
     )
   end
 
-  private def nav_item_class(*, active : Bool = false)
+  private def nav_item_class(*, active : Bool = false) : String
     base = "inline-flex items-center rounded-lg border px-3 py-1.5 text-sm font-medium no-underline transition-[color,background-color,border-color,box-shadow] duration-150 lg:px-2 lg:whitespace-nowrap xl:px-3"
     active_classes = "border-gray-300 bg-white text-gray-950 shadow-[0_1px_2px_rgb(15_23_42/0.08)]"
     inactive_classes = "border-transparent text-gray-700 hover:bg-gray-200 hover:text-gray-950"

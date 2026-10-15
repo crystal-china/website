@@ -1,5 +1,5 @@
 class CreateTopics::V20260908090000 < Avram::Migrator::Migration::V1
-  def migrate
+  def migrate : Nil
     create table_for(Node) do
       primary_key id : Int64
       add name : String
@@ -46,9 +46,16 @@ class CreateTopics::V20260908090000 < Avram::Migrator::Migration::V1
 
     create_index table_for(Topic), [:last_active_at, :id]
     create_index table_for(Topic), [:node_id, :last_active_at, :id]
+
+    # 标题与正文合并索引，支持跨字段的多关键词查询；软删除主题不参与搜索。
+    execute <<-SQL
+      CREATE INDEX topics_title_content_pgroonga_index
+      ON topics USING pgroonga ((title || ' ' || content))
+      WHERE soft_deleted_at IS NULL
+      SQL
   end
 
-  def rollback
+  def rollback : Nil
     drop table_for(Topic)
     drop table_for(Node)
   end

@@ -3,7 +3,7 @@ module Api::Auth::RequireAuthToken
     before require_auth_token
   end
 
-  private def require_auth_token
+  private def require_auth_token : Lucky::Response | Lucky::ActionPipes::Continue
     if current_user?
       continue
     else
@@ -11,7 +11,7 @@ module Api::Auth::RequireAuthToken
     end
   end
 
-  private def auth_error_json
+  private def auth_error_json : ErrorSerializer
     ErrorSerializer.new(
       message: "Not authenticated.",
       details: auth_error_details

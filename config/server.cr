@@ -54,11 +54,11 @@ end
 #   }
 # end
 
-private def secret_key_from_env
+private def secret_key_from_env : String
   ENV["SECRET_KEY_BASE"]? || raise_missing_secret_key_in_production
 end
 
-private def raise_missing_secret_key_in_production
+private def raise_missing_secret_key_in_production : NoReturn
   puts "Please set the SECRET_KEY_BASE environment variable. You can generate a secret key with 'lucky gen.secret_key'".colorize.red
   exit(1)
 end
