@@ -61,7 +61,6 @@ HYPER
         end
 
         link "个人主页", to: Users::Show.with(login_name: user.login_name), class: menu_link_class
-        # link "个人设置", to: Me::Edit, class: menu_link_class(active: current_path == Me::Edit.path)
 
         if user.admin?
           link "管理后台", to: Admin::Index, class: menu_link_class(active: current_path.starts_with?("/admin"))
