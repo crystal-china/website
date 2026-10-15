@@ -40,6 +40,7 @@ module UserMarkdownParser
         content.scan(PATTERN) do |match|
           next unless UserLoginName.valid?(match[1])
           next if content[match.end]? == '@'
+          next if escaped?(content, match.begin)
 
           encoded_name = encode_login_name(match[1])
 
@@ -124,6 +125,19 @@ module UserMarkdownParser
     # 到这里，只有合法的地方的 @user 声明还是占位符，其他已经恢复。
 
     {document, placeholder, names}
+  end
+
+  private def self.escaped?(content : String, position : Int32) : Bool
+    count = 0
+    index = position - 1
+
+    while index >= 0 && content[index] == '\\'
+      count += 1
+      index -= 1
+    end
+
+    # 成对的反斜杠表示普通反斜杠；剩下一个才会转义 @。
+    count.odd?
   end
 
   private def self.encode_login_name(login_name : String) : String
