@@ -26,4 +26,8 @@ class User < BaseModel
   def admin? : Bool
     ENV.fetch("ADMIN_EMAILS", "").split(/[\s,]+/).includes?(email)
   end
+
+  def login_name_change_allowed? : Bool
+    Time.utc < created_at + 7.days
+  end
 end

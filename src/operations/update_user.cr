@@ -8,6 +8,11 @@ class UpdateUser < User::SaveOperation
   before_save do
     validate_user_names
     validate_avatar_is_a_link
+
+    if (user = record) && login_name.changed? && !user.login_name_change_allowed?
+      login_name.add_error Rosetta.find("avram.errors.login_name_change_expired").t
+    end
+
     if !password.value.nil?
       validate_confirmation_of password, with: password_confirmation
       validate_size_of password,
