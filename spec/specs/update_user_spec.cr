@@ -1,6 +1,74 @@
+require "timecop"
 require "../spec_helper"
 
 describe UpdateUser do
+  it "allows changing the login name before the registration window closes" do
+    user = UserFactory.create
+
+    Timecop.freeze(user.created_at + 7.days - 1.second) do
+      user.login_name_change_allowed?.should be_true
+      response = ApiClient.new.get("/me/edit?backdoor_user_id=#{user.id}")
+      field = XML.parse_html(response.body).xpath_node("//input[@name='user:login_name']").not_nil!
+
+      field["readonly"]?.should be_nil
+      UpdateUser.update!(user, login_name: "ChangedLogin").login_name.should eq("ChangedLogin")
+    end
+  end
+
+  it "rejects login-name changes at and after seven days without creating an event" do
+    user = UserFactory.create
+
+    {7.days, 8.days}.each do |age|
+      Timecop.freeze(user.created_at + age) do
+        user.login_name_change_allowed?.should be_false
+        UpdateUser.update(user, login_name: "ChangedLogin") do |operation, _|
+          operation.saved?.should be_false
+          operation.errors[:login_name].should contain(Rosetta.find("avram.errors.login_name_change_expired").t)
+        end
+      end
+    end
+
+    UserQuery.find(user.id).login_name.should eq(user.login_name)
+    UserAuditQuery.new.user_id(user.id).any?.should be_false
+  end
+
+  it "allows other profile and password changes after the login name is fixed" do
+    user = UserFactory.create
+
+    Timecop.freeze(user.created_at + 8.days) do
+      updated_user = UpdateUser.update!(
+        user,
+        login_name: user.login_name,
+        nickname: "New nickname",
+        avatar: "https://example.com/avatar.png",
+        password: "new-password",
+        password_confirmation: "new-password"
+      )
+
+      updated_user.nickname.should eq("New nickname")
+      updated_user.avatar.should eq("https://example.com/avatar.png")
+      updated_user.encrypted_password.should_not eq(user.encrypted_password)
+    end
+  end
+
+  it "makes expired login names read-only and rejects forged form submissions" do
+    user = UserFactory.create
+
+    Timecop.freeze(user.created_at + 8.days) do
+      response = ApiClient.new.get("/me/edit?backdoor_user_id=#{user.id}")
+      field = XML.parse_html(response.body).xpath_node("//input[@name='user:login_name']").not_nil!
+
+      field["readonly"]?.should_not be_nil
+
+      Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
+        response = ApiClient.new.put("/me/update?backdoor_user_id=#{user.id}", user: {login_name: "ForgedLogin"})
+
+        response.body.should contain("仅能在注册后 7 天内修改")
+        UserQuery.find(user.id).login_name.should eq(user.login_name)
+      end
+    end
+  end
+
   it "enforces the same login-name length boundaries on profile updates" do
     user = UserFactory.create
 
