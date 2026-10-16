@@ -29,6 +29,15 @@ class Me::EventsPage < MainLayout
             audits.each do |audit|
               li class: "px-6 py-5" do
                 render_event(audit)
+                para class: "mt-2 mb-0 text-xs text-gray-500" do
+                  text "操作人："
+
+                  if (actor = audit.actor)
+                    mount Shared::UserName, user: actor
+                  else
+                    text "未知或账号已删除"
+                  end
+                end
                 time(
                   time_in_words.from(past_time: audit.created_at),
                   datetime: audit.created_at.to_rfc3339,
@@ -60,6 +69,9 @@ class Me::EventsPage < MainLayout
     when .oauth_signed_in?
       h2 "第三方登录", class: "m-0 text-sm font-medium text-gray-900"
       para "通过 #{audit.provider} 登录。", class: "mt-2 mb-0 text-sm text-gray-600"
+    when .password_removed?
+      h2 "移除本站密码", class: "m-0 text-sm font-medium text-gray-900"
+      para "密码登录已禁用，已有登录会话已失效。", class: "mt-2 mb-0 text-sm text-gray-600"
     end
   end
 

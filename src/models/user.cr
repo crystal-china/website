@@ -14,6 +14,7 @@ class User < BaseModel
 
     # OAuth 登录时密码为空
     column encrypted_password : String?
+    column session_version : String = "0"
 
     has_many comments : Comment, base_query_class: CommentQuery
     has_many topics : Topic, base_query_class: TopicQuery

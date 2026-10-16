@@ -1,6 +1,7 @@
 class SaveUserAudit < UserAudit::SaveOperation
   before_save do
     validate_required user_id, kind
+    actor_id.value = user_id.value if new_record? && actor_id.value.nil?
 
     if kind.value == UserAudit::Kind::ProfileChanged
       validate_required changed_column_name

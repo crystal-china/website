@@ -4,13 +4,26 @@ class UpdateUser < User::SaveOperation
   permit_columns nickname, login_name, avatar, mention_notifications_enabled
   attribute password : String
   attribute password_confirmation : String
+  attribute actor_id : Int64
 
   before_save do
     validate_user_names
     validate_avatar_is_a_link
 
-    if (user = record) && login_name.changed? && !user.login_name_change_allowed?
-      login_name.add_error Rosetta.find("avram.errors.login_name_change_expired").t
+    actor = if (id = actor_id.value)
+              UserQuery.find(id)
+            else
+              record
+            end
+
+    if (user = record) && actor
+      if actor.id != user.id && !actor.admin?
+        actor_id.add_error Rosetta.find("avram.errors.admin_required").t
+      end
+
+      if login_name.changed? && !actor.admin? && !user.login_name_change_allowed?
+        login_name.add_error Rosetta.find("avram.errors.login_name_change_expired").t
+      end
     end
 
     if !password.value.nil?
@@ -42,6 +55,7 @@ class UpdateUser < User::SaveOperation
 
       SaveUserAudit.create!(
         user_id: saved_user.id,
+        actor_id: actor_id.value || saved_user.id,
         kind: UserAudit::Kind::ProfileChanged,
         changed_column_name: column_name,
         from: attribute.original_value.try(&.to_s),
@@ -50,7 +64,7 @@ class UpdateUser < User::SaveOperation
     end
 
     if encrypted_password.changed?
-      SaveUserAudit.create!(user_id: saved_user.id, kind: UserAudit::Kind::PasswordChanged)
+      SaveUserAudit.create!(user_id: saved_user.id, actor_id: actor_id.value || saved_user.id, kind: UserAudit::Kind::PasswordChanged)
     end
   end
 end

@@ -12,7 +12,7 @@ class Me::Events < BrowserAction
       user = UserQuery.find(id)
     end
 
-    query = UserAuditQuery.new.user_id(user.id).id.desc_order
+    query = UserAuditQuery.new.user_id(user.id).id.desc_order.preload_actor
     pages, audits = paginate(query, per_page: 20)
 
     html Me::EventsPage, user: user, audits: audits.results, pages: pages

@@ -3,10 +3,12 @@ class UserAudit < BaseModel
     ProfileChanged  = 1
     PasswordChanged = 2
     OauthSignedIn   = 3
+    PasswordRemoved = 4
   end
 
   table do
     column user_id : Int64
+    belongs_to actor : User?
     column kind : UserAudit::Kind
     column changed_column_name : String?
     column from : String?, allow_blank: true
