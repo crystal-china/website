@@ -21,8 +21,6 @@ module Api::Auth::Helpers
   end
 
   private def user_from_auth_token(token : String) : User?
-    UserToken.decode_user_id(token).try do |user_id|
-      UserQuery.new.id(user_id).first?
-    end
+    UserToken.decode_user(token)
   end
 end

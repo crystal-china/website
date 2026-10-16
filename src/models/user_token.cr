@@ -9,11 +9,12 @@ class UserToken
   def self.generate(user : User) : String
     now = Time.utc
     payload = {
-      "user_id" => user.id,
-      "iat"     => now.to_unix,
-      "exp"     => (now + EXPIRES_IN).to_unix,
-      "aud"     => AUDIENCE,
-      "iss"     => ISSUER,
+      "user_id"         => user.id,
+      "session_version" => user.session_version,
+      "iat"             => now.to_unix,
+      "exp"             => (now + EXPIRES_IN).to_unix,
+      "aud"             => AUDIENCE,
+      "iss"             => ISSUER,
     }
 
     settings.stubbed_token || create_token(payload)
@@ -23,7 +24,7 @@ class UserToken
     JWT.encode(payload, Lucky::Server.settings.secret_key_base, ALGORITHM)
   end
 
-  def self.decode_user_id(token : String) : Int64?
+  def self.decode_user(token : String) : User?
     payload, _header = JWT.decode(
       token,
       Lucky::Server.settings.secret_key_base,
@@ -31,10 +32,19 @@ class UserToken
       aud: AUDIENCE,
       iss: ISSUER
     )
-    payload["user_id"].to_s.to_i64
+    user_id = payload["user_id"]?.try(&.as_i64?)
+    version = payload["session_version"]?.try(&.as_s?)
+
+    return nil unless user_id && version
+
+    UserQuery.new.id(user_id).session_version(version).first?
   rescue e : JWT::Error
     Lucky::Log.dexter.error { {jwt_decode_error: e.message} }
     nil
+  end
+
+  def self.decode_user_id(token : String) : Int64?
+    decode_user(token).try(&.id)
   end
 
   # Used in tests to return a fake token to test against.
