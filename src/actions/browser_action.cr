@@ -37,10 +37,22 @@ abstract class BrowserAction < Lucky::Action
   # so that any page that inherits from MainLayout can use the `current_user`
   expose current_user
 
+  def sign_in(user : User) : Nil
+    session.set(Authentic.settings.sign_in_key, user.id.to_s)
+    session.set(:session_version, user.session_version)
+  end
+
   # This method tells Authentic how to find the current user
   # The 'memoize' macro makes sure only one query is issued to find the user
   private memoize def find_current_user(id : String | User::PrimaryKeyType) : User?
-    UserQuery.new.id(id).first?
+    user = UserQuery.new.id(id).first?
+
+    return user if user && session.get?(:session_version) == user.session_version
+
+    # CSRF token 已在 before pipe 中生成；失效登录只清理认证信息。
+    session.delete(Authentic.settings.sign_in_key)
+    session.delete(:session_version)
+    nil
   end
 
   def build_failed_flash(op) : Nil
