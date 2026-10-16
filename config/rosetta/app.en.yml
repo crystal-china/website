@@ -1,0 +1,473 @@
+---
+en:
+  admin:
+    nodes:
+      create:
+        node_created: Node created
+      update:
+        node_updated: Node updated
+      fields:
+        slug_placeholder: 'For example: help'
+      edit_page:
+        page_title: Edit node
+        description: Update the name, slug, summary and display order of %{name}.
+      index_page:
+        description: Nodes determine how community topics are categorized and displayed.
+        order: Order
+        actions: Actions
+      new_page:
+        description: Create a node to publish and filter community topics in that category.
+        create: Create node
+    trash:
+      restore_comment:
+        comment_restored: Comment restored
+        topic_still_deleted: Comment restored, but its topic is still deleted and the comment remains hidden
+        root_still_deleted: Comment restored, but its root comment is still deleted and the comment remains hidden
+      restore_topic:
+        topic_restored: Topic restored
+      index_page:
+        description: Deleted content is retained in the database and can be restored by an administrator.
+        categories: Trash categories
+        no_comments: No deleted comments.
+        topic_id: 'Topic #%{id}'
+        doc_id: 'Document #%{id}'
+        comment_id: 'Comment #%{id} · '
+        no_topics: No deleted topics.
+        deleted_at: Deleted %{time}
+        pagination: Trash pagination
+    users:
+      remove_password:
+        no_password: This account has no local password to remove.
+        password_removed: Local password removed and old sessions invalidated. The user can sign in through OAuth or reset their password.
+      update:
+        profile_updated: Profile updated
+      edit_page:
+        page_title: Edit %{nickname}'s profile
+    index_page:
+      page_title: Admin overview
+      description: Review site totals and recent content.
+      statistics: Site statistics
+      recent_topics: Recent topics
+      view_all: View all
+      quick_actions: Quick actions
+      quick_actions_navigation: Admin quick actions
+      manage_nodes: Manage nodes
+    docs:
+      create:
+        already_exists: Documentation files already exist. No files were changed.
+        created: Created %{files}. Existing files were not changed.
+        create_failed: Could not create documentation files. Check write permissions for public/markdowns.
+
+  admin_layout:
+    page_title: Administration
+    description: Manage the Crystal China Community.
+    introduction: Manage community content and settings.
+
+  api:
+    auth:
+      require_auth_token:
+        not_authenticated: Not authenticated.
+        token_invalid: The provided authentication token was incorrect.
+        token_missing: An authentication token is required. Please include a token in an 'auth_token' param or 'Authorization' header.
+
+  auth:
+    password_resets:
+      require_token:
+        expired: The password reset link has expired. Please request another one.
+    redirect_signed_in_users:
+      already_signed_in: You are already signed in
+    require_sign_in:
+      sign_in_required: Please sign in first
+
+  auth_layout:
+    page_title: Welcome
+
+  comments:
+    card:
+      locating_comment: Locating comment...
+    card_action:
+      confirm_delete_branch: Deleting this comment also hides its replies. Continue?
+      confirm_delete: Delete this reply?
+    card_content:
+      edited_at: Edited %{time}
+      floor: "#%{floor}"
+      updated: Updated successfully
+      reply_to: 'Reply to #%{floor} @%{login_name}'
+      reply_to_deleted: Reply to a deleted comment
+    editor:
+      write: Write
+      preview: Preview
+      sign_in_to_comment: Sign in to comment
+      markdown_supported: Markdown supported
+      mention_limit: Mention up to %{count} users. Additional mentions do not send notifications.
+      placeholder: Markdown supported; type @ and a login-name prefix for suggestions
+      preview_loading: Loading preview...
+    load_more_button:
+      load_more: Load more comments
+      no_more: No more comments
+    thread_toggle:
+      expand: Load replies (%{count})
+      collapse: Collapse replies
+    toolbar:
+      reply_count:
+        one: "%{count} reply"
+        other: "%{count} replies"
+      oldest: Oldest
+      newest: Newest
+
+  common:
+    unknown: "unknown"
+    time_ago: "%{duration} ago"
+    discard_changes: "You have unsaved changes. Discard them?"
+    comment: Comment
+    site_name: Crystal China Community
+    topic: Topic
+    loading_comments: Loading comments...
+    reply: Reply
+    edit: Edit
+    delete: Delete
+    update: Update
+    cancel: Cancel
+    node: Node
+    docs: Documentation
+    community: Community
+    sign_up: Sign up
+    sign_in: Sign in
+    search: Search
+    notifications: Notifications
+    profile: Profile
+    sign_out: Sign out
+    close: Close
+    previous_page: Previous
+    page_number: Page %{page} of %{total}
+    next_page: Next
+    search_hint: Enter keywords to start searching.
+    edit_profile: Edit profile
+    back_to_profile: Back to profile
+    back: Back
+    save_changes: Save changes
+    dashboard: Overview
+    users: Users
+    no_topics: No topics yet.
+    new_node: New node
+    new_topic: New topic
+    nodes: Nodes
+    trash: Trash
+    restore: Restore
+    save: Save
+    events: Account history
+    unset: Not set
+    reset_password: Reset password
+
+  component:
+    o_auth:
+      title: Sign in with a provider
+      description: Use a previously connected provider to sign in.
+      providers: Sign-in providers
+
+  doc_layout:
+    full_description: "%{title}: %{description}."
+    created_at: "Created: %Y-%m-%d"
+    updated_at: "Last edited: %Y-%m-%d"
+    view_count:
+      one: "%{count} view"
+      other: "%{count} views"
+    description: "%{title} - Crystal documentation in Chinese."
+    pagination: Documentation pagination
+    edit_on_github: Edit this page on GitHub
+    comments_invitation: Share your thoughts, questions and suggestions in the comments
+
+  docs:
+    setup_page:
+      page_title: Documentation setup
+      heading: Set up your documentation
+      introduction: Documentation files live outside the application binary. Create the files below manually, or let an administrator generate the starter files.
+      working_directory: Paths are relative to the server's working directory, not the binary's location. For example, if you start ./bin/crystal_china from the project root, use public/markdowns/ inside that root.
+      missing_files: Missing files
+      generate: Generate starter files
+      never_overwrite: Only missing files are created. Existing files, including an empty navigation.yml, are never overwritten.
+      admin_help: Automatic generation is available to administrators only. Configure ADMIN_EMAILS in the server environment and sign in with a listed account. You can also create the files manually.
+      navigation_heading: 1. Create navigation.yml
+      navigation_help: This YAML file is a list of pages. Each entry needs a path and a title. The path is a /docs/ URL without the .md extension. List order controls the previous/next page links; children can be used to group pages in the sidebar.
+      empty_navigation: 'An empty file or [] is also valid: documents remain accessible, but have no sidebar or previous/next page links. Titles can then come from the Markdown front matter.'
+      index_heading: 2. Create index.md
+      index_help: This is the documentation home page at /docs/index. The optional YAML front matter between --- lines defines its title and subtitle. Everything after it is Markdown. When a page is in navigation.yml, that file's title takes precedence.
+      more_heading: 3. Add more documents
+      more_help: 'For example, create public/markdowns/guide.md to publish /docs/guide. Subdirectories work too: public/markdowns/install/linux.md is available at /docs/install/linux.'
+      sidebar_help: 'To add a page to the sidebar and pager, append an entry to navigation.yml:'
+      unlisted_help: A Markdown file not listed in navigation.yml is still directly accessible and searchable. A navigation entry alone does not create its Markdown file.
+      apply_heading: 4. Apply changes
+      refresh_help: After creating or editing these files, refresh the document page. No application rebuild or restart is required. For a remote deployment, synchronize public/markdowns/ to the server first.
+      search_help: Viewing a document syncs its content into the database for search. To sync all documents at once, run bin/tasks db.sync_doc_content from the project root with the site's database configuration.
+
+  errors:
+    content_unavailable_page:
+      page_title: "%{name} has been deleted or is unavailable"
+      description: This %{name} may have been deleted, or its topic or parent comment may be hidden.
+      other_pages: Other pages
+      view_community: Browse community
+      view_docs: Browse documentation
+    show:
+      invalid_params: "Invalid params"
+      default_error: Something went wrong.
+      not_found: Sorry, we couldn't find that page.
+      not_found_json: Not found
+    show_page:
+      page_title: Something went wrong
+      back_home: Try heading back to home
+
+  footer:
+    contact: 'Contact:'
+    counting: Counting online users...
+    links: Footer links
+    github: Our open-source projects on GitHub
+    x_account: Our account on X
+    official_site: Official Crystal website
+
+  forum:
+    delete:
+      topic_deleted: Topic deleted
+    feed:
+      description: Chinese discussions about Crystal and its ecosystem
+    update:
+      topic_updated: Topic updated
+    author_card:
+      author: Topic author
+      joined: Joined %{date}
+    topic_fields:
+      choose_node: Choose a node
+    edit_page:
+      page_title: Edit topic
+    index_page:
+      node_title: "%{name} - Community"
+      description: Discuss Crystal and its ecosystem.
+      node_label: 'Node: %{name}'
+      posted_at: " Posted %{time}"
+      edited_at: " · Edited %{time}"
+      reply_count:
+        one: "%{count} reply"
+        other: "%{count} replies"
+      last_reply: 'Last reply:'
+      last_active_at: Last active %{time}
+      pagination: Community pagination
+    new_page:
+      publish: Publish
+    show_page:
+      confirm_delete: Deleting this topic also hides its comments. Continue?
+      posted_at: Posted %{time}
+      edited_at: Edited %{time}
+
+  forum_layout:
+    sidebar: Community information
+    nodes: Community nodes
+    all_topics: All topics
+
+  home:
+    index_page:
+      heading: The Crystal programming language - Chinese community
+      loading_release: Fetching the latest release...
+      links: Useful links
+      latest_release: 'Latest release:'
+      official: Official
+      crystal_website: Crystal website
+      crystal_forum: Crystal forum
+      playground: Play Crystal online
+      docs: Docs
+      packages: Packages
+      organizations: Organizations
+      chat: Chat
+
+  javascript:
+    tip: "Tip"
+    invalid_request: "The submitted content is invalid. Please check it and try again."
+    sign_in_required: "Your session has expired. Please sign in again."
+    forbidden: "You do not have permission to perform this action."
+    not_found: "The requested content does not exist or has been deleted."
+    conflict: "The content has changed. Please refresh and try again."
+    server_error: "The server cannot handle this request right now. Please try again later."
+    offline: "You are offline. Check your network connection and try again."
+    timeout: "The request timed out. Please try again later."
+    connection_failed: "Could not connect to the server. Please try again later."
+    interaction_failed: "The page could not complete this action. Please refresh and try again."
+    file_too_large: "The image is too large. The maximum upload size is %{size}MB."
+    upload_failed: "Upload failed: %{message}"
+    upload_error: "Upload failed"
+    mention_users: "Mention users"
+    copy: "Copy code"
+    copied: "Copied"
+
+  main_layout:
+    page_title: Home
+    description: Crystal China is a Chinese community for Crystal documentation, experiences and discussions.
+
+  me:
+    update:
+      updated: Updated successfully!
+    edit_page:
+      page_title: Edit my profile
+    events_page:
+      description: History of profile changes, password changes and OAuth sign-ins.
+      empty: No account history yet.
+      actor: 'Performed by:'
+      unknown_actor: Unknown or account deleted
+      profile_changed: Changed %{field}
+      password_changed: Password changed
+      password_privacy: Only the change time is recorded, never the password or its hash.
+      oauth_signed_in: OAuth sign-in
+      oauth_provider: Signed in through %{provider}.
+      password_removed: Local password removed
+      password_removed_description: Password sign-in is disabled and old sessions have been invalidated.
+      pagination: Account history pagination
+    show_page:
+      page_title: This is your profile
+      next_steps: 'Next, you may want to:'
+      modify_page: 'Modify this page: src/pages/me/show_page.cr'
+      after_sign_in: 'Change where you go after sign in: src/actions/home/index.cr'
+      auth_guides: Check out the authentication guides
+
+  navbar:
+    source: Source code
+    notification_link:
+      unread_count:
+        one: "%{count} unread notification"
+        other: "%{count} unread notifications"
+    user_menu:
+      user_menu: User menu
+      named_user_menu: User menu for %{nickname}
+      account_actions: Account actions
+      admin: Administration
+
+  notification_delivery:
+    new_node: 'New node: %{name}'
+
+  notifications:
+    dialog:
+      loading: Loading notifications...
+    list:
+      read_all: Mark all as read
+      empty: No notifications yet. Replies and mentions will appear here.
+      pagination: Notification pagination
+      topic_reply: replied to your topic
+      comment_reply: replied to your comment
+      mention: mentioned you
+      topic_edited: edited your topic
+      topic_moved: moved your topic
+      topic_deleted: deleted your topic
+      comment_edited: edited your comment
+      comment_deleted: deleted your comment
+      unread: Unread
+      read: Read
+
+  pager:
+    no_previous: No previous page
+    no_next: No next page
+
+  password_reset_request_email:
+    instructions: "Use the following link to reset your password"
+    subject: Reset your password
+
+  password_reset_requests:
+    create:
+      check_email: Please check your email for the password reset link
+    new_page:
+      description: Enter your registered email address to receive a password reset link.
+      back_to_sign_in: Back to sign in
+      send_email: Send reset email
+
+  password_resets:
+    create:
+      password_reset: Password reset successfully
+    new_page:
+      page_title: Set a new password
+      description: Enter your new password and confirm it.
+      password_placeholder: Enter a new password
+      confirmation_placeholder: Enter the new password again
+      update_password: Update password
+
+  search:
+    dialog:
+      docs_title: Search documentation
+      topics_title: Search community
+      placeholder: Enter keywords to search
+    results:
+      too_short: The query is too short. Keep typing.
+      no_matches: No matching content found.
+
+  shared:
+    layout_head:
+      image_description: Crystal China Community
+    online_users:
+      online: 'Online: %{users} users, %{guests} guests'
+    user_profile_form:
+      description: Update your nickname, avatar and password. Avatars currently require an HTTP or HTTPS image URL.
+      login_name_placeholder: Used for @mentions
+      login_name_help: Use 2–20 characters. Start with a letter, number or underscore and end with a letter or number. Separators (_, - and .) cannot be adjacent. Login names are unique regardless of case.
+      admin_rename_help: Administrators can change login names beyond the first 7 days after registration.
+      rename_help: You can change your login name only during the first 7 days after registration. Nicknames are not restricted.
+      nickname_placeholder: Leave blank to use your login name
+      remove_password: Remove password
+      password_placeholder: Leave blank to keep your password
+      confirmation_placeholder: Enter the new password again
+      last_password_change: 'Last password change:'
+      unknown_password_date: No password change recorded. Changes made before account history was enabled have no known date.
+      mention_notifications: Receive @mention notifications
+      mention_notifications_help: When disabled, you will not receive @mention notifications. Reply and moderation notifications are unaffected; existing notifications are retained.
+      confirm_remove_password: Remove the local password? Old sessions will be invalidated. The user will need OAuth or a password reset to sign in.
+      avatar_preview: Avatar preview
+      current_avatar: Current avatar
+      avatar_help: The image above will be used as your avatar.
+      no_avatar: Without an avatar, your initial will be shown instead.
+
+  sidebar:
+    title: Contents
+    current_user: Current user
+
+  sign_ins:
+    create:
+      signed_in: Signed in successfully
+      sign_in_failed: Sign-in failed
+    delete:
+      signed_out: Signed out successfully
+    new_page:
+      description: Sign in with your email address or login name and password.
+
+  sign_ups:
+    create:
+      invalid_captcha: Invalid captcha
+      sign_up_failed: Sign-up failed
+      signed_up: Signed up successfully
+    oauth:
+      callback:
+        password_warning: This account already has a local password. If you did not set it, change it in your account settings.
+        signed_in: Signed in successfully
+    new_page:
+      description: Create an account and set a password.
+      login_name_placeholder: Used for @mentions
+      optional_nickname: Nickname (optional)
+      nickname_placeholder: Leave blank to use your login name
+      login_name_help: Login names use 2–20 characters, start with a letter, number or underscore, and end with a letter or number. Separators (_, - and .) cannot be adjacent. Login names are unique regardless of case. Nicknames need not be unique and can contain Chinese, spaces and emoji. Sign in with your email or login name.
+      password_placeholder: Set a password
+      confirmation_placeholder: Enter your password again
+      captcha_placeholder: Enter the characters in the image
+      load_captcha: Click to load a captcha
+      sign_in_instead: Already have an account? Sign in
+
+  table_scheduler:
+    date_hour: "Date / hour"
+    schedule_title: Hourly Availability table (%{year}/%{month})
+
+  table_scheduler_cell:
+    edit_reservation: Edit reservation for %{date} at %{hour}:00
+    reservation_prompt: Edit reservation (%{date} %{hour}:00)
+
+  upload:
+    failed: "Image upload failed. Please check the image and try again."
+    too_large: File too large
+    unsupported_type: Only JPEG, PNG, GIF, WebP and AVIF images are allowed
+    invalid_response: The image upload service returned an invalid response
+    unavailable: The image upload service is temporarily unavailable. Please try again later
+
+  users:
+    show_page:
+      description: "%{nickname}'s profile on Crystal China Community."
+      joined: Joined

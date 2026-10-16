@@ -1,0 +1,469 @@
+---
+zh-CN:
+  admin:
+    nodes:
+      create:
+        node_created: 节点已创建
+      update:
+        node_updated: 节点已更新
+      fields:
+        slug_placeholder: 例如：help
+      edit_page:
+        page_title: 编辑节点
+        description: 修改 %{name} 的名称、地址、简介和显示顺序。
+      index_page:
+        description: 节点决定社区主题的分类和显示顺序。
+        order: 排序
+        actions: 操作
+      new_page:
+        description: 新增后即可在社区发布和筛选该节点下的主题。
+        create: 创建节点
+    trash:
+      restore_comment:
+        comment_restored: 评论已恢复
+        topic_still_deleted: 评论已恢复，但所属主题仍被删除，暂时不可见
+        root_still_deleted: 评论已恢复，但根评论仍被删除，暂时不可见
+      restore_topic:
+        topic_restored: 主题已恢复
+      index_page:
+        description: 删除的内容保留在数据库中，可由管理员恢复。
+        categories: 回收站分类
+        no_comments: 没有已删除的评论。
+        topic_id: '主题 #%{id}'
+        doc_id: '文档 #%{id}'
+        comment_id: '评论 #%{id} · '
+        no_topics: 没有已删除的主题。
+        deleted_at: 删除于 %{time}
+        pagination: 回收站分页
+    users:
+      remove_password:
+        no_password: 此账号没有本站密码，无需移除。
+        password_removed: 本站密码已移除，旧登录会话已失效。用户可通过第三方登录或重置密码重新登录。
+      update:
+        profile_updated: 个人资料已更新
+      edit_page:
+        page_title: 编辑 %{nickname} 的个人资料
+    index_page:
+      page_title: 后台概览
+      description: 查看站点当前的数据规模和最近内容。
+      statistics: 站点统计
+      recent_topics: 最近主题
+      view_all: 查看全部
+      quick_actions: 快捷操作
+      quick_actions_navigation: 后台快捷操作
+      manage_nodes: 管理节点
+    docs:
+      create:
+        already_exists: 文档文件已存在，没有修改任何文件。
+        created: 已创建 %{files}，已有文件保持不变。
+        create_failed: 无法创建文档文件，请检查 public/markdowns 的写入权限。
+
+  admin_layout:
+    page_title: 后台管理
+    description: 管理 Crystal 中文社区。
+    introduction: 管理社区内容和配置。
+
+  api:
+    auth:
+      require_auth_token:
+        not_authenticated: 尚未登录。
+        token_invalid: 身份验证令牌不正确。
+        token_missing: 需要身份验证令牌，请通过 auth_token 参数或 Authorization 请求头提供。
+
+  auth:
+    password_resets:
+      require_token:
+        expired: 密码重置链接已过期，请重新发送
+    redirect_signed_in_users:
+      already_signed_in: 您已经登录
+    require_sign_in:
+      sign_in_required: 请首先登录
+
+  auth_layout:
+    page_title: 欢迎
+
+  comments:
+    card:
+      locating_comment: 正在定位评论...
+    card_action:
+      confirm_delete_branch: 删除后，子回复也将不可见。确定继续？
+      confirm_delete: 删除这条回复？
+    card_content:
+      edited_at: 已编辑于 %{time}
+      floor: "%{floor} 楼"
+      updated: 更新成功
+      reply_to: 回复 %{floor} 楼 @%{login_name}
+      reply_to_deleted: 回复已删除的评论
+    editor:
+      write: 输入
+      preview: 预览
+      sign_in_to_comment: 登录后添加评论
+      markdown_supported: 支持 markdown 格式
+      mention_limit: 最多提及 %{count} 个用户，超出部分不发送通知。
+      placeholder: 支持 Markdown；输入 @用户名 前缀可自动补全
+      preview_loading: 正在预览...
+    load_more_button:
+      load_more: 加载更多评论
+      no_more: 没有更多评论了
+    thread_toggle:
+      expand: 加载子评论，共 %{count} 条
+      collapse: 折叠子评论
+    toolbar:
+      reply_count:
+        other: "共 %{count} 条回复"
+      oldest: 最早
+      newest: 最新
+
+  common:
+    unknown: "未知"
+    time_ago: "%{duration}前"
+    discard_changes: "内容尚未保存，确定放弃修改吗？"
+    comment: 评论
+    site_name: Crystal 中文社区
+    topic: 主题
+    loading_comments: 正在读取评论...
+    reply: 回复
+    edit: 编辑
+    delete: 删除
+    update: 修改
+    cancel: 取消
+    node: 节点
+    docs: 文档
+    community: 社区
+    sign_up: 注册
+    sign_in: 登录
+    search: 搜索
+    notifications: 通知
+    profile: 个人主页
+    sign_out: 退出登录
+    close: 关闭
+    previous_page: 上一页
+    page_number: 第 %{page} / %{total} 页
+    next_page: 下一页
+    search_hint: 输入关键词开始搜索。
+    edit_profile: 编辑个人资料
+    back_to_profile: 回到主页
+    back: 返回
+    save_changes: 保存修改
+    dashboard: 概览
+    users: 用户
+    no_topics: 还没有主题。
+    new_node: 新增节点
+    new_topic: 发布主题
+    nodes: 节点管理
+    trash: 回收站
+    restore: 恢复
+    save: 保存
+    events: 账户记录
+    unset: 未设置
+    reset_password: 重置密码
+
+  component:
+    o_auth:
+      title: 快捷登录
+      description: 如果你之前绑定过第三方账号，可以直接使用。
+      providers: 快捷登录方式
+
+  doc_layout:
+    full_description: "%{title}：%{description}。"
+    created_at: "创建于：%Y年%m月%d日"
+    updated_at: "最后编辑于：%Y年%m月%d日"
+    view_count:
+      other: "%{count}次阅读"
+    description: "%{title} - Crystal 中文文档。"
+    pagination: 文档分页
+    edit_on_github: 在 GitHub 编辑此页
+    comments_invitation: 欢迎在评论区留下你的见解、问题或建议
+
+  docs:
+    setup_page:
+      page_title: 文档初始化
+      heading: 创建文档入口
+      introduction: 文档文件独立于程序二进制。你可以手动创建下面的文件，也可以由管理员一键生成初始文件。
+      working_directory: 路径相对于服务器的工作目录，而非二进制文件所在目录。例如从项目根目录运行 ./bin/crystal_china，文档目录就是该根目录下的 public/markdowns/。
+      missing_files: 缺少的文件
+      generate: 生成初始文件
+      never_overwrite: 只创建缺少的文件，不覆盖任何已有文件，包括空的 navigation.yml。
+      admin_help: 只有管理员可以自动生成文件。请在服务器环境变量 ADMIN_EMAILS 中配置管理员邮箱，并使用该账号登录；你也可以手动创建文件。
+      navigation_heading: 1. 创建 navigation.yml
+      navigation_help: 这个 YAML 文件保存页面列表，每项需要 path 和 title。path 是不含 .md 扩展名的 /docs/ 地址。列表顺序决定上一页和下一页，children 用来组织侧栏中的子页面。
+      empty_navigation: 空文件或 [] 也合法：文档仍可访问，但不显示侧栏和上一页、下一页。此时标题可来自 Markdown 的 YAML front matter。
+      index_heading: 2. 创建 index.md
+      index_help: 这是 /docs/index 的文档首页。文件开头两行 --- 之间的可选 YAML front matter 定义标题和副标题，其余部分为 Markdown。页面列在 navigation.yml 中时，该配置中的标题优先。
+      more_heading: 3. 添加更多文档
+      more_help: 例如创建 public/markdowns/guide.md 即可访问 /docs/guide；也支持子目录：public/markdowns/install/linux.md 对应 /docs/install/linux。
+      sidebar_help: 要将页面加入侧栏和分页导航，在 navigation.yml 中追加一项：
+      unlisted_help: 未列在 navigation.yml 中的 Markdown 文件仍可直接访问和搜索。仅增加导航配置不会自动创建 Markdown 文件。
+      apply_heading: 4. 应用改动
+      refresh_help: 创建或修改文件后刷新文档页面即可，无须重新编译或重启程序。远程部署时，先将 public/markdowns/ 同步到服务器。
+      search_help: 访问文档时，内容会同步到数据库供搜索使用。要一次同步全部文档，请在项目根目录下，使用该站点的数据库配置运行 bin/tasks db.sync_doc_content。
+
+  errors:
+    content_unavailable_page:
+      page_title: "%{name}已删除或暂不可见"
+      description: 这条%{name}可能已被删除，或所属主题、评论已被隐藏。
+      other_pages: 其他页面
+      view_community: 查看社区
+      view_docs: 查看文档
+    show:
+      invalid_params: "提交参数不正确"
+      default_error: 出现了一些问题。
+      not_found: 抱歉，找不到这个页面。
+      not_found_json: 未找到
+    show_page:
+      page_title: 页面出现问题
+      back_home: 返回首页
+
+  footer:
+    contact: 联系：
+    counting: 正在统计在线人数...
+    links: 页脚链接
+    github: 本站在 GitHub 上面的开源内容
+    x_account: 本站的 X 账号
+    official_site: Crystal 官方网站
+
+  forum:
+    delete:
+      topic_deleted: 主题已删除
+    feed:
+      description: Crystal 语言及其生态的中文讨论
+    update:
+      topic_updated: 主题已更新
+    author_card:
+      author: 主题作者
+      joined: 加入于 %{date}
+    topic_fields:
+      choose_node: 请选择节点
+    edit_page:
+      page_title: 编辑主题
+    index_page:
+      node_title: "%{name} - 社区"
+      description: 讨论 Crystal 语言及其生态。
+      node_label: 节点：%{name}
+      posted_at: " 发布于 %{time}"
+      edited_at: " · 编辑于 %{time}"
+      reply_count:
+        other: "%{count} 条回复"
+      last_reply: 最后回复：
+      last_active_at: 最后活跃于 %{time}
+      pagination: 社区分页
+    new_page:
+      publish: 发布
+    show_page:
+      confirm_delete: 删除后，主题及其评论将不可见。确定继续？
+      posted_at: 发布于 %{time}
+      edited_at: 编辑于 %{time}
+
+  forum_layout:
+    sidebar: 社区辅助信息
+    nodes: 社区节点
+    all_topics: 全部主题
+
+  home:
+    index_page:
+      heading: The Crystal programming language 中文站
+      loading_release: 获取最新版本...
+      links: 常用站点链接
+      latest_release: 最新版本：
+      official: 官方网站
+      crystal_website: Crystal 官网
+      crystal_forum: Crystal 官方社区
+      playground: 在线运行 Crystal
+      docs: 文档
+      packages: 包和依赖
+      organizations: 组织和项目
+      chat: 交流
+
+  javascript:
+    tip: "小提示"
+    invalid_request: "提交内容有误，请检查后重试。"
+    sign_in_required: "登录状态已失效，请重新登录。"
+    forbidden: "你没有执行此操作的权限。"
+    not_found: "请求的内容不存在或已被删除。"
+    conflict: "内容已发生变化，请刷新后重试。"
+    server_error: "服务器暂时无法处理请求，请稍后重试。"
+    offline: "网络连接已断开，请检查网络后重试。"
+    timeout: "请求超时，请稍后重试。"
+    connection_failed: "无法连接服务器，请稍后重试。"
+    interaction_failed: "页面交互失败，请刷新后重试。"
+    file_too_large: "文件大小超过限制！最大支持上传 %{size}MB 的图片。"
+    upload_failed: "上传失败：%{message}"
+    upload_error: "上传失败"
+    mention_users: "提及用户"
+    copy: "复制代码"
+    copied: "已复制"
+
+  main_layout:
+    page_title: 首页
+    description: Crystal China 是 Crystal 中文社区，提供 Crystal 编程语言文档、经验与讨论。
+
+  me:
+    update:
+      updated: 更新成功！
+    edit_page:
+      page_title: 编辑我的信息
+    events_page:
+      description: 记录个人资料修改、密码修改和第三方登录。
+      empty: 暂无账户记录。
+      actor: 操作人：
+      unknown_actor: 未知或账号已删除
+      profile_changed: 修改%{field}
+      password_changed: 修改密码
+      password_privacy: 仅记录修改时间，不保存密码或密码哈希。
+      oauth_signed_in: 第三方登录
+      oauth_provider: 通过 %{provider} 登录。
+      password_removed: 移除本站密码
+      password_removed_description: 密码登录已禁用，已有登录会话已失效。
+      pagination: 账户记录分页
+    show_page:
+      page_title: 个人主页
+      next_steps: 接下来你可以：
+      modify_page: 修改此页面：src/pages/me/show_page.cr
+      after_sign_in: 修改登录后的跳转：src/actions/home/index.cr
+      auth_guides: 查看身份验证指南
+
+  navbar:
+    source: 本站源码
+    notification_link:
+      unread_count:
+        other: "%{count} 条未读通知"
+    user_menu:
+      user_menu: 用户菜单
+      named_user_menu: "%{nickname} 的用户菜单"
+      account_actions: 账户操作
+      admin: 管理后台
+
+  notification_delivery:
+    new_node: 新节点：%{name}
+
+  notifications:
+    dialog:
+      loading: 正在读取通知...
+    list:
+      read_all: 全部标为已读
+      empty: 还没有通知。有人回复或提及你时，会显示在这里。
+      pagination: 通知分页
+      topic_reply: 回复了你的主题
+      comment_reply: 回复了你的评论
+      mention: 提及了你
+      topic_edited: 编辑了你的主题
+      topic_moved: 移动了你的主题
+      topic_deleted: 删除了你的主题
+      comment_edited: 编辑了你的评论
+      comment_deleted: 删除了你的评论
+      unread: 未读
+      read: 已读
+
+  pager:
+    no_previous: 没有上一页了
+    no_next: 没有下一页了
+
+  password_reset_request_email:
+    instructions: "请点击以下链接重置你的密码"
+    subject: 重置你的密码
+
+  password_reset_requests:
+    create:
+      check_email: 请仔细检查你的邮箱获取重置密码的链接
+    new_page:
+      description: 输入注册邮箱，我们会向你发送一封包含重置链接的邮件。
+      back_to_sign_in: 返回登录
+      send_email: 发送重置邮件
+
+  password_resets:
+    create:
+      password_reset: 密码重置成功
+    new_page:
+      page_title: 设置新密码
+      description: 请输入新的登录密码，并再次确认。
+      password_placeholder: 输入新的登录密码
+      confirmation_placeholder: 再次输入新密码
+      update_password: 更新密码
+
+  search:
+    dialog:
+      docs_title: 搜索文档
+      topics_title: 搜索社区
+      placeholder: 输入关键词开始搜索
+    results:
+      too_short: 关键词太短，请继续输入。
+      no_matches: 没有找到匹配的内容。
+
+  shared:
+    layout_head:
+      image_description: Crystal China 中文社区
+    online_users:
+      online: 在线用户 %{users} 人, 游客 %{guests} 人
+    user_profile_form:
+      description: 更新昵称、头像和登录密码。头像目前仅支持 http/https 图片链接。
+      login_name_placeholder: 用于 @提及
+      login_name_help: 长度为 2–20 个字符，以英文字母、数字或 _ 开头，以字母或数字结尾；中间允许 _、-、.，但符号不能相邻，不区分大小写唯一。
+      admin_rename_help: 管理员可修改登录用户名，不受注册后 7 天的期限限制。
+      rename_help: 仅能在注册后 7 天内修改登录用户名，之后固定；昵称不受此限制。
+      nickname_placeholder: 留空使用用户名
+      remove_password: 移除密码
+      password_placeholder: 留空则不修改
+      confirmation_placeholder: 再次输入新密码
+      last_password_change: 上次修改密码：
+      unknown_password_date: 暂无密码修改记录；启用账户记录之前的修改时间未知。
+      mention_notifications: 接收 @提及通知
+      mention_notifications_help: 关闭后，不接收任何人的 @提及通知；正常回复和管理通知不受影响，已有通知仍保留。
+      confirm_remove_password: 确定移除本站密码？旧登录会话将失效，之后需通过第三方登录或重置密码登录。
+      avatar_preview: 头像预览
+      current_avatar: 当前头像
+      avatar_help: 当前将使用上面的图片作为头像。
+      no_avatar: 未设置头像时，会显示默认首字母占位图。
+
+  sidebar:
+    title: 目录
+    current_user: 当前用户
+
+  sign_ins:
+    create:
+      signed_in: 登录成功
+      sign_in_failed: 登录失败
+    delete:
+      signed_out: 取消登录成功
+    new_page:
+      description: 使用邮箱或登录用户名和密码登录你的账号。
+
+  sign_ups:
+    create:
+      invalid_captcha: 验证码无效
+      sign_up_failed: 注册失败
+      signed_up: 注册成功
+    oauth:
+      callback:
+        password_warning: 此账号已设置本站密码。如果不是你本人设置，请前往个人设置修改密码。
+        signed_in: 登录成功
+    new_page:
+      description: 创建新账号并设置登录密码。
+      login_name_placeholder: 用于 @提及
+      optional_nickname: 昵称（可选）
+      nickname_placeholder: 留空使用用户名
+      login_name_help: 登录用户名为 2–20 个字符，以英文字母、数字或 _ 开头，以字母或数字结尾；中间允许 _、-、.，但符号不能相邻，不区分大小写唯一。昵称可以重复，支持中文、空格和 emoji。登录支持邮箱或登录用户名。
+      password_placeholder: 设置登录密码
+      confirmation_placeholder: 再次输入密码
+      captcha_placeholder: 输入图片中的字符
+      load_captcha: 点击获取人机验证码
+      sign_in_instead: 已有账号？去登录
+
+  table_scheduler:
+    date_hour: "日期 / 时段"
+    schedule_title: 预约时间表（%{year}/%{month}）
+
+  table_scheduler_cell:
+    edit_reservation: 修改 %{date} %{hour}:00 的预约
+    reservation_prompt: 修改预约（%{date} %{hour}:00）
+
+  upload:
+    failed: "图片上传失败，请检查图片后重试。"
+    too_large: 文件过大
+    unsupported_type: 只允许上传 JPEG、PNG、GIF、WebP 或 AVIF 图片
+    invalid_response: 图片上传服务返回了无效响应
+    unavailable: 图片上传服务暂时不可用，请稍后重试
+
+  users:
+    show_page:
+      description: "%{nickname} 在 Crystal 中文社区的个人主页。"
+      joined: 加入社区
