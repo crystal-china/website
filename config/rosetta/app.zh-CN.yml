@@ -116,7 +116,6 @@ zh-CN:
 
   common:
     unknown: "未知"
-    time_ago: "%{duration}前"
     discard_changes: "内容尚未保存，确定放弃修改吗？"
     comment: 评论
     site_name: Crystal 中文社区
