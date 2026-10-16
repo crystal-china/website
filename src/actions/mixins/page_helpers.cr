@@ -5,9 +5,9 @@ module PageHelpers
 
   def relative_time(at : Time) : String
     if Rosetta.locale == "en"
-      TimeInWords::Helpers(TimeInWords::I18n::EN).from(past_time: at)
+      TimeInWords::Helpers(TimeInWords::I18n::EN).from(time: at)
     else
-      TimeInWords::Helpers(TimeInWords::I18n::ZH_CN).from(past_time: at)
+      TimeInWords::Helpers(TimeInWords::I18n::ZH_CN).from(time: at)
     end
   end
 
