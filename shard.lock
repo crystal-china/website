@@ -127,7 +127,7 @@ shards:
 
   lucky_router:
     git: https://github.com/luckyframework/lucky_router.git
-    version: 0.6.1
+    version: 0.6.2
 
   lucky_task:
     git: https://github.com/luckyframework/lucky_task.git
@@ -183,7 +183,7 @@ shards:
 
   tartrazine:
     git: https://github.com/ralsina/tartrazine.git
-    version: 0.27.0
+    version: 0.27.2
 
   teeplate:
     git: https://github.com/luckyframework/teeplate.git
@@ -191,7 +191,7 @@ shards:
 
   time_in_words:
     git: https://github.com/crystal-china/time_in_words.git
-    version: 0.1.0+git.commit.c615f8438dff1a97304e43dc48b5eb894f190411
+    version: 0.1.0+git.commit.e2ab6bc617b3bdd1ad3c487e7a3189e935c8b355
 
   timecop:
     git: https://github.com/crystal-community/timecop.cr.git
