@@ -2,7 +2,12 @@ class Shared::PageFlash < BaseComponent
   needs flash : Lucky::FlashStore
 
   def render : Nil
-    div id: "page-flash", class: "mx-auto flex w-full max-w-7xl justify-end px-4 pt-2 sm:px-6 lg:px-8" do
+    div(
+      id: "page-flash",
+      role: "status",
+      "aria-atomic": "true",
+      class: "fixed top-4 right-4 z-[90] flex w-[calc(100%_-_2rem)] max-w-[300px] flex-col gap-3"
+    ) do
       mount Shared::FlashMessages, flash
     end
   end

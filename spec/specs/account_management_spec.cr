@@ -75,6 +75,10 @@ describe "Account management" do
 
     button["type"].should eq("button")
     button["hx-target"].should eq("#page-flash")
+    flash_container = document.xpath_node("//div[@id='page-flash']").not_nil!
+
+    flash_container["role"].should eq("status")
+    flash_container["class"].split.should contain("fixed")
     document.xpath_node("//p/button[@hx-delete='/admin/users/#{user.id}/remove_password']").should_not be_nil
     document.xpath_nodes("//main//form").size.should eq(1)
     document.xpath_nodes("//form//form").should be_empty

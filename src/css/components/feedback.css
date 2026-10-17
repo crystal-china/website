@@ -1,6 +1,6 @@
 @layer components {
   .flash-message {
-    @apply w-[300px] rounded-xl border px-4 py-3 text-sm font-medium shadow-sm;
+    @apply w-[300px] max-w-full rounded-xl border px-4 py-3 text-sm font-medium shadow-sm;
   }
 
   .flash-message--success {
