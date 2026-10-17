@@ -5,10 +5,16 @@ class CreateUsers::V00000000000001 < Avram::Migrator::Migration::V1
 
     create table_for(User) do
       primary_key id : Int64
-      add name : String, unique: true
+      # 昵称仅用于显示，允许重复和空格；登录身份由 login_name_lower 保证唯一。
+      add nickname : String
+      add login_name : String
       add avatar : String?
+      # 可选的公开资料，未填写时使用空对象。
+      add profile : JSON::Any, default: JSON.parse("{}")
       add email : String, unique: true, case_sensitive: false
       add encrypted_password : String?
+      # 密码修改或移除时轮换；浏览器会话及 API 令牌必须匹配当前版本。
+      add session_version : String, default: "0"
       add last_active_at : Time?, index: true
       # Existing and new users receive mentions by default. Disabling this
       # affects only future mention notifications, not replies or history.
@@ -16,9 +22,15 @@ class CreateUsers::V00000000000001 < Avram::Migrator::Migration::V1
       add_timestamps
     end
 
-    # 自动补全使用区分大小写的前缀 LIKE，保持与用户名唯一索引一致。
-    # text_pattern_ops 是 PostgreSQL 内置的索引比较规则，适合这种 LIKE '前缀%' 查询
-    execute "CREATE INDEX users_name_prefix_index ON users (name text_pattern_ops)"
+    # PostgreSQL 自动维护小写身份，原始 login_name 保留用户输入的大小写。
+    execute <<-SQL
+      ALTER TABLE users
+      ADD login_name_lower text GENERATED ALWAYS AS (lower(login_name)) STORED NOT NULL
+      SQL
+
+    create_index table_for(User), :login_name_lower, unique: true
+    # 前缀自动补全与唯一性查询使用同一份小写身份。
+    execute "CREATE INDEX users_login_name_lower_prefix_index ON users (login_name_lower text_pattern_ops)"
   end
 
   def rollback : Nil

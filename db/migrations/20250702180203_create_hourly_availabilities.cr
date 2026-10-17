@@ -1,4 +1,4 @@
-class CreatHourlyAvailabilities::V20250702180203 < Avram::Migrator::Migration::V1
+class CreateHourlyAvailabilities::V20250702180203 < Avram::Migrator::Migration::V1
   def migrate : Nil
     create table_for(HourlyAvailability) do
       primary_key id : Int64

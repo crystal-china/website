@@ -14,7 +14,9 @@ Doc 文档不保存 `content_html`，仍使用自己的 Markdown 缓存。
 
 ## 现有环境部署
 
-先完成此前的迁移和[登录用户名修复](用户名与提及.md#现有环境升级)。部署重新构建的应用和任务两个 binary，停止服务器，然后运行：
+`content_html` 已合并进主题和评论的初始建表 migration。全新环境执行 `bin/tasks db.migrate` 即可，不需要对空表回填。
+
+尚未升级的旧数据库须先使用压缩前版本完成字段迁移，参见[历史升级要求](用户名与提及.md#现有环境升级)。对于已有 `content_html` 字段、需要更新历史 HTML 的数据库，部署重新构建的应用和任务两个 binary，停止服务器，然后运行：
 
 ```bash
 bin/tasks db.migrate

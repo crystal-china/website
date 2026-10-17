@@ -50,46 +50,32 @@ describe "User events" do
     end
   end
 
-  it "recreates the audit table as empty event history and can restore the old schema" do
+  it "creates the event history schema and can roll back the table" do
     AppDatabase.transaction do
       AppDatabase.exec "CREATE SCHEMA user_audit_migration_spec"
       AppDatabase.exec "SET LOCAL search_path TO user_audit_migration_spec"
-      AppDatabase.exec <<-SQL
-        CREATE TABLE user_audits (
-          id bigint PRIMARY KEY,
-          user_id bigint NOT NULL,
-          created_at timestamptz NOT NULL,
-          updated_at timestamptz NOT NULL,
-          sync_state integer NOT NULL DEFAULT 1,
-          changed_column_name text NOT NULL,
-          "from" text NOT NULL,
-          "to" text NOT NULL
-        )
-        SQL
-      AppDatabase.exec <<-SQL
-        INSERT INTO user_audits VALUES
-          (1, 10, '2020-01-01', '2020-01-02', 3, 'name', 'Old name', 'New name'),
-          (2, 10, '2020-02-01', '2020-02-02', 1, 'password', 'old-secret', 'new-secret')
-        SQL
+      AppDatabase.exec "CREATE TABLE users (id bigint PRIMARY KEY)"
 
-      migration = ConvertUserAuditsToEvents::V20261015120000.new
+      migration = CreateUserAudit::V20250315162146.new
       migration.migrate
       migration.prepared_statements.each { |statement| AppDatabase.exec(statement) }
 
       UserAuditQuery.new.any?.should be_false
-      # 验证该历史迁移自己的表结构，不使用已包含后续字段的当前 Model。
-      AppDatabase.exec "INSERT INTO user_audits (user_id, kind) VALUES (10, 2)"
+      AppDatabase.exec "INSERT INTO user_audits (user_id, kind) VALUES (10, 5)"
       AppDatabase.query_one("SELECT changed_column_name, \"from\", \"to\", provider FROM user_audits", as: {String?, String?, String?, String?}).should eq({nil, nil, nil, nil})
+
+      columns = AppDatabase.query_all("SELECT column_name FROM information_schema.columns WHERE table_schema = 'user_audit_migration_spec' AND table_name = 'user_audits'", as: String)
+
+      columns.should_not contain("sync_state")
+      columns.should contain("kind")
+      columns.should contain("provider")
+      columns.should contain("actor_id")
 
       migration.reset_prepared_statements
       migration.rollback
       migration.prepared_statements.each { |statement| AppDatabase.exec(statement) }
-      columns = AppDatabase.query_all("SELECT column_name FROM information_schema.columns WHERE table_schema = 'user_audit_migration_spec' AND table_name = 'user_audits'", as: String)
 
-      columns.should contain("sync_state")
-      columns.should_not contain("kind")
-      columns.should_not contain("provider")
-      AppDatabase.query_one("SELECT count(*) FROM user_audits", as: Int64).should eq(0)
+      AppDatabase.query_one("SELECT count(*) FROM information_schema.tables WHERE table_schema = 'user_audit_migration_spec' AND table_name = 'user_audits'", as: Int64).should eq(0)
 
       AppDatabase.rollback
     end

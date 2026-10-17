@@ -24,6 +24,8 @@ class CreateTopics::V20260908090000 < Avram::Migrator::Migration::V1
       add_belongs_to node : Node, on_delete: :restrict
       add title : String
       add content : String
+      # 与 Markdown 原文同步保存的安全 HTML；NULL 时由页面临时渲染。
+      add content_html : String?
 
       # 仅在标题或正文实际改变时写入，用于区分内容编辑和其他数据库更新。
       add edited_at : Time?
