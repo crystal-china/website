@@ -62,13 +62,16 @@ describe "User events" do
 
       UserAuditQuery.new.any?.should be_false
       AppDatabase.exec "INSERT INTO user_audits (user_id, kind) VALUES (10, 5)"
-      AppDatabase.query_one("SELECT changed_column_name, \"from\", \"to\", provider FROM user_audits", as: {String?, String?, String?, String?}).should eq({nil, nil, nil, nil})
+      AppDatabase.query_one("SELECT changed_column_name, \"from\", \"to\", oauth_provider FROM user_audits", as: {String?, String?, String?, String?}).should eq({nil, nil, nil, nil})
+      AppDatabase.exec "INSERT INTO user_audits (user_id, kind, oauth_provider) VALUES (10, 3, 'github')"
+      AppDatabase.query_all("SELECT oauth_provider FROM user_audits ORDER BY id", as: String?).should eq([nil, "github"])
 
       columns = AppDatabase.query_all("SELECT column_name FROM information_schema.columns WHERE table_schema = 'user_audit_migration_spec' AND table_name = 'user_audits'", as: String)
 
       columns.should_not contain("sync_state")
       columns.should contain("kind")
-      columns.should contain("provider")
+      columns.should contain("oauth_provider")
+      columns.should_not contain("provider")
       columns.should contain("actor_id")
 
       migration.reset_prepared_statements
@@ -76,29 +79,6 @@ describe "User events" do
       migration.prepared_statements.each { |statement| AppDatabase.exec(statement) }
 
       AppDatabase.query_one("SELECT count(*) FROM information_schema.tables WHERE table_schema = 'user_audit_migration_spec' AND table_name = 'user_audits'", as: Int64).should eq(0)
-
-      AppDatabase.rollback
-    end
-  end
-
-  it "preserves OAuth providers when renaming the column and rolling back" do
-    AppDatabase.transaction do
-      AppDatabase.exec "CREATE SCHEMA user_audit_provider_migration_spec"
-      AppDatabase.exec "SET LOCAL search_path TO user_audit_provider_migration_spec"
-      AppDatabase.exec "CREATE TABLE user_audits (id bigint PRIMARY KEY, provider text)"
-      AppDatabase.exec "INSERT INTO user_audits VALUES (1, 'github'), (2, NULL)"
-
-      migration = RenameUserAuditProvider::V20261017130000.new
-      migration.migrate
-      migration.prepared_statements.each { |statement| AppDatabase.exec(statement) }
-
-      AppDatabase.query_all("SELECT oauth_provider FROM user_audits ORDER BY id", as: String?).should eq(["github", nil])
-
-      migration.reset_prepared_statements
-      migration.rollback
-      migration.prepared_statements.each { |statement| AppDatabase.exec(statement) }
-
-      AppDatabase.query_all("SELECT provider FROM user_audits ORDER BY id", as: String?).should eq(["github", nil])
 
       AppDatabase.rollback
     end

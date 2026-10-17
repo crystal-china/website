@@ -14,7 +14,7 @@ class CreateUserAudit::V20250315162146 < Avram::Migrator::Migration::V1
       add changed_column_name : String?
       add from : String?
       add to : String?
-      add provider : String?
+      add oauth_provider : String?
     end
 
     create_index table_for(UserAudit), [:user_id, :id]
