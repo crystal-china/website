@@ -193,6 +193,19 @@ describe "User events" do
     audit.provider.should eq("github")
   end
 
+  it "shows password login events in both languages" do
+    user = UserFactory.create
+    SaveUserAudit.create!(user_id: user.id, kind: :password_signed_in)
+
+    {"zh-CN" => "密码登录", "en" => "Password sign-in"}.each do |locale, expected|
+      response = ApiClient.new.get("/me/events?backdoor_user_id=#{user.id}&locale=#{locale}")
+      document = XML.parse_html(response.body)
+
+      response.status_code.should eq(200)
+      document.xpath_node("//main//ol/li/h2").not_nil!.content.should eq(expected)
+    end
+  end
+
   it "records each successful OAuth login to an existing account" do
     user = UserFactory.create
     2.times { audit_oauth_callback(user.email).status_code.should eq(303) }

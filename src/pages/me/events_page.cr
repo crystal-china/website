@@ -64,6 +64,8 @@ class Me::EventsPage < MainLayout
     when .password_changed?
       h2 r(".password_changed").t, class: "m-0 text-sm font-medium text-gray-900"
       para r(".password_privacy").t, class: "mt-2 mb-0 text-sm text-gray-600"
+    when .password_signed_in?
+      h2 r(".password_signed_in").t, class: "m-0 text-sm font-medium text-gray-900"
     when .oauth_signed_in?
       h2 r(".oauth_signed_in").t, class: "m-0 text-sm font-medium text-gray-900"
       para r(".oauth_provider").t(provider: audit.provider.to_s), class: "mt-2 mb-0 text-sm text-gray-600"

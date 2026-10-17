@@ -70,6 +70,7 @@ describe SignInUser do
 
       response.status_code.should eq(200)
       response.body.should contain("登录信息 不正确，请检查邮箱、用户名或密码")
+      UserAuditQuery.new.any?.should be_false
     end
   end
 
@@ -77,11 +78,22 @@ describe SignInUser do
     user = UserFactory.create &.login_name("Billy")
 
     Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
-      [user.email, "bIlLy"].each do |login|
+      [user.email, "bIlLy"].each_with_index do |login, index|
         response = ApiClient.new.post("/sign_in", user: {login: login, password: "password"})
 
         response.status_code.should eq(303)
         response.headers["Location"].should eq(Home::Index.path)
+        audits = UserAuditQuery.new.user_id(user.id).id.asc_order.results
+
+        audits.size.should eq(index + 1)
+        audits.all?(&.kind.password_signed_in?).should be_true
+        audit = audits.last
+
+        audit.actor_id.should eq(user.id)
+        audit.changed_column_name.should be_nil
+        audit.from.should be_nil
+        audit.to.should be_nil
+        audit.provider.should be_nil
       end
     end
   end

@@ -292,13 +292,14 @@ en:
 
   me:
     events_page:
-      description: History of profile changes, password changes and OAuth sign-ins.
+      description: History of profile changes, password changes and sign-ins.
       empty: No account history yet.
       actor: 'Performed by:'
       unknown_actor: Unknown or account deleted
       profile_changed: Changed %{field}
       password_changed: Password changed
       password_privacy: Only the change time is recorded, never the password or its hash.
+      password_signed_in: Password sign-in
       oauth_signed_in: OAuth sign-in
       oauth_provider: Signed in through %{provider}.
       password_removed: Local password removed

@@ -289,13 +289,14 @@ zh-CN:
 
   me:
     events_page:
-      description: 记录个人资料修改、密码修改和第三方登录。
+      description: 记录个人资料修改、密码修改和登录活动。
       empty: 暂无账户记录。
       actor: 操作人：
       unknown_actor: 未知或账号已删除
       profile_changed: 修改%{field}
       password_changed: 修改密码
       password_privacy: 仅记录修改时间，不保存密码或密码哈希。
+      password_signed_in: 密码登录
       oauth_signed_in: 第三方登录
       oauth_provider: 通过 %{provider} 登录。
       password_removed: 移除本站密码

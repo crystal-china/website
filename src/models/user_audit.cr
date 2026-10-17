@@ -1,9 +1,10 @@
 class UserAudit < BaseModel
   enum Kind
-    ProfileChanged  = 1
-    PasswordChanged = 2
-    OauthSignedIn   = 3
-    PasswordRemoved = 4
+    ProfileChanged   = 1
+    PasswordChanged  = 2
+    OauthSignedIn    = 3
+    PasswordRemoved  = 4
+    PasswordSignedIn = 5
   end
 
   table do

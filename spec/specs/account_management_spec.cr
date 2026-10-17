@@ -138,7 +138,7 @@ describe "Account management" do
     response.status_code.should eq(303)
     response.headers["Location"].should eq(Users::Show.with(login_name: user.login_name).path)
     UserQuery.find(user.id).nickname.should eq("Updated nickname")
-    UserAuditQuery.new.user_id(user.id).first.actor_id.should eq(user.id)
+    UserAuditQuery.new.user_id(user.id).kind(UserAudit::Kind::ProfileChanged).first.actor_id.should eq(user.id)
   end
 
   it "preserves the original return path across repeated validation failures" do
@@ -224,7 +224,7 @@ describe "Account management" do
     UserQuery.find(user.id).session_version.should eq(user.session_version)
 
     client.put("/users/#{user.id}", user: {nickname: "Updated", actor_id: admin.id})
-    UserAuditQuery.new.user_id(user.id).first.actor_id.should eq(user.id)
+    UserAuditQuery.new.user_id(user.id).kind(UserAudit::Kind::ProfileChanged).first.actor_id.should eq(user.id)
   end
 
   it "keeps the password-changing browser signed in but revokes other browsers and API tokens" do
@@ -241,7 +241,8 @@ describe "Account management" do
     other.get("/users/#{user.id}/edit").headers["Location"].should contain("/sign_in")
     api.get("/api/me").status_code.should eq(401)
     ApiClient.auth(updated).get("/api/me").status_code.should eq(200)
-    UserAuditQuery.new.user_id(user.id).first.actor_id.should eq(user.id)
+    UserAuditQuery.new.user_id(user.id).kind(UserAudit::Kind::PasswordChanged).first.actor_id.should eq(user.id)
+    UserAuditQuery.new.user_id(user.id).kind(UserAudit::Kind::PasswordSignedIn).select_count.should eq(2)
   end
 
   it "does not revoke sessions for unrelated changes, blank passwords or failed saves" do
@@ -256,6 +257,7 @@ describe "Account management" do
     client.put("/users/#{user.id}", user: {password: "new-password", password_confirmation: "mismatch"})
     UserQuery.find(user.id).session_version.should eq(user.session_version)
     client.get("/users/#{user.id}/edit").status_code.should eq(200)
+    UserAuditQuery.new.user_id(user.id).kind(UserAudit::Kind::PasswordSignedIn).select_count.should eq(1)
   end
 
   it "keeps CSRF protection working when an expired login visits a public page" do
@@ -294,7 +296,7 @@ describe "Account management" do
     response.status_code.should eq(303)
     user_client.get("/users/#{user.id}/edit").status_code.should eq(303)
     admin_client.get("/users/#{user.id}/edit").status_code.should eq(200)
-    UserAuditQuery.new.user_id(user.id).first.actor_id.should eq(admin.id)
+    UserAuditQuery.new.user_id(user.id).kind(UserAudit::Kind::PasswordChanged).first.actor_id.should eq(admin.id)
   end
 
   it "removes passwords with a separate event and does not revive older passwordless sessions" do
@@ -326,7 +328,7 @@ describe "Account management" do
     response.status_code.should eq(200)
     response.body.should contain(Rosetta.find("admin.users.remove_password.no_password").t)
     UserQuery.find(user.id).session_version.should eq(version)
-    UserAuditQuery.new.user_id(user.id).select_count.should eq(1)
+    UserAuditQuery.new.user_id(user.id).kind(UserAudit::Kind::PasswordRemoved).select_count.should eq(1)
 
     user = ResetPassword.update!(removed, password: "password", password_confirmation: "password")
     client.delete("/admin/users/#{user.id}/remove_password")
