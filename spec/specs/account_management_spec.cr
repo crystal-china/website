@@ -71,7 +71,12 @@ describe "Account management" do
     response.status_code.should eq(200)
     document.xpath_node("//input[@name='user:login_name']").not_nil!["readonly"]?.should be_nil
     document.xpath_node("//form[@action='/admin/users/#{user.id}']").should_not be_nil
-    document.xpath_node("//button[@form='remove-user-password']").should_not be_nil
+    button = document.xpath_node("//button[@hx-delete='/admin/users/#{user.id}/remove_password']").not_nil!
+
+    button["type"].should eq("button")
+    button["hx-target"].should eq("#page-flash")
+    document.xpath_node("//p/button[@hx-delete='/admin/users/#{user.id}/remove_password']").should_not be_nil
+    document.xpath_nodes("//main//form").size.should eq(1)
     document.xpath_nodes("//form//form").should be_empty
 
     response = client.put("/admin/users/#{user.id}", user: {login_name: "RenamedUser", nickname: "New nickname", mention_notifications_enabled: false})
@@ -115,10 +120,10 @@ describe "Account management" do
 
     client.get("/admin/users/#{target.id}/edit").status_code.should eq(404)
     client.put("/admin/users/#{target.id}", user: {nickname: "Forged"}).status_code.should eq(404)
-    client.post("/admin/users/#{target.id}/remove_password").status_code.should eq(404)
+    client.delete("/admin/users/#{target.id}/remove_password").status_code.should eq(404)
     UserQuery.find(target.id).nickname.should eq(target.nickname)
     UserQuery.find(target.id).encrypted_password.should eq(target.encrypted_password)
-    client.get("/me/edit").body.should_not contain("remove-user-password")
+    client.get("/me/edit").body.should_not contain("/remove_password")
   end
 
   it "does not accept actor IDs or session versions from a profile form" do
@@ -212,31 +217,51 @@ describe "Account management" do
     old_client = account_sign_in(user)
     old_token = UserToken.generate(user)
 
-    response = client.post("/admin/users/#{user.id}/remove_password")
+    response = client.delete("/admin/users/#{user.id}/remove_password")
     removed = UserQuery.find(user.id)
     audit = UserAuditQuery.new.user_id(user.id).id.desc_order.first
     passwordless_token = UserToken.generate(removed)
 
-    response.status_code.should eq(303)
+    response.status_code.should eq(200)
+    response.headers["Location"]?.should be_nil
+    response.body.should contain(Rosetta.find("admin.users.remove_password.password_removed").t)
     removed.encrypted_password.should be_nil
     audit.kind.should eq(UserAudit::Kind::PasswordRemoved)
     audit.actor_id.should eq(admin.id)
     UserAuditQuery.new.user_id(user.id).latest_password_change_at.should eq(audit.created_at)
     old_client.get("/me/edit").status_code.should eq(303)
     UserToken.decode_user_id(old_token).should be_nil
-    client.get("/admin/users/#{user.id}/edit").body.should_not contain("remove-user-password")
+    client.get("/admin/users/#{user.id}/edit").body.should_not contain("/remove_password")
 
     version = removed.session_version
-    client.post("/admin/users/#{user.id}/remove_password")
+    response = client.delete("/admin/users/#{user.id}/remove_password")
+
+    response.status_code.should eq(200)
+    response.body.should contain(Rosetta.find("admin.users.remove_password.no_password").t)
     UserQuery.find(user.id).session_version.should eq(version)
     UserAuditQuery.new.user_id(user.id).select_count.should eq(1)
 
     user = ResetPassword.update!(removed, password: "password", password_confirmation: "password")
-    client.post("/admin/users/#{user.id}/remove_password")
+    client.delete("/admin/users/#{user.id}/remove_password")
 
     UserQuery.find(user.id).session_version.should_not eq(version)
     UserToken.decode_user_id(passwordless_token).should be_nil
     client.get("/admin/users/#{user.id}/edit").status_code.should eq(200)
+  end
+
+  it "keeps the current administrator signed in after removing their own password" do
+    admin = UserFactory.create &.email("account-admin@example.com")
+    editor = account_sign_in(admin)
+    other = account_sign_in(admin)
+    token = UserToken.generate(admin)
+    response = editor.delete("/admin/users/#{admin.id}/remove_password")
+
+    response.status_code.should eq(200)
+    response.headers["Location"]?.should be_nil
+    UserQuery.find(admin.id).encrypted_password.should be_nil
+    account_client(response).get("/me/edit").status_code.should eq(200)
+    other.get("/me/edit").status_code.should eq(303)
+    UserToken.decode_user_id(token).should be_nil
   end
 
   it "also revokes sessions on password reset and common save operations" do

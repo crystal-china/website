@@ -40,13 +40,7 @@ class Shared::UserProfileForm < BaseComponent
 
             div class: "grid gap-6 md:grid-cols-2" do
               div class: "form-field" do
-                div class: "flex items-center justify-between gap-3" do
-                  label_for op.password, r("fields.password").t, class: "form-label"
-
-                  if current_user.not_nil!.admin? && user.encrypted_password
-                    button r(".remove_password").t, type: "submit", form: "remove-user-password", class: "text-xs text-red-700 hover:underline"
-                  end
-                end
+                label_for op.password, r("fields.password").t, class: "form-label"
 
                 password_input op.password, class: "form-input", placeholder: r(".password_placeholder").t, autocomplete: "new-password"
                 mount Shared::FieldErrors, op.password
@@ -66,6 +60,20 @@ class Shared::UserProfileForm < BaseComponent
               else
                 text r(".unknown_password_date").t
               end
+
+              if current_user.not_nil!.admin? && user.encrypted_password
+                button(
+                  r(".remove_password").t,
+                  type: "button",
+                  class: "ml-3 whitespace-nowrap text-xs text-red-700 hover:underline",
+                  hx_delete: Admin::Users::RemovePassword.with(id: user.id).path,
+                  hx_target: "#page-flash",
+                  hx_swap: "innerHTML",
+                  hx_confirm: r(".confirm_remove_password").t,
+                  hx_disable: "this",
+                  script: htmx_success("remove me")
+                )
+              end
             end
           end
 
@@ -84,16 +92,6 @@ class Shared::UserProfileForm < BaseComponent
         div class: "flex flex-wrap items-center justify-end gap-3 border-t border-gray-200 pt-6" do
           link r("common.back").t, to: Users::Show.with(login_name: user.login_name), class: "form-secondary"
           submit r("common.save_changes").t, class: "form-submit"
-        end
-      end
-
-      if current_user.not_nil!.admin? && user.encrypted_password
-        # 独立表单避免嵌套；密码旁的按钮通过 form 属性提交，且不提交未保存的资料。
-        form_for(
-          Admin::Users::RemovePassword.with(id: user.id),
-          id: "remove-user-password",
-          hx_confirm: r(".confirm_remove_password").t
-        ) do
         end
       end
     end
