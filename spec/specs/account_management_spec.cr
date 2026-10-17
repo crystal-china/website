@@ -214,13 +214,14 @@ describe "Account management" do
 
     response = client.post("/admin/users/#{user.id}/remove_password")
     removed = UserQuery.find(user.id)
-    audit = UserAuditQuery.new.user_id(user.id).latest_password_change.not_nil!
+    audit = UserAuditQuery.new.user_id(user.id).id.desc_order.first
     passwordless_token = UserToken.generate(removed)
 
     response.status_code.should eq(303)
     removed.encrypted_password.should be_nil
     audit.kind.should eq(UserAudit::Kind::PasswordRemoved)
     audit.actor_id.should eq(admin.id)
+    UserAuditQuery.new.user_id(user.id).latest_password_change_at.should eq(audit.created_at)
     old_client.get("/me/edit").status_code.should eq(303)
     UserToken.decode_user_id(old_token).should be_nil
     client.get("/admin/users/#{user.id}/edit").body.should_not contain("remove-user-password")

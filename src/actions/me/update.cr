@@ -8,11 +8,11 @@ class Me::Update < BrowserAction
         flash.success = r(".updated").t
         redirect Home::Index
       else
-        password_change = UserAuditQuery.new.user_id(me.id).latest_password_change
+        password_changed_at = UserAuditQuery.new.user_id(me.id).latest_password_change_at
 
         build_failed_flash(op)
 
-        html Me::EditPage, op: op, password_changed_at: password_change.try(&.created_at)
+        html Me::EditPage, op: op, password_changed_at: password_changed_at
       end
     end
   end

@@ -9,11 +9,11 @@ class Admin::Users::Update < AdminAction
 
         redirect ::Users::Show.with(login_name: updated_user.not_nil!.login_name)
       else
-        password_change = UserAuditQuery.new.user_id(user.id).latest_password_change
+        password_changed_at = UserAuditQuery.new.user_id(user.id).latest_password_change_at
 
         build_failed_flash(op)
 
-        html Admin::Users::EditPage, user: user, op: op, password_changed_at: password_change.try(&.created_at)
+        html Admin::Users::EditPage, user: user, op: op, password_changed_at: password_changed_at
       end
     end
   end
