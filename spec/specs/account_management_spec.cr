@@ -64,13 +64,13 @@ describe "Account management" do
     user = UserFactory.create &.created_at(Time.utc - 30.days)
     client = account_sign_in(admin)
     profile = client.get(Users::Show.with(login_name: user.login_name).path)
-    response = client.get("/admin/users/#{user.id}/edit")
+    response = client.get("/users/#{user.id}/edit")
     document = XML.parse_html(response.body)
 
-    profile.body.should contain("/admin/users/#{user.id}/edit")
+    profile.body.should contain("/users/#{user.id}/edit")
     response.status_code.should eq(200)
     document.xpath_node("//input[@name='user:login_name']").not_nil!["readonly"]?.should be_nil
-    document.xpath_node("//form[@action='/admin/users/#{user.id}']").should_not be_nil
+    document.xpath_node("//form[@action='/users/#{user.id}']").should_not be_nil
     button = document.xpath_node("//button[@hx-delete='/admin/users/#{user.id}/remove_password']").not_nil!
 
     button["type"].should eq("button")
@@ -83,12 +83,13 @@ describe "Account management" do
     document.xpath_nodes("//main//form").size.should eq(1)
     document.xpath_nodes("//form//form").should be_empty
 
-    response = client.put("/admin/users/#{user.id}", user: {login_name: "RenamedUser", nickname: "New nickname", mention_notifications_enabled: false})
+    response = client.put("/users/#{user.id}", user: {login_name: "RenamedUser", nickname: "New nickname", mention_notifications_enabled: false})
     updated = UserQuery.find(user.id)
     audits = UserAuditQuery.new.user_id(user.id).results
 
     response.status_code.should eq(303)
     response.headers["Location"].should eq("/users/RenamedUser/profile")
+    account_client(response).get("/users/#{admin.id}/edit").status_code.should eq(200)
     updated.login_name.should eq("RenamedUser")
     updated.nickname.should eq("New nickname")
     updated.mention_notifications_enabled.should be_false
@@ -108,39 +109,72 @@ describe "Account management" do
     client = account_sign_in(admin)
 
     {admin.login_name, "bad name"}.each do |login_name|
-      response = client.put("/admin/users/#{user.id}", user: {login_name: login_name})
+      response = client.put("/users/#{user.id}", user: {login_name: login_name})
 
       response.status_code.should eq(200)
+      document = XML.parse_html(response.body)
+      document.xpath_node("//form[@action='/users/#{user.id}']").should_not be_nil
+      document.xpath_node("//input[@name='user:login_name']").not_nil!["value"].should eq(login_name)
       UserQuery.find(user.id).login_name.should eq(user.login_name)
     end
 
     UserAuditQuery.new.user_id(user.id).any?.should be_false
   end
 
-  it "blocks normal users from every administrator account endpoint" do
+  it "lets users edit their own profile and returns to their profile after saving" do
+    user = UserFactory.create
+    client = account_sign_in(user)
+    profile = client.get(Users::Show.with(login_name: user.login_name).path)
+    response = client.get("/users/#{user.id}/edit")
+    document = XML.parse_html(response.body)
+
+    profile.body.should contain("/users/#{user.id}/edit")
+    response.status_code.should eq(200)
+    document.xpath_node("//form[@action='/users/#{user.id}']").should_not be_nil
+
+    response = client.put("/users/#{user.id}", user: {nickname: "Updated nickname"})
+
+    response.status_code.should eq(303)
+    response.headers["Location"].should eq(Users::Show.with(login_name: user.login_name).path)
+    UserQuery.find(user.id).nickname.should eq("Updated nickname")
+    UserAuditQuery.new.user_id(user.id).first.actor_id.should eq(user.id)
+  end
+
+  it "requires guests to sign in before editing or saving a profile" do
+    user = UserFactory.create
+    client = ApiClient.new
+
+    client.get("/users/#{user.id}/edit").headers["Location"].should contain("/sign_in")
+    client.put("/users/#{user.id}", user: {nickname: "Forged"}).headers["Location"].should contain("/sign_in")
+    UserQuery.find(user.id).nickname.should eq(user.nickname)
+  end
+
+  it "blocks normal users from editing other accounts and removing passwords" do
     user = UserFactory.create
     target = UserFactory.create
     client = account_sign_in(user)
 
-    client.get("/admin/users/#{target.id}/edit").status_code.should eq(404)
-    client.put("/admin/users/#{target.id}", user: {nickname: "Forged"}).status_code.should eq(404)
+    client.get("/users/#{target.id}/edit").status_code.should eq(404)
+    client.put("/users/#{target.id}", user: {nickname: "Forged"}).status_code.should eq(404)
     client.delete("/admin/users/#{target.id}/remove_password").status_code.should eq(404)
     UserQuery.find(target.id).nickname.should eq(target.nickname)
     UserQuery.find(target.id).encrypted_password.should eq(target.encrypted_password)
-    client.get("/me/edit").body.should_not contain("/remove_password")
+    UserAuditQuery.new.user_id(target.id).any?.should be_false
+    client.get(Users::Show.with(login_name: target.login_name).path).body.should_not contain("/users/#{target.id}/edit")
+    client.get("/users/#{user.id}/edit").body.should_not contain("/remove_password")
   end
 
   it "does not accept actor IDs or session versions from a profile form" do
     admin = UserFactory.create &.email("account-admin@example.com")
     user = UserFactory.create &.created_at(Time.utc - 30.days)
     client = account_sign_in(user)
-    response = client.put("/me/update", user: {login_name: "ForgedLogin", actor_id: admin.id, session_version: "forged"})
+    response = client.put("/users/#{user.id}", user: {login_name: "ForgedLogin", actor_id: admin.id, session_version: "forged"})
 
     response.body.should contain("仅能在注册后 7 天内修改")
     UserQuery.find(user.id).login_name.should eq(user.login_name)
     UserQuery.find(user.id).session_version.should eq(user.session_version)
 
-    client.put("/me/update", user: {nickname: "Updated", actor_id: admin.id})
+    client.put("/users/#{user.id}", user: {nickname: "Updated", actor_id: admin.id})
     UserAuditQuery.new.user_id(user.id).first.actor_id.should eq(user.id)
   end
 
@@ -149,13 +183,13 @@ describe "Account management" do
     editor = account_sign_in(user)
     other = account_sign_in(user)
     api = ApiClient.auth(user)
-    response = editor.put("/me/update", user: {password: "new-password", password_confirmation: "new-password"})
+    response = editor.put("/users/#{user.id}", user: {password: "new-password", password_confirmation: "new-password"})
     updated = UserQuery.find(user.id)
 
     response.status_code.should eq(303)
     updated.session_version.should_not eq(user.session_version)
-    account_client(response).get("/me/edit").status_code.should eq(200)
-    other.get("/me/edit").headers["Location"].should contain("/sign_in")
+    account_client(response).get("/users/#{user.id}/edit").status_code.should eq(200)
+    other.get("/users/#{user.id}/edit").headers["Location"].should contain("/sign_in")
     api.get("/api/me").status_code.should eq(401)
     ApiClient.auth(updated).get("/api/me").status_code.should eq(200)
     UserAuditQuery.new.user_id(user.id).first.actor_id.should eq(user.id)
@@ -165,14 +199,14 @@ describe "Account management" do
     user = UserFactory.create
     client = account_sign_in(user)
 
-    response = client.put("/me/update", user: {nickname: "Updated", password: "", password_confirmation: ""})
+    response = client.put("/users/#{user.id}", user: {nickname: "Updated", password: "", password_confirmation: ""})
     response.status_code.should eq(303)
     UserQuery.find(user.id).session_version.should eq(user.session_version)
-    client.get("/me/edit").status_code.should eq(200)
+    client.get("/users/#{user.id}/edit").status_code.should eq(200)
 
-    client.put("/me/update", user: {password: "new-password", password_confirmation: "mismatch"})
+    client.put("/users/#{user.id}", user: {password: "new-password", password_confirmation: "mismatch"})
     UserQuery.find(user.id).session_version.should eq(user.session_version)
-    client.get("/me/edit").status_code.should eq(200)
+    client.get("/users/#{user.id}/edit").status_code.should eq(200)
   end
 
   it "keeps CSRF protection working when an expired login visits a public page" do
@@ -197,7 +231,7 @@ describe "Account management" do
       guest = account_client(response)
       guest.patch("/htmx/online_users").status_code.should eq(403)
       guest.headers("X-CSRF-TOKEN": token).patch("/htmx/online_users").status_code.should eq(200)
-      account_client(response).get("/me/edit").status_code.should eq(303)
+      account_client(response).get("/users/#{user.id}/edit").status_code.should eq(303)
     end
   end
 
@@ -206,11 +240,11 @@ describe "Account management" do
     user = UserFactory.create
     admin_client = account_sign_in(admin)
     user_client = account_sign_in(user)
-    response = admin_client.put("/admin/users/#{user.id}", user: {password: "new-password", password_confirmation: "new-password"})
+    response = admin_client.put("/users/#{user.id}", user: {password: "new-password", password_confirmation: "new-password"})
 
     response.status_code.should eq(303)
-    user_client.get("/me/edit").status_code.should eq(303)
-    admin_client.get("/admin/users/#{user.id}/edit").status_code.should eq(200)
+    user_client.get("/users/#{user.id}/edit").status_code.should eq(303)
+    admin_client.get("/users/#{user.id}/edit").status_code.should eq(200)
     UserAuditQuery.new.user_id(user.id).first.actor_id.should eq(admin.id)
   end
 
@@ -233,9 +267,9 @@ describe "Account management" do
     audit.kind.should eq(UserAudit::Kind::PasswordRemoved)
     audit.actor_id.should eq(admin.id)
     UserAuditQuery.new.user_id(user.id).latest_password_change_at.should eq(audit.created_at)
-    old_client.get("/me/edit").status_code.should eq(303)
+    old_client.get("/users/#{user.id}/edit").status_code.should eq(303)
     UserToken.decode_user_id(old_token).should be_nil
-    client.get("/admin/users/#{user.id}/edit").body.should_not contain("/remove_password")
+    client.get("/users/#{user.id}/edit").body.should_not contain("/remove_password")
 
     version = removed.session_version
     response = client.delete("/admin/users/#{user.id}/remove_password")
@@ -250,7 +284,7 @@ describe "Account management" do
 
     UserQuery.find(user.id).session_version.should_not eq(version)
     UserToken.decode_user_id(passwordless_token).should be_nil
-    client.get("/admin/users/#{user.id}/edit").status_code.should eq(200)
+    client.get("/users/#{user.id}/edit").status_code.should eq(200)
   end
 
   it "keeps the current administrator signed in after removing their own password" do
@@ -263,8 +297,8 @@ describe "Account management" do
     response.status_code.should eq(200)
     response.headers["Location"]?.should be_nil
     UserQuery.find(admin.id).encrypted_password.should be_nil
-    account_client(response).get("/me/edit").status_code.should eq(200)
-    other.get("/me/edit").status_code.should eq(303)
+    account_client(response).get("/users/#{admin.id}/edit").status_code.should eq(200)
+    other.get("/users/#{admin.id}/edit").status_code.should eq(303)
     UserToken.decode_user_id(token).should be_nil
   end
 
@@ -275,7 +309,7 @@ describe "Account management" do
 
     user = ResetPassword.update!(user, password: "new-password", password_confirmation: "new-password")
 
-    client.get("/me/edit").status_code.should eq(303)
+    client.get("/users/#{user.id}/edit").status_code.should eq(303)
     UserToken.decode_user_id(token).should be_nil
     token = UserToken.generate(user)
     User::SaveOperation.update!(user, encrypted_password: Authentic.generate_encrypted_password("other-password"))

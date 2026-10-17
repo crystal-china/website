@@ -1,18 +1,23 @@
-class Me::Update < BrowserAction
-  put "/me/update" do
+class Users::Update < BrowserAction
+  put "/users/:id" do
+    user = UserQuery.find(id)
     me = current_user
 
-    UpdateUser.update(me, params, actor_id: me.id) do |op, user|
+    return head 404 unless me.id == user.id || me.admin?
+
+    UpdateUser.update(user, params, actor_id: me.id) do |op, updated_user|
       if op.saved?
-        sign_in(user.not_nil!)
-        flash.success = r(".updated").t
-        redirect Home::Index
+        updated_user = updated_user.not_nil!
+        sign_in(updated_user) if me.id == user.id
+        flash.success = r(".profile_updated").t
+
+        redirect Users::Show.with(login_name: updated_user.login_name)
       else
-        password_changed_at = UserAuditQuery.new.user_id(me.id).latest_password_change_at
+        password_changed_at = UserAuditQuery.new.user_id(user.id).latest_password_change_at
 
         build_failed_flash(op)
 
-        html Me::EditPage, op: op, password_changed_at: password_changed_at
+        html Users::EditPage, user: user, op: op, password_changed_at: password_changed_at
       end
     end
   end

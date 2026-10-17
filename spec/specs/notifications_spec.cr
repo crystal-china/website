@@ -179,13 +179,13 @@ describe "Mention notification preferences" do
     user = UserFactory.create
     other = UserFactory.create
     user.mention_notifications_enabled.should be_true
-    response = ApiClient.new.get("/me/edit?backdoor_user_id=#{user.id}")
+    response = ApiClient.new.get("/users/#{user.id}/edit?backdoor_user_id=#{user.id}")
     response.status_code.should eq(200)
     response.body.should contain("接收 @提及通知")
     response.body.should contain(%(name="user:mention_notifications_enabled"))
 
     Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
-      response = ApiClient.new.put("/me/update?backdoor_user_id=#{user.id}", user: {mention_notifications_enabled: "false"})
+      response = ApiClient.new.put("/users/#{user.id}?backdoor_user_id=#{user.id}", user: {mention_notifications_enabled: "false"})
       response.status_code.should eq(303)
       UserQuery.find(user.id).mention_notifications_enabled.should be_false
       UserQuery.find(other.id).mention_notifications_enabled.should be_true
@@ -197,7 +197,7 @@ describe "Mention notification preferences" do
       response = ApiClient.new.get("/htmx/mentions?q=#{URI.encode_path(user.login_name)}&backdoor_user_id=#{other.id}")
       JSON.parse(response.body).as_a.map { |candidate| candidate["login_name"].as_s }.should_not contain(user.login_name)
 
-      response = ApiClient.new.put("/me/update?backdoor_user_id=#{user.id}", user: {mention_notifications_enabled: "true"})
+      response = ApiClient.new.put("/users/#{user.id}?backdoor_user_id=#{user.id}", user: {mention_notifications_enabled: "true"})
       response.status_code.should eq(303)
       UserQuery.find(user.id).mention_notifications_enabled.should be_true
 

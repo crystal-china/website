@@ -32,11 +32,7 @@ class Users::ShowPage < MainLayout
 
             if (me = current_user) && (me.id == user.id || me.admin?)
               div class: "flex flex-wrap gap-3" do
-                if me.id == user.id
-                  link r("common.edit_profile").t, to: Me::Edit, class: "form-secondary"
-                else
-                  link r("common.edit_profile").t, to: Admin::Users::Edit.with(id: user.id), class: "form-secondary"
-                end
+                link r("common.edit_profile").t, to: Users::Edit.with(id: user.id), class: "form-secondary"
                 link r("common.events").t, to: Me::Events.with(user_id: user.id), class: "form-secondary"
               end
             end

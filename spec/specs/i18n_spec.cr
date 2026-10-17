@@ -110,7 +110,7 @@ describe "Internationalization" do
     user = UserFactory.create
 
     Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
-      response = ApiClient.new.put("/me/update?locale=en&backdoor_user_id=#{user.id}", user: {login_name: "bad name"})
+      response = ApiClient.new.put("/users/#{user.id}?locale=en&backdoor_user_id=#{user.id}", user: {login_name: "bad name"})
       document = XML.parse_html(response.body)
       expected = "Login name #{Rosetta.find("validations.login_name_format").t}"
 

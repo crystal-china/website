@@ -39,10 +39,6 @@ zh-CN:
       remove_password:
         no_password: 此账号没有本站密码，无需移除。
         password_removed: 本站密码已移除，旧登录会话已失效。用户可通过第三方登录或重置密码重新登录。
-      update:
-        profile_updated: 个人资料已更新
-      edit_page:
-        page_title: 编辑 %{nickname} 的个人资料
     index_page:
       page_title: 后台概览
       description: 查看站点当前的数据规模和最近内容。
@@ -298,10 +294,6 @@ zh-CN:
     description: Crystal China 是 Crystal 中文社区，提供 Crystal 编程语言文档、经验与讨论。
 
   me:
-    update:
-      updated: 更新成功！
-    edit_page:
-      page_title: 编辑我的信息
     events_page:
       description: 记录个人资料修改、密码修改和第三方登录。
       empty: 暂无账户记录。
@@ -464,6 +456,10 @@ zh-CN:
     unavailable: 图片上传服务暂时不可用，请稍后重试
 
   users:
+    update:
+      profile_updated: 个人资料已更新
+    edit_page:
+      page_title: 编辑 %{nickname} 的个人资料
     show_page:
       description: "%{nickname} 在 Crystal 中文社区的个人主页。"
       joined: 加入社区

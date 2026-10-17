@@ -39,10 +39,6 @@ en:
       remove_password:
         no_password: This account has no local password to remove.
         password_removed: Local password removed and old sessions invalidated. The user can sign in through OAuth or reset their password.
-      update:
-        profile_updated: Profile updated
-      edit_page:
-        page_title: Edit %{nickname}'s profile
     index_page:
       page_title: Admin overview
       description: Review site totals and recent content.
@@ -301,10 +297,6 @@ en:
     description: Crystal China is a Chinese community for Crystal documentation, experiences and discussions.
 
   me:
-    update:
-      updated: Updated successfully!
-    edit_page:
-      page_title: Edit my profile
     events_page:
       description: History of profile changes, password changes and OAuth sign-ins.
       empty: No account history yet.
@@ -468,6 +460,10 @@ en:
     unavailable: The image upload service is temporarily unavailable. Please try again later
 
   users:
+    update:
+      profile_updated: Profile updated
+    edit_page:
+      page_title: Edit %{nickname}'s profile
     show_page:
       description: "%{nickname}'s profile on Crystal China Community."
       joined: Joined

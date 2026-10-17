@@ -1,7 +1,6 @@
 class Shared::UserProfileForm < BaseComponent
   needs user : User
   needs op : UpdateUser
-  needs update_route : Lucky::RouteHelper
   needs password_changed_at : Time?
 
   def render : Nil
@@ -15,7 +14,7 @@ class Shared::UserProfileForm < BaseComponent
         link r("common.back_to_profile").t, to: Users::Show.with(login_name: user.login_name), class: "form-secondary"
       end
 
-      form_for(update_route, class: "panel-body space-y-8") do
+      form_for(Users::Update.with(id: user.id), class: "panel-body space-y-8") do
         div class: "grid gap-8 md:grid-cols-[minmax(0,1fr)_15rem]" do
           div class: "space-y-6" do
             div class: "space-y-2" do

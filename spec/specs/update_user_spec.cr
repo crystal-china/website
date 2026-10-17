@@ -7,7 +7,7 @@ describe UpdateUser do
 
     Timecop.freeze(user.created_at + 7.days - 1.second) do
       user.login_name_change_allowed?.should be_true
-      response = ApiClient.new.get("/me/edit?backdoor_user_id=#{user.id}")
+      response = ApiClient.new.get("/users/#{user.id}/edit?backdoor_user_id=#{user.id}")
       field = XML.parse_html(response.body).xpath_node("//input[@name='user:login_name']").not_nil!
 
       field["readonly"]?.should be_nil
@@ -55,13 +55,13 @@ describe UpdateUser do
     user = UserFactory.create
 
     Timecop.freeze(user.created_at + 8.days) do
-      response = ApiClient.new.get("/me/edit?backdoor_user_id=#{user.id}")
+      response = ApiClient.new.get("/users/#{user.id}/edit?backdoor_user_id=#{user.id}")
       field = XML.parse_html(response.body).xpath_node("//input[@name='user:login_name']").not_nil!
 
       field["readonly"]?.should_not be_nil
 
       Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
-        response = ApiClient.new.put("/me/update?backdoor_user_id=#{user.id}", user: {login_name: "ForgedLogin"})
+        response = ApiClient.new.put("/users/#{user.id}?backdoor_user_id=#{user.id}", user: {login_name: "ForgedLogin"})
 
         response.body.should contain("仅能在注册后 7 天内修改")
         UserQuery.find(user.id).login_name.should eq(user.login_name)
@@ -215,7 +215,7 @@ describe UpdateUser do
     user.login_name_lower.should eq("mixedcase")
 
     Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
-      response = ApiClient.new.put("/me/update?backdoor_user_id=#{user.id}", user: {login_name_lower: "forged"})
+      response = ApiClient.new.put("/users/#{user.id}?backdoor_user_id=#{user.id}", user: {login_name_lower: "forged"})
       response.status_code.should eq(303)
     end
 

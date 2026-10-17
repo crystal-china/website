@@ -346,7 +346,7 @@ describe "User events" do
     SaveUserAudit.create!(user_id: user.id, kind: UserAudit::Kind::OauthSignedIn, provider: "github")
     expected = TimeInWords::Helpers(TimeInWords::I18n::ZH_CN).from(time: audit.created_at)
 
-    response = ApiClient.new.get("/me/edit?backdoor_user_id=#{user.id}")
+    response = ApiClient.new.get("/users/#{user.id}/edit?backdoor_user_id=#{user.id}")
     time = XML.parse_html(response.body).xpath_node("//form//p/time").not_nil!
 
     response.status_code.should eq(200)
@@ -356,7 +356,7 @@ describe "User events" do
     time["title"].should eq(audit.created_at.to_local.to_s("%Y-%m-%d %H:%M:%S %z"))
 
     Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
-      response = ApiClient.new.put("/me/update?backdoor_user_id=#{user.id}", user: {password: "new-password", password_confirmation: "mismatch"})
+      response = ApiClient.new.put("/users/#{user.id}?backdoor_user_id=#{user.id}", user: {password: "new-password", password_confirmation: "mismatch"})
 
       response.status_code.should eq(200)
       XML.parse_html(response.body).xpath_node("//form//p/time").not_nil!.content.should eq(expected)
