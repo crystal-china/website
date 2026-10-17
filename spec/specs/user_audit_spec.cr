@@ -110,15 +110,13 @@ describe "User events" do
     audits.map(&.to).should eq(["First nickname", "Second nickname"])
   end
 
-  it "records removing an avatar without rejecting the profile update" do
+  it "allows removing an avatar without creating an audit event" do
     user = UserFactory.create &.avatar("https://example.com/avatar.png")
     user = UpdateUser.update!(user, avatar: nil)
-    audit = UserAuditQuery.new.user_id(user.id).first
 
     user.avatar.should be_nil
-    audit.changed_column_name.should eq("avatar")
-    audit.from.should eq("https://example.com/avatar.png")
-    audit.to.should be_nil
+    UserQuery.find(user.id).avatar.should be_nil
+    UserAuditQuery.new.user_id(user.id).any?.should be_false
   end
 
   it "records password changes without storing passwords, confirmation, or hashes" do
