@@ -7,17 +7,17 @@ abstract class MainLayout
   abstract def content : Nil
 
   def page_title : String
-    "首页"
+    r("main_layout.page_title").t
   end
 
   def page_description : String
-    "Crystal China 是 Crystal 中文社区，提供 Crystal 编程语言文档、经验与讨论。"
+    r("main_layout.description").t
   end
 
   def render : Nil
     html_doctype
 
-    html lang: "zh-CN" do
+    html lang: Rosetta.locale do
       mount(
         Shared::LayoutHead,
         seo: SEO.new(
