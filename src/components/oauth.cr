@@ -1,4 +1,4 @@
-class Component::OAuth < BaseComponent
+class OAuth < BaseComponent
   needs providers : Array(String)
 
   def render : Nil

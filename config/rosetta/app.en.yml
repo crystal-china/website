@@ -155,11 +155,10 @@ en:
     reset_password: Reset password
     last_active: Last active
 
-  component:
-    o_auth:
-      title: Sign in with a provider
-      description: Use a previously connected provider to sign in.
-      providers: Sign-in providers
+  o_auth:
+    title: Sign in with a provider
+    description: Use a previously connected provider to sign in.
+    providers: Sign-in providers
 
   doc_layout:
     full_description: "%{title}: %{description}."

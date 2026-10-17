@@ -154,11 +154,10 @@ zh-CN:
     reset_password: 重置密码
     last_active: 最后活跃于
 
-  component:
-    o_auth:
-      title: 快捷登录
-      description: 如果你之前绑定过第三方账号，可以直接使用。
-      providers: 快捷登录方式
+  o_auth:
+    title: 快捷登录
+    description: 如果你之前绑定过第三方账号，可以直接使用。
+    providers: 快捷登录方式
 
   doc_layout:
     full_description: "%{title}：%{description}。"
