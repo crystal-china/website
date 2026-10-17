@@ -15,7 +15,7 @@ class Navbar < BaseComponent
               if search_scope == "docs" && current_user
                 render_search_button
               else
-                link "文档", to: Docs::Markdowns.with(requested_path: "index"), class: nav_item_class(active: current_path.starts_with?("/docs"))
+                link r("common.docs").t, to: Docs::Markdowns.with(requested_path: "index"), class: nav_item_class(active: current_path.starts_with?("/docs"))
               end
             end
 
@@ -23,12 +23,12 @@ class Navbar < BaseComponent
               if search_scope == "topics" && current_user
                 render_search_button
               else
-                link "社区", to: Forum::Index, class: nav_item_class(active: current_path.starts_with?("/forum"))
+                link r("common.community").t, to: Forum::Index, class: nav_item_class(active: current_path.starts_with?("/forum"))
               end
             end
 
             li do
-              a "本站源码", href: "https://github.com/crystal-china/website", class: nav_item_class
+              a r(".source").t, href: "https://github.com/crystal-china/website", class: nav_item_class
             end
 
             me = current_user
@@ -38,8 +38,8 @@ class Navbar < BaseComponent
                 mount Navbar::UserMenu, current_user: me
               end
             else
-              li { link "注册", to: SignUps::New, class: nav_item_class(active: current_path == SignUps::New.path) }
-              li { link "登录", to: SignIns::New.with(return_to: context.request.resource), class: nav_item_class(active: current_path == SignIns::New.path) }
+              li { link r("common.sign_up").t, to: SignUps::New, class: nav_item_class(active: current_path == SignUps::New.path) }
+              li { link r("common.sign_in").t, to: SignIns::New.with(return_to: context.request.resource), class: nav_item_class(active: current_path == SignIns::New.path) }
             end
           end
         end
@@ -49,7 +49,7 @@ class Navbar < BaseComponent
 
   private def render_search_button : Nil
     button(
-      "搜索",
+      r("common.search").t,
       type: "button",
       class: nav_item_class(active: true),
       script: "on click call #search_dialog.showModal()"

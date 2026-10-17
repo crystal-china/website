@@ -24,12 +24,12 @@ add @hidden to me
 remove @hidden from the next <button/>
 HEREDOC
         ) do
-          text "加载子评论，共 #{comment.descendants_count} 条"
-          mount Shared::Spinner, text: "正在读取评论...", width: "10px"
+          text r(".expand").t(count: comment.descendants_count)
+          mount Shared::Spinner, text: r("common.loading_comments").t, width: "10px"
         end
 
         button(
-          "折叠子评论",
+          r(".collapse").t,
           type: "button",
           attrs: expanded? ? [] of Symbol : [:hidden],
           class: button_class,

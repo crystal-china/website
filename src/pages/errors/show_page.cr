@@ -6,10 +6,10 @@ class Errors::ShowPage
 
   def render : Nil
     html_doctype
-    html lang: "en" do
+    html lang: Rosetta.locale do
       head do
         utf8_charset
-        title "Something went wrong"
+        title r(".page_title").t
         load_lato_font
         normalize_styles
         error_page_styles
@@ -22,7 +22,7 @@ class Errors::ShowPage
 
           ul class: "helpful-links" do
             li do
-              a "Try heading back to home", href: "/", class: "helpful-link"
+              a r(".back_home").t, href: "/", class: "helpful-link"
             end
           end
         end

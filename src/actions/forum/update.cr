@@ -8,7 +8,7 @@ class Forum::Update < ForumAction
 
     UpdateTopic.update(topic, params, content: content, actor_id: current_user.id) do |operation, _updated_topic|
       if operation.saved?
-        flash.success = "主题已更新"
+        flash.success = r(".topic_updated").t
 
         redirect Forum::Show.with(id: topic.id)
       else

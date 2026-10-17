@@ -7,7 +7,7 @@ class RemoveUserPassword < User::SaveOperation
     if (id = actor_id.value) && UserQuery.find(id).admin?
       encrypted_password.value = nil
     else
-      actor_id.add_error Rosetta.find("avram.errors.admin_required").t
+      actor_id.add_error r("validations.admin_required").t
     end
   end
 

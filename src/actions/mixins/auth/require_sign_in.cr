@@ -10,7 +10,7 @@ module Auth::RequireSignIn
       head 401
     else
       Authentic.remember_requested_path(self)
-      flash.info = "请首先登录"
+      flash.info = r("auth.require_sign_in.sign_in_required").t
       redirect to: SignIns::New
     end
   end

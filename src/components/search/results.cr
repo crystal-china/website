@@ -5,11 +5,11 @@ class Search::Results < BaseComponent
 
   def render : Nil
     if query.empty?
-      para "输入关键词开始搜索。", class: "m-0 px-4 py-6 text-center text-sm text-gray-500"
+      para r("common.search_hint").t, class: "m-0 px-4 py-6 text-center text-sm text-gray-500"
     elsif too_short?
-      para "关键词太短，请继续输入。", class: "m-0 px-4 py-6 text-center text-sm text-gray-500"
+      para r(".too_short").t, class: "m-0 px-4 py-6 text-center text-sm text-gray-500"
     elsif matches.empty?
-      para "没有找到匹配的内容。", class: "m-0 px-4 py-6 text-center text-sm text-gray-500"
+      para r(".no_matches").t, class: "m-0 px-4 py-6 text-center text-sm text-gray-500"
     else
       ul class: "m-0 list-none divide-y divide-gray-200 p-0" do
         matches.each do |match|

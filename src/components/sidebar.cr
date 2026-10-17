@@ -30,7 +30,7 @@ class Sidebar < BaseComponent
   end
 
   def render : Nil
-    h1 "目录", class: "my-4 text-[2em] leading-tight font-bold tracking-tight"
+    h1 r(".title").t, class: "my-4 text-[2em] leading-tight font-bold tracking-tight"
 
     nav do
       ul role: "nested-list" do
@@ -86,7 +86,7 @@ class Sidebar < BaseComponent
 
   private def render_current_user_name(user) : Nil
     div class: "min-w-0 space-y-1 text-sm" do
-      div "当前用户", class: "text-xs tracking-wide text-gray-500"
+      div r(".current_user").t, class: "text-xs tracking-wide text-gray-500"
       mount Shared::UserName, user: user, stacked: true
     end
   end

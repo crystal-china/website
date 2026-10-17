@@ -390,7 +390,7 @@ zh-CN:
 
   shared:
     layout_head:
-      image_description: Crystal China 中文社区
+      image_description: Crystal 中文社区
     online_users:
       online: 在线用户 %{users} 人, 游客 %{guests} 人
     user_profile_form:

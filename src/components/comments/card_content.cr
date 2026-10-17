@@ -30,27 +30,27 @@ class Comments::CardContent < BaseComponent
 
       div class: "flex shrink-0 items-center gap-2 text-xs leading-none" do
         a(
-          TimeInWords::Helpers(TimeInWords::I18n::ZH_CN).from(past_time: comment.created_at),
+          relative_time(comment.created_at),
           href: "#comment-#{comment.id}",
           class: "inline-flex items-center text-sky-700 underline decoration-dotted underline-offset-2"
         )
 
         if (edited_at = comment.edited_at)
           span(
-            "已编辑于 #{TimeInWords::Helpers(TimeInWords::I18n::ZH_CN).from(past_time: edited_at)}",
+            r(".edited_at").t(time: relative_time(edited_at)),
             class: "text-gray-500",
             title: edited_at.to_local.to_s("%Y-%m-%d %H:%M:%S")
           )
         end
 
-        span "#{comment.floor} 楼", class: "inline-flex items-center rounded-full border border-gray-300 bg-white px-2.5 py-0.5 font-medium text-gray-800"
+        span r(".floor").t(floor: comment.floor.to_s), class: "inline-flex items-center rounded-full border border-gray-300 bg-white px-2.5 py-0.5 font-medium text-gray-800"
 
         if show_update_success?
           output(
             class: "text-xs font-medium text-green-600",
             script: "init transition my opacity to 0% over 3 seconds"
           ) do
-            text "更新成功"
+            text r(".updated").t
           end
         end
       end
@@ -68,12 +68,12 @@ class Comments::CardContent < BaseComponent
     div class: "order-3 min-w-0 basis-full self-center px-2 text-center text-xs font-medium text-green-700 sm:order-none sm:flex-1 sm:basis-auto" do
       if parent_comment && !parent_comment.soft_deleted?
         a(
-          "回复 #{parent_comment.floor} 楼 @#{parent_comment.user.login_name}",
+          r(".reply_to").t(floor: parent_comment.floor.to_s, login_name: parent_comment.user.login_name),
           href: "#comment-#{parent_comment.id}",
           class: "inline-block truncate underline decoration-dotted underline-offset-2 hover:text-green-800"
         )
       else
-        text "回复已删除的评论"
+        text r(".reply_to_deleted").t
       end
     end
   end

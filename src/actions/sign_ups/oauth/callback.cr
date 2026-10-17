@@ -31,10 +31,10 @@ class SignUps::Oauth::Callback < BrowserAction
     SaveUserAudit.create!(user_id: user.id, kind: UserAudit::Kind::OauthSignedIn, provider: provider)
 
     if first_oauth_sign_in && user.encrypted_password
-      flash.info = "此账号已设置本站密码。如果不是你本人设置，请前往个人设置修改密码。"
+      flash.info = r(".password_warning").t
     end
 
-    flash.success = "登录成功"
+    flash.success = r(".signed_in").t
 
     sign_in(user)
 

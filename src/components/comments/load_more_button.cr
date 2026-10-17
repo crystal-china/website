@@ -12,11 +12,11 @@ class Comments::LoadMoreButton < BaseComponent
           hx_target: "closest div",
           hx_swap: "outerHTML",
         ) do
-          text "加载更多评论"
-          mount Shared::Spinner, text: "正在读取评论..."
+          text r(".load_more").t
+          mount Shared::Spinner, text: r("common.loading_comments").t
         end
       else
-        span "没有更多评论了", class: "text-base text-gray-500"
+        span r(".no_more").t, class: "text-base text-gray-500"
       end
     end
   end

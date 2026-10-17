@@ -10,7 +10,7 @@ module Auth::PasswordResets::RequireToken
     if Authentic.valid_password_reset_token?(user, token)
       continue
     else
-      flash.failure = "密码重置链接已过期，请重新发送"
+      flash.failure = r("auth.password_resets.require_token.expired").t
       redirect to: PasswordResetRequests::New
     end
   end

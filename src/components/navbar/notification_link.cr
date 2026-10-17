@@ -5,7 +5,7 @@ class Navbar::NotificationLink < BaseComponent
     return if user.nil?
 
     unread_count = NotificationQuery.new.user_id(user.id).read_at.is_nil.select_count
-    label = unread_count > 0 ? "#{unread_count} 条未读通知" : "通知"
+    label = unread_count > 0 ? r(".unread_count").t(count: unread_count) : r("common.notifications").t
 
     span id: "notification-status", class: "inline-flex" do
       button(

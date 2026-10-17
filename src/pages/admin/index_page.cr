@@ -7,34 +7,32 @@ class Admin::IndexPage < AdminLayout
   needs recent_topics : Array(Topic)
 
   def page_title : String
-    "后台概览"
+    r(".page_title").t
   end
 
   def admin_content : Nil
-    time_in_words = TimeInWords::Helpers(TimeInWords::I18n::ZH_CN)
-
     header class: "mb-6" do
-      h2 "概览", class: "m-0 text-2xl font-semibold tracking-tight text-gray-900"
-      para "查看站点当前的数据规模和最近内容。", class: "mt-1.5 mb-0 text-sm text-gray-600"
+      h2 r("common.dashboard").t, class: "m-0 text-2xl font-semibold tracking-tight text-gray-900"
+      para r(".description").t, class: "mt-1.5 mb-0 text-sm text-gray-600"
     end
 
-    section class: "grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5", "aria-label": "站点统计" do
-      render_stat "用户", users_count
-      render_stat "文档", docs_count
-      render_stat "主题", topics_count
-      render_stat "评论", comments_count
-      render_stat "节点", nodes_count
+    section class: "grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5", "aria-label": r(".statistics").t do
+      render_stat r("common.users").t, users_count
+      render_stat r("common.docs").t, docs_count
+      render_stat r("common.topic").t, topics_count
+      render_stat r("common.comment").t, comments_count
+      render_stat r("common.node").t, nodes_count
     end
 
     div class: "mt-8 grid gap-6 xl:grid-cols-[minmax(0,1fr)_18rem]" do
       section class: "app-panel overflow-hidden", "aria-labelledby": "recent-topics-title" do
         header class: "panel-header flex items-center justify-between gap-4" do
-          h3 "最近主题", id: "recent-topics-title", class: "m-0 text-lg font-semibold text-gray-900"
-          link "查看全部", to: Forum::Index, class: "text-sm font-medium text-[#145591] no-underline hover:underline"
+          h3 r(".recent_topics").t, id: "recent-topics-title", class: "m-0 text-lg font-semibold text-gray-900"
+          link r(".view_all").t, to: Forum::Index, class: "text-sm font-medium text-[#145591] no-underline hover:underline"
         end
 
         if recent_topics.empty?
-          para "还没有主题。", class: "m-0 px-6 py-10 text-center text-sm text-gray-500"
+          para r("common.no_topics").t, class: "m-0 px-6 py-10 text-center text-sm text-gray-500"
         else
           ul class: "m-0 list-none divide-y divide-gray-200 p-0" do
             recent_topics.each do |topic|
@@ -45,7 +43,7 @@ class Admin::IndexPage < AdminLayout
                   span class: "h-2.5 w-2.5 rounded-full", style: "background-color: #{topic.node.color}"
                   text "#{topic.node.name} · "
                   mount Shared::UserName, user: topic.user
-                  text " · #{time_in_words.from(past_time: topic.created_at)}"
+                  text " · #{relative_time(topic.created_at)}"
                 end
               end
             end
@@ -54,13 +52,13 @@ class Admin::IndexPage < AdminLayout
       end
 
       aside class: "app-panel p-6", "aria-labelledby": "quick-actions-title" do
-        h3 "快捷操作", id: "quick-actions-title", class: "m-0 text-lg font-semibold text-gray-900"
+        h3 r(".quick_actions").t, id: "quick-actions-title", class: "m-0 text-lg font-semibold text-gray-900"
 
-        nav class: "mt-4", "aria-label": "后台快捷操作" do
+        nav class: "mt-4", "aria-label": r(".quick_actions_navigation").t do
           ul class: "m-0 list-none space-y-3 p-0" do
-            li { link "新增节点", to: Admin::Nodes::New, class: "form-secondary w-full" }
-            li { link "管理节点", to: Admin::Nodes::Index, class: "form-secondary w-full" }
-            li { link "发布主题", to: Forum::New, class: "form-secondary w-full" }
+            li { link r("common.new_node").t, to: Admin::Nodes::New, class: "form-secondary w-full" }
+            li { link r(".manage_nodes").t, to: Admin::Nodes::Index, class: "form-secondary w-full" }
+            li { link r("common.new_topic").t, to: Forum::New, class: "form-secondary w-full" }
           end
         end
       end

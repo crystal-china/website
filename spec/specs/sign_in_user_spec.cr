@@ -18,7 +18,7 @@ describe SignInUser do
     [{"Billy", "wrong"}, {"DisplayName", "password"}, {"MissingUser", "password"}, {"missing@example.com", "password"}, {"", "password"}, {"Billy", ""}].each do |login, password|
       SignInUser.run(login: login, password: password) do |operation, authenticated_user|
         authenticated_user.should be_nil
-        operation.errors[:login].should eq([Rosetta.find("avram.errors.credentials_incorrect").t])
+        operation.errors[:login].should eq([Rosetta.find("validations.credentials_incorrect").t])
       end
     end
   end

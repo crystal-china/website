@@ -24,9 +24,9 @@ class TableSchedulerCell < BaseComponent
           available? ? "🟢" : "🔴",
           type: "button",
           class: "block w-full",
-          "aria-label": "修改 #{date} #{hour}:00 的预约",
+          "aria-label": r(".edit_reservation").t(date: date, hour: hour),
           hx_post: Htmx::HourlySchedule.path_without_query_params,
-          hx_prompt: "修改预约（#{date} #{hour}:00）",
+          hx_prompt: r(".reservation_prompt").t(date: date, hour: hour),
           hx_target: "closest td",
           hx_swap: "outerHTML",
           hx_vals: %({"date": "#{date}", "hour": "#{hour}"})

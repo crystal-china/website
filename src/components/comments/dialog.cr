@@ -23,7 +23,7 @@ HYPER
 on closeRequested
   set textarea to the first <textarea/> in me
   if textarea and textarea.value is not textarea.defaultValue
-    answer "内容尚未保存，确定放弃修改吗？" with true or false
+    answer #{r("common.discard_changes").t.to_json} with true or false
     if the result
       close me
     end

@@ -7,6 +7,6 @@ class PasswordResetRequestEmail < BaseEmail
   end
 
   to @user
-  subject "重置你的密码"
+  subject r(".subject").t
   templates html, text
 end

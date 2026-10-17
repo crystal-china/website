@@ -16,9 +16,9 @@ end
 HYPER
     ) do
       header class: "flex items-center justify-between gap-3 border-b border-gray-200 p-4" do
-        h2 "通知", id: "notifications-title", class: "m-0 text-base font-semibold text-gray-900"
+        h2 r("common.notifications").t, id: "notifications-title", class: "m-0 text-base font-semibold text-gray-900"
         button(
-          "关闭",
+          r("common.close").t,
           type: "button",
           class: "cursor-pointer text-sm text-gray-500 hover:text-gray-900",
           script: "on click close the closest <dialog/>"
@@ -30,7 +30,7 @@ HYPER
         class: "max-h-[60vh] overflow-y-auto",
         "aria-live": "polite"
       ) do
-        para "正在读取通知...", class: "m-0 px-4 py-6 text-center text-sm text-gray-500"
+        para r(".loading").t, class: "m-0 px-4 py-6 text-center text-sm text-gray-500"
       end
     end
   end

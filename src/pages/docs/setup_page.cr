@@ -2,17 +2,17 @@ class Docs::SetupPage < MainLayout
   needs missing_files : Array(String)
 
   def page_title : String
-    "Documentation setup"
+    r(".page_title").t
   end
 
   def content : Nil
     section class: "#{page_container_classes} py-10" do
       article class: "prose-neutral mx-auto max-w-3xl prose" do
-        h1 "Set up your documentation"
-        para "Documentation files live outside the application binary. Create the files below manually, or let an administrator generate the starter files."
-        para "Paths are relative to the server's working directory, not the binary's location. For example, if you start ./bin/crystal_china from the project root, use public/markdowns/ inside that root."
+        h1 r(".heading").t
+        para r(".introduction").t
+        para r(".working_directory").t
 
-        h2 "Missing files"
+        h2 r(".missing_files").t
 
         ul do
           missing_files.each do |path|
@@ -24,36 +24,36 @@ class Docs::SetupPage < MainLayout
 
         if (me = current_user) && me.admin?
           form_for Admin::Docs::Create do
-            submit "Generate starter files", class: "form-submit"
+            submit r(".generate").t, class: "form-submit"
           end
-          para "Only missing files are created. Existing files, including an empty navigation.yml, are never overwritten."
+          para r(".never_overwrite").t
         else
-          para "Automatic generation is available to administrators only. Configure ADMIN_EMAILS in the server environment and sign in with a listed account. You can also create the files manually."
+          para r(".admin_help").t
 
           unless current_user
-            link "Sign in", to: SignIns::New.with(return_to: current_path), class: "form-submit"
+            link r("common.sign_in").t, to: SignIns::New.with(return_to: current_path), class: "form-submit"
           end
         end
 
-        h2 "1. Create navigation.yml"
-        para "This YAML file is a list of pages. Each entry needs a path and a title. The path is a /docs/ URL without the .md extension. List order controls the previous/next page links; children can be used to group pages in the sidebar."
+        h2 r(".navigation_heading").t
+        para r(".navigation_help").t
 
         pre do
           code DocSetup::FILES[DocNavigation::CONFIG_PATH]
         end
 
-        para "An empty file or [] is also valid: documents remain accessible, but have no sidebar or previous/next page links. Titles can then come from the Markdown front matter."
+        para r(".empty_navigation").t
 
-        h2 "2. Create index.md"
-        para "This is the documentation home page at /docs/index. The optional YAML front matter between --- lines defines its title and subtitle. Everything after it is Markdown. When a page is in navigation.yml, that file's title takes precedence."
+        h2 r(".index_heading").t
+        para r(".index_help").t
 
         pre do
           code DocSetup::FILES["public/markdowns/index.md"]
         end
 
-        h2 "3. Add more documents"
-        para "For example, create public/markdowns/guide.md to publish /docs/guide. Subdirectories work too: public/markdowns/install/linux.md is available at /docs/install/linux."
-        para "To add a page to the sidebar and pager, append an entry to navigation.yml:"
+        h2 r(".more_heading").t
+        para r(".more_help").t
+        para r(".sidebar_help").t
 
         pre do
           code <<-YAML
@@ -62,11 +62,11 @@ class Docs::SetupPage < MainLayout
             YAML
         end
 
-        para "A Markdown file not listed in navigation.yml is still directly accessible and searchable. A navigation entry alone does not create its Markdown file."
+        para r(".unlisted_help").t
 
-        h2 "4. Apply changes"
-        para "After creating or editing these files, refresh the document page. No application rebuild or restart is required. For a remote deployment, synchronize public/markdowns/ to the server first."
-        para "Viewing a document syncs its content into the database for search. To sync all documents at once, run bin/tasks db.sync_doc_content from the project root with the site's database configuration."
+        h2 r(".apply_heading").t
+        para r(".refresh_help").t
+        para r(".search_help").t
       end
     end
   end

@@ -2,17 +2,17 @@ class Admin::Nodes::IndexPage < AdminLayout
   needs nodes : Array(Node)
 
   def page_title : String
-    "节点管理"
+    r("common.nodes").t
   end
 
   def admin_content : Nil
     header class: "mb-6 flex flex-wrap items-center justify-between gap-4" do
       div do
-        h2 "节点管理", class: "m-0 text-2xl font-semibold tracking-tight text-gray-900"
-        para "节点决定社区主题的分类和显示顺序。", class: "mt-1.5 mb-0 text-sm text-gray-600"
+        h2 r("common.nodes").t, class: "m-0 text-2xl font-semibold tracking-tight text-gray-900"
+        para r(".description").t, class: "mt-1.5 mb-0 text-sm text-gray-600"
       end
 
-      link "新增节点", to: Admin::Nodes::New, class: "form-submit"
+      link r("common.new_node").t, to: Admin::Nodes::New, class: "form-submit"
     end
 
     div class: "app-panel overflow-hidden" do
@@ -20,11 +20,11 @@ class Admin::Nodes::IndexPage < AdminLayout
         table class: "w-full border-collapse text-left text-sm" do
           thead class: "bg-gray-50 text-xs font-semibold tracking-wide text-gray-600 uppercase" do
             tr do
-              th "节点", class: "px-5 py-3"
-              th "路径标识", class: "px-5 py-3"
-              th "简介", class: "px-5 py-3"
-              th "排序", class: "px-5 py-3 text-right"
-              th "操作", class: "px-5 py-3 text-right"
+              th r("common.node").t, class: "px-5 py-3"
+              th r("fields.slug").t, class: "px-5 py-3"
+              th r("fields.summary").t, class: "px-5 py-3"
+              th r(".order").t, class: "px-5 py-3 text-right"
+              th r(".actions").t, class: "px-5 py-3 text-right"
             end
           end
 
@@ -41,7 +41,7 @@ class Admin::Nodes::IndexPage < AdminLayout
                 td node.summary, class: "max-w-md px-5 py-4 text-gray-600"
                 td node.position.to_s, class: "px-5 py-4 text-right tabular-nums text-gray-700"
                 td class: "px-5 py-4 text-right" do
-                  link "编辑", to: Admin::Nodes::Edit.with(id: node.id), class: "form-secondary px-3 py-1.5"
+                  link r("common.edit").t, to: Admin::Nodes::Edit.with(id: node.id), class: "form-secondary px-3 py-1.5"
                 end
               end
             end

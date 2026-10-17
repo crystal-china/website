@@ -4,7 +4,7 @@ class Home::IndexPage < MainLayout
 
     div class: page_container_classes do
       header class: "flex flex-col items-center" do
-        h1 "The Crystal programming language 中文站", class: "mt-10 mb-4 text-center text-[2em] leading-tight font-bold tracking-tight"
+        h1 r(".heading").t, class: "mt-10 mb-4 text-center text-[2em] leading-tight font-bold tracking-tight"
 
         div(
           class: "latest-release-info",
@@ -13,8 +13,8 @@ class Home::IndexPage < MainLayout
           hx_swap: "outerHTML",
         ) do
           span class: "inline-flex items-center gap-2" do
-            text "Latest release:"
-            mount Shared::Spinner, text: "获取最新版本...", width: "10px"
+            text r(".latest_release").t
+            mount Shared::Spinner, text: r(".loading_release").t, width: "10px"
           end
         end
 
@@ -31,19 +31,19 @@ class Home::IndexPage < MainLayout
       end
 
       # 使用 CSS Grid 布局。子元素不再按普通文档流堆叠，而是放进网格里。
-      nav "aria-label": "常用站点链接", class: "mb-10 grid w-full grid-cols-1 items-start gap-x-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[repeat(5,max-content)] xl:justify-between" do
+      nav "aria-label": r(".links").t, class: "mb-10 grid w-full grid-cols-1 items-start gap-x-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[repeat(5,max-content)] xl:justify-between" do
         section do
-          h2 "Official", class: link_group_heading_classes
+          h2 r(".official").t, class: link_group_heading_classes
           ul do
-            li { normal_link("https://www.crystal-lang.org", "Crystal website") }
+            li { normal_link("https://www.crystal-lang.org", r(".crystal_website").t) }
             li { github_icon_link("https://github.com/crystal-lang", "Crystal lang") }
-            li { normal_link "https://forum.crystal-lang.org", "Crystal forum" }
-            li { normal_link "https://play.crystal-lang.org/", "Play Crystal online" }
+            li { normal_link "https://forum.crystal-lang.org", r(".crystal_forum").t }
+            li { normal_link "https://play.crystal-lang.org/", r(".playground").t }
           end
         end
 
         section do
-          h2 "Docs", class: link_group_heading_classes
+          h2 r(".docs").t, class: link_group_heading_classes
           ul do
             li { normal_link "https://crystal-lang.org/api/latest/", "API document" }
             li { normal_link "https://devdocs.io/crystal", "devdocs Crystal" }
@@ -53,7 +53,7 @@ class Home::IndexPage < MainLayout
         end
 
         section do
-          h2 "Packages", class: link_group_heading_classes
+          h2 r(".packages").t, class: link_group_heading_classes
           ul do
             li { normal_link "https://shards.info/", "shards.info" }
             li { normal_link "https://shardbox.org/", "shardbox.org" }
@@ -61,7 +61,7 @@ class Home::IndexPage < MainLayout
         end
 
         section do
-          h2 "Organizations", class: link_group_heading_classes
+          h2 r(".organizations").t, class: link_group_heading_classes
           ul do
             li { github_icon_link("https://github.com/veelenga/awesome-crystal", "Awesome Crystal") }
             li { github_icon_link("https://github.com/crystal-ameba", "Crystal ameba") }
@@ -75,7 +75,7 @@ class Home::IndexPage < MainLayout
         end
 
         section do
-          h2 "Chat", class: link_group_heading_classes
+          h2 r(".chat").t, class: link_group_heading_classes
           ul do
             li { normal_link "https://discord.gg/YS7YvQy", "Discord", target: "_blank" }
             li { normal_link "https://www.reddit.com/r/crystal_programming/", "Reddit" }

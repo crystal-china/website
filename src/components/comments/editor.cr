@@ -32,14 +32,14 @@ class Comments::Editor < BaseComponent
       div class: "panel-toolbar doc-form-toolbar grid gap-4 p-4 md:grid-cols-[auto_1fr_auto] md:items-center" do
         div class: "segmented-control" do
           label(
-            "输入",
+            r(".write").t,
             for: id_input,
             flow_id: "#{html_id}-input_comment",
             class: "segmented-option label1 cursor-pointer"
           )
 
           label(
-            "预览",
+            r(".preview").t,
             for: id_preview,
             flow_id: "#{html_id}-preview_comment",
             class: "segmented-option label2 cursor-pointer",
@@ -62,7 +62,7 @@ HEREDOC
         end
 
         output class: "text-center text-base font-semibold text-gray-900 md:px-4" do
-          text me.nil? ? "登录后添加评论" : "支持 markdown 格式"
+          text me.nil? ? r(".sign_in_to_comment").t : r(".markdown_supported").t
         end
 
         div class: "flex items-center justify-end gap-2" do
@@ -79,7 +79,7 @@ HEREDOC
       end
 
       para(
-        "最多提及 #{UserMarkdownParser::MAX_MENTIONS} 个用户，超出部分不发送通知。",
+        r(".mention_limit").t(count: UserMarkdownParser::MAX_MENTIONS),
         id: "#{html_id}_mention_help",
         class: "m-0 border-t border-gray-100 px-4 py-2 text-xs text-gray-500"
       )
@@ -93,7 +93,7 @@ HEREDOC
       id:                 "#{html_id}_text_area",
       rows:               5,
       name:               "content",
-      placeholder:        "支持 Markdown；输入 @用户名 前缀可自动补全",
+      placeholder:        r(".placeholder").t,
       "aria-describedby": "#{html_id}_mention_help",
       required:           "",
       data_mentions_url:  Htmx::Mentions.path,
@@ -110,7 +110,7 @@ HEREDOC
   private def render_preview(editor_height : String) : Nil
     div id: "#{html_id}_preview", class: "#{editor_height} overflow-y-auto rounded-xl border border-gray-200 bg-gray-50/60 px-4 py-3" do
       div class: "markdown-preview"
-      mount Shared::Spinner, text: "正在预览..."
+      mount Shared::Spinner, text: r(".preview_loading").t
     end
   end
 end

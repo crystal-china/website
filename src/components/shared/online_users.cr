@@ -3,7 +3,7 @@ class Shared::OnlineUsers < BaseComponent
   needs guest_count : Int32
 
   def render : Nil
-    text "在线用户 #{user_count} 人, 游客 #{guest_count} 人"
+    text r(".online").t(users: user_count.to_s, guests: guest_count.to_s)
 
     return if current_user.nil?
 

@@ -19,7 +19,7 @@ class Pager < BaseComponent
 
         strong class: "ml-2" do
           if prev_page.path == current_page.path
-            text "没有上一页了"
+            text r(".no_previous").t
           else
             a prev_page.title, href: prev_page.path
           end
@@ -33,7 +33,7 @@ class Pager < BaseComponent
       div class: "flex w-full items-center justify-end sm:w-auto" do
         strong class: "mr-2" do
           if next_page.path == current_page.path
-            text "没有下一页了"
+            text r(".no_next").t
           else
             a next_page.title, href: next_page.path
           end

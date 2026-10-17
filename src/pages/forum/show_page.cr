@@ -10,8 +10,6 @@ class Forum::ShowPage < ForumLayout
   end
 
   def forum_content : Nil
-    time_in_words = TimeInWords::Helpers(TimeInWords::I18n::ZH_CN)
-
     article class: "mx-auto w-full max-w-[90ch]" do
       header class: "border-b border-gray-200 pb-5" do
         div class: "flex items-start gap-4" do
@@ -20,16 +18,16 @@ class Forum::ShowPage < ForumLayout
           if (me = current_user)
             div class: "flex shrink-0 items-center gap-2" do
               if me.id == topic.user_id || me.admin?
-                link "编辑", to: Forum::Edit.with(id: topic.id), class: "action-button action-button-neutral h-8"
+                link r("common.edit").t, to: Forum::Edit.with(id: topic.id), class: "action-button action-button-neutral h-8"
               end
 
               if can_delete_topic?
                 button(
-                  "删除",
+                  r("common.delete").t,
                   type: "button",
                   class: "action-button action-button-danger h-8",
                   hx_delete: Forum::Delete.with(id: topic.id).path,
-                  hx_confirm: "删除后，主题及其评论将不可见。确定继续？",
+                  hx_confirm: r(".confirm_delete").t,
                   hx_disable: "this"
                 )
               end
@@ -47,14 +45,14 @@ class Forum::ShowPage < ForumLayout
           mount Shared::UserName, user: topic.user
           text " · "
           span(
-            "发布于 #{time_in_words.from(past_time: topic.created_at)}",
+            r(".posted_at").t(time: relative_time(topic.created_at)),
             title: topic.created_at.to_local.to_s("%Y-%m-%d %H:%M:%S")
           )
 
           if (edited_at = topic.edited_at)
             text " · "
             span(
-              "编辑于 #{time_in_words.from(past_time: edited_at)}",
+              r(".edited_at").t(time: relative_time(edited_at)),
               title: edited_at.to_local.to_s("%Y-%m-%d %H:%M:%S")
             )
           end

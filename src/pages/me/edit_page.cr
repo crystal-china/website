@@ -3,7 +3,7 @@ class Me::EditPage < MainLayout
   needs password_changed_at : Time?
 
   def page_title : String
-    "编辑我的信息"
+    r(".page_title").t
   end
 
   def content : Nil

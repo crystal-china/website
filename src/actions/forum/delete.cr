@@ -12,7 +12,7 @@ class Forum::Delete < BrowserAction
     end
 
     DeleteTopic.delete!(topic, actor_id: me.id)
-    flash.success = "主题已删除"
+    flash.success = r(".topic_deleted").t
 
     if context.request.headers["HX-Request"]?
       context.response.headers["HX-Redirect"] = Forum::Index.path

@@ -7,10 +7,10 @@ class Comments::Toolbar < BaseComponent
     unselected = "segmented-option"
 
     div class: "mt-4 flex items-center justify-between gap-4" do
-      span "共 #{pagination[:count]} 条回复", id: "#{html_id}-count", class: "text-base font-medium text-gray-900"
+      span r(".reply_count").t(count: pagination[:count]), id: "#{html_id}-count", class: "text-base font-medium text-gray-900"
 
       div class: "segmented-control" do
-        [{"最早", "asc"}, {"最新", "desc"}].each do |title, order|
+        [{r(".oldest").t, "asc"}, {r(".newest").t, "desc"}].each do |title, order|
           a(
             title,
             class: pagination[:order_by] == order ? selected : unselected,

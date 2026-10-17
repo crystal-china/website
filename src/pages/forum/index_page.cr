@@ -4,15 +4,14 @@ class Forum::IndexPage < ForumLayout
   needs node : Node? = nil
 
   def page_title : String
-    node.try { |current_node| "#{current_node.name} - 社区" } || "社区"
+    node.try { |current_node| r(".node_title").t(name: current_node.name) } || r("common.community").t
   end
 
   def forum_content : Nil
-    time_in_words = TimeInWords::Helpers(TimeInWords::I18n::ZH_CN)
     current_topics = topics.results
     current_node = node
-    heading = current_node.try(&.name) || "社区"
-    description = current_node.try(&.summary) || "讨论 Crystal 语言及其生态。"
+    heading = current_node.try(&.name) || r("common.community").t
+    description = current_node.try(&.summary) || r(".description").t
 
     header class: "mb-8 flex flex-wrap items-center justify-between gap-4" do
       div do
@@ -20,23 +19,23 @@ class Forum::IndexPage < ForumLayout
         para description, class: "mt-2 mb-0 text-sm text-gray-600"
       end
 
-      link "发布主题", to: Forum::New, class: "form-submit" if current_user
+      link r("common.new_topic").t, to: Forum::New, class: "form-submit" if current_user
     end
 
-    render_topic_list(current_topics, time_in_words)
+    render_topic_list(current_topics)
   end
 
   private def current_node : Node?
     node
   end
 
-  private def render_topic_list(current_topics : Array(Topic), time_in_words) : Nil
+  private def render_topic_list(current_topics : Array(Topic)) : Nil
     if current_topics.empty?
-      para "还没有主题。", class: "app-panel m-0 px-6 py-10 text-center text-gray-500"
+      para r("common.no_topics").t, class: "app-panel m-0 px-6 py-10 text-center text-gray-500"
     else
       div class: "app-panel divide-y divide-gray-200 overflow-hidden" do
         current_topics.each do |topic|
-          render_topic(topic, time_in_words)
+          render_topic(topic)
         end
       end
 
@@ -44,7 +43,7 @@ class Forum::IndexPage < ForumLayout
     end
   end
 
-  private def render_topic(topic : Topic, time_in_words) : Nil
+  private def render_topic(topic : Topic) : Nil
     article class: "flex flex-col gap-3 px-6 py-5 transition-colors hover:bg-gray-50 sm:flex-row sm:items-center" do
       div class: "min-w-0 flex-1" do
         h2 class: "m-0 text-lg font-semibold" do
@@ -55,30 +54,30 @@ class Forum::IndexPage < ForumLayout
           link(
             to: Forum::Index.with(node: topic.node.slug),
             title: topic.node.name,
-            "aria-label": "节点：#{topic.node.name}",
+            "aria-label": r(".node_label").t(name: topic.node.name),
             class: "inline-flex h-5 w-5 items-center justify-center rounded-full no-underline hover:bg-gray-200"
           ) do
             span class: "h-2.5 w-2.5 rounded-full", style: "background-color: #{topic.node.color}"
           end
           mount Shared::UserName, user: topic.user
-          text " 发布于 #{time_in_words.from(past_time: topic.created_at)}"
+          text r(".posted_at").t(time: relative_time(topic.created_at))
 
           if (edited_at = topic.edited_at)
-            text " · 编辑于 #{time_in_words.from(past_time: edited_at)}"
+            text r(".edited_at").t(time: relative_time(edited_at))
           end
         end
       end
 
       div class: "flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500 sm:shrink-0 sm:flex-col sm:items-end" do
-        span "#{topic.replies_count} 条回复", class: "font-medium text-gray-700"
+        span r(".reply_count").t(count: topic.replies_count), class: "font-medium text-gray-700"
         if (last_reply_user = topic.last_reply_user)
           span do
-            text "最后回复："
+            text r(".last_reply").t
             mount Shared::UserName, user: last_reply_user
           end
         end
         span(
-          "最后活跃于 #{time_in_words.from(past_time: topic.last_active_at)}",
+          r(".last_active_at").t(time: relative_time(topic.last_active_at)),
           title: topic.last_active_at.to_local.to_s("%Y-%m-%d %H:%M:%S")
         )
       end
@@ -86,19 +85,19 @@ class Forum::IndexPage < ForumLayout
   end
 
   private def render_pagination : Nil
-    nav class: "mt-6 flex items-center justify-center gap-4 text-sm", "aria-label": "社区分页" do
+    nav class: "mt-6 flex items-center justify-center gap-4 text-sm", "aria-label": r(".pagination").t do
       if (previous_path = pages.path_to_previous)
-        a "上一页", href: previous_path, class: "form-secondary"
+        a r("common.previous_page").t, href: previous_path, class: "form-secondary"
       else
-        span "上一页", class: "form-secondary cursor-not-allowed opacity-50"
+        span r("common.previous_page").t, class: "form-secondary cursor-not-allowed opacity-50"
       end
 
-      span "第 #{pages.page} / #{pages.total} 页", class: "text-gray-600"
+      span r("common.page_number").t(page: pages.page.to_s, total: pages.total.to_s), class: "text-gray-600"
 
       if (next_path = pages.path_to_next)
-        a "下一页", href: next_path, class: "form-secondary"
+        a r("common.next_page").t, href: next_path, class: "form-secondary"
       else
-        span "下一页", class: "form-secondary cursor-not-allowed opacity-50"
+        span r("common.next_page").t, class: "form-secondary cursor-not-allowed opacity-50"
       end
     end
   end

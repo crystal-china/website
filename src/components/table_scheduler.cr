@@ -17,12 +17,12 @@ class TableScheduler < BaseComponent
     div class: "table-container" do
       table do
         caption do
-          h3 "Hourly Availability table (#{year}/#{month})"
+          h3 r(".schedule_title").t(year: year.to_s, month: month.to_s)
         end
 
         thead do
           tr do
-            th "date\\hour", class: "text-[10px]"
+            th r(".date_hour").t, class: "text-[10px]"
             th "09:00"
             th "10:00"
             th "11:00"

@@ -14,7 +14,7 @@ class Comments::Form < BaseComponent
       html_id: html_id
     ) do
       me = current_user
-      text = "回复"
+      text = r("common.reply").t
       order_by_input_id = "#{html_id}_order_by"
       after_submit = htmx_success <<-HEREDOC
 set textarea to ##{html_id}_text_area
@@ -69,7 +69,7 @@ HEREDOC
               hx_target: "#comment-#{comment_id}-content",
               hx_swap: "outerHTML",
             )
-            text = "修改"
+            text = r("common.update").t
           end
         else
           # 为 CommentThread 新建顶级评论
@@ -82,7 +82,7 @@ HEREDOC
 
       if !comment_id.nil? && !me.nil?
         button(
-          "取消",
+          r("common.cancel").t,
           script: "on click send closeRequested to the closest <dialog/>",
           class: "form-secondary px-4 py-2"
         )

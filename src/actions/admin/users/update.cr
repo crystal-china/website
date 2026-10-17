@@ -5,7 +5,7 @@ class Admin::Users::Update < AdminAction
     UpdateUser.update(user, params, actor_id: current_user.id) do |op, updated_user|
       if op.saved?
         sign_in(updated_user.not_nil!) if current_user.id == user.id
-        flash.success = "个人资料已更新"
+        flash.success = r(".profile_updated").t
 
         redirect ::Users::Show.with(login_name: updated_user.not_nil!.login_name)
       else

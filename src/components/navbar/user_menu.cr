@@ -21,8 +21,8 @@ HYPER
     ) do
       summary(
         class: "nav-user-trigger",
-        title: "用户菜单",
-        "aria-label": "#{user.nickname} 的用户菜单",
+        title: r(".user_menu").t,
+        "aria-label": r(".named_user_menu").t(nickname: user.nickname),
         "aria-controls": "nav-user-panel"
       ) do
         span class: "relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-800 text-sm font-semibold text-white ring-1 ring-black/5" do
@@ -44,7 +44,7 @@ HYPER
       nav(
         id: "nav-user-panel",
         class: "nav-user-panel",
-        "aria-label": "账户操作"
+        "aria-label": r(".account_actions").t
       ) do
         div class: "nav-user-identity" do
           div class: "relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-800 text-base font-semibold text-white" do
@@ -60,15 +60,15 @@ HYPER
           end
         end
 
-        link "个人主页", to: Users::Show.with(login_name: user.login_name), class: menu_link_class
+        link r("common.profile").t, to: Users::Show.with(login_name: user.login_name), class: menu_link_class
 
         if user.admin?
-          link "管理后台", to: Admin::Index, class: menu_link_class(active: current_path.starts_with?("/admin"))
+          link r(".admin").t, to: Admin::Index, class: menu_link_class(active: current_path.starts_with?("/admin"))
         end
 
         div class: "mt-1 border-t border-gray-100 pt-1" do
           link(
-            "退出登录",
+            r("common.sign_out").t,
             to: SignIns::Delete,
             class: "nav-user-link nav-user-sign-out",
             flow_id: "sign-out-button",

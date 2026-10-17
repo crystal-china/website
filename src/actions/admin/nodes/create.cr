@@ -2,7 +2,7 @@ class Admin::Nodes::Create < AdminAction
   post "/admin/nodes" do
     SaveNode.create(params) do |operation, node|
       if node
-        flash.success = "节点已创建"
+        flash.success = r(".node_created").t
 
         redirect Admin::Nodes::Index
       else

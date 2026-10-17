@@ -4,7 +4,7 @@ class Admin::Users::EditPage < AdminLayout
   needs password_changed_at : Time?
 
   def page_title : String
-    "编辑 #{user.nickname} 的个人资料"
+    r(".page_title").t(nickname: user.nickname)
   end
 
   def admin_content : Nil
