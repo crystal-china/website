@@ -7,6 +7,7 @@ zh-CN:
     available: 是否可用
     avatar: 头像
     avatar_url: 头像链接
+    bio: 个人介绍
     captcha_code: 人机验证码
     changed_column_name: 变更字段
     children_count: 直接子评论数量
@@ -48,6 +49,7 @@ zh-CN:
     path_index: 文档路径
     position: 排序位置
     provider: 第三方登录平台
+    profile: 个人资料
     read_at: 阅读时间
     replies_count: 回复数量
     root_id: 根评论
@@ -56,6 +58,7 @@ zh-CN:
     soft_deleted_at: 删除时间
     source_title: 来源标题
     summary: 简介
+    tagline: 签名
     title: 标题
     to: 新值
     topic_id: 主题

@@ -38,6 +38,8 @@ class Shared::UserProfileForm < BaseComponent
             end
 
             mount Shared::Field, attribute: op.nickname, label_text: r("fields.nickname").t, &.text_input(placeholder: r(".nickname_placeholder").t)
+            mount Shared::Field, attribute: op.tagline, label_text: r("fields.tagline").t, &.text_input(placeholder: r(".tagline_placeholder").t, maxlength: User::Profile::MAX_TAGLINE_LENGTH)
+            mount Shared::Field, attribute: op.bio, label_text: r("fields.bio").t, &.textarea(rows: 5, maxlength: User::Profile::MAX_BIO_LENGTH)
             mount Shared::Field, attribute: op.avatar, label_text: r("fields.avatar_url").t, &.text_input(placeholder: "https://example.com/avatar.png", autofocus: true)
 
             div class: "grid gap-6 md:grid-cols-2" do

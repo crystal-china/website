@@ -5,7 +5,7 @@ class SaveUserAudit < UserAudit::SaveOperation
 
     if kind.value == UserAudit::Kind::ProfileChanged
       validate_required changed_column_name
-      validate_inclusion_of changed_column_name, in: ["nickname", "login_name", "avatar"]
+      validate_inclusion_of changed_column_name, in: ["nickname", "login_name", "avatar", "tagline", "bio"]
     elsif kind.value == UserAudit::Kind::OauthSignedIn
       validate_required provider
     end

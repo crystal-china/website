@@ -6,9 +6,16 @@ class UpdateUser < User::SaveOperation
   attribute password_confirmation : String
   attribute actor_id : Int64
 
+  # 默认值负责：打开编辑页时，从现有 JSONB 读取内容，填入表单
+  attribute tagline : String = record.try(&.profile.tagline)
+  attribute bio : String = record.try(&.profile.bio)
+
   before_save do
     validate_user_names
     validate_avatar_is_a_link
+    validate_size_of tagline, max: User::Profile::MAX_TAGLINE_LENGTH
+    validate_size_of bio, max: User::Profile::MAX_BIO_LENGTH
+    profile.value = User::Profile.new(tagline: tagline.value, bio: bio.value)
 
     actor = if (id = actor_id.value)
               UserQuery.find(id)
@@ -51,7 +58,7 @@ class UpdateUser < User::SaveOperation
 
       # Record only public profile changes. Do not audit credentials or future
       # private attributes by default.
-      next unless column_name.in? ["nickname", "login_name", "avatar"]
+      next unless column_name.in? ["nickname", "login_name"]
 
       SaveUserAudit.create!(
         user_id: saved_user.id,

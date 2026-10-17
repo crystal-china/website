@@ -24,6 +24,10 @@ class Forum::AuthorCard < BaseComponent
         end
       end
 
+      if (tagline = user.profile.tagline.presence)
+        para tagline, class: "mt-3 mb-0 break-words text-sm leading-6 text-gray-600"
+      end
+
       para r(".joined").t(date: user.created_at.to_local.to_s("%Y-%m-%d")), class: "mt-4 mb-0 text-xs text-gray-500"
 
       if (last_active_at = user.last_active_at)

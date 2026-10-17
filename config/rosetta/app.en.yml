@@ -389,12 +389,13 @@ en:
     online_users:
       online: 'Online: %{users} users, %{guests} guests'
     user_profile_form:
-      description: Update your nickname, avatar and password. Avatars currently require an HTTP or HTTPS image URL.
+      description: Update your public profile, avatar and password. Avatars currently require an HTTP or HTTPS image URL.
       login_name_placeholder: Used for @mentions
       login_name_help: Use 2–20 characters. Start with a letter, number or underscore and end with a letter or number. Separators (_, - and .) cannot be adjacent. Login names are unique regardless of case.
       admin_rename_help: Administrators can change login names beyond the first 7 days after registration.
       rename_help: You can change your login name only during the first 7 days after registration. Nicknames are not restricted.
       nickname_placeholder: Leave blank to use your login name
+      tagline_placeholder: A short sentence about yourself
       remove_password: Remove password
       password_placeholder: Leave blank to keep your password
       confirmation_placeholder: Enter the new password again

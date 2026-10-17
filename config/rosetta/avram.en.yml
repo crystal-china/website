@@ -7,6 +7,7 @@ en:
     available: Available
     avatar: Avatar
     avatar_url: Avatar URL
+    bio: Bio
     captcha_code: Captcha
     changed_column_name: Changed field
     children_count: Direct child comment count
@@ -48,6 +49,7 @@ en:
     path_index: Document path
     position: Position
     provider: OAuth provider
+    profile: Profile
     read_at: Read at
     replies_count: Reply count
     root_id: Root comment
@@ -56,6 +58,7 @@ en:
     soft_deleted_at: Deleted at
     source_title: Source title
     summary: Summary
+    tagline: Tagline
     title: Title
     to: New value
     topic_id: Topic

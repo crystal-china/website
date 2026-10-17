@@ -28,6 +28,10 @@ class Users::ShowPage < MainLayout
               h1 class: "m-0 text-2xl font-semibold tracking-tight text-gray-900" do
                 mount Shared::UserName, user: user, linked: false, stacked: true
               end
+
+              if (tagline = user.profile.tagline.presence)
+                para tagline, class: "mt-2 mb-0 break-words text-sm text-gray-500"
+              end
             end
 
             if (me = current_user) && (me.id == user.id || me.admin?)
@@ -35,6 +39,13 @@ class Users::ShowPage < MainLayout
                 link r("common.edit_profile").t, to: Users::Edit.with(id: user.id), class: "form-secondary"
                 link r("common.events").t, to: Me::Events.with(user_id: user.id), class: "form-secondary"
               end
+            end
+          end
+
+          if (bio = user.profile.bio.presence)
+            section class: "mt-8 border-t border-gray-100 pt-5" do
+              h2 r("fields.bio").t, class: "m-0 text-sm font-medium text-gray-500"
+              para bio, class: "mt-2 mb-0 whitespace-pre-line break-words text-sm leading-7 text-gray-700"
             end
           end
 
