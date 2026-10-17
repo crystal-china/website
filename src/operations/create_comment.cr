@@ -4,7 +4,7 @@ class CreateComment < Comment::SaveOperation
   before_save do
     if !id.value # 新建的时候
       if parent_id.value && comment_thread_id.value
-        add_error :comment_thread_id_or_parent_id, Rosetta.find("avram.errors.comment_target_conflict").t
+        add_error :comment_thread_id_or_parent_id, r("validations.comment_target_conflict").t
       end
 
       parent_id.value.try do |parent_id|

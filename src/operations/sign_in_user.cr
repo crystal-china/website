@@ -37,7 +37,7 @@ class SignInUser < Avram::Operation
   #    end
   private def validate_credentials(user) : Nil
     if user.nil? || !Authentic.correct_password?(user, password.value.to_s)
-      login.add_error Rosetta.find("avram.errors.credentials_incorrect").t
+      login.add_error r("validations.credentials_incorrect").t
     end
   end
 end

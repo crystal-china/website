@@ -5,7 +5,7 @@ module UserNameValidations
     validate_required nickname, login_name
     validate_format_of login_name,
       with: UserLoginName::FORMAT,
-      message: Rosetta.find("avram.errors.login_name_format").t
+      message: r("validations.login_name_format").t
     validate_size_of login_name, min: UserLoginName::MIN_LENGTH, max: UserLoginName::MAX_LENGTH
 
     return unless login_name.valid?

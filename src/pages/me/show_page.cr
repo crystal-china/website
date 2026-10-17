@@ -1,21 +1,21 @@
 class Me::ShowPage < MainLayout
   def content : Nil
-    h1 "This is your profile", class: "mt-10 mb-4 text-[2em] leading-tight font-bold tracking-tight"
+    h1 r(".page_title").t, class: "mt-10 mb-4 text-[2em] leading-tight font-bold tracking-tight"
     # h3 "Email:  #{@current_user.email}"
     # helpful_tips
   end
 
   private def helpful_tips : Nil
-    h3 "Next, you may want to:", class: "mt-6 mb-3 text-[1.17em] leading-snug font-semibold"
+    h3 r(".next_steps").t, class: "mt-6 mb-3 text-[1.17em] leading-snug font-semibold"
     ul do
       li { link_to_authentication_guides }
-      li "Modify this page: src/pages/me/show_page.cr"
-      li "Change where you go after sign in: src/actions/home/index.cr"
+      li r(".modify_page").t
+      li r(".after_sign_in").t
     end
   end
 
   private def link_to_authentication_guides : Nil
-    a "Check out the authentication guides",
+    a r(".auth_guides").t,
       href: "https://luckyframework.org/guides/authentication"
   end
 end

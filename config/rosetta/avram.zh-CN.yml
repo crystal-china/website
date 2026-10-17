@@ -1,82 +1,94 @@
+# Field labels are defined once and shared with Avram's official variants.
+---
 zh-CN:
+  fields: &fields
+    account: 邮箱或登录用户名
+    actor_id: 操作用户
+    available: 是否可用
+    avatar: 头像
+    avatar_url: 头像链接
+    captcha_code: 人机验证码
+    changed_column_name: 变更字段
+    children_count: 直接子评论数量
+    color: 颜色
+    comment: 备注
+    comment_id: 评论
+    comment_thread_id: 评论区
+    comment_thread_id_or_parent_id: 评论区与父评论
+    content: 正文
+    content_digest: 正文摘要校验值
+    content_html: 渲染后的正文
+    content_updated_at: 正文更新时间
+    created_at: 创建时间
+    date: 日期
+    descendants_count: 评论分支后代数量
+    doc_id: 文档
+    edited_at: 编辑时间
+    email: 电子邮件
+    encrypted_password: 密码哈希
+    excerpt: 正文摘录
+    floor: 楼层
+    floor_counter: 已分配楼层计数
+    from: 原值
+    hour: 时段
+    id: 编号
+    kind: 类型
+    last_active_at: 最后活跃时间
+    last_reply_user_id: 最后回复用户
+    login: 登录信息
+    login_name: 登录用户名
+    login_name_lower: 规范化登录用户名
+    mention_notifications_enabled: 接收 @提及 通知
+    name: 名称
+    nickname: 昵称
+    node_id: 节点
+    parent_id: 父评论
+    password: 密码
+    password_confirmation: 确认密码
+    path_index: 文档路径
+    position: 排序位置
+    provider: 第三方登录平台
+    read_at: 阅读时间
+    replies_count: 回复数量
+    root_id: 根评论
+    session_version: 登录会话版本
+    slug: 路径标识
+    soft_deleted_at: 删除时间
+    source_title: 来源标题
+    summary: 简介
+    title: 标题
+    to: 新值
+    topic_id: 主题
+    updated_at: 更新时间
+    url: 目标地址
+    user_id: 用户
+    view_count: 浏览量
+    vote_counts: 投票统计
+    vote_type: 投票类型
   avram:
-    attribute_variants:
-      actor_id: "操作用户"
-      avatar: "头像"
-      available: "是否可用"
-      captcha_code: "人机验证码"
-      changed_column_name: "变更字段"
-      children_count: "直接子评论数量"
-      color: "颜色"
-      comment: "备注"
-      comment_id: "评论"
-      comment_thread_id: "评论区"
-      comment_thread_id_or_parent_id: "评论区与父评论"
-      content: "正文"
-      content_html: "渲染后的正文"
-      content_digest: "正文摘要校验值"
-      content_updated_at: "正文更新时间"
-      date: "日期"
-      descendants_count: "评论分支后代数量"
-      doc_id: "文档"
-      edited_at: "编辑时间"
-      email: "电子邮件"
-      encrypted_password: "密码哈希"
-      excerpt: "正文摘录"
-      floor: "楼层"
-      floor_counter: "已分配楼层计数"
-      from: "原值"
-      hour: "时段"
-      last_active_at: "最后活跃时间"
-      last_reply_user_id: "最后回复用户"
-      kind: "类型"
-      login: "登录信息"
-      mention_notifications_enabled: "接收 @提及 通知"
-      name: "名称"
-      nickname: "昵称"
-      login_name: "登录用户名"
-      node_id: "节点"
-      parent_id: "父评论"
-      path_index: "文档路径"
-      password: "密码"
-      password_confirmation: "确认密码"
-      position: "排序位置"
-      provider: "第三方登录平台"
-      read_at: "阅读时间"
-      replies_count: "回复数量"
-      root_id: "根评论"
-      slug: "路径标识"
-      soft_deleted_at: "删除时间"
-      session_version: "登录会话版本"
-      source_title: "来源标题"
-      summary: "简介"
-      title: "标题"
-      to: "新值"
-      topic_id: "主题"
-      url: "目标地址"
-      user_id: "用户"
-      view_count: "浏览量"
-      vote_counts: "投票统计"
-      vote_type: "投票类型"
-    validate_acceptance_of: "必须接受"
-    validate_at_most_one_filled: "必须为空"
-    validate_confirmation_of: "必须匹配"
-    validate_exact_size_of: "长度必须为 %{size} 个字符"
-    validate_exactly_one_filled: "必须且只能填写一个"
-    validate_format_of: "格式不正确"
-    validate_inclusion_of: "不在允许的选项中"
-    validate_max_size_of: "长度不能超过 %{size} 个字符"
-    validate_min_size_of: "长度不能少于 %{size} 个字符"
-    validate_numeric_max: "不能大于 %{size}"
-    validate_numeric_min: "不能小于 %{size}"
-    validate_numeric_nil: "数字不可以为空"
-    validate_required: "需要的"
-    validate_uniqueness_of: "已经存在了"
-    errors:
-      admin_required: "需要管理员权限"
-      login_name_change_expired: "仅能在注册后 7 天内修改"
-      login_name_format: "须以英文字母、数字或下划线开头，以字母或数字结尾；中间仅允许英文字母、数字及不相邻的符号 _、-、."
-      avatar_url: "必须是一个合法的 http/https 链接"
-      email_not_registered: "不是合法的已注册邮箱地址"
-      credentials_incorrect: "不正确，请检查邮箱、用户名或密码"
-      comment_target_conflict: "不能同时指定评论区和父评论"
+    validate_acceptance_of: 必须接受
+    validate_at_most_one_filled: 必须为空
+    validate_confirmation_of: 必须匹配
+    validate_exact_size_of: 长度必须为 %{size} 个字符
+    validate_exactly_one_filled: 必须且只能填写一个
+    validate_format_of: 格式不正确
+    validate_inclusion_of: 不在允许的选项中
+    validate_max_size_of: 长度不能超过 %{size} 个字符
+    validate_min_size_of: 长度不能少于 %{size} 个字符
+    validate_numeric_max: 不能大于 %{size}
+    validate_numeric_min: 不能小于 %{size}
+    validate_numeric_nil: 数字不可以为空
+    validate_required: 不能为空
+    validate_uniqueness_of: 已经存在了
+    attribute_variants: *fields
+    error: "%{field} %{message}"
+    validate_url_format: 必须是以 %{scheme} 开头的合法网址
+
+  validations:
+    admin_required: 需要管理员权限
+    login_name_change_expired: 仅能在注册后 7 天内修改
+    login_name_format: 须以英文字母、数字或下划线开头，以字母或数字结尾；中间仅允许英文字母、数字及不相邻的符号 _、-、.
+    avatar_url: 必须是一个合法的 http/https 链接
+    email_not_registered: 不是合法的已注册邮箱地址
+    credentials_incorrect: 不正确，请检查邮箱、用户名或密码
+    comment_target_conflict: 不能同时指定评论区和父评论

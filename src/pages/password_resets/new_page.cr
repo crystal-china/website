@@ -3,21 +3,21 @@ class PasswordResets::NewPage < AuthLayout
   needs user_id : Int64
 
   def page_title : String
-    "设置新密码"
+    r(".page_title").t
   end
 
   def content : Nil
     op = operation
 
     auth_page_single_column do
-      auth_card("设置新密码", "请输入新的登录密码，并再次确认。") do
+      auth_card(r(".page_title").t, r(".description").t) do
         form_for PasswordResets::Create.with(@user_id), class: "panel-body" do
           auth_form_fields do
-            mount Shared::Field, attribute: op.password, label_text: "密码", &.password_input(autofocus: "true", placeholder: "输入新的登录密码")
-            mount Shared::Field, attribute: op.password_confirmation, label_text: "确认密码", &.password_input(placeholder: "再次输入新密码")
+            mount Shared::Field, attribute: op.password, label_text: r("fields.password").t, &.password_input(autofocus: "true", placeholder: r(".password_placeholder").t)
+            mount Shared::Field, attribute: op.password_confirmation, label_text: r("fields.password_confirmation").t, &.password_input(placeholder: r(".confirmation_placeholder").t)
 
             auth_form_actions(justify: "justify-end") do
-              submit "更新密码", class: "form-submit", flow_id: "update-password-button"
+              submit r(".update_password").t, class: "form-submit", flow_id: "update-password-button"
             end
           end
         end

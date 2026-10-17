@@ -1,82 +1,94 @@
+# Field labels are defined once and shared with Avram's official variants.
+---
 en:
+  fields: &fields
+    account: Email or login name
+    actor_id: Actor
+    available: Available
+    avatar: Avatar
+    avatar_url: Avatar URL
+    captcha_code: Captcha
+    changed_column_name: Changed field
+    children_count: Direct child comment count
+    color: Color
+    comment: Comment
+    comment_id: Comment
+    comment_thread_id: Comment thread
+    comment_thread_id_or_parent_id: Comment thread and parent comment
+    content: Content
+    content_digest: Content checksum
+    content_html: Rendered content
+    content_updated_at: Content updated at
+    created_at: Created at
+    date: Date
+    descendants_count: Comment branch descendant count
+    doc_id: Document
+    edited_at: Edited at
+    email: Email
+    encrypted_password: Password hash
+    excerpt: Content excerpt
+    floor: Floor
+    floor_counter: Assigned floor counter
+    from: Previous value
+    hour: Hour
+    id: ID
+    kind: Type
+    last_active_at: Last active at
+    last_reply_user_id: Last reply user
+    login: Login details
+    login_name: Login name
+    login_name_lower: Normalized login name
+    mention_notifications_enabled: Mention notifications
+    name: Name
+    nickname: Nickname
+    node_id: Node
+    parent_id: Parent comment
+    password: Password
+    password_confirmation: Password confirmation
+    path_index: Document path
+    position: Position
+    provider: OAuth provider
+    read_at: Read at
+    replies_count: Reply count
+    root_id: Root comment
+    session_version: Session version
+    slug: Slug
+    soft_deleted_at: Deleted at
+    source_title: Source title
+    summary: Summary
+    title: Title
+    to: New value
+    topic_id: Topic
+    updated_at: Updated at
+    url: Target URL
+    user_id: User
+    view_count: View count
+    vote_counts: Vote counts
+    vote_type: Vote type
   avram:
-    attribute_variants:
-      actor_id: "Actor"
-      avatar: "Avatar"
-      available: "Available"
-      captcha_code: "Captcha code"
-      changed_column_name: "Changed field"
-      children_count: "Direct child comment count"
-      color: "Color"
-      comment: "Comment"
-      comment_id: "Comment"
-      comment_thread_id: "Comment thread"
-      comment_thread_id_or_parent_id: "Comment thread and parent comment"
-      content: "Content"
-      content_html: "Rendered content"
-      content_digest: "Content checksum"
-      content_updated_at: "Content updated at"
-      date: "Date"
-      descendants_count: "Comment branch descendant count"
-      doc_id: "Document"
-      edited_at: "Edited at"
-      email: "Email"
-      encrypted_password: "Password hash"
-      excerpt: "Content excerpt"
-      floor: "Floor"
-      floor_counter: "Assigned floor counter"
-      from: "Previous value"
-      hour: "Hour"
-      last_active_at: "Last active at"
-      last_reply_user_id: "Last reply user"
-      kind: "Type"
-      login: "Login details"
-      mention_notifications_enabled: "Mention notifications"
-      name: "Name"
-      nickname: "Nickname"
-      login_name: "Login name"
-      node_id: "Node"
-      parent_id: "Parent comment"
-      path_index: "Document path"
-      password: "Password"
-      password_confirmation: "Password confirmation"
-      position: "Position"
-      provider: "OAuth provider"
-      read_at: "Read at"
-      replies_count: "Reply count"
-      root_id: "Root comment"
-      slug: "Slug"
-      soft_deleted_at: "Deleted at"
-      session_version: "Session version"
-      source_title: "Source title"
-      summary: "Summary"
-      title: "Title"
-      to: "New value"
-      topic_id: "Topic"
-      url: "Target URL"
-      user_id: "User"
-      view_count: "View count"
-      vote_counts: "Vote counts"
-      vote_type: "Vote type"
-    validate_acceptance_of: "must be accepted"
-    validate_at_most_one_filled: "must be blank"
-    validate_confirmation_of: "must match"
-    validate_exact_size_of: "must be exactly %{size} characters long"
-    validate_exactly_one_filled: "at least one must be filled"
-    validate_format_of: "is invalid"
-    validate_inclusion_of: "is not included in the list"
-    validate_max_size_of: "must not have more than %{size} characters"
-    validate_min_size_of: "must have at least %{size} characters"
-    validate_numeric_max: "must be less than %{size}"
-    validate_numeric_min: "must be greater than %{size}"
-    validate_numeric_nil: "must not be nil"
-    validate_required: "is required"
-    validate_uniqueness_of: "is already taken"
-    errors:
-      admin_required: "requires administrator privileges"
-      login_name_change_expired: "can only be changed within 7 days of registration"
-      login_name_format: "must start with an English letter, number or underscore, end with a letter or number, and use only letters, numbers or non-adjacent separators (_, - and .)"
-      avatar_url: "must be a valid http/https URL"
-      email_not_registered: "must be a valid registered email address"
-      credentials_incorrect: "are incorrect; check your email, username or password"
-      comment_target_conflict: "must not specify both a comment thread and a parent comment"
+    validate_acceptance_of: must be accepted
+    validate_at_most_one_filled: must be blank
+    validate_confirmation_of: must match
+    validate_exact_size_of: must be exactly %{size} characters long
+    validate_exactly_one_filled: at least one must be filled
+    validate_format_of: is invalid
+    validate_inclusion_of: is not included in the list
+    validate_max_size_of: must not have more than %{size} characters
+    validate_min_size_of: must have at least %{size} characters
+    validate_numeric_max: must be no more than %{size}
+    validate_numeric_min: must be at least %{size}
+    validate_numeric_nil: must not be nil
+    validate_required: is required
+    validate_uniqueness_of: is already taken
+    attribute_variants: *fields
+    error: "%{field} %{message}"
+    validate_url_format: must be a valid URL beginning with %{scheme}
+
+  validations:
+    admin_required: requires administrator privileges
+    login_name_change_expired: can only be changed within 7 days of registration
+    login_name_format: must start with an English letter, number or underscore, end with a letter or number, and use only letters, numbers or non-adjacent separators (_, - and .)
+    avatar_url: must be a valid http/https URL
+    email_not_registered: must be a valid registered email address
+    credentials_incorrect: are incorrect; check your email, username or password
+    comment_target_conflict: must not specify both a comment thread and a parent comment

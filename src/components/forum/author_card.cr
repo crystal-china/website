@@ -3,7 +3,7 @@ class Forum::AuthorCard < BaseComponent
 
   def render : Nil
     section class: "app-panel p-4" do
-      h2 "主题作者", class: "m-0 mb-4 text-sm font-semibold text-gray-900"
+      h2 r(".author").t, class: "m-0 mb-4 text-sm font-semibold text-gray-900"
 
       div class: "flex items-center gap-3" do
         div class: "relative h-10 w-10 shrink-0" do
@@ -24,7 +24,7 @@ class Forum::AuthorCard < BaseComponent
         end
       end
 
-      para "加入于 #{user.created_at.to_local.to_s("%Y-%m-%d")}", class: "mt-4 mb-0 text-xs text-gray-500"
+      para r(".joined").t(date: user.created_at.to_local.to_s("%Y-%m-%d")), class: "mt-4 mb-0 text-xs text-gray-500"
     end
   end
 end

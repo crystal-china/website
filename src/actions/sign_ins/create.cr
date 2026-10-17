@@ -5,10 +5,10 @@ class SignIns::Create < BrowserAction
     SignInUser.run(params) do |operation, authenticated_user|
       if authenticated_user
         sign_in(authenticated_user)
-        flash.success = "登录成功"
+        flash.success = r(".signed_in").t
         Authentic.redirect_to_originally_requested_path(self, fallback: Home::Index)
       else
-        flash.failure = "登录失败"
+        flash.failure = r(".sign_in_failed").t
         html NewPage, operation: operation
       end
     end

@@ -34,20 +34,20 @@ class Comments::CardAction < BaseComponent
     }
 
     div class: "flex shrink-0 flex-wrap items-center justify-end gap-2" do
-      button("回复", opts, hx_get: Htmx::Comments::New.with(id: comment.id, order_by: order_by).path)
+      button(r("common.reply").t, opts, hx_get: Htmx::Comments::New.with(id: comment.id, order_by: order_by).path)
 
       if me.id == comment.user_id || me.admin?
-        button("编辑", opts, hx_get: Htmx::Comments::Edit.with(id: comment.id, order_by: order_by).path)
+        button(r("common.edit").t, opts, hx_get: Htmx::Comments::Edit.with(id: comment.id, order_by: order_by).path)
 
         if me.admin? || !CommentQuery.new.with_soft_deleted.parent_id(comment.id).any?
           confirmation = if comment.root_id.nil? && comment.descendants_count > 0
-                           "删除后，子回复也将不可见。确定继续？"
+                           r(".confirm_delete_branch").t
                          else
-                           "删除这条回复？"
+                           r(".confirm_delete").t
                          end
 
           button(
-            "删除",
+            r("common.delete").t,
             type: "button",
             class: "action-button action-button-danger",
             hx_delete: Htmx::Comments::Delete.with(id: comment.id).path,

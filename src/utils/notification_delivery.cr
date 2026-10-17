@@ -1,4 +1,6 @@
 module NotificationDelivery
+  include Rosetta::Translatable
+
   def self.comment_created(comment : Comment, login_names : Array(String)) : Nil
     # 接收通知的 user_id => 通知类型
     recipients = {} of Int64 => Notification::Kind
@@ -39,7 +41,7 @@ module NotificationDelivery
   end
 
   def self.topic_moved_by_admin(topic : Topic, actor_id : Int64) : Nil
-    notify_author(topic, actor_id, :topic_moved, "新节点：#{NodeQuery.find(topic.node_id).name}")
+    notify_author(topic, actor_id, :topic_moved, r(".new_node").t(name: NodeQuery.find(topic.node_id).name.to_s))
   end
 
   def self.deleted_by_admin(record : Comment | Topic, actor_id : Int64) : Nil

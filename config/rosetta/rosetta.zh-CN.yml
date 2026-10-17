@@ -1,49 +1,48 @@
-
 zh-CN:
   rosetta_localization:
     date:
       abbr_day_names:
-        monday: Mon
-        tuesday: Tue
-        wednesday: Wed
-        thursday: Thu
-        friday: Fri
-        saturday: Sat
-        sunday: Sun
+        monday: 星期一
+        tuesday: 星期二
+        wednesday: 星期三
+        thursday: 星期四
+        friday: 星期五
+        saturday: 星期六
+        sunday: 星期日
       abbr_month_names:
-        january: Jan
-        february: Feb
-        march: Mar
-        april: Apr
-        may: May
-        june: Jun
-        july: Jul
-        august: Aug
-        september: Sep
-        october: Oct
-        november: Nov
-        december: Dec
+        january: 一月
+        february: 二月
+        march: 三月
+        april: 四月
+        may: 五月
+        june: 六月
+        july: 七月
+        august: 八月
+        september: 九月
+        october: 十月
+        november: 十一月
+        december: 十二月
       day_names:
-        monday: Monday
-        tuesday: Tuesday
-        wednesday: Wednesday
-        thursday: Thursday
-        friday: Friday
-        saturday: Saturday
-        sunday: Sunday
+        monday: 星期一
+        tuesday: 星期二
+        wednesday: 星期三
+        thursday: 星期四
+        friday: 星期五
+        saturday: 星期六
+        sunday: 星期日
       month_names:
-        january: January
-        february: February
-        march: March
-        april: April
-        may: May
-        june: June
-        july: July
-        august: August
-        september: September
-        october: October
-        november: November
-        december: December
+        january: 一月
+        february: 二月
+        march: 三月
+        april: 四月
+        may: 五月
+        june: 六月
+        july: 七月
+        august: 八月
+        september: 九月
+        october: 十月
+        november: 十一月
+        december: 十二月
       formats:
         default: "%Y-%m-%d"
         long: "%B %d, %Y"
@@ -51,20 +50,20 @@ zh-CN:
     time:
       am: am
       distance:
-        a_day: "a day"
-        a_minute: "a minute"
-        a_second: "a second"
-        an_hour: "an hour"
-        about_an_hour: "about an hour"
-        about_a_month: "about a month"
-        about_a_year: "about a year"
-        almost_years: "almost %{count} years"
-        days: "%{count} days"
-        hours: "%{count} hours"
-        minutes: "%{count} minutes"
-        months: "%{count} months"
-        over_years: "over %{count} years"
-        seconds: "%{count} seconds"
+        a_day: "一天"
+        a_minute: "一分钟"
+        a_second: "一秒"
+        an_hour: "一小时"
+        about_an_hour: "大约一小时"
+        about_a_month: "大约一个月"
+        about_a_year: "大约一年"
+        almost_years: "几乎 %{count} 年"
+        days: "%{count} 天"
+        hours: "%{count} 小时"
+        minutes: "%{count} 分钟"
+        months: "%{count} 月"
+        over_years: "超过 %{count} 年"
+        seconds: "%{count} 秒"
       formats:
         default: "%a, %d %b %Y %H:%M:%S %z"
         long: "%B %d, %Y %H:%M"

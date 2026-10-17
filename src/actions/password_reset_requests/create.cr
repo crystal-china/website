@@ -5,7 +5,7 @@ class PasswordResetRequests::Create < BrowserAction
     RequestPasswordReset.run(params) do |operation, user|
       if user
         PasswordResetRequestEmail.new(user).deliver
-        flash.success = "请仔细检查你的邮箱获取重置密码的链接"
+        flash.success = r(".check_email").t
         redirect SignIns::New
       else
         html NewPage, operation: operation

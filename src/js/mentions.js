@@ -1,3 +1,5 @@
+import t from "./i18n.js";
+
 const initialized = new WeakSet();
 let nextListId = 0;
 
@@ -11,7 +13,7 @@ export default function setupMentions(textarea) {
     const list = document.createElement("div");
     list.id = `mention-options-${++nextListId}`;
     list.setAttribute("role", "listbox");
-    list.setAttribute("aria-label", "提及用户");
+    list.setAttribute("aria-label", t("mention_users"));
     list.className = "absolute inset-x-4 bottom-4 z-20 max-h-56 overflow-y-auto rounded-xl border border-gray-200 bg-white py-1 shadow-lg";
     list.hidden = true;
     textarea.after(list);

@@ -7,7 +7,7 @@ class PasswordResets::Create < BrowserAction
       if operation.saved?
         session.delete(:password_reset_token)
         sign_in user
-        flash.success = "密码重置成功"
+        flash.success = r(".password_reset").t
         redirect to: Home::Index
       else
         html NewPage, operation: operation, user_id: user_id.to_i64

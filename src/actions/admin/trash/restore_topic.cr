@@ -5,7 +5,7 @@ class Admin::Trash::RestoreTopic < AdminAction
       topic.restore
     end
 
-    flash.success = "主题已恢复"
+    flash.success = r(".topic_restored").t
 
     redirect Admin::Trash::Index.with(kind: "topics")
   end

@@ -1,3 +1,5 @@
+import t from "./i18n.js";
+
 const copyButtonLabel = "📄";
 
 function copyCodeButton(blockElt) {
@@ -11,6 +13,8 @@ function copyCodeButton(blockElt) {
         const button = document.createElement("button");
         button.className = "copyBtn";
         button.type = "button";
+        button.title = t("copy");
+        button.setAttribute("aria-label", t("copy"));
         button.setAttribute(
             "style",
             "position: absolute; top: 0.75rem; right: 0.75rem; z-index: 1; padding: 0; border: 0; line-height: 1; background: transparent; opacity: 0.45; transition: opacity 150ms ease; cursor: pointer;",
@@ -54,7 +58,7 @@ async function copyCode(blockElt, button) {
 
     await navigator.clipboard.writeText(text);
 
-    button.innerText = "copied";
+    button.innerText = t("copied");
 
     setTimeout(() => {
         button.innerText = copyButtonLabel;

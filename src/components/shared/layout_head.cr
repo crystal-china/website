@@ -9,17 +9,17 @@ class Shared::LayoutHead < BaseComponent
       title "Crystal China - #{seo.page_title}"
       meta name: "description", content: seo.page_description
       tag "link", rel: "canonical", href: seo.canonical_url
-      tag "link", rel: "alternate", type: "application/rss+xml", title: "Crystal 中文社区", href: Forum::Feed.url
+      tag "link", rel: "alternate", type: "application/rss+xml", title: r("common.site_name").t, href: Forum::Feed.url
 
       meta property: "og:title", content: seo.page_title
       meta property: "og:description", content: seo.page_description
       meta property: "og:url", content: seo.canonical_url
       meta property: "og:type", content: "website"
-      meta property: "og:locale", content: "zh_CN"
+      meta property: "og:locale", content: Rosetta.locale == "en" ? "en_US" : "zh_CN"
       meta property: "og:image", content: social_preview_url
       meta property: "og:image:width", content: "1200"
       meta property: "og:image:height", content: "630"
-      meta property: "og:image:alt", content: "Crystal China 中文社区"
+      meta property: "og:image:alt", content: r(".image_description").t
 
       meta name: "twitter:card", content: "summary_large_image"
       meta name: "twitter:title", content: seo.page_title

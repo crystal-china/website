@@ -23,7 +23,7 @@ describe UpdateUser do
         user.login_name_change_allowed?.should be_false
         UpdateUser.update(user, login_name: "ChangedLogin") do |operation, _|
           operation.saved?.should be_false
-          operation.errors[:login_name].should contain(Rosetta.find("avram.errors.login_name_change_expired").t)
+          operation.errors[:login_name].should contain(Rosetta.find("validations.login_name_change_expired").t)
         end
       end
     end

@@ -4,7 +4,7 @@ class Admin::Nodes::Update < AdminAction
 
     SaveNode.update(node, params) do |operation, _updated_node|
       if operation.saved?
-        flash.success = "节点已更新"
+        flash.success = r(".node_updated").t
 
         redirect Admin::Nodes::Index
       else

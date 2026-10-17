@@ -16,7 +16,7 @@ abstract class ForumLayout < MainLayout
           end
 
           if show_right_sidebar?
-            aside class: "hidden w-56 shrink-0 space-y-4 xl:block", "aria-label": "社区辅助信息" do
+            aside class: "hidden w-56 shrink-0 space-y-4 xl:block", "aria-label": r("forum_layout.sidebar").t do
               render_right_sidebar
             end
           end
@@ -33,11 +33,11 @@ abstract class ForumLayout < MainLayout
     inactive_classes = "text-gray-700 hover:bg-gray-100 hover:text-gray-950"
 
     aside class: "min-w-0 w-full shrink-0 lg:w-56" do
-      nav class: "desktop-sidebar app-panel p-3 lg:w-56 lg:[--sidebar-gap:2.5rem]", "aria-label": "社区节点" do
+      nav class: "desktop-sidebar app-panel p-3 lg:w-56 lg:[--sidebar-gap:2.5rem]", "aria-label": r("forum_layout.nodes").t do
         ul class: "m-0 flex list-none gap-1 overflow-x-auto p-0 lg:flex-col lg:overflow-visible" do
           li class: "shrink-0" do
             link(
-              "全部主题",
+              r("forum_layout.all_topics").t,
               to: Forum::Index,
               class: "#{link_classes} #{current_node.nil? ? active_classes : inactive_classes}"
             )

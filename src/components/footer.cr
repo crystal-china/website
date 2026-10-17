@@ -5,7 +5,7 @@ class Footer < BaseComponent
 
       section class: "#{page_container_classes} mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-sm" do
         address class: "not-italic" do
-          text "联系："
+          text r(".contact").t
           a(
             "admin@crystal-china.org",
             href: "mailto:admin@crystal-china.org",
@@ -18,24 +18,24 @@ class Footer < BaseComponent
           hx_trigger: "load, every 2m",
           hx_patch: Htmx::OnlineUsers.path,
         ) do
-          text "正在统计在线人数..."
+          text r(".counting").t
         end
 
-        nav "aria-label": "页脚链接", class: "inline-flex items-center gap-3" do
+        nav "aria-label": r(".links").t, class: "inline-flex items-center gap-3" do
           icon_link(
-            title: "本站在 GitHub 上面的开源内容",
+            title: r(".github").t,
             href: "https://github.com/crystal-china",
             src: asset("svgs/github-icon.svg"),
             alt: "github"
           )
           icon_link(
-            title: "本站的 X 账号",
+            title: r(".x_account").t,
             href: "https://x.com/crystalchinaorg",
             src: asset("svgs/x-icon.svg"),
             alt: "x.com"
           )
           icon_link(
-            title: "Crystal 官方网站",
+            title: r(".official_site").t,
             href: "https://crystal-lang.org/",
             src: asset("svgs/crystal-lang-icon.svg"),
             alt: "crystal-lang"

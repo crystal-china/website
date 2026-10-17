@@ -7,7 +7,7 @@ class Notifications::List < BaseComponent
     section class: "bg-white" do
       header class: "flex justify-end border-b border-gray-200 px-4 py-3" do
         button(
-          "全部标为已读",
+          r(".read_all").t,
           type: "button",
           attrs: has_unread? ? [] of Symbol : [:disabled],
           hx_post: Notifications::ReadAll.path,
@@ -20,7 +20,7 @@ class Notifications::List < BaseComponent
       items = notifications.results
 
       if items.empty?
-        para "还没有通知。有人回复或提及你时，会显示在这里。", class: "m-0 px-6 py-12 text-center text-gray-500"
+        para r(".empty").t, class: "m-0 px-6 py-12 text-center text-gray-500"
       else
         div class: "divide-y divide-gray-200" do
           items.each { |notification| render_notification(notification) }
@@ -28,13 +28,13 @@ class Notifications::List < BaseComponent
       end
 
       if pages.total > 1
-        nav class: "flex items-center justify-center gap-4 border-t border-gray-200 p-4", "aria-label": "通知分页" do
+        nav class: "flex items-center justify-center gap-4 border-t border-gray-200 p-4", "aria-label": r(".pagination").t do
           if (path = pages.path_to_previous)
-            render_page_link("上一页", path)
+            render_page_link(r("common.previous_page").t, path)
           end
-          span "第 #{pages.page} / #{pages.total} 页", class: "text-sm text-gray-600"
+          span r("common.page_number").t(page: pages.page.to_s, total: pages.total.to_s), class: "text-sm text-gray-600"
           if (path = pages.path_to_next)
-            render_page_link("下一页", path)
+            render_page_link(r("common.next_page").t, path)
           end
         end
       end
@@ -63,21 +63,21 @@ class Notifications::List < BaseComponent
   private def render_notification(notification : Notification) : Nil
     unread = notification.read_at.nil?
     description = case notification.kind
-                  in .topic_reply?     then "回复了你的主题"
-                  in .comment_reply?   then "回复了你的评论"
-                  in .mention?         then "提及了你"
-                  in .topic_edited?    then "编辑了你的主题"
-                  in .topic_moved?     then "移动了你的主题"
-                  in .topic_deleted?   then "删除了你的主题"
-                  in .comment_edited?  then "编辑了你的评论"
-                  in .comment_deleted? then "删除了你的评论"
+                  in .topic_reply?     then r(".topic_reply").t
+                  in .comment_reply?   then r(".comment_reply").t
+                  in .mention?         then r(".mention").t
+                  in .topic_edited?    then r(".topic_edited").t
+                  in .topic_moved?     then r(".topic_moved").t
+                  in .topic_deleted?   then r(".topic_deleted").t
+                  in .comment_edited?  then r(".comment_edited").t
+                  in .comment_deleted? then r(".comment_deleted").t
                   end
 
     # 目标可能返回 404；完整页面导航可显示提示页，而不是被 HTMX 的 noSwap 拦住。
     form_for Notifications::Read.with(id: notification.id), hx_boost: "false" do
       button type: "submit", class: "block w-full cursor-pointer px-5 py-4 text-left transition-colors hover:bg-sky-50 focus-visible:bg-sky-50 #{unread ? "bg-sky-50/50" : "bg-white"}" do
         span class: "flex items-start gap-3" do
-          span class: "mt-2 h-2 w-2 shrink-0 rounded-full #{unread ? "bg-red-500" : "bg-transparent"}", "aria-label": unread ? "未读" : "已读"
+          span class: "mt-2 h-2 w-2 shrink-0 rounded-full #{unread ? "bg-red-500" : "bg-transparent"}", "aria-label": unread ? r(".unread").t : r(".read").t
           span class: "min-w-0 flex-1" do
             span class: "block text-sm text-gray-900" do
               mount Shared::UserName, user: notification.actor, linked: false
@@ -86,7 +86,7 @@ class Notifications::List < BaseComponent
             span notification.source_title, class: "mt-1 block truncate text-sm font-medium text-sky-700"
             span notification.excerpt, class: "line-clamp-2 mt-1 block text-xs break-words text-gray-500"
             span(
-              TimeInWords::Helpers(TimeInWords::I18n::ZH_CN).from(past_time: notification.created_at),
+              relative_time(notification.created_at),
               class: "mt-2 block text-xs text-gray-400",
               title: notification.created_at.to_local.to_s("%Y-%m-%d %H:%M:%S")
             )

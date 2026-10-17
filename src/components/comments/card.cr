@@ -61,7 +61,7 @@ HYPER
           hx_trigger: "load",
           hx_swap: "outerHTML"
         ) do
-          mount Shared::Spinner, text: "正在定位评论..."
+          mount Shared::Spinner, text: r(".locating_comment").t
         end
       else
         div id: "comment-#{comment.id}-comments" do

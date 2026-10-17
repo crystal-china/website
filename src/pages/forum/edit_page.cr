@@ -3,13 +3,13 @@ class Forum::EditPage < ForumLayout
   needs operation : UpdateTopic
 
   def page_title : String
-    "编辑主题"
+    r(".page_title").t
   end
 
   def forum_content : Nil
     article class: "app-panel w-full overflow-hidden" do
       header class: "panel-header" do
-        h1 "编辑主题", class: "panel-title"
+        h1 r(".page_title").t, class: "panel-title"
       end
 
       form_for(
@@ -30,7 +30,7 @@ on cancelEditing
   end
 
   if dirty
-    answer "内容尚未保存，确定放弃修改吗？" with true or false
+    answer #{r("common.discard_changes").t.to_json} with true or false
     if not the result
       exit
     end
@@ -52,12 +52,12 @@ HYPER
           current_user: current_user
         ) do
           button(
-            "取消",
+            r("common.cancel").t,
             type: "button",
             class: "form-secondary",
             script: "on click send cancelEditing to the closest <form/>"
           )
-          submit "保存", class: "form-submit"
+          submit r("common.save").t, class: "form-submit"
         end
       end
     end

@@ -3,6 +3,14 @@ require "../../utils/doc_navigation"
 module PageHelpers
   MARKDOWN_OPTIONS = Markd::Options.new(gfm: true, toc: true)
 
+  def relative_time(at : Time) : String
+    if Rosetta.locale == "en"
+      TimeInWords::Helpers(TimeInWords::I18n::EN).from(time: at)
+    else
+      TimeInWords::Helpers(TimeInWords::I18n::ZH_CN).from(time: at)
+    end
+  end
+
   def doc_markdown(text) : String
     render_markdown_with_info_boxes(text)
   end
@@ -52,7 +60,7 @@ module PageHelpers
       hx_trigger: trigger,
       hx_swap: "outerHTML"
     ) do
-      mount Shared::Spinner, text: "正在读取评论..."
+      mount Shared::Spinner, text: r("common.loading_comments").t
     end
   end
 

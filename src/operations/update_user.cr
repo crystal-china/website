@@ -18,11 +18,11 @@ class UpdateUser < User::SaveOperation
 
     if (user = record) && actor
       if actor.id != user.id && !actor.admin?
-        actor_id.add_error Rosetta.find("avram.errors.admin_required").t
+        actor_id.add_error r("validations.admin_required").t
       end
 
       if login_name.changed? && !actor.admin? && !user.login_name_change_allowed?
-        login_name.add_error Rosetta.find("avram.errors.login_name_change_expired").t
+        login_name.add_error r("validations.login_name_change_expired").t
       end
     end
 
@@ -40,7 +40,7 @@ class UpdateUser < User::SaveOperation
   private def validate_avatar_is_a_link : Nil
     avatar.value.try do |avatar_value|
       if !avatar_value.starts_with?(%r{https?://})
-        avatar.add_error Rosetta.find("avram.errors.avatar_url").t
+        avatar.add_error r("validations.avatar_url").t
       end
     end
   end

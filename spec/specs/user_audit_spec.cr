@@ -264,7 +264,7 @@ describe "User events" do
     response = ApiClient.new.get("/me/events?backdoor_user_id=#{user.id}")
     time = XML.parse_html(response.body).xpath_node("//main//ol/li/time").not_nil!
 
-    time.content.should eq(TimeInWords::Helpers(TimeInWords::I18n::ZH_CN).from(past_time: audit.created_at))
+    time.content.should eq(TimeInWords::Helpers(TimeInWords::I18n::ZH_CN).from(time: audit.created_at))
     time["datetime"].should eq(audit.created_at.to_rfc3339)
     time["title"].should eq(audit.created_at.to_local.to_s("%Y-%m-%d %H:%M:%S %z"))
   end
@@ -344,7 +344,7 @@ describe "User events" do
     user = UserFactory.create
     audit = SaveUserAudit.create!(user_id: user.id, kind: UserAudit::Kind::PasswordChanged, created_at: Time.utc(2020, 1, 1))
     SaveUserAudit.create!(user_id: user.id, kind: UserAudit::Kind::OauthSignedIn, provider: "github")
-    expected = TimeInWords::Helpers(TimeInWords::I18n::ZH_CN).from(past_time: audit.created_at)
+    expected = TimeInWords::Helpers(TimeInWords::I18n::ZH_CN).from(time: audit.created_at)
 
     response = ApiClient.new.get("/me/edit?backdoor_user_id=#{user.id}")
     time = XML.parse_html(response.body).xpath_node("//form//p/time").not_nil!

@@ -4,6 +4,6 @@ abstract class AuthLayout < MainLayout
   include AuthPageHelpers
 
   def page_title : String
-    "欢迎"
+    r("auth_layout.page_title").t
   end
 end
