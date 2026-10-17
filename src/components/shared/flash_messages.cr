@@ -12,7 +12,11 @@ class Shared::FlashMessages < BaseComponent
                       "flash-message--success"
                     end
 
-      div class: "flash-message #{flash_class}", flow_id: "flash" do
+      div(
+        class: "flash-message #{flash_class} cursor-pointer",
+        flow_id: "flash",
+        script: "on click remove me"
+      ) do
         text flash_message
       end
     end
