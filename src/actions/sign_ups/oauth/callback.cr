@@ -28,7 +28,7 @@ class SignUps::Oauth::Callback < BrowserAction
 
     first_oauth_sign_in = !UserAuditQuery.new.user_id(user.id).kind(UserAudit::Kind::OauthSignedIn).any?
 
-    SaveUserAudit.create!(user_id: user.id, kind: UserAudit::Kind::OauthSignedIn, provider: provider)
+    SaveUserAudit.create!(user_id: user.id, kind: UserAudit::Kind::OauthSignedIn, oauth_provider: provider)
 
     if first_oauth_sign_in && user.encrypted_password
       flash.info = r(".password_warning").t

@@ -14,6 +14,6 @@ class UserAudit < BaseModel
     column changed_column_name : String?
     column from : String?, allow_blank: true
     column to : String?, allow_blank: true
-    column provider : String?
+    column oauth_provider : String?
   end
 end

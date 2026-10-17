@@ -123,7 +123,7 @@ describe "Internationalization" do
 
   it "renders relative timestamps and notification descriptions in the selected locale" do
     user = UserFactory.create
-    SaveUserAudit.create!(user_id: user.id, kind: :oauth_signed_in, provider: "github", created_at: Time.utc - 2.hours)
+    SaveUserAudit.create!(user_id: user.id, kind: :oauth_signed_in, oauth_provider: "github", created_at: Time.utc - 2.hours)
     response = ApiClient.new.get("/me/events?locale=en&backdoor_user_id=#{user.id}")
     document = XML.parse_html(response.body)
 

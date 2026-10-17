@@ -81,6 +81,29 @@ describe "User events" do
     end
   end
 
+  it "preserves OAuth providers when renaming the column and rolling back" do
+    AppDatabase.transaction do
+      AppDatabase.exec "CREATE SCHEMA user_audit_provider_migration_spec"
+      AppDatabase.exec "SET LOCAL search_path TO user_audit_provider_migration_spec"
+      AppDatabase.exec "CREATE TABLE user_audits (id bigint PRIMARY KEY, provider text)"
+      AppDatabase.exec "INSERT INTO user_audits VALUES (1, 'github'), (2, NULL)"
+
+      migration = RenameUserAuditProvider::V20261017130000.new
+      migration.migrate
+      migration.prepared_statements.each { |statement| AppDatabase.exec(statement) }
+
+      AppDatabase.query_all("SELECT oauth_provider FROM user_audits ORDER BY id", as: String?).should eq(["github", nil])
+
+      migration.reset_prepared_statements
+      migration.rollback
+      migration.prepared_statements.each { |statement| AppDatabase.exec(statement) }
+
+      AppDatabase.query_all("SELECT provider FROM user_audits ORDER BY id", as: String?).should eq(["github", nil])
+
+      AppDatabase.rollback
+    end
+  end
+
   it "keeps every profile change as a separate historical event" do
     user = UserFactory.create
     original_nickname = user.nickname
@@ -110,14 +133,14 @@ describe "User events" do
     user = UpdateUser.update!(user, nickname: "Changed nickname", password: "changed-password", password_confirmation: "changed-password")
     audits = UserAuditQuery.new.user_id(user.id).id.asc_order.results
     password_event = audits.find(&.kind.password_changed?).not_nil!
-    stored_values = audits.flat_map { |audit| [audit.changed_column_name, audit.from, audit.to, audit.provider] }.compact.join(" ")
+    stored_values = audits.flat_map { |audit| [audit.changed_column_name, audit.from, audit.to, audit.oauth_provider] }.compact.join(" ")
 
     audits.size.should eq(2)
     Authentic.correct_password?(user, "changed-password").should be_true
     password_event.changed_column_name.should be_nil
     password_event.from.should be_nil
     password_event.to.should be_nil
-    password_event.provider.should be_nil
+    password_event.oauth_provider.should be_nil
     stored_values.should_not contain("changed-password")
     stored_values.should_not contain(user.encrypted_password.not_nil!)
   end
@@ -171,12 +194,12 @@ describe "User events" do
       operation.saved?.should be_false
     end
 
-    audit = SaveUserAudit.create!(user_id: user.id, kind: UserAudit::Kind::OauthSignedIn, provider: "github")
+    audit = SaveUserAudit.create!(user_id: user.id, kind: UserAudit::Kind::OauthSignedIn, oauth_provider: "github")
 
     audit.changed_column_name.should be_nil
     audit.from.should be_nil
     audit.to.should be_nil
-    audit.provider.should eq("github")
+    audit.oauth_provider.should eq("github")
   end
 
   it "shows password login events in both languages" do
@@ -199,7 +222,7 @@ describe "User events" do
 
     audits.size.should eq(2)
     audits.all?(&.kind.oauth_signed_in?).should be_true
-    audits.map(&.provider).should eq(["audit_spec", "audit_spec"])
+    audits.map(&.oauth_provider).should eq(["audit_spec", "audit_spec"])
   end
 
   it "warns password accounts only on the first recorded OAuth login" do
@@ -223,7 +246,7 @@ describe "User events" do
 
     response.status_code.should eq(303)
     audit.kind.should eq(UserAudit::Kind::OauthSignedIn)
-    audit.provider.should eq("audit_spec")
+    audit.oauth_provider.should eq("audit_spec")
     user.encrypted_password.should be_nil
     audit_page_after_callback(response).should_not contain("此账号已设置本站密码")
   end
@@ -238,9 +261,9 @@ describe "User events" do
   it "shows only the current user's events and paginates the history" do
     user = UserFactory.create
     other = UserFactory.create
-    SaveUserAudit.create!(user_id: other.id, kind: UserAudit::Kind::OauthSignedIn, provider: "private-provider")
+    SaveUserAudit.create!(user_id: other.id, kind: UserAudit::Kind::OauthSignedIn, oauth_provider: "private-provider")
     21.times do
-      SaveUserAudit.create!(user_id: user.id, kind: UserAudit::Kind::OauthSignedIn, provider: "github")
+      SaveUserAudit.create!(user_id: user.id, kind: UserAudit::Kind::OauthSignedIn, oauth_provider: "github")
     end
 
     response = ApiClient.new.get("/me/events?backdoor_user_id=#{user.id}")
@@ -257,7 +280,7 @@ describe "User events" do
 
   it "shows relative event times with the full timestamp on hover" do
     user = UserFactory.create
-    audit = SaveUserAudit.create!(user_id: user.id, kind: :oauth_signed_in, provider: "github", created_at: Time.utc - 2.hours)
+    audit = SaveUserAudit.create!(user_id: user.id, kind: :oauth_signed_in, oauth_provider: "github", created_at: Time.utc - 2.hours)
     response = ApiClient.new.get("/me/events?backdoor_user_id=#{user.id}")
     time = XML.parse_html(response.body).xpath_node("//main//ol/li/time").not_nil!
 
@@ -280,9 +303,9 @@ describe "User events" do
   it "lets admins view a selected user's history and keeps that user on pagination" do
     user = UserFactory.create
     admin = UserFactory.create &.email("audit-admin@example.com")
-    SaveUserAudit.create!(user_id: admin.id, kind: UserAudit::Kind::OauthSignedIn, provider: "admin-private")
+    SaveUserAudit.create!(user_id: admin.id, kind: UserAudit::Kind::OauthSignedIn, oauth_provider: "admin-private")
     21.times do
-      SaveUserAudit.create!(user_id: user.id, kind: UserAudit::Kind::OauthSignedIn, provider: "target-provider")
+      SaveUserAudit.create!(user_id: user.id, kind: UserAudit::Kind::OauthSignedIn, oauth_provider: "target-provider")
     end
 
     response = ApiClient.new.get("/me/events?backdoor_user_id=#{admin.id}&user_id=#{user.id}")
@@ -340,7 +363,7 @@ describe "User events" do
   it "shows the last password change on settings and failed form submissions" do
     user = UserFactory.create
     audit = SaveUserAudit.create!(user_id: user.id, kind: UserAudit::Kind::PasswordChanged, created_at: Time.utc(2020, 1, 1))
-    SaveUserAudit.create!(user_id: user.id, kind: UserAudit::Kind::OauthSignedIn, provider: "github")
+    SaveUserAudit.create!(user_id: user.id, kind: UserAudit::Kind::OauthSignedIn, oauth_provider: "github")
     expected = TimeInWords::Helpers(TimeInWords::I18n::ZH_CN).from(time: audit.created_at)
 
     response = ApiClient.new.get("/users/#{user.id}/edit?backdoor_user_id=#{user.id}")

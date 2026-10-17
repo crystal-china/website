@@ -48,7 +48,7 @@ zh-CN:
     password_confirmation: 确认密码
     path_index: 文档路径
     position: 排序位置
-    provider: 第三方登录平台
+    oauth_provider: 第三方登录平台
     profile: 个人资料
     read_at: 阅读时间
     replies_count: 回复数量

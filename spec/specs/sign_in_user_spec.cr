@@ -93,7 +93,7 @@ describe SignInUser do
         audit.changed_column_name.should be_nil
         audit.from.should be_nil
         audit.to.should be_nil
-        audit.provider.should be_nil
+        audit.oauth_provider.should be_nil
       end
     end
   end

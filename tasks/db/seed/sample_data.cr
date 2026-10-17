@@ -288,7 +288,7 @@ class Db::Seed::SampleData < LuckyTask::Task
         SaveUserAudit.create!(
           user_id: user.id,
           kind: :oauth_signed_in,
-          provider: index.even? ? "github" : "google"
+          oauth_provider: index.even? ? "github" : "google"
         )
       end
 
@@ -307,7 +307,7 @@ class Db::Seed::SampleData < LuckyTask::Task
     end
 
     User::SaveOperation.update!(users[2], created_at: now - 2.days)
-    SaveUserAudit.create!(user_id: users[2].id, kind: :oauth_signed_in, provider: "github", created_at: now - 1.day, updated_at: now - 1.day)
+    SaveUserAudit.create!(user_id: users[2].id, kind: :oauth_signed_in, oauth_provider: "github", created_at: now - 1.day, updated_at: now - 1.day)
   end
 
   private def seed_trash(users : Array(User), node : Node, doc_thread_id : Int64, topic_thread_id : Int64) : Nil

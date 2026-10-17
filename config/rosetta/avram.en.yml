@@ -48,7 +48,7 @@ en:
     password_confirmation: Password confirmation
     path_index: Document path
     position: Position
-    provider: OAuth provider
+    oauth_provider: OAuth provider
     profile: Profile
     read_at: Read at
     replies_count: Reply count
