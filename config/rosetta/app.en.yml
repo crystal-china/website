@@ -157,6 +157,7 @@ en:
     events: Account history
     unset: Not set
     reset_password: Reset password
+    last_active: Last active
 
   component:
     o_auth:

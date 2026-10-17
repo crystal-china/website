@@ -25,6 +25,17 @@ class Forum::AuthorCard < BaseComponent
       end
 
       para r(".joined").t(date: user.created_at.to_local.to_s("%Y-%m-%d")), class: "mt-4 mb-0 text-xs text-gray-500"
+
+      if (last_active_at = user.last_active_at)
+        para class: "mt-2 mb-0 text-xs text-gray-500" do
+          text "#{r("common.last_active").t} "
+          time(
+            relative_time(last_active_at),
+            datetime: last_active_at.to_rfc3339,
+            title: last_active_at.to_local.to_s("%Y-%m-%d %H:%M:%S %z")
+          )
+        end
+      end
     end
   end
 end

@@ -156,6 +156,7 @@ zh-CN:
     events: 账户记录
     unset: 未设置
     reset_password: 重置密码
+    last_active: 最后活跃于
 
   component:
     o_auth:
