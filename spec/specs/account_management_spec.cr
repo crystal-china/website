@@ -70,6 +70,7 @@ describe "Account management" do
     profile.body.should contain("/users/#{user.id}/edit")
     response.status_code.should eq(200)
     document.xpath_node("//input[@name='user:login_name']").not_nil!["readonly"]?.should be_nil
+    document.xpath_node("//main//section/header/a").not_nil!.content.should eq("回到个人主页")
     document.xpath_node("//form[@action='/users/#{user.id}']").should_not be_nil
     button = document.xpath_node("//button[@hx-delete='/admin/users/#{user.id}/remove_password']").not_nil!
 
@@ -138,6 +139,54 @@ describe "Account management" do
     response.headers["Location"].should eq(Users::Show.with(login_name: user.login_name).path)
     UserQuery.find(user.id).nickname.should eq("Updated nickname")
     UserAuditQuery.new.user_id(user.id).first.actor_id.should eq(user.id)
+  end
+
+  it "preserves the original return path across repeated validation failures" do
+    user = UserFactory.create
+    client = account_sign_in(user)
+    source = "/forum?page=3"
+    client.headers(Referer: "#{Lucky::RouteHelper.settings.base_uri}#{source}")
+    response = client.get("/users/#{user.id}/edit")
+    document = XML.parse_html(response.body)
+
+    document.xpath_node("//input[@name='return_to']").not_nil!["value"].should eq(source)
+    document.xpath_node("//form//a").not_nil!["href"].should eq(source)
+    document.xpath_node("//main//section/header/a").not_nil!["href"].should eq(Users::Show.with(login_name: user.login_name).path)
+
+    client.headers(Referer: "#{Lucky::RouteHelper.settings.base_uri}/users/#{user.id}/edit")
+    2.times do
+      response = client.put("/users/#{user.id}", return_to: source, user: {login_name: "bad name"})
+      document = XML.parse_html(response.body)
+
+      response.status_code.should eq(200)
+      document.xpath_node("//input[@name='return_to']").not_nil!["value"].should eq(source)
+      document.xpath_node("//form//a").not_nil!["href"].should eq(source)
+    end
+
+    response = client.put("/users/#{user.id}", return_to: source, user: {nickname: "Updated nickname"})
+
+    response.status_code.should eq(303)
+    response.headers["Location"].should eq(Users::Show.with(login_name: user.login_name).path)
+  end
+
+  it "falls back to the target profile for missing or unsafe return paths" do
+    admin = UserFactory.create &.email("account-admin@example.com")
+    user = UserFactory.create
+    client = account_sign_in(admin)
+    profile_path = Users::Show.with(login_name: user.login_name).path
+    edit_path = "/users/#{user.id}/edit"
+    response = client.get(edit_path)
+
+    XML.parse_html(response.body).xpath_node("//form//a").not_nil!["href"].should eq(profile_path)
+
+    {"https://example.com//other.example/forum", "javascript:alert(1)", "/\\example.com"}.each do |source|
+      response = client.put("/users/#{user.id}", return_to: source, user: {login_name: "bad name"})
+      document = XML.parse_html(response.body)
+
+      response.status_code.should eq(200)
+      document.xpath_node("//input[@name='return_to']").not_nil!["value"].should eq(profile_path)
+      document.xpath_node("//form//a").not_nil!["href"].should eq(profile_path)
+    end
   end
 
   it "requires guests to sign in before editing or saving a profile" do

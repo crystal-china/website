@@ -1,6 +1,7 @@
 class Shared::UserProfileForm < BaseComponent
   needs user : User
   needs op : UpdateUser
+  needs return_path : String
   needs password_changed_at : Time?
 
   def render : Nil
@@ -15,6 +16,8 @@ class Shared::UserProfileForm < BaseComponent
       end
 
       form_for(Users::Update.with(id: user.id), class: "panel-body space-y-8") do
+        input type: "hidden", name: "return_to", value: return_path
+
         div class: "grid gap-8 md:grid-cols-[minmax(0,1fr)_15rem]" do
           div class: "space-y-6" do
             div class: "space-y-2" do
@@ -89,7 +92,7 @@ class Shared::UserProfileForm < BaseComponent
         end
 
         div class: "flex flex-wrap items-center justify-end gap-3 border-t border-gray-200 pt-6" do
-          link r("common.back").t, to: Users::Show.with(login_name: user.login_name), class: "form-secondary"
+          a r("common.back").t, href: return_path, class: "form-secondary"
           submit r("common.save_changes").t, class: "form-submit"
         end
       end

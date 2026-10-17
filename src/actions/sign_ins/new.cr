@@ -9,12 +9,8 @@ class SignIns::New < BrowserAction
   end
 
   private def remember_return_to : Nil
-    return unless (path = return_to)
+    return unless (path = ReturnPath.parse(return_to))
 
-    uri = URI.parse(path)
-    return unless uri.scheme.nil? && uri.host.nil? && uri.path.starts_with?("/") && !uri.path.includes?('\\')
-
-    session.set(:return_to, uri.request_target)
-  rescue URI::Error
+    session.set(:return_to, path)
   end
 end
