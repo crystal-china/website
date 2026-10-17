@@ -2,15 +2,24 @@
 #
 # https://luckyframework.org/guides/http-and-routing/error-handling
 class Errors::Show < Lucky::ErrorAction
-  DEFAULT_MESSAGE = "Something went wrong."
+  include Rosetta::Translatable
+
   default_format :html
   dont_report [Lucky::RouteNotFoundError, Avram::RecordNotFoundError]
 
+  def perform_action(error : Exception) : Nil
+    # 路由未匹配时不会经过 BrowserAction 的 set_locale。
+    locale = params.get?(:locale) || session.get?(:locale) || Rosetta.default_locale
+    locale = Rosetta.default_locale unless locale.in?(Rosetta.available_locales)
+
+    Rosetta.with_locale(locale) { super(error) }
+  end
+
   def render(error : Lucky::RouteNotFoundError | Avram::RecordNotFoundError) : Lucky::Response
     if html?
-      error_html "Sorry, we couldn't find that page.", status: 404
+      error_html r(".not_found").t, status: 404
     else
-      error_json "Not found", status: 404
+      error_json r(".not_found_json").t, status: 404
     end
   end
 
@@ -18,7 +27,7 @@ class Errors::Show < Lucky::ErrorAction
   # helpful error with the param that is invalid, and what was wrong with it.
   def render(error : Avram::InvalidOperationError) : Lucky::Response
     if html?
-      error_html DEFAULT_MESSAGE, status: 500
+      error_html r(".default_error").t, status: 500
     else
       error_json \
         message: error.renderable_message,
@@ -32,7 +41,7 @@ class Errors::Show < Lucky::ErrorAction
   # custom 'render' methods.
   def render(error : Lucky::RenderableError) : Lucky::Response
     if html?
-      error_html DEFAULT_MESSAGE, status: error.renderable_status
+      error_html r(".default_error").t, status: error.renderable_status
     else
       error_json error.renderable_message, status: error.renderable_status
     end
@@ -42,9 +51,9 @@ class Errors::Show < Lucky::ErrorAction
   # Lucky will use this method.
   def default_render(error : Exception) : Lucky::Response
     if html?
-      error_html DEFAULT_MESSAGE, status: 500
+      error_html r(".default_error").t, status: 500
     else
-      error_json DEFAULT_MESSAGE, status: 500
+      error_json r(".default_error").t, status: 500
     end
   end
 

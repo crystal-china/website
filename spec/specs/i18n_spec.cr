@@ -20,7 +20,7 @@ describe "Internationalization" do
       "missing_key"           => "Missing translation for \"missing.translation.for_compile_test\"",
       "missing_interpolation" => "total",
       "missing_locale"        => "zh-CN",
-      "missing_field"         => "Missing field translation: fields.missing_field_for_compile_test",
+      "missing_field"         => "Missing translation for \"fields.missing_field_for_compile_test\"",
     }.each do |fixture, expected|
       output = IO::Memory.new
       status = Process.run("crystal", ["build", "--no-codegen", "--no-color", "spec/fixtures/i18n/#{fixture}.cr"], output: output, error: output)
@@ -143,6 +143,7 @@ describe "Internationalization" do
         email = PasswordResetRequestEmail.new(user)
         email.subject.should eq(Rosetta.find("password_reset_request_email.subject").t)
         email.html_body.not_nil!.should contain(Rosetta.find("password_reset_request_email.instructions").t)
+        email.html_body.not_nil!.should contain(Rosetta.find("common.reset_password").t)
         email.text_body.not_nil!.should contain(Rosetta.find("password_reset_request_email.instructions").t)
       end
     end
@@ -154,6 +155,26 @@ describe "Internationalization" do
       response.status_code.should eq(404)
       XML.parse_html(response.body).xpath_node("//h1").not_nil!.content.should eq("Sorry, we couldn't find that page.")
       XML.parse_html(response.body).xpath_node("//html").not_nil!["lang"].should eq("en")
+    end
+  end
+
+  it "uses the saved locale for errors and falls back for unsupported locales" do
+    client = ApiClient.new
+    response = client.get("/sign_in?locale=en")
+    headers = HTTP::Headers.new
+    HTTP::Cookies.from_server_headers(response.headers).add_request_headers(headers)
+    client.headers(Cookie: headers["Cookie"])
+
+    Lucky::ErrorHandler.temp_config(show_debug_output: false) do
+      response = client.get("/no-such-page")
+      response.status_code.should eq(404)
+      XML.parse_html(response.body).xpath_node("//html").not_nil!["lang"].should eq("en")
+
+      response = client.get("/no-such-page?locale=invalid")
+      response.status_code.should eq(404)
+      document = XML.parse_html(response.body)
+      document.xpath_node("//html").not_nil!["lang"].should eq("zh-CN")
+      document.xpath_node("//h1").not_nil!.content.should eq("抱歉，找不到这个页面。")
     end
   end
 
