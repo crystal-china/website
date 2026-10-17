@@ -14,6 +14,7 @@ import setupHtmxErrorAlert from "./htmxErrorAlert.js";
 import setupLogo from "./logoViewer.js";
 import pasteImage from "./pasteImage.js";
 import setupMentions from "./mentions.js";
+import t from "./i18n.js";
 
 // 调试 HTMX 时临时取消注释；错误和警告默认始终输出。
 // htmx.config.logAll = true;
@@ -48,6 +49,11 @@ document.addEventListener("htmx:config:request", (event) => {
 });
 
 function initializeContent(root) {
+    // Stored HTML and cached documentation can predate the selected locale.
+    findElements(root, ".box.info > .titlebar").forEach((title) => {
+        title.textContent = `💡 ${t("tip")}`;
+    });
+
     void setupLogo(root, assetUrl);
     setupPasteImage(root);
     setupCopyCodeButton(root);

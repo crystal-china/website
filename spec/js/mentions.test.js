@@ -11,6 +11,7 @@ describe("mention autocomplete boundaries", () => {
         requests = [];
         globalThis.document = {
             activeElement: null,
+            getElementById: () => ({ textContent: JSON.stringify({ mention_users: "提及用户" }) }),
             createElement: () => ({ setAttribute() {}, replaceChildren() {} }),
         };
         globalThis.location = { origin: "http://example.test" };

@@ -1,3 +1,5 @@
+import t from "./i18n.js";
+
 let hideTimer;
 
 function showError(message, networkError = false) {
@@ -23,17 +25,17 @@ function messageForStatus(status) {
     switch (status) {
         case 400:
         case 422:
-            return "提交内容有误，请检查后重试。";
+            return t("invalid_request");
         case 401:
-            return "登录状态已失效，请重新登录。";
+            return t("sign_in_required");
         case 403:
-            return "你没有执行此操作的权限。";
+            return t("forbidden");
         case 404:
-            return "请求的内容不存在或已被删除。";
+            return t("not_found");
         case 409:
-            return "内容已发生变化，请刷新后重试。";
+            return t("conflict");
         default:
-            return "服务器暂时无法处理请求，请稍后重试。";
+            return t("server_error");
     }
 }
 
@@ -67,13 +69,13 @@ export default function setupHtmxErrorAlert(htmx) {
         }
 
         if (!navigator.onLine) {
-            showError("网络连接已断开，请检查网络后重试。", true);
+            showError(t("offline"), true);
         } else if (error?.name === "AbortError") {
-            showError("请求超时，请稍后重试。");
+            showError(t("timeout"));
         } else if (ctx != null && ctx.response == null) {
-            showError("无法连接服务器，请稍后重试。", true);
+            showError(t("connection_failed"), true);
         } else {
-            showError("页面交互失败，请刷新后重试。");
+            showError(t("interaction_failed"));
         }
     });
 }
