@@ -20,7 +20,7 @@ module UserNameValidations
     end
 
     if query.any?
-      login_name.add_error r("avram.validate_uniqueness_of").t
+      login_name.add_error Avram.settings.i18n_backend.get(:validate_uniqueness_of)
     end
   end
 end
