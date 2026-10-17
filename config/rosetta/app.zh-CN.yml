@@ -154,11 +154,6 @@ zh-CN:
     reset_password: 重置密码
     last_active: 最后活跃于
 
-  o_auth:
-    title: 快捷登录
-    description: 如果你之前绑定过第三方账号，可以直接使用。
-    providers: 快捷登录方式
-
   doc_layout:
     full_description: "%{title}：%{description}。"
     created_at: "创建于：%Y年%m月%d日"
@@ -381,6 +376,10 @@ zh-CN:
       no_matches: 没有找到匹配的内容。
 
   shared:
+    o_auth:
+      title: 快捷登录
+      description: 如果你之前绑定过第三方账号，可以直接使用。
+      providers: 快捷登录方式
     layout_head:
       image_description: Crystal 中文社区
     online_users:

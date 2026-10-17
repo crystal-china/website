@@ -20,7 +20,7 @@ module AuthPageHelpers
     else
       section class: "mx-auto grid w-full max-w-4xl gap-8 px-8 py-12 lg:grid-cols-[minmax(0,1fr)_18rem]" do
         yield
-        mount OAuth, providers: providers
+        mount Shared::OAuth, providers: providers
       end
     end
   end

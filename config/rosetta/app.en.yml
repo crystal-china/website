@@ -155,11 +155,6 @@ en:
     reset_password: Reset password
     last_active: Last active
 
-  o_auth:
-    title: Sign in with a provider
-    description: Use a previously connected provider to sign in.
-    providers: Sign-in providers
-
   doc_layout:
     full_description: "%{title}: %{description}."
     created_at: "Created: %Y-%m-%d"
@@ -385,6 +380,10 @@ en:
       no_matches: No matching content found.
 
   shared:
+    o_auth:
+      title: Sign in with a provider
+      description: Use a previously connected provider to sign in.
+      providers: Sign-in providers
     layout_head:
       image_description: Crystal China Community
     online_users:

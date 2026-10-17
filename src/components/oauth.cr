@@ -1,4 +1,4 @@
-class OAuth < BaseComponent
+class Shared::OAuth < BaseComponent
   needs providers : Array(String)
 
   def render : Nil
