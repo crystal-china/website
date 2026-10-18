@@ -37,12 +37,12 @@ describe "Request time zone" do
 
       response.status_code.should eq(200)
 
-      [response.body, card].each do |html|
+      {response.body => date, card => Rosetta.find("forum.author_card.joined").t(date: date)}.each do |html, joined_label|
         document = XML.parse_html(html)
         joined = document.xpath_node("//time[@datetime='#{created_at.to_rfc3339}']").not_nil!
         activity = document.xpath_node("//time[@datetime='#{last_active_at.to_rfc3339}']").not_nil!
 
-        joined.content.should eq(date)
+        joined.content.should eq(joined_label)
         joined["title"].should eq(created_at.in(location).to_s("%Y-%m-%d %H:%M:%S %z"))
         activity["title"].should eq(last_active_at.in(location).to_s("%Y-%m-%d %H:%M:%S %z"))
         html.should_not contain("data-local-time")

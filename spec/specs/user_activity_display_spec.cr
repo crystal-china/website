@@ -12,7 +12,9 @@ describe "User activity display" do
 
         response.status_code.should eq(200)
 
-        [response.body, card].each do |html|
+        date = user.created_at.to_local.to_s("%Y-%m-%d")
+
+        {response.body => date, card => Rosetta.find("forum.author_card.joined").t(date: date)}.each do |html, joined_label|
           document = XML.parse_html(html)
           time = document.xpath_node("//time[@datetime='#{last_active_at.to_rfc3339}']").not_nil!
           joined = document.xpath_node("//time[@datetime='#{user.created_at.to_rfc3339}']").not_nil!
@@ -22,7 +24,7 @@ describe "User activity display" do
           time["datetime"].should eq(last_active_at.to_rfc3339)
           time["title"].should eq(last_active_at.to_local.to_s("%Y-%m-%d %H:%M:%S %z"))
           joined["datetime"].should eq(user.created_at.to_rfc3339)
-          joined.content.should eq(user.created_at.to_local.to_s("%Y-%m-%d"))
+          joined.content.should eq(joined_label)
         end
       end
     end

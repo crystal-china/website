@@ -86,10 +86,9 @@ class Admin::Trash::IndexPage < AdminLayout
   end
 
   private def render_deleted_at(at : Time) : Nil
-    text r(".deleted_at").t(time: "")
     local_time(
       at,
-      time_in_zone(at).to_s("%Y-%m-%d %H:%M:%S %z")
+      r(".deleted_at").t(time: time_in_zone(at).to_s("%Y-%m-%d %H:%M:%S %z"))
     )
   end
 

@@ -29,10 +29,9 @@ class Forum::AuthorCard < BaseComponent
       end
 
       para class: "mt-4 mb-0 text-xs text-gray-500" do
-        text r(".joined").t(date: "")
         local_time(
           user.created_at,
-          time_in_zone(user.created_at).to_s("%Y-%m-%d")
+          r(".joined").t(date: time_in_zone(user.created_at).to_s("%Y-%m-%d"))
         )
       end
 

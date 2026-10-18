@@ -31,7 +31,15 @@ describe "Soft deletion" do
     CommentQuery.find(root.id).descendants_count.should eq(1)
     CommentQuery.new.with_soft_deleted.id(child.id).first.children_count.should eq(1)
     ApiClient.new.get("/admin/trash?backdoor_user_id=#{user.id}").status_code.should eq(404)
-    ApiClient.new.get("/admin/trash?backdoor_user_id=#{admin.id}").status_code.should eq(200)
+    {"en" => "Deleted", "zh-CN" => "删除于"}.each do |locale, label|
+      response = ApiClient.new.get("/admin/trash?locale=#{locale}&backdoor_user_id=#{admin.id}")
+      deleted_at = CommentQuery.new.only_soft_deleted.id(child.id).first.soft_deleted_at.not_nil!
+      time = XML.parse_html(response.body).xpath_node("//article//time").not_nil!
+
+      response.status_code.should eq(200)
+      time.content.should eq("#{label} #{deleted_at.to_local.to_s("%Y-%m-%d %H:%M:%S %z")}")
+      time["datetime"].should eq(deleted_at.to_rfc3339)
+    end
 
     thread_response = ApiClient.new.get("/htmx/comments?root_id=#{root.id}")
     thread_response.status_code.should eq(200)
@@ -69,7 +77,15 @@ describe "Soft deletion" do
     ApiClient.new.get("/forum/#{topic.id}").status_code.should eq(404)
     ApiClient.new.get("/htmx/comments?comment_thread_id=#{thread_id}").status_code.should eq(404)
     ApiClient.new.get("/admin/trash?kind=topics&backdoor_user_id=#{user.id}").status_code.should eq(404)
-    ApiClient.new.get("/admin/trash?kind=topics&backdoor_user_id=#{admin.id}").status_code.should eq(200)
+    {"en" => "Deleted", "zh-CN" => "删除于"}.each do |locale, label|
+      response = ApiClient.new.get("/admin/trash?kind=topics&locale=#{locale}&backdoor_user_id=#{admin.id}")
+      deleted_at = TopicQuery.new.only_soft_deleted.id(topic.id).first.soft_deleted_at.not_nil!
+      time = XML.parse_html(response.body).xpath_node("//article//time").not_nil!
+
+      response.status_code.should eq(200)
+      time.content.should eq("#{label} #{deleted_at.to_local.to_s("%Y-%m-%d %H:%M:%S %z")}")
+      time["datetime"].should eq(deleted_at.to_rfc3339)
+    end
 
     TopicQuery.new.only_soft_deleted.id(topic.id).first.restore
 
