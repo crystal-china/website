@@ -250,6 +250,72 @@ describe "Mention notification preferences" do
 end
 
 describe "Notifications" do
+  it "groups each page by the visitor's local date without changing read state or HTMX targets" do
+    user = UserFactory.create
+    actor = UserFactory.create
+    times = [Time.utc(2026, 10, 17, 15, 30), Time.utc(2026, 10, 17, 16, 30), Time.utc(2026, 10, 18, 6, 30), Time.utc(2026, 10, 18, 7, 30)]
+    notifications = times.map do |at|
+      SaveNotification.create!(
+        user_id: user.id,
+        actor_id: actor.id,
+        kind: :mention,
+        url: "/docs/index",
+        source_title: "Grouped notification",
+        excerpt: "Excerpt",
+        created_at: at
+      )
+    end
+
+    {"Asia/Shanghai" => [3, 1], "America/Los_Angeles" => [1, 3]}.each do |zone, counts|
+      {"en" => ["2026-10-18", "2026-10-17"], "zh-CN" => ["2026年10月18日", "2026年10月17日"]}.each do |locale, labels|
+        response = ApiClient.new.headers(Cookie: "time_zone=#{URI.encode_path(zone)}").get("/notifications?locale=#{locale}&backdoor_user_id=#{user.id}")
+        document = XML.parse_html(response.body)
+        headings = document.xpath_nodes("//h3/time")
+
+        response.status_code.should eq(200)
+        headings.map(&.content).should eq(labels)
+        headings.map { |heading| heading["datetime"] }.should eq(["2026-10-18", "2026-10-17"])
+        document.xpath_nodes("//h3/../div").map { |group| group.xpath_nodes("./form").size }.should eq(counts)
+        document.xpath_nodes("//section").size.should eq(1)
+        document.xpath_nodes("//form").map { |form| form["action"] }.should eq(notifications.reverse.map { |notification| "/notifications/#{notification.id}/read" })
+      end
+    end
+
+    NotificationQuery.new.user_id(user.id).read_at.is_nil.select_count.should eq(4)
+  end
+
+  it "distinguishes replies, mentions and management events with decorative icons" do
+    user = UserFactory.create
+    actor = UserFactory.create
+    notifications = Notification::Kind.values.map do |kind|
+      SaveNotification.create!(
+        user_id: user.id,
+        actor_id: actor.id,
+        kind: kind,
+        url: "/docs/index",
+        source_title: kind.to_s,
+        excerpt: "Excerpt",
+        read_at: kind.value.even? ? Time.utc : nil
+      )
+    end
+    response = ApiClient.new.get("/notifications?locale=en&backdoor_user_id=#{user.id}")
+    document = XML.parse_html(response.body)
+    paths = notifications.to_h do |notification|
+      form = document.xpath_node("//form[@action='/notifications/#{notification.id}/read']").not_nil!
+      icon = form.xpath_node(".//svg").not_nil!
+
+      icon.parent.not_nil!["aria-hidden"].should eq("true")
+      form.xpath_node(".//span[@aria-label='#{notification.read_at ? "Read" : "Unread"}']").should_not be_nil
+      {notification.kind, icon.xpath_node("./path").not_nil!["d"]}
+    end
+
+    response.status_code.should eq(200)
+    paths.values.uniq.size.should eq(5)
+    paths[Notification::Kind::TopicReply].should eq(paths[Notification::Kind::CommentReply])
+    paths[Notification::Kind::TopicEdited].should eq(paths[Notification::Kind::CommentEdited])
+    paths[Notification::Kind::TopicDeleted].should eq(paths[Notification::Kind::CommentDeleted])
+  end
+
   it "loads and paginates dialog content without reading notifications automatically" do
     user = UserFactory.create
     other = UserFactory.create

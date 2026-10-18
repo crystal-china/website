@@ -328,6 +328,7 @@ zh-CN:
       loading: 正在读取通知...
     list:
       read_all: 全部标为已读
+      date: "%Y年%m月%d日"
       empty: 还没有通知。有人回复或提及你时，会显示在这里。
       pagination: 通知分页
       topic_reply: 回复了你的主题

@@ -332,6 +332,7 @@ en:
       loading: Loading notifications...
     list:
       read_all: Mark all as read
+      date: "%Y-%m-%d"
       empty: No notifications yet. Replies and mentions will appear here.
       pagination: Notification pagination
       topic_reply: replied to your topic

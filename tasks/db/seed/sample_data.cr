@@ -244,9 +244,20 @@ class Db::Seed::SampleData < LuckyTask::Task
 
     seed_trash(users, nodes["general"], concurrency_thread_id, first_topic_thread_id)
 
+    now = Time.local
     users.each do |user|
-      NotificationQuery.new.user_id(user.id).id.asc_order.limit(3).each do |notification|
-        SaveNotification.update!(notification, read_at: Time.utc)
+      notifications = NotificationQuery.new.user_id(user.id).id.asc_order.results
+
+      # 按 ID 顺序分成三批，依次放到前天、昨天和今天；最早三条标为已读。
+      notifications.each_with_index do |notification, index|
+        at = now - (2 - index * 3 // notifications.size).days
+
+        SaveNotification.update!(
+          notification,
+          created_at: at,
+          updated_at: at,
+          read_at: index < 3 ? at : nil
+        )
       end
     end
 
@@ -261,7 +272,7 @@ class Db::Seed::SampleData < LuckyTask::Task
     puts "All sample accounts use password: temp1234."
     puts "Set ADMIN_EMAILS=admin@crystal-china.org before starting the app to enable the sample administrator."
     puts "Trash: /admin/trash (#{CommentQuery.new.only_soft_deleted.select_count} comments, including page 2), /admin/trash?kind=topics."
-    puts "Notifications include read/unread replies, mentions, and administrator edits, moves and deletions."
+    puts "Notifications span today, yesterday and the day before, with read/unread replies, mentions, and administrator edits, moves and deletions."
     puts "Account history: /me/events; admin and xiaoming have multiple pages, ruby_to_crystal has one event, concurrency has none."
     puts "History includes nickname/login-name changes, password changes, password/OAuth logins, and administrator password removals."
   end
