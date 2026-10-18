@@ -25,18 +25,11 @@ HYPER
         "aria-label": r(".named_user_menu").t(nickname: user.nickname),
         "aria-controls": "nav-user-panel"
       ) do
-        span class: "relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-800 text-sm font-semibold text-white ring-1 ring-black/5" do
-          text user.nickname[0].to_s.upcase
-
-          if (avatar = user.avatar.presence)
-            img(
-              src: avatar,
-              alt: "",
-              class: "absolute inset-0 h-8 w-8 rounded-full object-cover",
-              onerror: "this.remove()"
-            )
-          end
-        end
+        mount(
+          Shared::Avatar,
+          user: user,
+          classes: "h-8 w-8 rounded-full text-sm ring-1 ring-black/5"
+        )
 
         span class: "nav-user-chevron", "aria-hidden": "true"
       end
@@ -47,13 +40,11 @@ HYPER
         "aria-label": r(".account_actions").t
       ) do
         div class: "nav-user-identity" do
-          div class: "relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-800 text-base font-semibold text-white" do
-            text user.nickname[0].to_s.upcase
-
-            if (avatar = user.avatar.presence)
-              img src: avatar, alt: "", class: "absolute inset-0 h-full w-full object-cover", onerror: "this.remove()"
-            end
-          end
+          mount(
+            Shared::Avatar,
+            user: user,
+            classes: "h-11 w-11 rounded-xl text-base"
+          )
 
           div class: "min-w-0 text-sm" do
             mount Shared::UserName, user: user, stacked: true

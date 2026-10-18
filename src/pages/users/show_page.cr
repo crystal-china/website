@@ -15,13 +15,11 @@ class Users::ShowPage < MainLayout
         div class: "h-24 border-b border-sky-100 bg-gradient-to-r from-sky-100 via-slate-100 to-amber-50 sm:h-32", "aria-hidden": "true"
 
         div class: "px-6 pb-8 sm:px-10" do
-          div class: "relative -mt-10 flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl bg-slate-800 text-3xl font-semibold text-white ring-4 ring-white" do
-            text user.nickname[0].to_s.upcase
-
-            if (avatar = user.avatar.presence)
-              img src: avatar, alt: "", class: "absolute inset-0 h-full w-full object-cover", onerror: "this.remove()"
-            end
-          end
+          mount(
+            Shared::Avatar,
+            user: user,
+            classes: "-mt-10 h-20 w-20 rounded-2xl text-3xl ring-4 ring-white"
+          )
 
           header class: "mt-5 flex flex-wrap items-start justify-between gap-4" do
             div class: "min-w-0" do

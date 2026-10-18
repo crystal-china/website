@@ -6,18 +6,11 @@ class Forum::AuthorCard < BaseComponent
       h2 r(".author").t, class: "m-0 mb-4 text-sm font-semibold text-gray-900"
 
       div class: "flex items-center gap-3" do
-        div class: "relative h-10 w-10 shrink-0" do
-          span user.nickname[0].to_s.upcase, class: "flex h-10 w-10 items-center justify-center rounded-full bg-gray-900 text-sm font-semibold text-white"
-
-          if (avatar = user.avatar.presence)
-            img(
-              src: avatar,
-              alt: "",
-              class: "absolute inset-0 h-10 w-10 rounded-full object-cover ring-1 ring-gray-200",
-              onerror: "this.remove()"
-            )
-          end
-        end
+        mount(
+          Shared::Avatar,
+          user: user,
+          classes: "h-10 w-10 rounded-full text-sm ring-1 ring-gray-200"
+        )
 
         div class: "min-w-0 text-sm" do
           mount Shared::UserName, user: user, stacked: true

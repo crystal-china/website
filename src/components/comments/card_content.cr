@@ -20,7 +20,11 @@ class Comments::CardContent < BaseComponent
 
     header class: "flex flex-wrap items-start justify-between gap-3 sm:flex-nowrap" do
       div class: "flex min-w-0 items-center gap-3" do
-        img src: user.avatar || asset("svgs/crystal-lang-icon.svg"), class: "h-6 w-6 rounded-md border border-gray-300 bg-white object-cover p-0.5"
+        mount(
+          Shared::Avatar,
+          user: user,
+          classes: "h-6 w-6 rounded-md border border-gray-300 text-xs"
+        )
         div class: "min-w-0 text-xs" do
           mount Shared::UserName, user: user, stacked: true
         end
