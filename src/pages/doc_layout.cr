@@ -134,21 +134,23 @@ abstract class DocLayout < MainLayout
 
   private def print_doc_info(doc) : Nil
     para class: "doc-page-meta-text" do
-      text "创建于："
       local_time(
         doc.created_at,
-        time_in_zone(doc.created_at).to_s("%Y-%m-%d")
+        r("doc_layout.created_at").t(time: time_in_zone(doc.created_at))
       )
 
       if (modified_at = doc.content_updated_at)
-        text "       最后编辑于: "
+        text " "
         local_time(
           modified_at,
-          time_in_zone(modified_at).to_s("%Y-%m-%d")
+          r("doc_layout.updated_at").t(time: time_in_zone(modified_at))
         )
       end
 
-      text "  | #{doc.view_count}次阅读" if doc.view_count > 0
+      if doc.view_count > 0
+        text " | "
+        text r("doc_layout.view_count").t(count: doc.view_count)
+      end
     end
   end
 

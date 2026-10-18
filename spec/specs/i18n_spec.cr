@@ -135,6 +135,26 @@ describe "Internationalization" do
     XML.parse_html(response.body).xpath_node("//main//ol/li/time").not_nil!.content.should eq("大约两小时前")
   end
 
+  it "localizes document dates and reading counts with the existing catalog" do
+    doc = DocContent.sync("/docs/index", File.read("public/markdowns/index.md"))
+
+    {"en"    => {"Created:", "Last edited:", "1 view", "2 views"},
+     "zh-CN" => {"创建于：", "最后编辑于：", "1次阅读", "2次阅读"}}.each do |locale, labels|
+      {1, 2}.each do |count|
+        SaveDoc.update!(doc, view_count: count)
+        response = ApiClient.new.get("/docs/index?locale=#{locale}")
+        document = XML.parse_html(response.body)
+        metadata = document.xpath_node("//p[@class='doc-page-meta-text']").not_nil!
+
+        response.status_code.should eq(200)
+        metadata.xpath_nodes("./time").size.should eq(2)
+        metadata.content.should contain(labels[0])
+        metadata.content.should contain(labels[1])
+        metadata.content.should contain(labels[count + 1])
+      end
+    end
+  end
+
   it "localizes email subjects and both body formats" do
     user = UserFactory.create
 
