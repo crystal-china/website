@@ -5,6 +5,8 @@ class Shared::UserProfileForm < BaseComponent
   needs password_changed_at : Time?
 
   def render : Nil
+    login_name_editable = user.login_name_change_allowed? || current_user.not_nil!.admin?
+
     section class: "app-panel mx-auto w-full max-w-3xl overflow-hidden" do
       header class: "panel-header flex flex-wrap items-center justify-between gap-4" do
         div do
@@ -26,15 +28,11 @@ class Shared::UserProfileForm < BaseComponent
                   placeholder: r(".login_name_placeholder").t,
                   minlength: UserLoginName::MIN_LENGTH,
                   maxlength: UserLoginName::MAX_LENGTH,
-                  attrs: user.login_name_change_allowed? || current_user.not_nil!.admin? ? [] of Symbol : [:readonly]
+                  attrs: login_name_editable ? [] of Symbol : [:readonly],
+                  "aria-describedby": "login-name-help"
                 )
               end
-              para r(".login_name_help").t, class: "m-0 text-xs leading-6 text-gray-500"
-              if current_user.not_nil!.admin?
-                para r(".admin_rename_help").t, class: "m-0 text-xs leading-6 text-gray-500"
-              else
-                para r(".rename_help").t, class: "m-0 text-xs leading-6 text-gray-500"
-              end
+              para r(".login_name_help").t, id: "login-name-help", class: "m-0 text-xs leading-6 text-gray-500"
             end
 
             mount Shared::Field, attribute: op.nickname, label_text: r("fields.nickname").t, &.text_input(placeholder: r(".nickname_placeholder").t)
@@ -68,7 +66,7 @@ class Shared::UserProfileForm < BaseComponent
                 button(
                   r(".remove_password").t,
                   type: "button",
-                  class: "ml-3 whitespace-nowrap text-xs text-red-700 hover:underline",
+                  class: "ml-3 text-xs whitespace-nowrap text-red-700 hover:underline",
                   hx_delete: Admin::Users::RemovePassword.with(id: user.id).path,
                   hx_target: "#page-flash",
                   hx_swap: "innerHTML",

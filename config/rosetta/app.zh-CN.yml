@@ -388,9 +388,7 @@ zh-CN:
     user_profile_form:
       description: 更新公开资料、头像和登录密码。头像目前仅支持 http/https 图片链接。
       login_name_placeholder: 用于 @提及
-      login_name_help: 长度为 2–20 个字符，以英文字母、数字或 _ 开头，以字母或数字结尾；中间允许 _、-、.，但符号不能相邻，不区分大小写唯一。
-      admin_rename_help: 管理员可修改登录用户名，不受注册后 7 天的期限限制。
-      rename_help: 仅能在注册后 7 天内修改登录用户名，之后固定；昵称不受此限制。
+      login_name_help: 长度为 2–20 个字符，以英文字母、数字或 _ 开头，以字母或数字结尾；中间允许 _、-、.，但符号不能相邻，不区分大小写唯一，注册后 7 天内可修改。
       nickname_placeholder: 留空使用用户名
       tagline_placeholder: 用一句话介绍自己
       remove_password: 移除密码

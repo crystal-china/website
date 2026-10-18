@@ -392,9 +392,7 @@ en:
     user_profile_form:
       description: Update your public profile, avatar and password. Avatars currently require an HTTP or HTTPS image URL.
       login_name_placeholder: Used for @mentions
-      login_name_help: Use 2–20 characters. Start with a letter, number or underscore and end with a letter or number. Separators (_, - and .) cannot be adjacent. Login names are unique regardless of case.
-      admin_rename_help: Administrators can change login names beyond the first 7 days after registration.
-      rename_help: You can change your login name only during the first 7 days after registration. Nicknames are not restricted.
+      login_name_help: '2–20 letters, numbers, _, - or . No leading . or -, trailing symbols or adjacent symbols. Unique (case-insensitive), editable within 7 days of signup.'
       nickname_placeholder: Leave blank to use your login name
       tagline_placeholder: A short sentence about yourself
       remove_password: Remove password

@@ -11,6 +11,10 @@
     @apply block w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 shadow-[inset_0_1px_2px_rgb(15_23_42/0.04),0_1px_1px_rgb(255_255_255/0.8)] transition outline-none placeholder:text-gray-400 hover:border-gray-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-100;
   }
 
+  .form-input[readonly] {
+    @apply cursor-not-allowed border-gray-300 bg-gray-100 text-gray-500 shadow-none hover:border-gray-300;
+  }
+
   .form-submit {
     @apply inline-flex items-center justify-center rounded-xl bg-sky-700 px-5 py-2.5 text-sm font-semibold text-white shadow-[0_1px_2px_rgb(15_23_42/0.18)] transition hover:bg-sky-800 hover:shadow-[0_3px_8px_rgb(15_23_42/0.16)] active:translate-y-px;
   }

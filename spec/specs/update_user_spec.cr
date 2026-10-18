@@ -11,6 +11,7 @@ describe UpdateUser do
       field = XML.parse_html(response.body).xpath_node("//input[@name='user:login_name']").not_nil!
 
       field["readonly"]?.should be_nil
+      XML.parse_html(response.body).xpath_node("//p[@id='login-name-help']").not_nil!.content.should contain("注册后 7 天内可修改")
       UpdateUser.update!(user, login_name: "ChangedLogin").login_name.should eq("ChangedLogin")
     end
   end
@@ -55,10 +56,15 @@ describe UpdateUser do
     user = UserFactory.create
 
     Timecop.freeze(user.created_at + 8.days) do
-      response = ApiClient.new.get("/users/#{user.id}/edit?backdoor_user_id=#{user.id}")
-      field = XML.parse_html(response.body).xpath_node("//input[@name='user:login_name']").not_nil!
+      {"en", "zh-CN"}.each do |locale|
+        response = ApiClient.new.get("/users/#{user.id}/edit?locale=#{locale}&backdoor_user_id=#{user.id}")
+        document = XML.parse_html(response.body)
+        field = document.xpath_node("//input[@name='user:login_name']").not_nil!
 
-      field["readonly"]?.should_not be_nil
+        field["readonly"]?.should_not be_nil
+        field["aria-describedby"].should eq("login-name-help")
+        document.xpath_node("//p[@id='login-name-help']").not_nil!.content.should eq(Rosetta.find("shared.user_profile_form.login_name_help").t)
+      end
 
       Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
         response = ApiClient.new.put("/users/#{user.id}?backdoor_user_id=#{user.id}", user: {login_name: "ForgedLogin"})

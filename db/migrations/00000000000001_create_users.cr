@@ -1,6 +1,7 @@
 class CreateUsers::V00000000000001 < Avram::Migrator::Migration::V1
   def migrate : Nil
     enable_extension "pgroonga"
+    # case_sensitive: false 会把字段建成 citext, email 在用他。
     enable_extension "citext"
 
     create table_for(User) do
