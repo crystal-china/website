@@ -14,6 +14,7 @@ import setupHtmxErrorAlert from "./htmxErrorAlert.js";
 import setupLogo from "./logoViewer.js";
 import pasteImage from "./pasteImage.js";
 import setupMentions from "./mentions.js";
+import saveTimeZone from "./timeZone.js";
 import t from "./i18n.js";
 
 // 调试 HTMX 时临时取消注释；错误和警告默认始终输出。
@@ -24,6 +25,7 @@ import t from "./i18n.js";
 
 htmx.config.noSwap.push("4xx", "5xx");
 setupHtmxErrorAlert(htmx);
+saveTimeZone();
 
 const frontendConfig = JSON.parse(
     document.getElementById("app-config")?.textContent ?? "{}",

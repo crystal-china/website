@@ -11,6 +11,22 @@ module PageHelpers
     end
   end
 
+  def time_in_zone(at : Time) : Time
+    at.in(context.time_zone)
+  end
+
+  # at 用来生成 hover 时间，label 用来传递字符串，直接在页面显示。
+  def local_time(at : Time, label : String, **attrs) : Nil
+    time(
+      label,
+      **attrs,
+      datetime: at.to_rfc3339, # 这个只是一个冗余，显示准确地 UTC 时间。
+      # title 会在鼠标 hover 时显示；统一使用本次请求的浏览器时区，缺失时以服务器时区兜底。
+      # 浏览器只保存时区 Cookie，不再逐个转换页面上的时间标签。
+      title: time_in_zone(at).to_s("%Y-%m-%d %H:%M:%S %z")
+    )
+  end
+
   def doc_markdown(text) : String
     render_markdown_with_info_boxes(text)
   end
