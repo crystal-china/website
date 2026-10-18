@@ -412,7 +412,6 @@ en:
 
   sidebar:
     title: Contents
-    current_user: Current user
 
   sign_ins:
     create:

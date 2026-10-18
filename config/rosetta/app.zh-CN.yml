@@ -408,7 +408,6 @@ zh-CN:
 
   sidebar:
     title: 目录
-    current_user: 当前用户
 
   sign_ins:
     create:

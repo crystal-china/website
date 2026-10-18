@@ -58,42 +58,5 @@ class Sidebar < BaseComponent
         end
       end
     end
-
-    render_current_user
-  end
-
-  private def render_current_user : Nil
-    return unless (user = current_user)
-
-    div class: "mt-4 inline-flex items-center gap-3 rounded-full border border-gray-300 bg-white/80 px-3 py-2 shadow-sm" do
-      if (avatar = user.avatar).presence
-        div class: "relative h-10 w-10 shrink-0" do
-          render_avatar_fallback(user)
-          img(
-            src: avatar.not_nil!,
-            alt: "",
-            class: "absolute inset-0 h-10 w-10 rounded-full object-cover ring-1 ring-gray-200",
-            onerror: "this.remove()"
-          )
-        end
-      else
-        render_avatar_fallback(user)
-      end
-
-      render_current_user_name(user)
-    end
-  end
-
-  private def render_current_user_name(user) : Nil
-    div class: "min-w-0 space-y-1 text-sm" do
-      div r(".current_user").t, class: "text-xs tracking-wide text-gray-500"
-      mount Shared::UserName, user: user, stacked: true
-    end
-  end
-
-  private def render_avatar_fallback(user) : Nil
-    div class: "flex h-10 w-10 items-center justify-center rounded-full bg-gray-900 text-sm font-semibold text-white" do
-      text user.nickname[0].to_s.upcase
-    end
   end
 end
