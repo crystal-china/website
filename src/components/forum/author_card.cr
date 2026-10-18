@@ -28,15 +28,20 @@ class Forum::AuthorCard < BaseComponent
         para tagline, class: "mt-3 mb-0 break-words text-sm leading-6 text-gray-600"
       end
 
-      para r(".joined").t(date: user.created_at.to_local.to_s("%Y-%m-%d")), class: "mt-4 mb-0 text-xs text-gray-500"
+      para class: "mt-4 mb-0 text-xs text-gray-500" do
+        text r(".joined").t(date: "")
+        local_time(
+          user.created_at,
+          time_in_zone(user.created_at).to_s("%Y-%m-%d")
+        )
+      end
 
       if (last_active_at = user.last_active_at)
         para class: "mt-2 mb-0 text-xs text-gray-500" do
           text "#{r("common.last_active").t} "
-          time(
-            relative_time(last_active_at),
-            datetime: last_active_at.to_rfc3339,
-            title: last_active_at.to_local.to_s("%Y-%m-%d %H:%M:%S %z")
+          local_time(
+            last_active_at,
+            relative_time(last_active_at)
           )
         end
       end

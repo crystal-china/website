@@ -56,10 +56,9 @@ class Shared::UserProfileForm < BaseComponent
             para class: "m-0 text-xs text-gray-500" do
               if (changed_at = password_changed_at)
                 text r(".last_password_change").t
-                time(
-                  relative_time(changed_at),
-                  datetime: changed_at.to_rfc3339,
-                  title: changed_at.to_local.to_s("%Y-%m-%d %H:%M:%S %z")
+                local_time(
+                  changed_at,
+                  relative_time(changed_at)
                 )
               else
                 text r(".unknown_password_date").t

@@ -51,15 +51,19 @@ class Users::ShowPage < MainLayout
 
           dl class: "mt-8 border-t border-gray-100 pt-5 text-sm" do
             dt r(".joined").t, class: "text-gray-500"
-            dd user.created_at.to_local.to_s("%Y-%m-%d"), class: "mt-1 ml-0 font-medium text-gray-800"
+            dd class: "mt-1 ml-0 font-medium text-gray-800" do
+              local_time(
+                user.created_at,
+                time_in_zone(user.created_at).to_s("%Y-%m-%d")
+              )
+            end
 
             if (last_active_at = user.last_active_at)
               dt r("common.last_active").t, class: "mt-5 text-gray-500"
               dd class: "mt-1 ml-0 font-medium text-gray-800" do
-                time(
-                  relative_time(last_active_at),
-                  datetime: last_active_at.to_rfc3339,
-                  title: last_active_at.to_local.to_s("%Y-%m-%d %H:%M:%S %z")
+                local_time(
+                  last_active_at,
+                  relative_time(last_active_at)
                 )
               end
             end

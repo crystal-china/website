@@ -43,7 +43,11 @@ class Admin::IndexPage < AdminLayout
                   span class: "h-2.5 w-2.5 rounded-full", style: "background-color: #{topic.node.color}"
                   text "#{topic.node.name} · "
                   mount Shared::UserName, user: topic.user
-                  text " · #{relative_time(topic.created_at)}"
+                  text " · "
+                  local_time(
+                    topic.created_at,
+                    relative_time(topic.created_at)
+                  )
                 end
               end
             end

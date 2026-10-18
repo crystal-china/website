@@ -126,22 +126,30 @@ abstract class DocLayout < MainLayout
       end
 
       div class: "doc-page-meta" do
-        raw print_doc_info(doc)
+        print_doc_info(doc)
         print_votes(doc)
       end
     end
   end
 
-  private def print_doc_info(doc) : String
-    doc_info = "创建于：#{doc.created_at.to_local.to_s("%Y年%m月%d日")}"
+  private def print_doc_info(doc) : Nil
+    para class: "doc-page-meta-text" do
+      text "创建于："
+      local_time(
+        doc.created_at,
+        time_in_zone(doc.created_at).to_s("%Y-%m-%d")
+      )
 
-    if (modified_at = doc.content_updated_at)
-      doc_info = "#{doc_info}       最后编辑于: #{modified_at.to_local.to_s("%Y年%m月%d日")}"
+      if (modified_at = doc.content_updated_at)
+        text "       最后编辑于: "
+        local_time(
+          modified_at,
+          time_in_zone(modified_at).to_s("%Y-%m-%d")
+        )
+      end
+
+      text "  | #{doc.view_count}次阅读" if doc.view_count > 0
     end
-
-    doc_info = "#{doc_info}  | #{doc.view_count}次阅读" if doc.view_count > 0
-
-    %(<p class="doc-page-meta-text">#{doc_info}</p>)
   end
 
   private def print_votes(doc) : Nil

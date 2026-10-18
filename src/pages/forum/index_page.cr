@@ -60,10 +60,16 @@ class Forum::IndexPage < ForumLayout
             span class: "h-2.5 w-2.5 rounded-full", style: "background-color: #{topic.node.color}"
           end
           mount Shared::UserName, user: topic.user
-          text r(".posted_at").t(time: relative_time(topic.created_at))
+          local_time(
+            topic.created_at,
+            r(".posted_at").t(time: relative_time(topic.created_at))
+          )
 
           if (edited_at = topic.edited_at)
-            text r(".edited_at").t(time: relative_time(edited_at))
+            local_time(
+              edited_at,
+              r(".edited_at").t(time: relative_time(edited_at))
+            )
           end
         end
       end
@@ -76,9 +82,11 @@ class Forum::IndexPage < ForumLayout
             mount Shared::UserName, user: last_reply_user
           end
         end
-        span(
-          r(".last_active_at").t(time: relative_time(topic.last_active_at)),
-          title: topic.last_active_at.to_local.to_s("%Y-%m-%d %H:%M:%S")
+        local_time(
+          topic.last_active_at,
+          r(".last_active_at").t(
+            time: relative_time(topic.last_active_at)
+          )
         )
       end
     end

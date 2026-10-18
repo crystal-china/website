@@ -30,16 +30,20 @@ class Comments::CardContent < BaseComponent
 
       div class: "flex shrink-0 items-center gap-2 text-xs leading-none" do
         a(
-          relative_time(comment.created_at),
           href: "#comment-#{comment.id}",
           class: "inline-flex items-center text-sky-700 underline decoration-dotted underline-offset-2"
-        )
+        ) do
+          local_time(
+            comment.created_at,
+            relative_time(comment.created_at)
+          )
+        end
 
         if (edited_at = comment.edited_at)
-          span(
+          local_time(
+            edited_at,
             r(".edited_at").t(time: relative_time(edited_at)),
-            class: "text-gray-500",
-            title: edited_at.to_local.to_s("%Y-%m-%d %H:%M:%S")
+            class: "text-gray-500"
           )
         end
 

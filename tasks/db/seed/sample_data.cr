@@ -263,6 +263,7 @@ class Db::Seed::SampleData < LuckyTask::Task
     puts "Trash: /admin/trash (#{CommentQuery.new.only_soft_deleted.select_count} comments, including page 2), /admin/trash?kind=topics."
     puts "Notifications include read/unread replies, mentions, and administrator edits, moves and deletions."
     puts "Account history: /me/events; admin and xiaoming have multiple pages, ruby_to_crystal has one event, concurrency has none."
+    puts "History includes nickname/login-name changes, password changes, password/OAuth logins, and administrator password removals."
   end
 
   private def seed_account_events(users : Array(User)) : Nil
@@ -284,18 +285,23 @@ class Db::Seed::SampleData < LuckyTask::Task
 
       10.times do |index|
         user = UpdateUser.update!(user, nickname: index.even? ? "#{nickname}（学习中）" : nickname)
-        # 模拟成功登录后的事件，不调用外部 OAuth 服务，也不绑定第三方账号。
-        SaveUserAudit.create!(
-          user_id: user.id,
-          kind: :oauth_signed_in,
-          oauth_provider: index.even? ? "github" : "google"
-        )
+        # 登录事件与实际 Action 使用相同的 Operation；不访问外部 OAuth 服务。
+        if index.even?
+          SaveUserAudit.create!(
+            user_id: user.id,
+            kind: :oauth_signed_in,
+            oauth_provider: index % 4 == 0 ? "github" : "google"
+          )
+        else
+          SaveUserAudit.create!(user_id: user.id, kind: :password_signed_in)
+        end
       end
 
-      user = UpdateUser.update!(user, avatar: "https://example.com/avatar.png")
-      user = UpdateUser.update!(user, avatar: nil)
       user = UpdateUser.update!(user, password: "sample1234", password_confirmation: "sample1234")
+      # 模拟历史移除事件，保留实际操作者；不禁用演示账号当前的密码登录。
+      SaveUserAudit.create!(user_id: user.id, actor_id: users.first.id, kind: :password_removed)
       user = UpdateUser.update!(user, password: "temp1234", password_confirmation: "temp1234")
+      SaveUserAudit.create!(user_id: user.id, kind: :password_signed_in)
 
       # 真实修改生成事件后，仅调整演示日期；改名事件仍位于注册后前七天。
       User::SaveOperation.update!(user, created_at: now - 1096.days)

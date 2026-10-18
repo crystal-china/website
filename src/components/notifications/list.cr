@@ -85,10 +85,10 @@ class Notifications::List < BaseComponent
             end
             span notification.source_title, class: "mt-1 block truncate text-sm font-medium text-sky-700"
             span notification.excerpt, class: "line-clamp-2 mt-1 block text-xs break-words text-gray-500"
-            span(
+            local_time(
+              notification.created_at,
               relative_time(notification.created_at),
-              class: "mt-2 block text-xs text-gray-400",
-              title: notification.created_at.to_local.to_s("%Y-%m-%d %H:%M:%S")
+              class: "mt-2 block text-xs text-gray-400"
             )
           end
         end

@@ -44,22 +44,22 @@ class Forum::ShowPage < ForumLayout
           text " · "
           mount Shared::UserName, user: topic.user
           text " · "
-          span(
-            r(".posted_at").t(time: relative_time(topic.created_at)),
-            title: topic.created_at.to_local.to_s("%Y-%m-%d %H:%M:%S")
+          local_time(
+            topic.created_at,
+            r(".posted_at").t(time: relative_time(topic.created_at))
           )
 
           if (edited_at = topic.edited_at)
             text " · "
-            span(
-              r(".edited_at").t(time: relative_time(edited_at)),
-              title: edited_at.to_local.to_s("%Y-%m-%d %H:%M:%S")
+            local_time(
+              edited_at,
+              r(".edited_at").t(time: relative_time(edited_at))
             )
           end
         end
       end
 
-      div class: "prose prose-neutral my-8 max-w-none text-base leading-7 text-gray-900" do
+      div class: "prose-neutral my-8 max-w-none prose text-base leading-7 text-gray-900" do
         raw(topic.content_html || user_markdown(topic.content))
       end
 

@@ -63,7 +63,7 @@ describe "User profiles" do
     document.xpath_node("//textarea[@name='user:bio']").not_nil!.content.should eq(user.profile.bio)
 
     response = ApiClient.new.get(Users::Show.with(login_name: user.login_name).path)
-    card = Forum::AuthorCard.new(user: user, current_user: nil).render_to_string
+    card = Forum::AuthorCard.new(user: user, current_user: nil).context(time_zone_context).render_to_string
 
     {response.body, card}.each do |html|
       html.should contain("&lt;script&gt;alert(1)&lt;/script&gt;")

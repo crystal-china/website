@@ -45,7 +45,9 @@ class Admin::Trash::IndexPage < AdminLayout
                 text " · #{source}"
               end
               para comment.content[0, 160], class: "mt-1 mb-0 whitespace-pre-wrap break-words text-sm text-gray-800"
-              span deleted_at_text(comment.soft_deleted_at.not_nil!), class: "mt-2 block text-xs text-gray-500"
+              span class: "mt-2 block text-xs text-gray-500" do
+                render_deleted_at(comment.soft_deleted_at.not_nil!)
+              end
             end
 
             form_for Admin::Trash::RestoreComment.with(id: comment.id) do
@@ -69,7 +71,8 @@ class Admin::Trash::IndexPage < AdminLayout
               para class: "mt-1 mb-0 text-xs text-gray-500" do
                 text "##{topic.id} · "
                 mount Shared::UserName, user: topic.user
-                text " · #{deleted_at_text(topic.soft_deleted_at.not_nil!)}"
+                text " · "
+                render_deleted_at(topic.soft_deleted_at.not_nil!)
               end
             end
 
@@ -82,8 +85,12 @@ class Admin::Trash::IndexPage < AdminLayout
     end
   end
 
-  private def deleted_at_text(at : Time) : String
-    r(".deleted_at").t(time: at.to_local.to_s("%Y-%m-%d %H:%M"))
+  private def render_deleted_at(at : Time) : Nil
+    text r(".deleted_at").t(time: "")
+    local_time(
+      at,
+      time_in_zone(at).to_s("%Y-%m-%d %H:%M:%S %z")
+    )
   end
 
   private def render_pagination : Nil

@@ -36,10 +36,9 @@ class Me::EventsPage < MainLayout
                     text r(".unknown_actor").t
                   end
                 end
-                time(
+                local_time(
+                  audit.created_at,
                   relative_time(audit.created_at),
-                  datetime: audit.created_at.to_rfc3339,
-                  title: audit.created_at.to_local.to_s("%Y-%m-%d %H:%M:%S %z"),
                   class: "mt-2 block text-xs text-gray-500"
                 )
               end
@@ -55,8 +54,13 @@ class Me::EventsPage < MainLayout
   private def render_event(audit : UserAudit) : Nil
     case audit.kind
     when .profile_changed?
-      h2 r(".profile_changed").t(field: ValidationErrors.field_name(audit.changed_column_name.not_nil!)), class: "m-0 text-sm font-medium text-gray-900"
-      para class: "mt-2 mb-0 break-words text-sm text-gray-600" do
+      h2(
+        r(".profile_changed").t(
+          field: ValidationErrors.field_name(audit.changed_column_name.not_nil!)
+        ),
+        class: "m-0 text-sm font-medium text-gray-900"
+      )
+      para class: "mt-2 mb-0 text-sm break-words text-gray-600" do
         text audit.from.presence || r("common.unset").t
         text " → "
         text audit.to.presence || r("common.unset").t
