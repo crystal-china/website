@@ -5,6 +5,7 @@ abstract class DocLayout < MainLayout
 
   needs formatter : Tartrazine::Formatter
   needs doc : Doc
+  needs comment_thread : CommentThread
   needs markdown_path : String
   needs markdown_source : String
 
@@ -102,7 +103,6 @@ abstract class DocLayout < MainLayout
 
         section id: "form_with_comments", class: "mt-6" do
           # 只是一个占位符，会被 htmx 请求覆盖
-          comment_thread = CommentThreadQuery.new.doc_id(doc.id).first
           mount(
             ::Comments::Form,
             current_user: current_user,

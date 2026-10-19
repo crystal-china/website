@@ -19,11 +19,14 @@ class Docs::Markdowns < DocAction
 
     markdown_source = File.read(markdown_path)
     doc = DocContent.sync(current_path, markdown_source)
+    comment_thread = CommentThreadQuery.new.doc_id(doc.id).first
+
     record_view(doc)
 
     html(
       Docs::MarkdownsPage,
       doc: doc,
+      comment_thread: comment_thread,
       markdown_path: markdown_path,
       markdown_source: markdown_source
     )
