@@ -524,7 +524,7 @@ describe "Notifications" do
 
   it "supports mentions in topics and limits mention recipients" do
     author = UserFactory.create
-    users = 7.times.map { |index| UserFactory.create &.nickname("被提及#{index}") }.to_a
+    users = Array.new(7) { |index| UserFactory.create &.nickname("被提及#{index}") }
     topic = notification_topic(author)
     topic = UpdateTopic.update!(topic, content: users.map { |user| "@#{user.login_name}" }.join(" "))
     NotificationQuery.new.url("/forum/#{topic.id}").select_count.should eq(5)
@@ -541,7 +541,7 @@ describe "Notifications" do
 
   it "uses linked handles in content order for the five-recipient limit" do
     author = UserFactory.create
-    users = 7.times.map { UserFactory.create }.to_a.reverse
+    users = Array.new(7) { UserFactory.create }.reverse
     topic = notification_topic(author)
     content = users.map { |user| "@#{user.login_name}" }.join(" ")
 
