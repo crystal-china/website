@@ -112,24 +112,9 @@ describe OnlinePresence do
     end
   end
 
-  it "initializes existing users to zero and supports migration rollback" do
-    AppDatabase.transaction do
-      AppDatabase.exec "CREATE SCHEMA online_time_migration_spec"
-      AppDatabase.exec "SET LOCAL search_path TO online_time_migration_spec, public"
-      AppDatabase.exec "CREATE TABLE users (id bigint PRIMARY KEY)"
-      AppDatabase.exec "INSERT INTO users VALUES (1), (2)"
-      migration = AddOnlineSecondsToUsers::V20261019120000.new
-      migration.migrate
-      migration.prepared_statements.each { |statement| AppDatabase.exec(statement) }
+  it "initializes new users with zero online seconds" do
+    user = UserFactory.create
 
-      AppDatabase.query_all("SELECT online_seconds FROM users ORDER BY id", as: Int64).should eq([0_i64, 0_i64])
-
-      migration.reset_prepared_statements
-      migration.rollback
-      migration.prepared_statements.each { |statement| AppDatabase.exec(statement) }
-
-      AppDatabase.query_one("SELECT count(*) FROM information_schema.columns WHERE table_schema = 'online_time_migration_spec' AND column_name = 'online_seconds'", as: Int64).should eq(0)
-      AppDatabase.rollback
-    end
+    UserQuery.find(user.id).online_seconds.should eq(0)
   end
 end

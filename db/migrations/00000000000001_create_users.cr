@@ -17,6 +17,9 @@ class CreateUsers::V00000000000001 < Avram::Migrator::Migration::V1
       # 密码修改或移除时轮换；浏览器会话及 API 令牌必须匹配当前版本。
       add session_version : String, default: "0"
       add last_active_at : Time?, index: true
+      # 心跳确认的累计在线秒数，每五分钟写回；不是登录时长，也不补算历史数据。
+      add online_seconds : Int64, default: 0_i64
+      add hide_online_status : Bool, default: false
       # Existing and new users receive mentions by default. Disabling this
       # affects only future mention notifications, not replies or history.
       add mention_notifications_enabled : Bool, default: true

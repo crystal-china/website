@@ -206,27 +206,9 @@ describe "Online users" do
     card.should contain("最后活跃于")
   end
 
-  it "defaults existing users to visible and supports migration rollback" do
-    AppDatabase.transaction do
-      AppDatabase.exec "CREATE SCHEMA online_visibility_migration_spec"
-      AppDatabase.exec "SET LOCAL search_path TO online_visibility_migration_spec, public"
-      AppDatabase.exec "CREATE TABLE users (id bigint PRIMARY KEY)"
-      AppDatabase.exec "INSERT INTO users VALUES (1), (2)"
-      migration = AddHideOnlineStatusToUsers::V20261019130000.new
-      migration.migrate
-      migration.prepared_statements.each { |statement| AppDatabase.exec(statement) }
+  it "defaults new users to visible" do
+    user = UserFactory.create
 
-      AppDatabase.query_all("SELECT hide_online_status FROM users ORDER BY id", as: Bool).should eq([false, false])
-
-      migration.reset_prepared_statements
-      migration.rollback
-      migration.prepared_statements.each { |statement| AppDatabase.exec(statement) }
-
-      AppDatabase.query_one(
-        "SELECT count(*) FROM information_schema.columns WHERE table_schema = 'online_visibility_migration_spec' AND column_name = 'hide_online_status'",
-        as: Int64
-      ).should eq(0)
-      AppDatabase.rollback
-    end
+    UserQuery.find(user.id).hide_online_status?.should be_false
   end
 end
