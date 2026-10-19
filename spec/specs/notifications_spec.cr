@@ -56,7 +56,7 @@ describe "Management notifications" do
       Notification::Kind::TopicMoved,
       Notification::Kind::TopicMoved,
     ])
-    notifications.map(&.actor_id).uniq.should eq([admin.id])
+    notifications.map(&.actor_id).uniq!.should eq([admin.id])
     notifications.first.source_title.should eq("管理员修改的标题")
     notifications.first.excerpt.should eq("管理员修改的正文")
     notifications[2].excerpt.should eq("新节点：新节点")
@@ -80,7 +80,7 @@ describe "Management notifications" do
 
     notifications = NotificationQuery.new.user_id(author.id).results
     notifications.map(&.kind).should eq([Notification::Kind::CommentEdited, Notification::Kind::CommentEdited])
-    notifications.map(&.actor_id).uniq.should eq([admin.id])
+    notifications.map(&.actor_id).uniq!.should eq([admin.id])
     mention = NotificationQuery.new.user_id(mentioned.id).first
     mention.kind.should eq(Notification::Kind::Mention)
     mention.actor_id.should eq(admin.id)
@@ -110,7 +110,7 @@ describe "Management notifications" do
       Notification::Kind::TopicDeleted,
       Notification::Kind::TopicDeleted,
     ])
-    notifications.map(&.actor_id).uniq.should eq([admin.id])
+    notifications.map(&.actor_id).uniq!.should eq([admin.id])
     notifications.first.excerpt.should eq("被删除的评论")
 
     topic = TopicQuery.new.only_soft_deleted.id(topic.id).first.restore
@@ -150,7 +150,7 @@ describe "Management notifications" do
       Notification::Kind::CommentDeleted,
       Notification::Kind::TopicDeleted,
     ])
-    notifications.map(&.actor_id).uniq.should eq([admin.id])
+    notifications.map(&.actor_id).uniq!.should eq([admin.id])
   end
 
   it "deduplicates repeated deliveries and rolls back notifications with content changes" do
@@ -310,7 +310,7 @@ describe "Notifications" do
     end
 
     response.status_code.should eq(200)
-    paths.values.uniq.size.should eq(5)
+    paths.values.uniq!.size.should eq(5)
     paths[Notification::Kind::TopicReply].should eq(paths[Notification::Kind::CommentReply])
     paths[Notification::Kind::TopicEdited].should eq(paths[Notification::Kind::CommentEdited])
     paths[Notification::Kind::TopicDeleted].should eq(paths[Notification::Kind::CommentDeleted])
@@ -477,7 +477,7 @@ describe "Notifications" do
     thread = CommentThreadQuery.new.topic_id(notification_topic(author).id).first
     root = CreateComment.create!(user_id: parent_author.id, comment_thread_id: thread.id, content: "根评论")
     child = CreateComment.create!(user_id: responder.id, parent_id: root.id, content: "子评论")
-    NotificationQuery.new.url("/comments/#{child.id}").results.map(&.user_id).sort.should eq([author.id, parent_author.id].sort)
+    NotificationQuery.new.url("/comments/#{child.id}").results.map(&.user_id).sort!.should eq([author.id, parent_author.id].sort)
 
     doc = SaveDoc.create!(path_index: "/docs/notifications", content: "文档正文")
     doc_thread = CommentThreadQuery.new.doc_id(doc.id).first

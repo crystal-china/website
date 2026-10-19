@@ -164,7 +164,7 @@ describe UserHtmlSanitizer do
         rendered[:html].should contain(%(href="/users/#{login_name}/profile"))
         rendered[:html].should contain(">@#{login_name}</a>")
       end
-      rendered[:mentions].should eq(login_names.map(&.downcase).uniq)
+      rendered[:mentions].should eq(login_names.map(&.downcase).uniq!)
     end
   end
 
