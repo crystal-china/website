@@ -346,6 +346,14 @@ en:
       unread: Unread
       read: Read
 
+  online_users:
+    dialog:
+      title: Online users
+      description: Active in the last 3 minutes. Hidden users are excluded.
+      loading: Loading online users...
+    list:
+      empty: No users are publicly online.
+
   pager:
     no_previous: No previous page
     no_next: No next page
@@ -389,7 +397,12 @@ en:
     layout_head:
       image_description: Crystal China Community
     online_users:
-      online: 'Online: %{users} users, %{guests} guests'
+      users:
+        one: "%{count} user online"
+        other: "%{count} users online"
+      guests:
+        one: " · %{count} guest"
+        other: " · %{count} guests"
     user_profile_form:
       description: Update your public profile, avatar and password. Avatars currently require an HTTP or HTTPS image URL.
       login_name_placeholder: Used for @mentions
@@ -403,6 +416,7 @@ en:
       unknown_password_date: No password change recorded. Changes made before account history was enabled have no known date.
       mention_notifications: Receive @mention notifications
       mention_notifications_help: When disabled, you will not receive @mention notifications. Reply and moderation notifications are unaffected; existing notifications are retained.
+      hide_online_status_help: Hide your online presence, last activity and time online. Time online is still recorded.
       confirm_remove_password: Remove the local password? Old sessions will be invalidated. The user will need OAuth or a password reset to sign in.
       current_avatar: Current avatar
 

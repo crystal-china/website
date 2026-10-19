@@ -14,6 +14,7 @@ class Footer < BaseComponent
         end
 
         span(
+          id: "online-users-status",
           # 停留在页面时保持在线登记，并定时更新通知状态。
           hx_trigger: "load, every 2m",
           hx_patch: Htmx::OnlineUsers.path,
@@ -42,6 +43,8 @@ class Footer < BaseComponent
           )
         end
       end
+
+      mount ::OnlineUsers::Dialog, current_user: current_user if current_user
     end
   end
 

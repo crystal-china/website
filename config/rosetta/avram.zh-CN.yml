@@ -31,6 +31,7 @@ zh-CN:
     floor: 楼层
     floor_counter: 已分配楼层计数
     from: 原值
+    hide_online_status: 始终隐身
     hour: 时段
     id: 编号
     kind: 类型

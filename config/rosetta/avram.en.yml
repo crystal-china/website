@@ -31,6 +31,7 @@ en:
     floor: Floor
     floor_counter: Assigned floor counter
     from: Previous value
+    hide_online_status: Always appear offline
     hour: Hour
     id: ID
     kind: Type

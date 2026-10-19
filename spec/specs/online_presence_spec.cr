@@ -9,7 +9,7 @@ describe OnlinePresence do
 
     {0.seconds, 400.milliseconds, 800.milliseconds, 1200.milliseconds, 1.minute, 2.minutes, 2.minutes}.each_with_index do |offset, index|
       Timecop.freeze(at + offset) do
-        presence.record(user.id, "127.0.0.#{index % 2 + 1}").should eq({1, 0})
+        presence.record(user, "127.0.0.#{index % 2 + 1}").should eq({1, 0})
       end
     end
 
@@ -30,7 +30,7 @@ describe OnlinePresence do
     at = Time.unix(Time.utc.to_unix)
 
     {0.minutes, 2.minutes, 10.minutes, 12.minutes}.each do |offset|
-      Timecop.freeze(at + offset) { presence.record(user.id, "127.0.0.1") }
+      Timecop.freeze(at + offset) { presence.record(user, "127.0.0.1") }
     end
     presence.flush
 
@@ -42,8 +42,8 @@ describe OnlinePresence do
     presence = OnlinePresence.new
     at = Time.unix(Time.utc.to_unix)
 
-    Timecop.freeze(at) { presence.record(user.id, "127.0.0.1") }
-    Timecop.freeze(at + 2.minutes) { presence.record(user.id, "127.0.0.1") }
+    Timecop.freeze(at) { presence.record(user, "127.0.0.1") }
+    Timecop.freeze(at + 2.minutes) { presence.record(user, "127.0.0.1") }
     Timecop.freeze(at + 6.minutes) do
       presence.record(nil, "127.0.0.2").should eq({0, 1})
       presence.flush
@@ -59,8 +59,8 @@ describe OnlinePresence do
     user = UserFactory.create &.online_seconds(3600_i64).last_active_at(at + 1.hour)
     presence = OnlinePresence.new
 
-    Timecop.freeze(at) { presence.record(user.id, "127.0.0.1") }
-    Timecop.freeze(at + 1.minute) { presence.record(user.id, "127.0.0.1") }
+    Timecop.freeze(at) { presence.record(user, "127.0.0.1") }
+    Timecop.freeze(at + 1.minute) { presence.record(user, "127.0.0.1") }
     presence.flush
     updated = UserQuery.find(user.id)
 
@@ -74,7 +74,7 @@ describe OnlinePresence do
     at = Time.unix(Time.utc.to_unix)
 
     {0.minutes, 2.minutes, 1.minute, 3.minutes}.each do |offset|
-      Timecop.freeze(at + offset) { presence.record(user.id, "127.0.0.1") }
+      Timecop.freeze(at + offset) { presence.record(user, "127.0.0.1") }
     end
     presence.flush
 
@@ -86,8 +86,8 @@ describe OnlinePresence do
     presence = OnlinePresence.new
     at = Time.unix(Time.utc.to_unix)
 
-    Timecop.freeze(at) { presence.record(user.id, "127.0.0.1") }
-    Timecop.freeze(at + 2.minutes) { presence.record(user.id, "127.0.0.1") }
+    Timecop.freeze(at) { presence.record(user, "127.0.0.1") }
+    Timecop.freeze(at + 2.minutes) { presence.record(user, "127.0.0.1") }
     AppDatabase.exec "ALTER TABLE users ADD CONSTRAINT online_time_spec_limit CHECK (online_seconds = 0)"
 
     expect_raises(PQ::PQError) { presence.flush }

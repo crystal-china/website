@@ -342,6 +342,14 @@ zh-CN:
       unread: 未读
       read: 已读
 
+  online_users:
+    dialog:
+      title: 在线用户
+      description: 最近 3 分钟在线的用户，不包含隐身用户。
+      loading: 正在读取在线用户...
+    list:
+      empty: 暂无公开在线的用户。
+
   pager:
     no_previous: 没有上一页了
     no_next: 没有下一页了
@@ -385,7 +393,10 @@ zh-CN:
     layout_head:
       image_description: Crystal 中文社区
     online_users:
-      online: 在线用户 %{users} 人, 游客 %{guests} 人
+      users:
+        other: 在线用户 %{count} 人
+      guests:
+        other: " · 游客 %{count} 人"
     user_profile_form:
       description: 更新公开资料、头像和登录密码。头像目前仅支持 http/https 图片链接。
       login_name_placeholder: 用于 @提及
@@ -399,6 +410,7 @@ zh-CN:
       unknown_password_date: 暂无密码修改记录；启用账户记录之前的修改时间未知。
       mention_notifications: 接收 @提及通知
       mention_notifications_help: 关闭后，不接收任何人的 @提及通知；正常回复和管理通知不受影响，已有通知仍保留。
+      hide_online_status_help: 不出现在在线人数和名单中，并隐藏活跃时间和累计在线时长。仅影响展示，后台仍会累计在线时长。
       confirm_remove_password: 确定移除本站密码？旧登录会话将失效，之后需通过第三方登录或重置密码登录。
       current_avatar: 当前头像
 
