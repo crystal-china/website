@@ -6,7 +6,11 @@ class TableSchedulerCell < BaseComponent
 
   def render : Nil
     me = current_user
-    cell_hour_time = Time.parse("#{date} #{hour}:59", "%Y-%m-%d %H:%M", Time::Location.load("Asia/Shanghai"))
+    cell_hour_time = Time.parse(
+      "#{date} #{hour}:59",
+      "%Y-%m-%d %H:%M",
+      Time::Location.load("Asia/Shanghai")
+    )
     expired = Time.local > cell_hour_time
     admin = me.try(&.admin?) || false
 

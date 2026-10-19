@@ -13,7 +13,11 @@ class Forum::AuthorCard < BaseComponent
         )
 
         div class: "min-w-0 text-sm" do
-          mount Shared::UserName, user: user, stacked: true
+          mount(
+            Shared::UserName,
+            user: user,
+            stacked: true
+          )
         end
       end
 

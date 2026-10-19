@@ -21,10 +21,12 @@ class Docs::Markdowns < DocAction
     doc = DocContent.sync(current_path, markdown_source)
     record_view(doc)
 
-    html Docs::MarkdownsPage,
+    html(
+      Docs::MarkdownsPage,
       doc: doc,
       markdown_path: markdown_path,
       markdown_source: markdown_source
+    )
   end
 
   private def record_view(doc : Doc) : Nil

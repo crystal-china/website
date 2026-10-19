@@ -46,7 +46,13 @@ class Db::Seed::SampleData < LuckyTask::Task
       {"learning", "学习资源", "教程、书籍及其他 Crystal 学习资料。", "#9333ea", 60},
     ].each do |slug, name, summary, color, position|
       nodes[slug] = NodeQuery.new.slug(slug).first? ||
-                    SaveNode.create!(name: name, slug: slug, summary: summary, color: color, position: position)
+                    SaveNode.create!(
+                      name: name,
+                      slug: slug,
+                      summary: summary,
+                      color: color,
+                      position: position
+                    )
     end
 
     topic_data = [
@@ -242,7 +248,12 @@ class Db::Seed::SampleData < LuckyTask::Task
       actor_id: users[0].id
     )
 
-    seed_trash(users, nodes["general"], concurrency_thread_id, first_topic_thread_id)
+    seed_trash(
+      users,
+      nodes["general"],
+      concurrency_thread_id,
+      first_topic_thread_id
+    )
 
     now = Time.local
     users.each do |user|
@@ -308,10 +319,22 @@ class Db::Seed::SampleData < LuckyTask::Task
         end
       end
 
-      user = UpdateUser.update!(user, password: "sample1234", password_confirmation: "sample1234")
+      user = UpdateUser.update!(
+        user,
+        password: "sample1234",
+        password_confirmation: "sample1234"
+      )
       # 模拟历史移除事件，保留实际操作者；不禁用演示账号当前的密码登录。
-      SaveUserAudit.create!(user_id: user.id, actor_id: users.first.id, kind: :password_removed)
-      user = UpdateUser.update!(user, password: "temp1234", password_confirmation: "temp1234")
+      SaveUserAudit.create!(
+        user_id: user.id,
+        actor_id: users.first.id,
+        kind: :password_removed
+      )
+      user = UpdateUser.update!(
+        user,
+        password: "temp1234",
+        password_confirmation: "temp1234"
+      )
       SaveUserAudit.create!(user_id: user.id, kind: :password_signed_in)
 
       # 真实修改生成事件后，仅调整演示日期；改名事件仍位于注册后前七天。
@@ -319,12 +342,22 @@ class Db::Seed::SampleData < LuckyTask::Task
       UserAuditQuery.new.user_id(user.id).id.asc_order.results.each_with_index do |audit, index|
         at = now - event_ages[index]
 
-        SaveUserAudit.update!(audit, created_at: at, updated_at: at)
+        SaveUserAudit.update!(
+          audit,
+          created_at: at,
+          updated_at: at
+        )
       end
     end
 
     User::SaveOperation.update!(users[2], created_at: now - 2.days)
-    SaveUserAudit.create!(user_id: users[2].id, kind: :oauth_signed_in, oauth_provider: "github", created_at: now - 1.day, updated_at: now - 1.day)
+    SaveUserAudit.create!(
+      user_id: users[2].id,
+      kind: :oauth_signed_in,
+      oauth_provider: "github",
+      created_at: now - 1.day,
+      updated_at: now - 1.day
+    )
   end
 
   private def seed_trash(users : Array(User), node : Node, doc_thread_id : Int64, topic_thread_id : Int64) : Nil

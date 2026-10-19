@@ -10,7 +10,11 @@ class Admin::Nodes::Update < AdminAction
       else
         build_failed_flash(operation)
 
-        html Admin::Nodes::EditPage, node: node, operation: operation
+        html(
+          Admin::Nodes::EditPage,
+          node: node,
+          operation: operation
+        )
       end
     end
   end

@@ -56,7 +56,11 @@ abstract class DocLayout < MainLayout
       )
     end
 
-    mount Search::Dialog, scope: search_scope, current_user: current_user if current_user
+    mount(
+      Search::Dialog,
+      scope: search_scope,
+      current_user: current_user
+    ) if current_user
   end
 
   private def render_standalone_doc : Nil

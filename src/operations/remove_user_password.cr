@@ -13,7 +13,11 @@ class RemoveUserPassword < User::SaveOperation
 
   after_save do |user|
     if encrypted_password.changed?
-      SaveUserAudit.create!(user_id: user.id, actor_id: actor_id.value, kind: :password_removed)
+      SaveUserAudit.create!(
+        user_id: user.id,
+        actor_id: actor_id.value,
+        kind: :password_removed
+      )
     end
   end
 end

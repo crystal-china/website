@@ -17,7 +17,11 @@ class Me::EventsPage < MainLayout
             para r(".description").t, class: "panel-description"
           end
 
-          link r("common.back_to_profile").t, to: Users::Show.with(login_name: user.login_name), class: "form-secondary"
+          link(
+            r("common.back_to_profile").t,
+            to: Users::Show.with(login_name: user.login_name),
+            class: "form-secondary"
+          )
         end
 
         if audits.empty?
@@ -80,15 +84,26 @@ class Me::EventsPage < MainLayout
   end
 
   private def render_pagination : Nil
-    nav class: "flex items-center justify-center gap-4 border-t border-gray-200 px-6 py-4 text-sm", "aria-label": r(".pagination").t do
+    nav(
+      class: "flex items-center justify-center gap-4 border-t border-gray-200 px-6 py-4 text-sm",
+      "aria-label": r(".pagination").t
+    ) do
       if (previous_path = pages.path_to_previous)
-        a r("common.previous_page").t, href: previous_path, class: "form-secondary"
+        a(
+          r("common.previous_page").t,
+          href: previous_path,
+          class: "form-secondary"
+        )
       end
 
       span r("common.page_number").t(page: pages.page.to_s, total: pages.total.to_s), class: "text-gray-600"
 
       if (next_path = pages.path_to_next)
-        a r("common.next_page").t, href: next_path, class: "form-secondary"
+        a(
+          r("common.next_page").t,
+          href: next_path,
+          class: "form-secondary"
+        )
       end
     end
   end

@@ -12,11 +12,24 @@ class PasswordResetRequests::NewPage < AuthLayout
       auth_card(r("common.reset_password").t, r(".description").t) do
         form_for PasswordResetRequests::Create, class: "panel-body" do
           auth_form_fields do
-            mount Shared::Field, attribute: op.email, label_text: r("fields.email").t, &.email_input(autofocus: "true", placeholder: "you@example.com")
+            mount(
+              Shared::Field,
+              attribute: op.email,
+              label_text: r("fields.email").t,
+              &.email_input(autofocus: "true", placeholder: "you@example.com")
+            )
 
             auth_form_actions do
-              link r(".back_to_sign_in").t, to: SignIns::New, class: "form-secondary"
-              submit r(".send_email").t, class: "form-submit", flow_id: "request-password-reset-button"
+              link(
+                r(".back_to_sign_in").t,
+                to: SignIns::New,
+                class: "form-secondary"
+              )
+              submit(
+                r(".send_email").t,
+                class: "form-submit",
+                flow_id: "request-password-reset-button"
+              )
             end
           end
         end

@@ -6,7 +6,12 @@ class Forum::Update < ForumAction
 
     return head 403 unless topic.user_id == current_user.id || current_user.admin?
 
-    UpdateTopic.update(topic, params, content: content, actor_id: current_user.id) do |operation, _updated_topic|
+    UpdateTopic.update(
+      topic,
+      params,
+      content: content,
+      actor_id: current_user.id
+    ) do |operation, _updated_topic|
       if operation.saved?
         flash.success = r(".topic_updated").t
 
@@ -14,7 +19,11 @@ class Forum::Update < ForumAction
       else
         build_failed_flash(operation)
 
-        html Forum::EditPage, topic: topic, operation: operation
+        html(
+          Forum::EditPage,
+          topic: topic,
+          operation: operation
+        )
       end
     end
   end

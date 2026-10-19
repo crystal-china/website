@@ -53,7 +53,11 @@ class Footer < BaseComponent
       title: title,
       class: "inline-flex items-center"
     ) do
-      img src: src, alt: alt, class: "h-5 w-5"
+      img(
+        src: src,
+        alt: alt,
+        class: "h-5 w-5"
+      )
     end
   end
 end

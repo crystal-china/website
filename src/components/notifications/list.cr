@@ -38,7 +38,10 @@ class Notifications::List < BaseComponent
       end
 
       if pages.total > 1
-        nav class: "flex items-center justify-center gap-4 border-t border-gray-200 p-4", "aria-label": r(".pagination").t do
+        nav(
+          class: "flex items-center justify-center gap-4 border-t border-gray-200 p-4",
+          "aria-label": r(".pagination").t
+        ) do
           if (path = pages.path_to_previous)
             render_page_link(r("common.previous_page").t, path)
           end
@@ -102,7 +105,11 @@ class Notifications::List < BaseComponent
           end
           span class: "min-w-0 flex-1" do
             span class: "block text-sm text-gray-900" do
-              mount Shared::UserName, user: notification.actor, linked: false
+              mount(
+                Shared::UserName,
+                user: notification.actor,
+                linked: false
+              )
               text " #{description}"
             end
             span notification.source_title, class: "mt-1 block truncate text-sm font-medium text-sky-700"

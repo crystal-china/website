@@ -47,14 +47,26 @@ HYPER
           )
 
           div class: "min-w-0 text-sm" do
-            mount Shared::UserName, user: user, stacked: true
+            mount(
+              Shared::UserName,
+              user: user,
+              stacked: true
+            )
           end
         end
 
-        link r("common.profile").t, to: Users::Show.with(login_name: user.login_name), class: menu_link_class
+        link(
+          r("common.profile").t,
+          to: Users::Show.with(login_name: user.login_name),
+          class: menu_link_class
+        )
 
         if user.admin?
-          link r(".admin").t, to: Admin::Index, class: menu_link_class(active: current_path.starts_with?("/admin"))
+          link(
+            r(".admin").t,
+            to: Admin::Index,
+            class: menu_link_class(active: current_path.starts_with?("/admin"))
+          )
         end
 
         div class: "mt-1 border-t border-gray-100 pt-1" do

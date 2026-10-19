@@ -21,7 +21,11 @@ class UserToken
   end
 
   def self.create_token(payload) : String
-    JWT.encode(payload, Lucky::Server.settings.secret_key_base, ALGORITHM)
+    JWT.encode(
+      payload,
+      Lucky::Server.settings.secret_key_base,
+      ALGORITHM
+    )
   end
 
   def self.decode_user(token : String) : User?

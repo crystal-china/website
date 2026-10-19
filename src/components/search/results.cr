@@ -13,10 +13,12 @@ class Search::Results < BaseComponent
     else
       ul class: "m-0 list-none divide-y divide-gray-200 p-0" do
         matches.each do |match|
-          mount Search::Result,
+          mount(
+            Search::Result,
             title: match[:title],
             url: match[:url],
             snippet: match[:snippet]
+          )
         end
       end
     end

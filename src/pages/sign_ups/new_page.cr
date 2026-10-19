@@ -12,7 +12,16 @@ class SignUps::NewPage < AuthLayout
       auth_card(r("common.sign_up").t, r(".description").t) do
         form_for SignUps::Create, class: "panel-body" do
           auth_form_fields do
-            mount Shared::Field, attribute: op.email, label_text: r("fields.email").t, &.email_input(autofocus: "true", required: "", placeholder: "you@example.com")
+            mount(
+              Shared::Field,
+              attribute: op.email,
+              label_text: r("fields.email").t,
+              &.email_input(
+                autofocus: "true",
+                required: "",
+                placeholder: "you@example.com"
+              )
+            )
 
             div class: "space-y-2" do
               div class: "grid gap-5 sm:grid-cols-2" do
@@ -42,11 +51,25 @@ class SignUps::NewPage < AuthLayout
               para r(".login_name_help").t, class: "m-0 text-xs leading-6 text-gray-500"
             end
 
-            mount Shared::Field, attribute: op.password, label_text: r("fields.password").t, &.password_input(required: "", placeholder: r(".password_placeholder").t)
-            mount Shared::Field, attribute: op.password_confirmation, label_text: r("fields.password_confirmation").t, &.password_input(required: "", placeholder: r(".confirmation_placeholder").t)
+            mount(
+              Shared::Field,
+              attribute: op.password,
+              label_text: r("fields.password").t,
+              &.password_input(required: "", placeholder: r(".password_placeholder").t)
+            )
+            mount(
+              Shared::Field,
+              attribute: op.password_confirmation,
+              label_text: r("fields.password_confirmation").t,
+              &.password_input(required: "", placeholder: r(".confirmation_placeholder").t)
+            )
 
             div class: "form-field" do
-              label r("fields.captcha_code").t, for: "captcha", class: "form-label"
+              label(
+                r("fields.captcha_code").t,
+                for: "captcha",
+                class: "form-label"
+              )
 
               div class: "flex flex-wrap items-center gap-3" do
                 input(
@@ -75,9 +98,18 @@ class SignUps::NewPage < AuthLayout
             end
 
             auth_form_actions do
-              link r(".sign_in_instead").t, to: SignIns::New, class: "form-secondary"
+              link(
+                r(".sign_in_instead").t,
+                to: SignIns::New,
+                class: "form-secondary"
+              )
 
-              submit r("common.sign_up").t, type: "submit", flow_id: "sign-up-button", class: "form-submit"
+              submit(
+                r("common.sign_up").t,
+                type: "submit",
+                flow_id: "sign-up-button",
+                class: "form-submit"
+              )
             end
           end
         end

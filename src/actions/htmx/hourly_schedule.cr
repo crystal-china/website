@@ -7,7 +7,11 @@ class Htmx::HourlySchedule < BrowserAction
 
     return head 403 unless me.admin?
 
-    cell_hour_time = Time.parse("#{date} #{hour}:59", "%Y-%m-%d %H:%M", Time::Location.load("Asia/Shanghai"))
+    cell_hour_time = Time.parse(
+      "#{date} #{hour}:59",
+      "%Y-%m-%d %H:%M",
+      Time::Location.load("Asia/Shanghai")
+    )
 
     return head 401 if Time.local > cell_hour_time
 

@@ -18,7 +18,11 @@ class Forum::ShowPage < ForumLayout
           if (me = current_user)
             div class: "flex shrink-0 items-center gap-2" do
               if me.id == topic.user_id || me.admin?
-                link r("common.edit").t, to: Forum::Edit.with(id: topic.id), class: "action-button action-button-neutral h-8"
+                link(
+                  r("common.edit").t,
+                  to: Forum::Edit.with(id: topic.id),
+                  class: "action-button action-button-neutral h-8"
+                )
               end
 
               if can_delete_topic?
@@ -86,6 +90,10 @@ class Forum::ShowPage < ForumLayout
   end
 
   private def render_right_sidebar : Nil
-    mount Forum::AuthorCard, user: topic.user, current_user: current_user
+    mount(
+      Forum::AuthorCard,
+      user: topic.user,
+      current_user: current_user
+    )
   end
 end

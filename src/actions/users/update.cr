@@ -5,7 +5,11 @@ class Users::Update < BrowserAction
 
     return head 404 unless me.id == user.id || me.admin?
 
-    UpdateUser.update(user, params, actor_id: me.id) do |op, updated_user|
+    UpdateUser.update(
+      user,
+      params,
+      actor_id: me.id
+    ) do |op, updated_user|
       if op.saved?
         updated_user = updated_user.not_nil!
         sign_in(updated_user) if me.id == user.id
@@ -17,7 +21,12 @@ class Users::Update < BrowserAction
 
         build_failed_flash(op)
 
-        html Users::EditPage, user: user, op: op, password_changed_at: password_changed_at
+        html(
+          Users::EditPage,
+          user: user,
+          op: op,
+          password_changed_at: password_changed_at
+        )
       end
     end
   end

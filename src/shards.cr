@@ -23,5 +23,13 @@ require "multi_auth"
 # Providers are opt-in in multi_auth 1.2.
 require "multi_auth/providers/github"
 require "multi_auth/providers/google"
-MultiAuth.config("github", ENV["GITHUB_OAUTH_CLIENT_ID"]? || "", ENV["GITHUB_OAUTH_SECRET"]? || "")
-MultiAuth.config("google", ENV["GOOGLE_OAUTH_CLIENT_ID"]? || "", ENV["GOOGLE_OAUTH_SECRET"]? || "")
+MultiAuth.config(
+  "github",
+  ENV["GITHUB_OAUTH_CLIENT_ID"]? || "",
+  ENV["GITHUB_OAUTH_SECRET"]? || ""
+)
+MultiAuth.config(
+  "google",
+  ENV["GOOGLE_OAUTH_CLIENT_ID"]? || "",
+  ENV["GOOGLE_OAUTH_SECRET"]? || ""
+)

@@ -14,9 +14,17 @@ module GenerateSitemapTask
     docs_by_path = {} of String => Doc
     DocQuery.new.each { |doc| docs_by_path[doc.path_index] = doc }
 
-    sitemap = XML.build(indent: "  ", version: "1.0", encoding: "UTF-8") do |xml|
+    sitemap = XML.build(
+      indent: "  ",
+      version: "1.0",
+      encoding: "UTF-8"
+    ) do |xml|
       xml.element("urlset", xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9") do
-        add_url(xml, host, Home::Index.path)
+        add_url(
+          xml,
+          host,
+          Home::Index.path
+        )
 
         Dir["public/markdowns/**/*.md"].sort.each do |file|
           relative_path = Path[file].relative_to(Path["public/markdowns"]).to_s.sub(/\.md\z/, "")
@@ -24,17 +32,36 @@ module GenerateSitemapTask
           modified_at = docs_by_path[path]?.try do |doc|
             DocContent.sync(doc, File.read(file)).content_updated_at
           end
-          add_url(xml, host, path, modified_at)
+          add_url(
+            xml,
+            host,
+            path,
+            modified_at
+          )
         end
 
-        add_url(xml, host, Forum::Index.path)
+        add_url(
+          xml,
+          host,
+          Forum::Index.path
+        )
 
         NodeQuery.new.sorted.each do |node|
-          add_url(xml, host, Forum::Index.with(node: node.slug).path, node.updated_at)
+          add_url(
+            xml,
+            host,
+            Forum::Index.with(node: node.slug).path,
+            node.updated_at
+          )
         end
 
         TopicQuery.new.id.asc_order.each do |topic|
-          add_url(xml, host, Forum::Show.with(id: topic.id).path, topic.updated_at)
+          add_url(
+            xml,
+            host,
+            Forum::Show.with(id: topic.id).path,
+            topic.updated_at
+          )
         end
       end
     end

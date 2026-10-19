@@ -21,7 +21,11 @@ module NotificationDelivery
       recipients[user_id] = :mention
     end
 
-    deliver(comment, recipients, comment.user_id)
+    deliver(
+      comment,
+      recipients,
+      comment.user_id
+    )
   end
 
   def self.mentions_updated(record : Comment | Topic, actor_id : Int64, login_names : Array(String)) : Nil
@@ -31,23 +35,40 @@ module NotificationDelivery
       recipients[user_id] = :mention
     end
 
-    deliver(record, recipients, actor_id)
+    deliver(
+      record,
+      recipients,
+      actor_id
+    )
   end
 
   def self.edited_by_admin(record : Comment | Topic, actor_id : Int64) : Nil
     kind = record.is_a?(Topic) ? Notification::Kind::TopicEdited : Notification::Kind::CommentEdited
 
-    notify_author(record, actor_id, kind)
+    notify_author(
+      record,
+      actor_id,
+      kind
+    )
   end
 
   def self.topic_moved_by_admin(topic : Topic, actor_id : Int64) : Nil
-    notify_author(topic, actor_id, :topic_moved, r(".new_node").t(name: NodeQuery.find(topic.node_id).name.to_s))
+    notify_author(
+      topic,
+      actor_id,
+      :topic_moved,
+      r(".new_node").t(name: NodeQuery.find(topic.node_id).name.to_s)
+    )
   end
 
   def self.deleted_by_admin(record : Comment | Topic, actor_id : Int64) : Nil
     kind = record.is_a?(Topic) ? Notification::Kind::TopicDeleted : Notification::Kind::CommentDeleted
 
-    notify_author(record, actor_id, kind)
+    notify_author(
+      record,
+      actor_id,
+      kind
+    )
   end
 
   private def self.notify_author(
@@ -59,7 +80,12 @@ module NotificationDelivery
     return if actor_id == record.user_id
 
     #  被操作的用户接受
-    deliver(record, {record.user_id => kind}, actor_id, excerpt)
+    deliver(
+      record,
+      {record.user_id => kind},
+      actor_id,
+      excerpt
+    )
   end
 
   private def self.deliver(

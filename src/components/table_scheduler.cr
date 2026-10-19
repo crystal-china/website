@@ -4,7 +4,12 @@ class TableScheduler < BaseComponent
 
   def render : Nil
     location = Time::Location.load("Asia/Shanghai")
-    month_start = Time.local(year, month, 1, location: location)
+    month_start = Time.local(
+      year,
+      month,
+      1,
+      location: location
+    )
     month_end = month_start.at_end_of_month
     today = Time.local(location: location).to_s("%Y-%m-%d")
     records_by_date = HourlyAvailabilityQuery
@@ -37,7 +42,12 @@ class TableScheduler < BaseComponent
 
         tbody do
           (1..month_end.day).each do |date_number|
-            date = Time.local(year, month, date_number, location: location).to_s("%Y-%m-%d")
+            date = Time.local(
+              year,
+              month,
+              date_number,
+              location: location
+            ).to_s("%Y-%m-%d")
 
             tr class: today > date ? "disabled" : "" do
               td date_number

@@ -15,7 +15,11 @@ class Pager < BaseComponent
       next_page = pages[next_idx]
 
       div class: "flex w-full items-center sm:w-auto" do
-        img src: asset("svgs/previous_page.svg"), alt: "previous_page", class: "h-[24px]"
+        img(
+          src: asset("svgs/previous_page.svg"),
+          alt: "previous_page",
+          class: "h-[24px]"
+        )
 
         strong class: "ml-2" do
           if prev_page.path == current_page.path
@@ -38,7 +42,11 @@ class Pager < BaseComponent
             a next_page.title, href: next_page.path
           end
         end
-        img src: asset("svgs/next_page.svg"), alt: "next_page", class: "h-[24px]"
+        img(
+          src: asset("svgs/next_page.svg"),
+          alt: "next_page",
+          class: "h-[24px]"
+        )
       end
     end
   end

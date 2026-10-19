@@ -14,16 +14,28 @@ class Shared::UserProfileForm < BaseComponent
           para r(".description").t, class: "panel-description"
         end
 
-        link r("common.back_to_profile").t, to: Users::Show.with(login_name: user.login_name), class: "form-secondary"
+        link(
+          r("common.back_to_profile").t,
+          to: Users::Show.with(login_name: user.login_name),
+          class: "form-secondary"
+        )
       end
 
       form_for(Users::Update.with(id: user.id), class: "panel-body space-y-8") do
-        input type: "hidden", name: "return_to", value: return_path
+        input(
+          type: "hidden",
+          name: "return_to",
+          value: return_path
+        )
 
         div class: "grid gap-8 md:grid-cols-[minmax(0,1fr)_15rem]" do
           div class: "space-y-6" do
             div class: "space-y-2" do
-              mount Shared::Field, attribute: op.login_name, label_text: r("fields.login_name").t do |field|
+              mount(
+                Shared::Field,
+                attribute: op.login_name,
+                label_text: r("fields.login_name").t
+              ) do |field|
                 field.text_input(
                   placeholder: r(".login_name_placeholder").t,
                   minlength: UserLoginName::MIN_LENGTH,
@@ -32,23 +44,61 @@ class Shared::UserProfileForm < BaseComponent
                   "aria-describedby": "login-name-help"
                 )
               end
-              para r(".login_name_help").t, id: "login-name-help", class: "m-0 text-xs leading-6 text-gray-500"
+              para(
+                r(".login_name_help").t,
+                id: "login-name-help",
+                class: "m-0 text-xs leading-6 text-gray-500"
+              )
             end
 
-            mount Shared::Field, attribute: op.nickname, label_text: r("fields.nickname").t, &.text_input(placeholder: r(".nickname_placeholder").t)
-            mount Shared::Field, attribute: op.tagline, label_text: r("fields.tagline").t, &.text_input(placeholder: r(".tagline_placeholder").t, maxlength: User::Profile::MAX_TAGLINE_LENGTH)
-            mount Shared::Field, attribute: op.bio, label_text: r("fields.bio").t, &.textarea(rows: 5, maxlength: User::Profile::MAX_BIO_LENGTH)
-            mount Shared::Field, attribute: op.avatar, label_text: r("fields.avatar_url").t, &.text_input(placeholder: "https://example.com/avatar.png", autofocus: true)
+            mount(
+              Shared::Field,
+              attribute: op.nickname,
+              label_text: r("fields.nickname").t,
+              &.text_input(placeholder: r(".nickname_placeholder").t)
+            )
+            mount(
+              Shared::Field,
+              attribute: op.tagline,
+              label_text: r("fields.tagline").t,
+              &.text_input(placeholder: r(".tagline_placeholder").t, maxlength: User::Profile::MAX_TAGLINE_LENGTH)
+            )
+            mount(
+              Shared::Field,
+              attribute: op.bio,
+              label_text: r("fields.bio").t,
+              &.textarea(rows: 5, maxlength: User::Profile::MAX_BIO_LENGTH)
+            )
+            mount(
+              Shared::Field,
+              attribute: op.avatar,
+              label_text: r("fields.avatar_url").t,
+              &.text_input(placeholder: "https://example.com/avatar.png", autofocus: true)
+            )
 
             div class: "grid gap-6 md:grid-cols-2" do
               div class: "form-field" do
-                label_for op.password, r("fields.password").t, class: "form-label"
+                label_for(
+                  op.password,
+                  r("fields.password").t,
+                  class: "form-label"
+                )
 
-                password_input op.password, class: "form-input", placeholder: r(".password_placeholder").t, autocomplete: "new-password"
+                password_input(
+                  op.password,
+                  class: "form-input",
+                  placeholder: r(".password_placeholder").t,
+                  autocomplete: "new-password"
+                )
                 mount Shared::FieldErrors, op.password
               end
 
-              mount Shared::Field, attribute: op.password_confirmation, label_text: r("fields.password_confirmation").t, &.password_input(placeholder: r(".confirmation_placeholder").t, autocomplete: "new-password")
+              mount(
+                Shared::Field,
+                attribute: op.password_confirmation,
+                label_text: r("fields.password_confirmation").t,
+                &.password_input(placeholder: r(".confirmation_placeholder").t, autocomplete: "new-password")
+              )
             end
 
             para class: "m-0 text-xs text-gray-500" do
@@ -82,16 +132,31 @@ class Shared::UserProfileForm < BaseComponent
         end
 
         div class: "space-y-2 border-t border-gray-200 pt-6" do
-          label_for op.mention_notifications_enabled, class: "flex cursor-pointer items-center gap-3 text-sm font-medium text-gray-800" do
-            checkbox op.mention_notifications_enabled, class: "h-4 w-4 rounded border-gray-300 accent-sky-600", "aria-describedby": "mention-notifications-help"
+          label_for(
+            op.mention_notifications_enabled,
+            class: "flex cursor-pointer items-center gap-3 text-sm font-medium text-gray-800"
+          ) do
+            checkbox(
+              op.mention_notifications_enabled,
+              class: "h-4 w-4 rounded border-gray-300 accent-sky-600",
+              "aria-describedby": "mention-notifications-help"
+            )
             text r(".mention_notifications").t
           end
-          para r(".mention_notifications_help").t, id: "mention-notifications-help", class: "m-0 text-sm leading-6 text-gray-500"
+          para(
+            r(".mention_notifications_help").t,
+            id: "mention-notifications-help",
+            class: "m-0 text-sm leading-6 text-gray-500"
+          )
           mount Shared::FieldErrors, op.mention_notifications_enabled
         end
 
         div class: "flex flex-wrap items-center justify-end gap-3 border-t border-gray-200 pt-6" do
-          a r("common.back").t, href: return_path, class: "form-secondary"
+          a(
+            r("common.back").t,
+            href: return_path,
+            class: "form-secondary"
+          )
           submit r("common.save_changes").t, class: "form-submit"
         end
       end

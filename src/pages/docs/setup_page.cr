@@ -31,7 +31,11 @@ class Docs::SetupPage < MainLayout
           para r(".admin_help").t
 
           unless current_user
-            link r("common.sign_in").t, to: SignIns::New.with(return_to: current_path), class: "form-submit"
+            link(
+              r("common.sign_in").t,
+              to: SignIns::New.with(return_to: current_path),
+              class: "form-submit"
+            )
           end
         end
 

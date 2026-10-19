@@ -21,7 +21,11 @@ class Navbar::NotificationLink < BaseComponent
         hx_sync: "#notifications-dialog:replace",
         script: "on click open #notifications-dialog"
       ) do
-        img src: asset("svgs/notification-bell.svg"), alt: "", class: "h-5 w-5"
+        img(
+          src: asset("svgs/notification-bell.svg"),
+          alt: "",
+          class: "h-5 w-5"
+        )
 
         if unread_count > 0
           span(

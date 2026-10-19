@@ -12,7 +12,11 @@ class Admin::Nodes::IndexPage < AdminLayout
         para r(".description").t, class: "mt-1.5 mb-0 text-sm text-gray-600"
       end
 
-      link r("common.new_node").t, to: Admin::Nodes::New, class: "form-submit"
+      link(
+        r("common.new_node").t,
+        to: Admin::Nodes::New,
+        class: "form-submit"
+      )
     end
 
     div class: "app-panel overflow-hidden" do
@@ -34,14 +38,22 @@ class Admin::Nodes::IndexPage < AdminLayout
                 td class: "px-5 py-4" do
                   div class: "flex items-center gap-3" do
                     span class: "h-3 w-3 shrink-0 rounded-sm", style: "background-color: #{node.color}"
-                    link node.name, to: Forum::Index.with(node: node.slug), class: "font-medium text-[#145591] no-underline hover:underline"
+                    link(
+                      node.name,
+                      to: Forum::Index.with(node: node.slug),
+                      class: "font-medium text-[#145591] no-underline hover:underline"
+                    )
                   end
                 end
                 td node.slug, class: "px-5 py-4 font-mono text-xs text-gray-600"
                 td node.summary, class: "max-w-md px-5 py-4 text-gray-600"
                 td node.position.to_s, class: "px-5 py-4 text-right tabular-nums text-gray-700"
                 td class: "px-5 py-4 text-right" do
-                  link r("common.edit").t, to: Admin::Nodes::Edit.with(id: node.id), class: "form-secondary px-3 py-1.5"
+                  link(
+                    r("common.edit").t,
+                    to: Admin::Nodes::Edit.with(id: node.id),
+                    class: "form-secondary px-3 py-1.5"
+                  )
                 end
               end
             end

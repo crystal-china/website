@@ -16,7 +16,11 @@ end
 HYPER
     ) do
       header class: "flex items-center justify-between gap-3 border-b border-gray-200 p-4" do
-        h2 r("common.notifications").t, id: "notifications-title", class: "m-0 text-base font-semibold text-gray-900"
+        h2(
+          r("common.notifications").t,
+          id: "notifications-title",
+          class: "m-0 text-base font-semibold text-gray-900"
+        )
         button(
           r("common.close").t,
           type: "button",

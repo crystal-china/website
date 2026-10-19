@@ -34,7 +34,11 @@ class Upload < BrowserAction
 
     spawn do
       file = File.open(source.path) do |file|
-        form_data.file("file", file, HTTP::FormData::FileMetadata.new(filename: source.filename))
+        form_data.file(
+          "file",
+          file,
+          HTTP::FormData::FileMetadata.new(filename: source.filename)
+        )
         form_data.finish
       end
     ensure
@@ -50,7 +54,11 @@ class Upload < BrowserAction
       client.write_timeout = 10.seconds
       client.read_timeout = 15.seconds
 
-      client.post(upload_uri.request_target, headers: headers, body: reader)
+      client.post(
+        upload_uri.request_target,
+        headers: headers,
+        body: reader
+      )
     end
 
     body = JSON.parse(response.body)

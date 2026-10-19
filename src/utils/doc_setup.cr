@@ -28,7 +28,11 @@ module DocSetup
     FILES.each do |path, source|
       next if File.exists?(path) || File.symlink?(path)
 
-      file = File.tempfile("doc-setup", ".tmp", dir: MarkdownFile::ROOT.to_s)
+      file = File.tempfile(
+        "doc-setup",
+        ".tmp",
+        dir: MarkdownFile::ROOT.to_s
+      )
 
       begin
         file << source

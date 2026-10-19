@@ -28,7 +28,11 @@ module MarkdownHelpers
     if scheduler
       year, month = scheduler
       html = html.sub(TABLE_SCHEDULER_PLACEHOLDER) do
-        TableScheduler.new(year: year, month: month, current_user: current_user).render_to_string
+        TableScheduler.new(
+          year: year,
+          month: month,
+          current_user: current_user
+        ).render_to_string
       end
     end
 

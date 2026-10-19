@@ -5,7 +5,7 @@
 #
 # For more details on any individual rule, run `ameba --only RuleName`.
 
-Version: "1.7.0-dev"
+Version: "1.7.0"
 
 Excluded:
   - website1
@@ -34,4 +34,7 @@ Performance/AnyInsteadOfEmpty:
   Enabled: false
 
 Style/ParenthesesAroundCondition:
+  Enabled: false
+
+Style/HeredocIndent:
   Enabled: false

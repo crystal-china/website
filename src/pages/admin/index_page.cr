@@ -27,8 +27,16 @@ class Admin::IndexPage < AdminLayout
     div class: "mt-8 grid gap-6 xl:grid-cols-[minmax(0,1fr)_18rem]" do
       section class: "app-panel overflow-hidden", "aria-labelledby": "recent-topics-title" do
         header class: "panel-header flex items-center justify-between gap-4" do
-          h3 r(".recent_topics").t, id: "recent-topics-title", class: "m-0 text-lg font-semibold text-gray-900"
-          link r(".view_all").t, to: Forum::Index, class: "text-sm font-medium text-[#145591] no-underline hover:underline"
+          h3(
+            r(".recent_topics").t,
+            id: "recent-topics-title",
+            class: "m-0 text-lg font-semibold text-gray-900"
+          )
+          link(
+            r(".view_all").t,
+            to: Forum::Index,
+            class: "text-sm font-medium text-[#145591] no-underline hover:underline"
+          )
         end
 
         if recent_topics.empty?
@@ -37,7 +45,11 @@ class Admin::IndexPage < AdminLayout
           ul class: "m-0 list-none divide-y divide-gray-200 p-0" do
             recent_topics.each do |topic|
               li class: "px-6 py-4 hover:bg-gray-50" do
-                link topic.title, to: Forum::Show.with(id: topic.id), class: "font-semibold text-[#145591] no-underline hover:underline"
+                link(
+                  topic.title,
+                  to: Forum::Show.with(id: topic.id),
+                  class: "font-semibold text-[#145591] no-underline hover:underline"
+                )
 
                 para class: "mt-1.5 mb-0 flex flex-wrap items-center gap-x-1 text-xs text-gray-500" do
                   span class: "h-2.5 w-2.5 rounded-full", style: "background-color: #{topic.node.color}"
@@ -56,13 +68,35 @@ class Admin::IndexPage < AdminLayout
       end
 
       aside class: "app-panel p-6", "aria-labelledby": "quick-actions-title" do
-        h3 r(".quick_actions").t, id: "quick-actions-title", class: "m-0 text-lg font-semibold text-gray-900"
+        h3(
+          r(".quick_actions").t,
+          id: "quick-actions-title",
+          class: "m-0 text-lg font-semibold text-gray-900"
+        )
 
         nav class: "mt-4", "aria-label": r(".quick_actions_navigation").t do
           ul class: "m-0 list-none space-y-3 p-0" do
-            li { link r("common.new_node").t, to: Admin::Nodes::New, class: "form-secondary w-full" }
-            li { link r(".manage_nodes").t, to: Admin::Nodes::Index, class: "form-secondary w-full" }
-            li { link r("common.new_topic").t, to: Forum::New, class: "form-secondary w-full" }
+            li do
+              link(
+                r("common.new_node").t,
+                to: Admin::Nodes::New,
+                class: "form-secondary w-full"
+              )
+            end
+            li do
+              link(
+                r(".manage_nodes").t,
+                to: Admin::Nodes::Index,
+                class: "form-secondary w-full"
+              )
+            end
+            li do
+              link(
+                r("common.new_topic").t,
+                to: Forum::New,
+                class: "form-secondary w-full"
+              )
+            end
           end
         end
       end

@@ -9,8 +9,18 @@ class Shared::OAuth < BaseComponent
       end
 
       nav class: "space-y-3", "aria-label": r(".providers").t do
-        link "Google", to: SignUps::Oauth::New.with(provider: "google"), hx_boost: "false", class: "form-secondary w-full" if providers.includes?("google")
-        link "Github", to: SignUps::Oauth::New.with(provider: "github"), hx_boost: "false", class: "form-secondary w-full" if providers.includes?("github")
+        link(
+          "Google",
+          to: SignUps::Oauth::New.with(provider: "google"),
+          hx_boost: "false",
+          class: "form-secondary w-full"
+        ) if providers.includes?("google")
+        link(
+          "Github",
+          to: SignUps::Oauth::New.with(provider: "github"),
+          hx_boost: "false",
+          class: "form-secondary w-full"
+        ) if providers.includes?("github")
       end
     end
 

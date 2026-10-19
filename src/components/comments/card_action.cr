@@ -4,7 +4,10 @@ class Comments::CardAction < BaseComponent
   needs thread_expanded : Bool = false
 
   def render : Nil
-    div id: "comment-#{comment.id}-actions", class: "flex flex-1 flex-wrap items-center justify-end gap-x-4 gap-y-3" do
+    div(
+      id: "comment-#{comment.id}-actions",
+      class: "flex flex-1 flex-wrap items-center justify-end gap-x-4 gap-y-3"
+    ) do
       if comment.parent_id.nil?
         mount(
           Comments::ThreadToggle,
@@ -34,10 +37,18 @@ class Comments::CardAction < BaseComponent
     }
 
     div class: "flex shrink-0 flex-wrap items-center justify-end gap-2" do
-      button(r("common.reply").t, opts, hx_get: Htmx::Comments::New.with(id: comment.id, order_by: order_by).path)
+      button(
+        r("common.reply").t,
+        opts,
+        hx_get: Htmx::Comments::New.with(id: comment.id, order_by: order_by).path
+      )
 
       if me.id == comment.user_id || me.admin?
-        button(r("common.edit").t, opts, hx_get: Htmx::Comments::Edit.with(id: comment.id, order_by: order_by).path)
+        button(
+          r("common.edit").t,
+          opts,
+          hx_get: Htmx::Comments::Edit.with(id: comment.id, order_by: order_by).path
+        )
 
         if me.admin? || !CommentQuery.new.with_soft_deleted.parent_id(comment.id).any?
           confirmation = if comment.root_id.nil? && comment.descendants_count > 0

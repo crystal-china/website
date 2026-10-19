@@ -108,7 +108,10 @@ HEREDOC
   end
 
   private def render_preview(editor_height : String) : Nil
-    div id: "#{html_id}_preview", class: "#{editor_height} overflow-y-auto rounded-xl border border-gray-200 bg-gray-50/60 px-4 py-3" do
+    div(
+      id: "#{html_id}_preview",
+      class: "#{editor_height} overflow-y-auto rounded-xl border border-gray-200 bg-gray-50/60 px-4 py-3"
+    ) do
       div class: "markdown-preview"
       mount Shared::Spinner, text: r(".preview_loading").t
     end

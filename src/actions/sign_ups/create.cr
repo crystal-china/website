@@ -24,7 +24,11 @@ class SignUps::Create < BrowserAction
 
     cookies.delete("signup_captcha_id")
 
-    sign_up(params, r(".sign_up_failed").t, signup_captcha_code)
+    sign_up(
+      params,
+      r(".sign_up_failed").t,
+      signup_captcha_code
+    )
   end
 
   def sign_up(params, flash_msg, captcha_code : String = "") : Lucky::Response

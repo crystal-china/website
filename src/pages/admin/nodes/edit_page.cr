@@ -14,8 +14,16 @@ class Admin::Nodes::EditPage < AdminLayout
       end
 
       form_for Admin::Nodes::Update.with(id: node.id), class: "panel-body space-y-6" do
-        mount Admin::Nodes::Fields, operation: operation, current_user: current_user do
-          link r("common.cancel").t, to: Admin::Nodes::Index, class: "form-secondary"
+        mount(
+          Admin::Nodes::Fields,
+          operation: operation,
+          current_user: current_user
+        ) do
+          link(
+            r("common.cancel").t,
+            to: Admin::Nodes::Index,
+            class: "form-secondary"
+          )
           submit r("common.save_changes").t, class: "form-submit"
         end
       end

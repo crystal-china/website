@@ -8,8 +8,18 @@ class Shared::LayoutHead < BaseComponent
       utf8_charset
       title "Crystal China - #{seo.page_title}"
       meta name: "description", content: seo.page_description
-      tag "link", rel: "canonical", href: seo.canonical_url
-      tag "link", rel: "alternate", type: "application/rss+xml", title: r("common.site_name").t, href: Forum::Feed.url
+      tag(
+        "link",
+        rel: "canonical",
+        href: seo.canonical_url
+      )
+      tag(
+        "link",
+        rel: "alternate",
+        type: "application/rss+xml",
+        title: r("common.site_name").t,
+        href: Forum::Feed.url
+      )
 
       meta property: "og:title", content: seo.page_title
       meta property: "og:description", content: seo.page_description

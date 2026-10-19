@@ -9,7 +9,11 @@ class Search::Dialog < BaseComponent
     ) do
       div class: "border-b border-gray-200 p-4" do
         div class: "flex items-center justify-between gap-3" do
-          label scope == "docs" ? r(".docs_title").t : r(".topics_title").t, for: "search-input", class: "text-base font-semibold text-gray-900"
+          label(
+            scope == "docs" ? r(".docs_title").t : r(".topics_title").t,
+            for: "search-input",
+            class: "text-base font-semibold text-gray-900"
+          )
           button(
             r("common.close").t,
             type: "button",

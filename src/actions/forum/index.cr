@@ -17,6 +17,11 @@ class Forum::Index < ForumAction
       per_page: 20
     )
 
-    html Forum::IndexPage, topics: topics, pages: pages, node: current_node
+    html(
+      Forum::IndexPage,
+      topics: topics,
+      pages: pages,
+      node: current_node
+    )
   end
 end

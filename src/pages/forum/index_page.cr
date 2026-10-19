@@ -19,7 +19,11 @@ class Forum::IndexPage < ForumLayout
         para description, class: "mt-2 mb-0 text-sm text-gray-600"
       end
 
-      link r("common.new_topic").t, to: Forum::New, class: "form-submit" if current_user
+      link(
+        r("common.new_topic").t,
+        to: Forum::New,
+        class: "form-submit"
+      ) if current_user
     end
 
     render_topic_list(current_topics)
@@ -47,7 +51,11 @@ class Forum::IndexPage < ForumLayout
     article class: "flex flex-col gap-3 px-6 py-5 transition-colors hover:bg-gray-50 sm:flex-row sm:items-center" do
       div class: "min-w-0 flex-1" do
         h2 class: "m-0 text-lg font-semibold" do
-          link topic.title, to: Forum::Show.with(id: topic.id), class: "text-[#145591] no-underline hover:underline"
+          link(
+            topic.title,
+            to: Forum::Show.with(id: topic.id),
+            class: "text-[#145591] no-underline hover:underline"
+          )
         end
 
         para class: "mt-2 mb-0 flex flex-wrap items-center gap-x-1 text-xs text-gray-500" do
@@ -95,7 +103,11 @@ class Forum::IndexPage < ForumLayout
   private def render_pagination : Nil
     nav class: "mt-6 flex items-center justify-center gap-4 text-sm", "aria-label": r(".pagination").t do
       if (previous_path = pages.path_to_previous)
-        a r("common.previous_page").t, href: previous_path, class: "form-secondary"
+        a(
+          r("common.previous_page").t,
+          href: previous_path,
+          class: "form-secondary"
+        )
       else
         span r("common.previous_page").t, class: "form-secondary cursor-not-allowed opacity-50"
       end
@@ -103,7 +115,11 @@ class Forum::IndexPage < ForumLayout
       span r("common.page_number").t(page: pages.page.to_s, total: pages.total.to_s), class: "text-gray-600"
 
       if (next_path = pages.path_to_next)
-        a r("common.next_page").t, href: next_path, class: "form-secondary"
+        a(
+          r("common.next_page").t,
+          href: next_path,
+          class: "form-secondary"
+        )
       else
         span r("common.next_page").t, class: "form-secondary cursor-not-allowed opacity-50"
       end

@@ -80,7 +80,11 @@ class Htmx::Search < BrowserAction
       SQL
 
     AppDatabase.query_all(sql, query) do |rs|
-      id, title, snippet = rs.read(Int64, String, String)
+      id, title, snippet = rs.read(
+        Int64,
+        String,
+        String
+      )
 
       {
         title:   title,

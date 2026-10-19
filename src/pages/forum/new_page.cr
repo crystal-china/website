@@ -18,7 +18,11 @@ class Forum::NewPage < ForumLayout
           nodes: nodes,
           current_user: current_user
         ) do
-          link r("common.cancel").t, to: Forum::Index, class: "form-secondary"
+          link(
+            r("common.cancel").t,
+            to: Forum::Index,
+            class: "form-secondary"
+          )
           submit r(".publish").t, class: "form-submit"
         end
       end

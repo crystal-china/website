@@ -14,7 +14,10 @@ class Users::ShowPage < MainLayout
 
     div class: "#{page_container_classes} py-10 sm:py-16" do
       article class: "app-panel mx-auto max-w-2xl overflow-hidden" do
-        div class: "h-24 border-b border-sky-100 bg-gradient-to-r from-sky-100 via-slate-100 to-amber-50 sm:h-32", "aria-hidden": "true"
+        div(
+          class: "h-24 border-b border-sky-100 bg-gradient-to-r from-sky-100 via-slate-100 to-amber-50 sm:h-32",
+          "aria-hidden": "true"
+        )
 
         div class: "px-6 pb-8 sm:px-10" do
           mount(
@@ -26,7 +29,12 @@ class Users::ShowPage < MainLayout
           header class: "mt-5 flex flex-wrap items-start justify-between gap-4" do
             div class: "min-w-0" do
               h1 class: "m-0 text-2xl font-semibold tracking-tight text-gray-900" do
-                mount Shared::UserName, user: user, linked: false, stacked: true
+                mount(
+                  Shared::UserName,
+                  user: user,
+                  linked: false,
+                  stacked: true
+                )
               end
 
               if (tagline = user.profile.tagline.presence)
@@ -36,8 +44,16 @@ class Users::ShowPage < MainLayout
 
             if (me = current_user) && (me.id == user.id || me.admin?)
               div class: "flex flex-wrap gap-3" do
-                link r("common.edit_profile").t, to: Users::Edit.with(id: user.id), class: "form-secondary"
-                link r("common.events").t, to: Me::Events.with(user_id: user.id), class: "form-secondary"
+                link(
+                  r("common.edit_profile").t,
+                  to: Users::Edit.with(id: user.id),
+                  class: "form-secondary"
+                )
+                link(
+                  r("common.events").t,
+                  to: Me::Events.with(user_id: user.id),
+                  class: "form-secondary"
+                )
               end
             end
           end

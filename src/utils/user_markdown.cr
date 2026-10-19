@@ -2,9 +2,17 @@ module UserMarkdown
   OPTIONS = Markd::Options.new(gfm: true, toc: false)
 
   def self.render(content : String, formatter : Tartrazine::Formatter = MarkdownFormatter.build) : NamedTuple(html: String, mentions: Array(String))
-    document, placeholder, names = UserMarkdownParser.parse(content, OPTIONS, formatter)
+    document, placeholder, names = UserMarkdownParser.parse(
+      content,
+      OPTIONS,
+      formatter
+    )
     html = Markd::HTMLRenderer.new(OPTIONS).render(document, formatter)
-    html, mentions = add_links(html, placeholder, names)
+    html, mentions = add_links(
+      html,
+      placeholder,
+      names
+    )
     html = UserHtmlSanitizer.new.process(html)
 
     {html: html, mentions: mentions.to_a}

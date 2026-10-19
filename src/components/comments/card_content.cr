@@ -26,7 +26,11 @@ class Comments::CardContent < BaseComponent
           classes: "h-6 w-6 rounded-md border border-gray-300 text-xs"
         )
         div class: "min-w-0 text-xs" do
-          mount Shared::UserName, user: user, stacked: true
+          mount(
+            Shared::UserName,
+            user: user,
+            stacked: true
+          )
         end
       end
 
@@ -51,7 +55,10 @@ class Comments::CardContent < BaseComponent
           )
         end
 
-        span r(".floor").t(floor: comment.floor.to_s), class: "inline-flex items-center rounded-full border border-gray-300 bg-white px-2.5 py-0.5 font-medium text-gray-800"
+        span(
+          r(".floor").t(floor: comment.floor.to_s),
+          class: "inline-flex items-center rounded-full border border-gray-300 bg-white px-2.5 py-0.5 font-medium text-gray-800"
+        )
 
         if show_update_success?
           output(

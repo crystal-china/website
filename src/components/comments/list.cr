@@ -7,7 +7,12 @@ class Comments::List < BaseComponent
 
   def render : Nil
     div role: "feed", id: html_id do
-      input type: "hidden", id: "#{html_id}-order-by", name: "order_by", value: pagination[:order_by]
+      input(
+        type: "hidden",
+        id: "#{html_id}-order-by",
+        name: "order_by",
+        value: pagination[:order_by]
+      )
 
       mount(
         ::Comments::Toolbar,

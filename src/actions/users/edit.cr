@@ -7,6 +7,11 @@ class Users::Edit < BrowserAction
 
     password_changed_at = UserAuditQuery.new.user_id(user.id).latest_password_change_at
 
-    html Users::EditPage, user: user, op: UpdateUser.new(user), password_changed_at: password_changed_at
+    html(
+      Users::EditPage,
+      user: user,
+      op: UpdateUser.new(user),
+      password_changed_at: password_changed_at
+    )
   end
 end

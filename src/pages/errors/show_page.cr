@@ -22,7 +22,11 @@ class Errors::ShowPage
 
           ul class: "helpful-links" do
             li do
-              a r(".back_home").t, href: "/", class: "helpful-link"
+              a(
+                r(".back_home").t,
+                href: "/",
+                class: "helpful-link"
+              )
             end
           end
         end

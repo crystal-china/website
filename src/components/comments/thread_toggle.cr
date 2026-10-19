@@ -8,7 +8,12 @@ class Comments::ThreadToggle < BaseComponent
 
     div id: "comment-#{comment.id}-thread-toggle", class: wrapper_class do
       if comment.descendants_count > 0
-        input type: "hidden", class: "comment-order-state", name: "order_by", value: order_by
+        input(
+          type: "hidden",
+          class: "comment-order-state",
+          name: "order_by",
+          value: order_by
+        )
 
         button(
           type: "button",
@@ -25,7 +30,11 @@ remove @hidden from the next <button/>
 HEREDOC
         ) do
           text r(".expand").t(count: comment.descendants_count)
-          mount Shared::Spinner, text: r("common.loading_comments").t, width: "10px"
+          mount(
+            Shared::Spinner,
+            text: r("common.loading_comments").t,
+            width: "10px"
+          )
         end
 
         button(

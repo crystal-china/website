@@ -28,7 +28,11 @@ class Htmx::Comments::CreateOrUpdate < CommentAction
         # - 针对 comment 的子评论
         return head 403 unless comment.user_id == me.id || me.admin?
 
-        UpdateComment.update!(comment, content: content, actor_id: me.id)
+        UpdateComment.update!(
+          comment,
+          content: content,
+          actor_id: me.id
+        )
 
         q = CommentQuery.new.id(comment.id).preload_user
         q = q.preload_parent &.preload_user
@@ -44,7 +48,11 @@ class Htmx::Comments::CreateOrUpdate < CommentAction
         # 为一条已有评论新建子评论。这里的 comment 是“被回复的那条旧评论”。
         # 回复顶级评论时，它自己就是线程根；回复子评论时，继承该子评论所属的线程根。
         root_id = comment.root_id || comment.id
-        comment = CreateComment.create!(user_id: me.id, parent_id: comment.id, content: content)
+        comment = CreateComment.create!(
+          user_id: me.id,
+          parent_id: comment.id,
+          content: content
+        )
         pagination = comments_pagination(root_id: root_id, order_by: order_by)
         html_id = "comment-#{root_id}-comments"
         root_comment = CommentQuery.find(root_id)
@@ -55,7 +63,11 @@ class Htmx::Comments::CreateOrUpdate < CommentAction
       # 给 CommentThread 新建顶级评论
       comment_thread_id = self.comment_thread_id.not_nil!
       return head 404 unless CommentThreadQuery.find(comment_thread_id).target_visible?
-      comment = CreateComment.create!(user_id: me.id, comment_thread_id: comment_thread_id, content: content)
+      comment = CreateComment.create!(
+        user_id: me.id,
+        comment_thread_id: comment_thread_id,
+        content: content
+      )
       pagination = comments_pagination(comment_thread_id: comment_thread_id, order_by: order_by)
       html_id = "comments"
     end

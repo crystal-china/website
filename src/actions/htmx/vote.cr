@@ -45,8 +45,16 @@ class Htmx::Vote < BrowserAction
         DeleteVote.delete!(vote)
         vote_counts[vote_type] -= 1
       else
-        remove_opposite_vote(votes, vote_type, vote_counts)
-        SaveVote.create!(user_id: current_user.id, comment_id: comment.id, vote_type: vote_type)
+        remove_opposite_vote(
+          votes,
+          vote_type,
+          vote_counts
+        )
+        SaveVote.create!(
+          user_id: current_user.id,
+          comment_id: comment.id,
+          vote_type: vote_type
+        )
         vote_counts[vote_type] += 1
       end
 
@@ -83,8 +91,16 @@ class Htmx::Vote < BrowserAction
         DeleteVote.delete!(vote)
         vote_counts[vote_type] -= 1
       else
-        remove_opposite_vote(votes, vote_type, vote_counts)
-        SaveVote.create!(user_id: current_user.id, doc_id: doc.id, vote_type: vote_type)
+        remove_opposite_vote(
+          votes,
+          vote_type,
+          vote_counts
+        )
+        SaveVote.create!(
+          user_id: current_user.id,
+          doc_id: doc.id,
+          vote_type: vote_type
+        )
         vote_counts[vote_type] += 1
       end
 

@@ -3,7 +3,11 @@ require "digest/md5"
 module DocContent
   def self.sync(path_index : String, source : String, updated_at : Time = Time.utc) : Doc
     if doc = DocQuery.new.path_index(path_index).first?
-      sync(doc, source, updated_at)
+      sync(
+        doc,
+        source,
+        updated_at
+      )
     else
       SaveDoc.create!(
         path_index: path_index,
@@ -15,7 +19,11 @@ module DocContent
   rescue error : PQ::PQError
     raise error unless error.field_message(:constraint) == "docs_path_index_index"
 
-    sync(DocQuery.new.path_index(path_index).first, source, updated_at)
+    sync(
+      DocQuery.new.path_index(path_index).first,
+      source,
+      updated_at
+    )
   end
 
   def self.sync(doc : Doc, source : String, updated_at : Time = Time.utc) : Doc

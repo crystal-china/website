@@ -5,7 +5,11 @@ class Navbar < BaseComponent
     header class: "sticky top-0 z-50" do
       div class: "flex translate-y-px flex-col items-center gap-3 border-b border-gray-300/80 bg-[#F2F4F6] pt-3 pb-3 shadow-[0_1px_2px_rgb(15_23_42/0.06)] md:flex-row md:justify-between md:pt-4 lg:h-[var(--navbar-height)] lg:translate-y-0 lg:py-0 #{page_frame_classes} #{page_gutter_classes}" do
         a href: "/", class: "inline-flex shrink-0 items-center" do
-          img src: asset("svgs/crystal.svg"), alt: "crystal-china", class: "w-[140px] sm:w-[180px]"
+          img(
+            src: asset("svgs/crystal.svg"),
+            alt: "crystal-china",
+            class: "w-[140px] sm:w-[180px]"
+          )
           span "China", class: "ml-3 text-base font-semibold tracking-wide text-black uppercase sm:ml-6 sm:text-lg"
         end
 
@@ -15,7 +19,11 @@ class Navbar < BaseComponent
               if search_scope == "docs" && current_user
                 render_search_button
               else
-                link r("common.docs").t, to: Docs::Markdowns.with(requested_path: "index"), class: nav_item_class(active: current_path.starts_with?("/docs"))
+                link(
+                  r("common.docs").t,
+                  to: Docs::Markdowns.with(requested_path: "index"),
+                  class: nav_item_class(active: current_path.starts_with?("/docs"))
+                )
               end
             end
 
@@ -23,12 +31,20 @@ class Navbar < BaseComponent
               if search_scope == "topics" && current_user
                 render_search_button
               else
-                link r("common.community").t, to: Forum::Index, class: nav_item_class(active: current_path.starts_with?("/forum"))
+                link(
+                  r("common.community").t,
+                  to: Forum::Index,
+                  class: nav_item_class(active: current_path.starts_with?("/forum"))
+                )
               end
             end
 
             li do
-              a r(".source").t, href: "https://github.com/crystal-china/website", class: nav_item_class
+              a(
+                r(".source").t,
+                href: "https://github.com/crystal-china/website",
+                class: nav_item_class
+              )
             end
 
             me = current_user
@@ -38,8 +54,20 @@ class Navbar < BaseComponent
                 mount Navbar::UserMenu, current_user: me
               end
             else
-              li { link r("common.sign_up").t, to: SignUps::New, class: nav_item_class(active: current_path == SignUps::New.path) }
-              li { link r("common.sign_in").t, to: SignIns::New.with(return_to: context.request.resource), class: nav_item_class(active: current_path == SignIns::New.path) }
+              li do
+                link(
+                  r("common.sign_up").t,
+                  to: SignUps::New,
+                  class: nav_item_class(active: current_path == SignUps::New.path)
+                )
+              end
+              li do
+                link(
+                  r("common.sign_in").t,
+                  to: SignIns::New.with(return_to: context.request.resource),
+                  class: nav_item_class(active: current_path == SignIns::New.path)
+                )
+              end
             end
           end
         end

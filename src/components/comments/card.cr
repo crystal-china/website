@@ -24,7 +24,11 @@ end
 HYPER
     end
 
-    article options, class: comment_card_classes, id: "comment-#{comment.id}" do
+    article(
+      options,
+      class: comment_card_classes,
+      id: "comment-#{comment.id}"
+    ) do
       mount(
         Comments::CardContent,
         formatter: formatter,
@@ -36,7 +40,10 @@ HYPER
       me = current_user
       voted_types = me ? comment.votes.map(&.vote_type) : [] of String
 
-      footer id: "comment-#{comment.id}-footer", class: "mt-2 flex flex-wrap items-end justify-between gap-x-4 gap-y-3" do
+      footer(
+        id: "comment-#{comment.id}-footer",
+        class: "mt-2 flex flex-wrap items-end justify-between gap-x-4 gap-y-3"
+      ) do
         div class: "flex min-w-0 flex-wrap items-center gap-2 text-sm" do
           mount(
             Shared::VoteButton,
@@ -47,17 +54,23 @@ HYPER
           )
         end
 
-        mount Comments::CardAction,
+        mount(
+          Comments::CardAction,
           comment: comment,
           order_by: order_by,
           thread_expanded: expand_thread,
           current_user: me
+        )
       end
 
       if expand_thread && focus
         div(
           id: "comment-#{comment.id}-comments",
-          hx_get: Htmx::Comments::Index.with(root_id: comment.id, comment_id: focus.id, order_by: order_by).path,
+          hx_get: Htmx::Comments::Index.with(
+            root_id: comment.id,
+            comment_id: focus.id,
+            order_by: order_by
+          ).path,
           hx_trigger: "load",
           hx_swap: "outerHTML"
         ) do

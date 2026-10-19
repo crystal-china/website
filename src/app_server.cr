@@ -13,7 +13,11 @@ class AppServer < Lucky::BaseAppServer
       Lucky::DevAssetCacheHandler.new(enabled: LuckyEnv.development?),
       LuckyEnv.production? ? Lucky::StaticCompressionHandler.new("./public", file_ext: "br", content_encoding: "br") : nil,
       LuckyEnv.production? ? Lucky::StaticCompressionHandler.new("./public", file_ext: "gz", content_encoding: "gzip") : nil,
-      Lucky::StaticFileHandler.new("./public", fallthrough: false, directory_listing: false),
+      Lucky::StaticFileHandler.new(
+        "./public",
+        fallthrough: false,
+        directory_listing: false
+      ),
       Lucky::RouteNotFoundHandler.new,
     ].select(HTTP::Handler)
   end
@@ -23,6 +27,10 @@ class AppServer < Lucky::BaseAppServer
   end
 
   def listen : Nil
-    server.listen(host, port, reuse_port: false)
+    server.listen(
+      host,
+      port,
+      reuse_port: false
+    )
   end
 end

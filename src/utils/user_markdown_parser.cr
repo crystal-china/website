@@ -70,8 +70,16 @@ module UserMarkdownParser
 
       # info 是提示框，不生成提及链接或通知。
       if entering && node.type.code_block? && node.fence_language == "info"
-        node.text = restore_mentions(node.text, placeholder, names) unless names.empty?
-        MarkdownInfoBox.convert(node, options, formatter)
+        node.text = restore_mentions(
+          node.text,
+          placeholder,
+          names
+        ) unless names.empty?
+        MarkdownInfoBox.convert(
+          node,
+          options,
+          formatter
+        )
         next
       end
 
@@ -106,7 +114,11 @@ module UserMarkdownParser
       # 这里全是合法的 text 节点时，保留占位符，稍后在 HTML 中生成链接。
       unless entering && node.type.text? && link_depth.zero? && raw_tag_stack.empty?
         # 如果不满足，全部把占位符恢复成 @user
-        node.text = restore_mentions(node.text, placeholder, names)
+        node.text = restore_mentions(
+          node.text,
+          placeholder,
+          names
+        )
       end
 
       # GPT 核对了 Node 定义 (lib/markd/src/markd/node.cr:60) 和 HTML 渲染器。
@@ -117,9 +129,17 @@ module UserMarkdownParser
 
       # 只有这三处地方可能包含 @???, 后两处这里也单独替换。
       node.data.transform_values! do |value|
-        value.is_a?(String) ? restore_mentions(value, placeholder, names) : value
+        value.is_a?(String) ? restore_mentions(
+          value,
+          placeholder,
+          names
+        ) : value
       end
-      node.fence_language = restore_mentions(node.fence_language, placeholder, names)
+      node.fence_language = restore_mentions(
+        node.fence_language,
+        placeholder,
+        names
+      )
     end
 
     # 到这里，只有合法的地方的 @user 声明还是占位符，其他已经恢复。

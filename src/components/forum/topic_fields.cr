@@ -8,9 +8,17 @@ class Forum::TopicFields(T) < BaseComponent
 
     div class: "grid gap-6 sm:grid-cols-[12rem_minmax(0,1fr)] sm:gap-4" do
       div class: "form-field" do
-        label_for node_id_attribute, r("common.node").t, class: "form-label"
+        label_for(
+          node_id_attribute,
+          r("common.node").t,
+          class: "form-label"
+        )
 
-        select_input node_id_attribute, attrs: [:required], class: "form-input" do
+        select_input(
+          node_id_attribute,
+          attrs: [:required],
+          class: "form-input"
+        ) do
           select_prompt r(".choose_node").t
           options_for_select node_id_attribute, nodes.map { |node| {node.name, node.id} }
         end
@@ -18,11 +26,20 @@ class Forum::TopicFields(T) < BaseComponent
         mount Shared::FieldErrors, node_id_attribute
       end
 
-      mount Shared::Field, attribute: operation.title, label_text: r("fields.title").t, &.text_input(autofocus: "true", required: "")
+      mount(
+        Shared::Field,
+        attribute: operation.title,
+        label_text: r("fields.title").t,
+        &.text_input(autofocus: "true", required: "")
+      )
     end
 
     div class: "form-field" do
-      label r("fields.content").t, for: "topic_text_area", class: "form-label"
+      label(
+        r("fields.content").t,
+        for: "topic_text_area",
+        class: "form-label"
+      )
 
       mount(
         Comments::Editor,

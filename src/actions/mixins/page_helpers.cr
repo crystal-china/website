@@ -47,7 +47,11 @@ module PageHelpers
 
   private def render_markdown_with_info_boxes(text : String, options = MARKDOWN_OPTIONS) : String
     if !text.includes?("```") && !text.includes?("~~~")
-      return Markd.to_html(text, options: options, formatter: formatter)
+      return Markd.to_html(
+        text,
+        options: options,
+        formatter: formatter
+      )
     end
 
     document = Markd::Parser.parse(text, options)
@@ -58,7 +62,11 @@ module PageHelpers
 
       next unless entering && node.type.code_block? && node.fence_language == "info"
 
-      MarkdownInfoBox.convert(node, options, formatter)
+      MarkdownInfoBox.convert(
+        node,
+        options,
+        formatter
+      )
     end
 
     Markd::HTMLRenderer.new(options).render(document, formatter)

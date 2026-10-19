@@ -29,11 +29,12 @@ class Errors::Show < Lucky::ErrorAction
     if html?
       error_html r(".default_error").t, status: 500
     else
-      error_json \
+      error_json(
         message: error.renderable_message,
         details: error.renderable_details,
         param: error.invalid_attribute_name,
         status: 400
+      )
     end
   end
 
@@ -59,11 +60,23 @@ class Errors::Show < Lucky::ErrorAction
 
   private def error_html(message : String, status : Int) : Lucky::Response
     context.response.status_code = status
-    html_with_status Errors::ShowPage, status, message: message, status_code: status
+    html_with_status(
+      Errors::ShowPage,
+      status,
+      message: message,
+      status_code: status
+    )
   end
 
   private def error_json(message : String, status : Int, details = nil, param = nil) : Lucky::Response
-    json ErrorSerializer.new(message: message, details: details, param: param), status: status
+    json(
+      ErrorSerializer.new(
+        message: message,
+        details: details,
+        param: param
+      ),
+      status: status
+    )
   end
 
   private def report(error : Exception) : Nil

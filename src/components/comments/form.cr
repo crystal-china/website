@@ -89,7 +89,12 @@ HEREDOC
       end
 
       if (current_order_by = order_by)
-        input type: "hidden", id: order_by_input_id, name: "order_by", value: current_order_by
+        input(
+          type: "hidden",
+          id: order_by_input_id,
+          name: "order_by",
+          value: current_order_by
+        )
       end
 
       button(text, opts)

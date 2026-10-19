@@ -13,8 +13,16 @@ class Errors::ContentUnavailablePage < MainLayout
         para r(".description").t(name: content_name), class: "mt-4 text-gray-600"
 
         nav class: "mt-6 flex flex-wrap gap-3", "aria-label": r(".other_pages").t do
-          link r(".view_community").t, to: Forum::Index, class: "form-secondary"
-          link r(".view_docs").t, to: Docs::Markdowns.with(requested_path: "index"), class: "form-secondary"
+          link(
+            r(".view_community").t,
+            to: Forum::Index,
+            class: "form-secondary"
+          )
+          link(
+            r(".view_docs").t,
+            to: Docs::Markdowns.with(requested_path: "index"),
+            class: "form-secondary"
+          )
         end
       end
     end

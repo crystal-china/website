@@ -15,8 +15,16 @@ class Admin::Trash::IndexPage < AdminLayout
     end
 
     nav class: "mb-5 flex gap-3", "aria-label": r(".categories").t do
-      link r("common.comment").t, to: Admin::Trash::Index, class: kind == "comments" ? "form-submit" : "form-secondary"
-      link r("common.topic").t, to: Admin::Trash::Index.with(kind: "topics"), class: kind == "topics" ? "form-submit" : "form-secondary"
+      link(
+        r("common.comment").t,
+        to: Admin::Trash::Index,
+        class: kind == "comments" ? "form-submit" : "form-secondary"
+      )
+      link(
+        r("common.topic").t,
+        to: Admin::Trash::Index.with(kind: "topics"),
+        class: kind == "topics" ? "form-submit" : "form-secondary"
+      )
     end
 
     if kind == "comments"
@@ -95,13 +103,21 @@ class Admin::Trash::IndexPage < AdminLayout
   private def render_pagination : Nil
     nav class: "mt-6 flex items-center justify-center gap-4 text-sm", "aria-label": r(".pagination").t do
       if (previous_path = pages.path_to_previous)
-        a r("common.previous_page").t, href: previous_path, class: "form-secondary"
+        a(
+          r("common.previous_page").t,
+          href: previous_path,
+          class: "form-secondary"
+        )
       end
 
       span r("common.page_number").t(page: pages.page.to_s, total: pages.total.to_s), class: "text-gray-600"
 
       if (next_path = pages.path_to_next)
-        a r("common.next_page").t, href: next_path, class: "form-secondary"
+        a(
+          r("common.next_page").t,
+          href: next_path,
+          class: "form-secondary"
+        )
       end
     end
   end

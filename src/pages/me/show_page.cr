@@ -15,7 +15,9 @@ class Me::ShowPage < MainLayout
   end
 
   private def link_to_authentication_guides : Nil
-    a r(".auth_guides").t,
+    a(
+      r(".auth_guides").t,
       href: "https://luckyframework.org/guides/authentication"
+    )
   end
 end

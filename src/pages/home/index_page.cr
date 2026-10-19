@@ -14,7 +14,11 @@ class Home::IndexPage < MainLayout
         ) do
           span class: "inline-flex items-center gap-2" do
             text r(".latest_release").t
-            mount Shared::Spinner, text: r(".loading_release").t, width: "10px"
+            mount(
+              Shared::Spinner,
+              text: r(".loading_release").t,
+              width: "10px"
+            )
           end
         end
 
@@ -31,7 +35,10 @@ class Home::IndexPage < MainLayout
       end
 
       # 使用 CSS Grid 布局。子元素不再按普通文档流堆叠，而是放进网格里。
-      nav "aria-label": r(".links").t, class: "mb-10 grid w-full grid-cols-1 items-start gap-x-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[repeat(5,max-content)] xl:justify-between" do
+      nav(
+        "aria-label": r(".links").t,
+        class: "mb-10 grid w-full grid-cols-1 items-start gap-x-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[repeat(5,max-content)] xl:justify-between"
+      ) do
         section do
           h2 r(".official").t, class: link_group_heading_classes
           ul do
@@ -77,7 +84,13 @@ class Home::IndexPage < MainLayout
         section do
           h2 r(".chat").t, class: link_group_heading_classes
           ul do
-            li { normal_link "https://discord.gg/YS7YvQy", "Discord", target: "_blank" }
+            li do
+              normal_link(
+                "https://discord.gg/YS7YvQy",
+                "Discord",
+                target: "_blank"
+              )
+            end
             li { normal_link "https://www.reddit.com/r/crystal_programming/", "Reddit" }
           end
         end
@@ -86,13 +99,21 @@ class Home::IndexPage < MainLayout
   end
 
   private def normal_link(link, content, **opts) : Nil
-    a content, **opts.merge(class: home_link_class), href: link
+    a(
+      content,
+      **opts.merge(class: home_link_class),
+      href: link
+    )
   end
 
   private def github_icon_link(link, content) : Nil
     a href: link, class: "inline-flex items-center gap-1 whitespace-nowrap #{home_link_class}" do
       text "#{content} "
-      img src: asset("svgs/github-icon.svg"), alt: "github", class: "h-4 w-4 shrink-0"
+      img(
+        src: asset("svgs/github-icon.svg"),
+        alt: "github",
+        class: "h-4 w-4 shrink-0"
+      )
     end
   end
 

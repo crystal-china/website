@@ -43,7 +43,11 @@ class Shared::Field(T) < BaseComponent
 
   def render(&) : Nil
     div class: "form-field" do
-      label_for field: attribute, text: label_text, class: "form-label"
+      label_for(
+        field: attribute,
+        text: label_text,
+        class: "form-label"
+      )
 
       # You can add more default options here. For example:
       #

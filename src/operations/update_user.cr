@@ -35,9 +35,11 @@ class UpdateUser < User::SaveOperation
 
     if !password.value.nil?
       validate_confirmation_of password, with: password_confirmation
-      validate_size_of password,
+      validate_size_of(
+        password,
         min: PasswordValidations::MIN_PASSWORD_LENGTH,
         max: PasswordValidations::MAX_PASSWORD_LENGTH
+      )
       Authentic.copy_and_encrypt password, to: encrypted_password if password.valid?
     end
   end
@@ -71,7 +73,11 @@ class UpdateUser < User::SaveOperation
     end
 
     if encrypted_password.changed?
-      SaveUserAudit.create!(user_id: saved_user.id, actor_id: actor_id.value || saved_user.id, kind: UserAudit::Kind::PasswordChanged)
+      SaveUserAudit.create!(
+        user_id: saved_user.id,
+        actor_id: actor_id.value || saved_user.id,
+        kind: UserAudit::Kind::PasswordChanged
+      )
     end
   end
 end

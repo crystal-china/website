@@ -50,14 +50,22 @@ abstract class MainLayout
     mount Footer, current_user: current_user
 
     if current_user && scope
-      mount Search::Dialog, scope: scope, current_user: current_user
+      mount(
+        Search::Dialog,
+        scope: scope,
+        current_user: current_user
+      )
     end
 
     mount Shared::Common, page_title: page_title
   end
 
   private def render_navbar_and_flash : Nil
-    mount Navbar, current_user: current_user, search_scope: search_scope
+    mount(
+      Navbar,
+      current_user: current_user,
+      search_scope: search_scope
+    )
     mount Shared::PageFlash, flash: context.flash
     mount ::Notifications::Dialog, current_user: current_user if current_user
   end

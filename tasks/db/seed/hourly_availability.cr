@@ -15,12 +15,20 @@ end
 module Db::Seed::HourlyAvailabilityTask
   def self.run(year, month) : Nil
     start_day = 1
-    end_day = Time.local(year, month, 1).at_end_of_month.day
+    end_day = Time.local(
+      year,
+      month,
+      1
+    ).at_end_of_month.day
 
     # HourlyAvailabilityQuery.truncate
 
     (start_day..end_day).each do |day|
-      date = Time.local(year, month, day).to_s("%Y-%m-%d")
+      date = Time.local(
+        year,
+        month,
+        day
+      ).to_s("%Y-%m-%d")
 
       ["09", "10", "11", "12", "13", "14", "15", "16", "17"].each do |hour|
         SaveHourlyAvailability.upsert!(
