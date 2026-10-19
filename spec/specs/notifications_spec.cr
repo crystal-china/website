@@ -335,6 +335,16 @@ describe "Notifications" do
     response.body.should_not contain("弹窗通知0<")
     response.body.should_not contain("其他用户的通知")
     response.body.should_not contain("<!DOCTYPE")
+    document = XML.parse_html(response.body)
+    document.xpath_node("//header").should be_nil
+    document.xpath_node("//button[@script='on click close the closest <dialog/>']").should be_nil
+    document.xpath_nodes("//section//form").size.should eq(20)
+    read_all = document.xpath_node("//hx-partial[@hx-target='#notifications-read-all']/button").not_nil!
+    read_all["id"].should eq("notifications-read-all")
+    read_all["hx-target"].should eq("#notifications-content")
+    read_all["hx-swap"].should eq("innerHTML")
+    read_all["disabled"]?.should be_nil
+
     response.body.should contain(%(hx-target="closest section"))
     response.body.should contain("第 1 / 2 页")
     response.body.should contain("21 条未读通知")
@@ -361,7 +371,7 @@ describe "Notifications" do
       response.body.should contain(%(hx-get="/notifications?page=2"))
       response.body.should contain(%(hx-target="#notification-status"))
       response.body.should_not contain("条未读通知")
-      XML.parse_html(response.body).xpath_node("//button[@hx-post='/notifications/read_all'][@disabled]").should_not be_nil
+      XML.parse_html(response.body).xpath_node("//hx-partial[@hx-target='#notifications-read-all']/button[@disabled]").should_not be_nil
       NotificationQuery.new.user_id(user.id).read_at.is_nil.any?.should be_false
       NotificationQuery.find(foreign_notification.id).read_at.should be_nil
     end
@@ -411,6 +421,11 @@ describe "Notifications" do
 
     response = client.get("/forum?backdoor_user_id=#{user.id}")
     response.body.should contain(%(id="notifications-dialog"))
+    document = XML.parse_html(response.body)
+    header = document.xpath_node("//dialog[@id='notifications-dialog']//header").not_nil!
+    header.xpath_node(".//button[@script='on click close the closest <dialog/>']").should_not be_nil
+    header.xpath_node(".//button[@id='notifications-read-all'][@disabled]").should_not be_nil
+    document.xpath_node("//dialog[@id='notifications-dialog']/div[@id='notifications-content'][contains(@class, 'overflow-y-auto')]").should_not be_nil
     response.body.should_not contain("nav-icon-link is-active")
   end
 

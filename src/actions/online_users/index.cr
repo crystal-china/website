@@ -7,6 +7,7 @@ class OnlineUsers::Index < BrowserAction
       .login_name_lower.asc_order
       .results
 
+    # 默认不设置这个头，但也不等于禁止缓存，所以这里显式加上 no-store
     context.response.headers["Cache-Control"] = "no-store"
 
     component(

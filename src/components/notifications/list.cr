@@ -5,18 +5,6 @@ class Notifications::List < BaseComponent
 
   def render : Nil
     section class: "bg-white" do
-      header class: "flex justify-end border-b border-gray-200 px-4 py-3" do
-        button(
-          r(".read_all").t,
-          type: "button",
-          attrs: has_unread? ? [] of Symbol : [:disabled],
-          hx_post: Notifications::ReadAll.path,
-          hx_target: "closest section",
-          hx_swap: "outerHTML",
-          class: "form-secondary disabled:cursor-not-allowed disabled:opacity-50"
-        )
-      end
-
       items = notifications.results
 
       if items.empty?
@@ -51,6 +39,14 @@ class Notifications::List < BaseComponent
           end
         end
       end
+    end
+
+    tag(
+      "hx-partial",
+      hx_target: "#notifications-read-all",
+      hx_swap: "outerHTML"
+    ) do
+      mount ::Notifications::ReadAllButton, has_unread: has_unread?
     end
 
     tag(
