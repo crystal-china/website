@@ -5,8 +5,8 @@ class Db::Seed::SampleData < LuckyTask::Task
   def call : Nil
     abort "db.seed.sample_data 只允许在 development 环境运行" unless LuckyEnv.development?
 
-    Signal::INT.trap do
-      print_exit("\n按下 Ctrl C")
+    Process.on_terminate do
+      print_exit("\n操作已中断")
     end
 
     unless ENV.fetch("RUN_SCRIPT_SETUP", "false") == "true"
