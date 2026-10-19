@@ -112,7 +112,7 @@ describe "User events" do
     user = UserFactory.create
     user = UpdateUser.update!(user, nickname: "Changed nickname", password: "changed-password", password_confirmation: "changed-password")
     audits = UserAuditQuery.new.user_id(user.id).id.asc_order.results
-    password_event = audits.find(&.kind.password_changed?).not_nil!
+    password_event = audits.find!(&.kind.password_changed?)
     stored_values = audits.flat_map { |audit| [audit.changed_column_name, audit.from, audit.to, audit.oauth_provider] }.compact.join(" ")
 
     audits.size.should eq(2)

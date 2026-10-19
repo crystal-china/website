@@ -64,7 +64,7 @@ describe Shared::Avatar do
         classes: "h-10 w-10 rounded-full text-sm"
       ).render_to_string
 
-      XML.parse_html(html).xpath_node("//span").not_nil!["class"].split.find(&.starts_with?("bg-")).not_nil!
+      XML.parse_html(html).xpath_node("//span").not_nil!["class"].split.find!(&.starts_with?("bg-"))
     end
 
     colors[0].should eq(colors[1])

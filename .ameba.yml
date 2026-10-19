@@ -38,3 +38,6 @@ Style/ParenthesesAroundCondition:
 
 Style/HeredocIndent:
   Enabled: false
+
+Performance/AnyInsteadOfPresent:
+  Enabled: false
