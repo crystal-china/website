@@ -78,7 +78,7 @@ class Shared::UserProfileForm < BaseComponent
             end
           end
 
-          render_avatar_preview
+          render_current_avatar
         end
 
         div class: "space-y-2 border-t border-gray-200 pt-6" do
@@ -98,26 +98,18 @@ class Shared::UserProfileForm < BaseComponent
     end
   end
 
-  private def render_avatar_preview : Nil
-    avatar = op.avatar.value
-
+  private def render_current_avatar : Nil
     figure class: "flex h-full flex-col rounded-2xl border border-gray-200 bg-gray-50/80 p-5" do
       figcaption class: "text-sm font-medium text-gray-800" do
-        text r(".avatar_preview").t
+        text r(".current_avatar").t
       end
 
       div class: "mt-4 flex flex-1 items-center justify-center rounded-2xl border border-dashed border-gray-300 bg-white p-5" do
-        if avatar
-          img src: avatar, alt: r(".current_avatar").t, class: "h-36 w-36 rounded-2xl object-cover shadow-sm"
-        else
-          div class: "flex h-36 w-36 items-center justify-center rounded-2xl bg-gray-900 text-4xl font-semibold text-white" do
-            text user.nickname[0].to_s.upcase
-          end
-        end
-      end
-
-      para class: "mt-4 mb-0 text-sm leading-6 text-gray-600" do
-        text avatar ? r(".avatar_help").t : r(".no_avatar").t
+        mount(
+          Shared::Avatar,
+          user: user,
+          classes: "h-36 w-36 rounded-2xl text-4xl shadow-sm"
+        )
       end
     end
   end

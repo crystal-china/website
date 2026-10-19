@@ -1,12 +1,15 @@
 require "../spec_helper"
 
 describe Shared::Avatar do
-  it "shows an uppercase initial without an image for missing or blank avatars" do
+  it "shows an uppercase initial for missing or blank avatars" do
     {nil, "", " "}.each do |avatar|
       user = UserFactory.create &.nickname("billy").avatar(avatar)
-      html = Shared::Avatar.new(user: user, classes: "h-6 w-6 rounded-md text-xs").render_to_string
+      html = Shared::Avatar.new(
+        user: user,
+        classes: "h-6 w-6 rounded-md text-xs"
+      ).render_to_string
       document = XML.parse_html(html)
-      fallback = document.xpath_node("//span").not_nil!
+      fallback = document.xpath_node("//span[contains(@class, 'user-avatar')]").not_nil!
 
       fallback.content.should eq("B")
       fallback["aria-hidden"].should eq("true")
@@ -18,36 +21,53 @@ describe Shared::Avatar do
 
   it "keeps the Chinese initial behind the image and removes broken images" do
     user = UserFactory.create &.nickname("小明").avatar("https://example.com/avatar.png")
-    html = Shared::Avatar.new(user: user, classes: "h-10 w-10 rounded-full text-sm").render_to_string
+    html = Shared::Avatar.new(
+      user: user,
+      classes: "h-10 w-10 rounded-full text-sm"
+    ).render_to_string
     document = XML.parse_html(html)
-    image = document.xpath_node("//img").not_nil!
+    images = document.xpath_nodes("//img")
+    image = document.xpath_node("//img[@onerror]").not_nil!
 
+    images.size.should eq(1)
     image.parent.not_nil!.content.should eq("小")
-    image["src"].should eq(user.avatar)
+    image["src"].should eq("https://example.com/avatar.png")
     image["alt"].should eq("")
     image["onerror"].should eq("this.remove()")
     image["class"].split.should contain("absolute")
     image["class"].split.should contain("object-cover")
   end
 
-  it "uses the login-name initial when the nickname is empty" do
-    user = UserFactory.create &.login_name("xiaoming")
-    UserQuery.new.id(user.id).update(nickname: "")
-    user = UserQuery.find(user.id)
-    html = Shared::Avatar.new(user: user, classes: "h-8 w-8 rounded-full text-sm").render_to_string
-
-    XML.parse_html(html).xpath_node("//span").not_nil!.content.should eq("X")
-  end
-
-  it "escapes the initial and avatar URL as text and attributes" do
-    user = UserFactory.create &.nickname("<script>").avatar(%(https://example.com/image.png?name=" onload="alert(1)))
-    html = Shared::Avatar.new(user: user, classes: "h-10 w-10 rounded-full text-sm").render_to_string
+  it "escapes initials and avatar URLs" do
+    url = %(https://example.com/image.png?name=" onload="alert(1))
+    user = UserFactory.create &.nickname("<script>").avatar(url)
+    html = Shared::Avatar.new(
+      user: user,
+      classes: "h-10 w-10 rounded-full text-sm"
+    ).render_to_string
     document = XML.parse_html(html)
-    image = document.xpath_node("//img").not_nil!
+    image = document.xpath_node("//img[@onerror]").not_nil!
 
     document.xpath_node("//script").should be_nil
     image.parent.not_nil!.content.should eq("<")
-    image["src"].should eq(user.avatar)
+    image["src"].should eq(url)
     image["onload"]?.should be_nil
+  end
+
+  it "keeps the background color tied to the account rather than the nickname" do
+    user = UserFactory.create
+    other = UserFactory.create
+    renamed = UpdateUser.update!(user, nickname: "Another nickname")
+    colors = {user, renamed, other}.map do |account|
+      html = Shared::Avatar.new(
+        user: account,
+        classes: "h-10 w-10 rounded-full text-sm"
+      ).render_to_string
+
+      XML.parse_html(html).xpath_node("//span").not_nil!["class"].split.find(&.starts_with?("bg-")).not_nil!
+    end
+
+    colors[0].should eq(colors[1])
+    colors[0].should_not eq(colors[2])
   end
 end

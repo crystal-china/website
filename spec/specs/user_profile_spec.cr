@@ -72,6 +72,33 @@ describe "User profiles" do
     response.body.should contain("&lt;b&gt;Crystal&lt;/b&gt;")
   end
 
+  it "keeps the current saved avatar separate from unsaved form changes" do
+    user = UserFactory.create &.avatar("https://example.com/saved.png")
+
+    Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
+      {"", "https://example.com/preview.png"}.each do |avatar|
+        response = ApiClient.new.put(
+          "/users/#{user.id}?backdoor_user_id=#{user.id}",
+          user: {avatar: avatar, nickname: "Preview nickname", password: "new-password", password_confirmation: "different-password"}
+        )
+        document = XML.parse_html(response.body)
+        figure = document.xpath_node("//figure").not_nil!
+        avatar_display = figure.xpath_node(".//span[contains(@class, 'user-avatar')]").not_nil!
+        image = avatar_display.xpath_node(".//img[@onerror]").not_nil!
+
+        response.status_code.should eq(200)
+        avatar_display["class"].split.should contain("h-36")
+        avatar_display.content.should eq(user.nickname[0].to_s.upcase)
+        image["src"].should eq(user.avatar)
+        figure.xpath_node("./figcaption").not_nil!.content.should eq(Rosetta.find("shared.user_profile_form.current_avatar").t)
+        figure.xpath_node(".//p").should be_nil
+        figure["script"]?.should be_nil
+        UserQuery.find(user.id).avatar.should eq(user.avatar)
+        UserQuery.find(user.id).nickname.should eq(user.nickname)
+      end
+    end
+  end
+
   it "validates lengths and retains submitted profile text after a failed save" do
     user = UserFactory.create
     tagline = "签" * (User::Profile::MAX_TAGLINE_LENGTH + 1)

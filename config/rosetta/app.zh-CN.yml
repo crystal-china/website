@@ -400,10 +400,7 @@ zh-CN:
       mention_notifications: 接收 @提及通知
       mention_notifications_help: 关闭后，不接收任何人的 @提及通知；正常回复和管理通知不受影响，已有通知仍保留。
       confirm_remove_password: 确定移除本站密码？旧登录会话将失效，之后需通过第三方登录或重置密码登录。
-      avatar_preview: 头像预览
       current_avatar: 当前头像
-      avatar_help: 当前将使用上面的图片作为头像。
-      no_avatar: 未设置头像时，会显示默认首字母占位图。
 
   sidebar:
     title: 目录

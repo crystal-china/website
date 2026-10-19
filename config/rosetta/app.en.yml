@@ -404,10 +404,7 @@ en:
       mention_notifications: Receive @mention notifications
       mention_notifications_help: When disabled, you will not receive @mention notifications. Reply and moderation notifications are unaffected; existing notifications are retained.
       confirm_remove_password: Remove the local password? Old sessions will be invalidated. The user will need OAuth or a password reset to sign in.
-      avatar_preview: Avatar preview
       current_avatar: Current avatar
-      avatar_help: The image above will be used as your avatar.
-      no_avatar: Without an avatar, your initial will be shown instead.
 
   sidebar:
     title: Contents
