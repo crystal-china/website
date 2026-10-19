@@ -25,6 +25,7 @@ class User < BaseModel
     column profile : User::Profile = User::Profile.new, serialize: true
     column last_active_at : Time?
     column online_seconds : Int64 = 0_i64
+    column hide_online_status : Bool = false
     column mention_notifications_enabled : Bool = true
 
     # OAuth 登录时密码为空

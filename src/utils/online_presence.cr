@@ -1,6 +1,8 @@
 class OnlinePresence
   # 维护一个网站在线用户的内存哈希，{id1.to_s => last_actived_at, id2 => .., id3 ...}
   @users = Cache::MemoryStore(Time).new(expires_in: 3.minutes)
+  # 公开人数和名单单独过期；隐身不影响上面的活动记录及在线时长。
+  @visible_users = Cache::MemoryStore(Bool).new(expires_in: 3.minutes)
   # 类似，值是布尔
   @guests = Cache::MemoryStore(Bool).new(expires_in: 3.minutes)
   # 结构： {id => {last_active_at: 最后激活时间, duration:  自从上次写入数据库，且处于连续激活状态，过去的时间间隔。}}
@@ -9,9 +11,10 @@ class OnlinePresence
   @mutex = Mutex.new
 
   # 登记用户的 last_active_at、统计在线人数，累计尚未写入数据库的在线时长
-  def record(user_id : Int64?, ip : String) : Tuple(Int32, Int32)
+  def record(user : User?, ip : String) : Tuple(Int32, Int32)
     @mutex.synchronize do
-      if user_id
+      if user
+        user_id = user.id
         at = Time.utc
         pending = @pending[user_id]?
         duration = pending ? pending[:duration] : 0.seconds
@@ -39,16 +42,32 @@ class OnlinePresence
 
         @users.write(user_id.to_s, at)
         @pending[user_id] = {last_active_at: at, duration: duration}
+
+        unless user.hide_online_status?
+          @visible_users.write(user_id.to_s, true)
+        end
       else
         @guests.write(ip, true)
       end
 
-      {@users.keys.size, @guests.keys.size}
+      {@visible_users.keys.size, @guests.keys.size}
     end
+  end
+
+  # 只返回可公开展示且尚未过期的用户 ID。
+  def user_ids : Array(Int64)
+    @mutex.synchronize { @visible_users.keys.map(&.to_i64) }
+  end
+
+  def hide(user_id : Int64) : Nil
+    @mutex.synchronize { @visible_users.delete(user_id.to_s) }
   end
 
   def flush : Nil
     @mutex.synchronize do
+      # 读取 keys 会清理过期项，避免不再发送心跳的活动记录一直留在内存中。
+      @users.keys
+
       @pending.keys.each do |user_id|
         activity = @pending[user_id]
 

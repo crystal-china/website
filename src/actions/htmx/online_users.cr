@@ -3,7 +3,7 @@ class Htmx::OnlineUsers < BrowserAction
 
   patch "/htmx/online_users" do
     user_count, guest_count = ONLINE_PRESENCE.record(
-      current_user.try(&.id),
+      current_user,
       context.request.remote_ip || "0.0.0.0"
     )
 

@@ -74,21 +74,23 @@ class Users::ShowPage < MainLayout
               )
             end
 
-            if (last_active_at = user.last_active_at)
-              dt r("common.last_active").t, class: "mt-5 text-gray-500"
-              dd class: "mt-1 ml-0 font-medium text-gray-800" do
-                local_time(
-                  last_active_at,
-                  relative_time(last_active_at)
-                )
+            unless user.hide_online_status?
+              if (last_active_at = user.last_active_at)
+                dt r("common.last_active").t, class: "mt-5 text-gray-500"
+                dd class: "mt-1 ml-0 font-medium text-gray-800" do
+                  local_time(
+                    last_active_at,
+                    relative_time(last_active_at)
+                  )
+                end
               end
-            end
 
-            dt r(".online_time").t, class: "mt-5 text-gray-500"
-            dd(
-              r(".online_duration").t(hours: online_hours.to_s, minutes: online_minutes.to_s),
-              class: "mt-1 ml-0 font-medium text-gray-800"
-            )
+              dt r(".online_time").t, class: "mt-5 text-gray-500"
+              dd(
+                r(".online_duration").t(hours: online_hours.to_s, minutes: online_minutes.to_s),
+                class: "mt-1 ml-0 font-medium text-gray-800"
+              )
+            end
           end
         end
       end

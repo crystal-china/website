@@ -133,6 +133,26 @@ class Shared::UserProfileForm < BaseComponent
 
         div class: "space-y-2 border-t border-gray-200 pt-6" do
           label_for(
+            op.hide_online_status,
+            class: "flex cursor-pointer items-center gap-3 text-sm font-medium text-gray-800"
+          ) do
+            checkbox(
+              op.hide_online_status,
+              class: "h-4 w-4 rounded border-gray-300 accent-sky-600",
+              "aria-describedby": "hide-online-status-help"
+            )
+            text r("fields.hide_online_status").t
+          end
+          para(
+            r(".hide_online_status_help").t,
+            id: "hide-online-status-help",
+            class: "m-0 text-sm leading-6 text-gray-500"
+          )
+          mount Shared::FieldErrors, op.hide_online_status
+        end
+
+        div class: "space-y-2 border-t border-gray-200 pt-6" do
+          label_for(
             op.mention_notifications_enabled,
             class: "flex cursor-pointer items-center gap-3 text-sm font-medium text-gray-800"
           ) do

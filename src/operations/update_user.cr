@@ -1,7 +1,7 @@
 class UpdateUser < User::SaveOperation
   include UserNameValidations
 
-  permit_columns nickname, login_name, avatar, mention_notifications_enabled
+  permit_columns nickname, login_name, avatar, mention_notifications_enabled, hide_online_status
   attribute password : String
   attribute password_confirmation : String
   attribute actor_id : Int64
@@ -45,6 +45,10 @@ class UpdateUser < User::SaveOperation
   end
 
   after_save user_audit
+
+  after_save do |user|
+    ONLINE_PRESENCE.hide(user.id) if hide_online_status.changed? && user.hide_online_status?
+  end
 
   private def validate_avatar_is_a_link : Nil
     avatar.value.try do |avatar_value|

@@ -32,7 +32,7 @@ class Forum::AuthorCard < BaseComponent
         )
       end
 
-      if (last_active_at = user.last_active_at)
+      if !user.hide_online_status? && (last_active_at = user.last_active_at)
         para class: "mt-2 mb-0 text-xs text-gray-500" do
           text "#{r("common.last_active").t} "
           local_time(
