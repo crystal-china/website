@@ -11,10 +11,6 @@ private class TranslationValidationProbe < Avram::Operation
 end
 
 describe "Internationalization" do
-  around_each do |example|
-    Rosetta.with_locale(Rosetta.default_locale) { example.run }
-  end
-
   it "rejects missing keys, interpolation arguments and locale catalogs at compile time" do
     {
       "missing_key"           => "Missing translation for \"missing.translation.for_compile_test\"",
