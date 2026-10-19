@@ -192,17 +192,17 @@ describe "Mention notification preferences" do
       UserAuditQuery.new.user_id(user.id).any?.should be_false
 
       response = ApiClient.new.get("/htmx/mentions?q=#{URI.encode_path(user.login_name)}&backdoor_user_id=#{user.id}")
-      JSON.parse(response.body).as_a.map { |candidate| candidate["login_name"].as_s }.should_not contain(user.login_name)
+      JSON.parse(response.body).as_a.map(&.["login_name"].as_s).should_not contain(user.login_name)
 
       response = ApiClient.new.get("/htmx/mentions?q=#{URI.encode_path(user.login_name)}&backdoor_user_id=#{other.id}")
-      JSON.parse(response.body).as_a.map { |candidate| candidate["login_name"].as_s }.should_not contain(user.login_name)
+      JSON.parse(response.body).as_a.map(&.["login_name"].as_s).should_not contain(user.login_name)
 
       response = ApiClient.new.put("/users/#{user.id}?backdoor_user_id=#{user.id}", user: {mention_notifications_enabled: "true"})
       response.status_code.should eq(303)
       UserQuery.find(user.id).mention_notifications_enabled.should be_true
 
       response = ApiClient.new.get("/htmx/mentions?q=#{URI.encode_path(user.login_name)}&backdoor_user_id=#{user.id}")
-      JSON.parse(response.body).as_a.map { |candidate| candidate["login_name"].as_s }.should contain(user.login_name)
+      JSON.parse(response.body).as_a.map(&.["login_name"].as_s).should contain(user.login_name)
     end
   end
 
@@ -275,7 +275,7 @@ describe "Notifications" do
         response.status_code.should eq(200)
         headings.map(&.content).should eq(labels)
         headings.map { |heading| heading["datetime"] }.should eq(["2026-10-18", "2026-10-17"])
-        document.xpath_nodes("//h3/../div").map { |group| group.xpath_nodes("./form").size }.should eq(counts)
+        document.xpath_nodes("//h3/../div").map(&.xpath_nodes("./form").size).should eq(counts)
         document.xpath_nodes("//section").size.should eq(1)
         document.xpath_nodes("//form").map { |form| form["action"] }.should eq(notifications.reverse.map { |notification| "/notifications/#{notification.id}/read" })
       end
@@ -811,7 +811,7 @@ describe "Notifications" do
     response = ApiClient.new.get("/htmx/mentions?q=zw&backdoor_user_id=#{user.id}")
 
     response.status_code.should eq(200)
-    JSON.parse(response.body).as_a.map { |candidate| candidate["login_name"].as_s }.should eq([user.login_name])
+    JSON.parse(response.body).as_a.map(&.["login_name"].as_s).should eq([user.login_name])
   end
 
   it "requires authentication for autocomplete and treats LIKE wildcards literally" do
@@ -822,7 +822,7 @@ describe "Notifications" do
     ApiClient.new.headers("HX-Request-Type": "partial").get("/htmx/mentions?q=#{URI.encode_path("Ming")}").status_code.should eq(401)
     response = ApiClient.new.get("/htmx/mentions?q=#{URI.encode_path("ming_")}&backdoor_user_id=#{user.id}")
     response.status_code.should eq(200)
-    JSON.parse(response.body).as_a.map { |candidate| candidate["login_name"].as_s }.should eq(["Ming_Sky"])
+    JSON.parse(response.body).as_a.map(&.["login_name"].as_s).should eq(["Ming_Sky"])
   end
 
   it "searches only login names while displaying nicknames" do
@@ -840,7 +840,7 @@ describe "Notifications" do
 
     response = ApiClient.new.get("/htmx/mentions?q=another&backdoor_user_id=#{first.id}")
     candidates = JSON.parse(response.body).as_a
-    candidates.map { |candidate| candidate["login_name"].as_s }.should eq([second.login_name])
+    candidates.map(&.["login_name"].as_s).should eq([second.login_name])
     candidates.first["nickname"].as_s.should eq("Billy Zheng")
 
     response = ApiClient.new.get("/htmx/mentions?q=ZW9&backdoor_user_id=#{first.id}")

@@ -41,3 +41,6 @@ Style/HeredocIndent:
 
 Performance/AnyInsteadOfPresent:
   Enabled: false
+
+Style/RedundantSelf:
+  Enabled: false
