@@ -9,17 +9,13 @@ class SignInUser < Avram::Operation
     user = user_from_login
     validate_credentials(user)
 
-    if valid?
-      user
-    else
-      nil
-    end
+    user if valid?
   end
 
   private def user_from_login : User?
     value = login.value.to_s.strip
 
-    return nil if value.empty?
+    return if value.empty?
 
     if value.includes?('@')
       UserQuery.new.email(value).first?

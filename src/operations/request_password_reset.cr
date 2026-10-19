@@ -9,11 +9,7 @@ class RequestPasswordReset < Avram::Operation
     user = user_from_email
     validate(user)
 
-    if valid?
-      user
-    else
-      nil
-    end
+    user if valid?
   end
 
   def validate(user : User?) : Nil

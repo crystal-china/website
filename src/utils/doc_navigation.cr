@@ -9,7 +9,7 @@ module DocNavigation
     getter path : String
     getter title : String
     getter sub_title : String = ""
-    getter hide_from_sidebar : Bool = false
+    getter? hide_from_sidebar : Bool = false
     getter children : Array(Page) = [] of Page
   end
 
@@ -63,7 +63,7 @@ module DocNavigation
   end
 
   private def self.remove_pages_hidden_from_sidebar(pages : Array(Page)) : Nil
-    pages.reject!(&.hide_from_sidebar)
+    pages.reject!(&.hide_from_sidebar?)
     pages.each { |page| remove_pages_hidden_from_sidebar(page.children) }
   end
 end

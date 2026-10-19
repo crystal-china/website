@@ -7,7 +7,7 @@ module ReturnPath
     uri = URI.parse(source)
 
     return unless uri.scheme.nil? || uri.scheme.in?({"http", "https"})
-    unless uri.path.starts_with?("/") && !uri.path.starts_with?("//") && !uri.path.includes?('\\')
+    if !uri.path.starts_with?("/") || uri.path.starts_with?("//") || uri.path.includes?('\\')
       return
     end
 

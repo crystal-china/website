@@ -44,3 +44,9 @@ Performance/AnyInsteadOfPresent:
 
 Style/RedundantSelf:
   Enabled: false
+
+Naming/BlockParameterName:
+  Enabled: false
+
+Metrics/CyclomaticComplexity:
+  Enabled: false

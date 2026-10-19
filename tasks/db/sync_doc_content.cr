@@ -4,7 +4,7 @@ class Db::SyncDocContent < LuckyTask::Task
   def call : Nil
     files = Dir["public/markdowns/**/*.md"].sort
 
-    unless File.file?("public/markdowns/navigation.yml") && !files.empty?
+    unless File.file?("public/markdowns/navigation.yml") && files.present?
       raise "Markdown directory is incomplete; refusing to mark documents missing"
     end
 

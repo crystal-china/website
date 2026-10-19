@@ -39,7 +39,7 @@ class UserToken
     user_id = payload["user_id"]?.try(&.as_i64?)
     version = payload["session_version"]?.try(&.as_s?)
 
-    return nil unless user_id && version
+    return unless user_id && version
 
     UserQuery.new.id(user_id).session_version(version).first?
   rescue e : JWT::Error
