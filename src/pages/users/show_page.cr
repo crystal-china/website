@@ -10,6 +10,8 @@ class Users::ShowPage < MainLayout
   end
 
   def content : Nil
+    online_hours, online_minutes = (user.online_seconds // 60).divmod(60)
+
     div class: "#{page_container_classes} py-10 sm:py-16" do
       article class: "app-panel mx-auto max-w-2xl overflow-hidden" do
         div class: "h-24 border-b border-sky-100 bg-gradient-to-r from-sky-100 via-slate-100 to-amber-50 sm:h-32", "aria-hidden": "true"
@@ -65,6 +67,12 @@ class Users::ShowPage < MainLayout
                 )
               end
             end
+
+            dt r(".online_time").t, class: "mt-5 text-gray-500"
+            dd(
+              r(".online_duration").t(hours: online_hours.to_s, minutes: online_minutes.to_s),
+              class: "mt-1 ml-0 font-medium text-gray-800"
+            )
           end
         end
       end

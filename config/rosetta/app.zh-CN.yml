@@ -458,3 +458,5 @@ zh-CN:
     show_page:
       description: "%{nickname} 在 Crystal 中文社区的个人主页。"
       joined: 加入社区
+      online_time: 累计在线时长
+      online_duration: "%{hours} 小时 %{minutes} 分钟"

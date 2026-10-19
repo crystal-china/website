@@ -462,3 +462,5 @@ en:
     show_page:
       description: "%{nickname}'s profile on Crystal China Community."
       joined: Joined
+      online_time: Time online
+      online_duration: "%{hours}h %{minutes}m"
