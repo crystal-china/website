@@ -1,0 +1,19 @@
+@layer components {
+  .site-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  @media (width >= 64rem) {
+    /* 外层 aside 保留列宽；内部侧栏固定，长目录只在侧栏内滚动。 */
+    .desktop-sidebar {
+      --top-offset: calc(var(--navbar-height) + var(--sidebar-gap, 0px));
+      position: fixed;
+      top: var(--top-offset);
+      max-height: calc(100dvh - var(--top-offset) - 1rem);
+      overflow-y: auto;
+      overscroll-behavior-y: contain;
+    }
+  }
+}

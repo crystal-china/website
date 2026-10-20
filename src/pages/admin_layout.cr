@@ -13,14 +13,12 @@ abstract class AdminLayout < MainLayout
 
   def content : Nil
     section class: "#{page_container_classes} py-10" do
-      header class: "mb-8" do
-        h1 r("admin_layout.page_title").t, class: "m-0 text-3xl font-semibold tracking-tight text-gray-900"
-        para r("admin_layout.introduction").t, class: "mt-2 mb-0 text-sm text-gray-600"
-      end
-
       div class: "flex flex-col items-start gap-8 lg:flex-row" do
-        aside class: "app-panel w-full shrink-0 p-3 lg:sticky lg:top-24 lg:w-56" do
-          nav "aria-label": r("admin_layout.page_title").t do
+        aside class: "w-full shrink-0 lg:w-56" do
+          nav(
+            class: "desktop-sidebar app-panel p-3 lg:w-56 lg:[--sidebar-gap:2.5rem]",
+            "aria-label": r("admin_layout.page_title").t
+          ) do
             ul class: "m-0 flex list-none flex-wrap gap-1 p-0 lg:flex-col" do
               li do
                 link(
@@ -57,7 +55,13 @@ abstract class AdminLayout < MainLayout
           end
         end
 
-        div class: "min-w-0 flex-1" do
+        # 标题挪到右侧内容列，让它和侧栏顶部对齐。
+        div class: "w-full min-w-0 flex-1" do
+          header class: "mb-8" do
+            h1 r("admin_layout.page_title").t, class: "m-0 text-3xl font-semibold tracking-tight text-gray-900"
+            para r("admin_layout.introduction").t, class: "mt-2 mb-0 text-sm text-gray-600"
+          end
+
           admin_content
         end
       end
