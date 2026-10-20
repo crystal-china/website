@@ -1,7 +1,7 @@
-class Htmx::Mentions < BrowserAction
+class Htmx::Users::Autocomplete < BrowserAction
   param q : String = ""
 
-  get "/htmx/mentions" do
+  get "/htmx/users/autocomplete" do
     prefix = q.strip
     context.response.headers["Cache-Control"] = "no-store"
 

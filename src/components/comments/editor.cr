@@ -96,7 +96,7 @@ HEREDOC
       placeholder:        r(".placeholder").t,
       "aria-describedby": "#{html_id}_mention_help",
       required:           "",
-      data_mentions_url:  Htmx::Mentions.path,
+      data_mentions_url:  Htmx::Users::Autocomplete.path,
       class:              "#{editor_height} block w-full resize-y overflow-y-auto rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm leading-7 text-gray-900 shadow-inner transition outline-none placeholder:text-gray-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400",
     }
 
