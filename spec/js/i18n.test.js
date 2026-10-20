@@ -49,6 +49,6 @@ describe("frontend translations", () => {
             }
         }
 
-        expect(keys.size).toBe(17);
+        expect(keys.size).toBe(16);
     });
 });

@@ -14,6 +14,7 @@ import setupHtmxErrorAlert from "./htmxErrorAlert.js";
 import setupLogo from "./logoViewer.js";
 import pasteImage from "./pasteImage.js";
 import setupMentions from "./mentions.js";
+import setupUserAutocomplete from "./userAutocomplete.js";
 import saveTimeZone from "./timeZone.js";
 import t from "./i18n.js";
 
@@ -59,7 +60,8 @@ function initializeContent(root) {
     void setupLogo(root, assetUrl);
     setupPasteImage(root);
     setupCopyCodeButton(root);
-    findElements(root, "textarea[data-mentions-url]").forEach(setupMentions);
+    findElements(root, "textarea[data-users-autocomplete-url]").forEach(setupMentions);
+    findElements(root, "input[data-users-autocomplete-url]").forEach((input) => setupUserAutocomplete(input));
     trackPageView(root);
 }
 

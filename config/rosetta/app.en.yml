@@ -282,7 +282,6 @@ en:
     file_too_large: "The image is too large. The maximum upload size is %{size}MB."
     upload_failed: "Upload failed: %{message}"
     upload_error: "Upload failed"
-    mention_users: "Mention users"
     copy: "Copy code"
     copied: "Copied"
 
@@ -458,7 +457,7 @@ en:
     index_page:
       personal_description: History of profile changes, password changes and sign-ins.
       site_description: Profile changes, password actions and sign-ins across all accounts.
-      login_name_placeholder: Full login name
+      login_name_placeholder: Type 2+ characters
       event_kind: Event type
       all_kinds: All events
       profile_changes: Profile changes

@@ -21,10 +21,13 @@ describe "Account history filters" do
       response = ApiClient.new.get("/user_audits?locale=#{locale}&backdoor_user_id=#{admin.id}")
       document = XML.parse_html(response.body)
       form = document.xpath_node("//main//form[@method='get']").not_nil!
+      input = form.xpath_node(".//input[@type='search'][@name='login_name']").not_nil!
 
       response.status_code.should eq(200)
       form["action"].should eq("/user_audits")
-      form.xpath_node(".//input[@type='search'][@name='login_name']").not_nil!["value"].should eq("")
+      input["value"].should eq("")
+      input["data-users-autocomplete-url"].should eq(Htmx::Users::Autocomplete.path)
+      input.parent.not_nil!.xpath_node(".//div[@hidden][contains(@class, 'user-autocomplete-options')]").should_not be_nil
       form.xpath_node(".//select[@name='kind']/option[@value='']").not_nil!.content.should eq(all_events)
       form.xpath_nodes(".//select[@name='kind']/option").size.should eq(UserAudit::Kind.values.size + 1)
       form.xpath_node(".//input[@name='page']").should be_nil

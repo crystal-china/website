@@ -279,7 +279,6 @@ zh-CN:
     file_too_large: "文件大小超过限制！最大支持上传 %{size}MB 的图片。"
     upload_failed: "上传失败：%{message}"
     upload_error: "上传失败"
-    mention_users: "提及用户"
     copy: "复制代码"
     copied: "已复制"
 
@@ -452,7 +451,7 @@ zh-CN:
     index_page:
       personal_description: 记录个人资料修改、密码修改和登录活动。
       site_description: 查看全站账户的资料变更、密码操作和登录记录。
-      login_name_placeholder: 完整登录用户名
+      login_name_placeholder: 输入至少两个字符查找用户
       event_kind: 事件类型
       all_kinds: 所有事件
       profile_changes: 资料变更

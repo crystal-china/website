@@ -74,16 +74,28 @@ class UserAudits::IndexPage < MainLayout
       class: "grid gap-3 border-b border-gray-200 px-6 py-4 sm:grid-cols-[minmax(0,1fr)_12rem_auto]"
     ) do
       div class: "form-field" do
-        label r("fields.login_name").t, for: "audits-login-name", class: "form-label"
-        input(
-          type: "search",
-          id: "audits-login-name",
-          name: "login_name",
-          value: login_name,
-          placeholder: r(".login_name_placeholder").t,
-          autocomplete: "off",
-          class: "form-input"
+        label(
+          r("fields.login_name").t,
+          for: "audits-login-name",
+          class: "form-label"
         )
+        div class: "relative" do
+          input(
+            type: "search",
+            id: "audits-login-name",
+            name: "login_name",
+            value: login_name,
+            placeholder: r(".login_name_placeholder").t,
+            autocomplete: "off",
+            data_users_autocomplete_url: Htmx::Users::Autocomplete.path,
+            class: "form-input"
+          )
+          div(
+            hidden: true,
+            class: "user-autocomplete-options absolute inset-x-0 top-full z-20 mt-1 max-h-56 overflow-y-auto rounded-xl border border-gray-200 bg-white py-1 shadow-lg"
+          ) do
+          end
+        end
       end
 
       div class: "form-field" do

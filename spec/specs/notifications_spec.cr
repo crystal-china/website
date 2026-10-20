@@ -191,17 +191,17 @@ describe "Mention notification preferences" do
       UserQuery.find(other.id).mention_notifications_enabled.should be_true
       UserAuditQuery.new.user_id(user.id).any?.should be_false
 
-      response = ApiClient.new.get("/htmx/mentions?q=#{URI.encode_path(user.login_name)}&backdoor_user_id=#{user.id}")
+      response = ApiClient.new.get("/htmx/users/autocomplete?q=#{URI.encode_path(user.login_name)}&backdoor_user_id=#{user.id}")
       JSON.parse(response.body).as_a.map(&.["login_name"].as_s).should_not contain(user.login_name)
 
-      response = ApiClient.new.get("/htmx/mentions?q=#{URI.encode_path(user.login_name)}&backdoor_user_id=#{other.id}")
+      response = ApiClient.new.get("/htmx/users/autocomplete?q=#{URI.encode_path(user.login_name)}&backdoor_user_id=#{other.id}")
       JSON.parse(response.body).as_a.map(&.["login_name"].as_s).should_not contain(user.login_name)
 
       response = ApiClient.new.put("/users/#{user.id}?backdoor_user_id=#{user.id}", user: {mention_notifications_enabled: "true"})
       response.status_code.should eq(303)
       UserQuery.find(user.id).mention_notifications_enabled.should be_true
 
-      response = ApiClient.new.get("/htmx/mentions?q=#{URI.encode_path(user.login_name)}&backdoor_user_id=#{user.id}")
+      response = ApiClient.new.get("/htmx/users/autocomplete?q=#{URI.encode_path(user.login_name)}&backdoor_user_id=#{user.id}")
       JSON.parse(response.body).as_a.map(&.["login_name"].as_s).should contain(user.login_name)
     end
   end
@@ -817,13 +817,13 @@ describe "Notifications" do
     user = UserFactory.create &.login_name("zw963")
 
     ["", "z", " z ", "_"].each do |prefix|
-      response = ApiClient.new.get("/htmx/mentions?q=#{URI.encode_path(prefix)}&backdoor_user_id=#{user.id}")
+      response = ApiClient.new.get("/htmx/users/autocomplete?q=#{URI.encode_path(prefix)}&backdoor_user_id=#{user.id}")
 
       response.status_code.should eq(200)
       JSON.parse(response.body).as_a.should be_empty
     end
 
-    response = ApiClient.new.get("/htmx/mentions?q=zw&backdoor_user_id=#{user.id}")
+    response = ApiClient.new.get("/htmx/users/autocomplete?q=zw&backdoor_user_id=#{user.id}")
 
     response.status_code.should eq(200)
     JSON.parse(response.body).as_a.map(&.["login_name"].as_s).should eq([user.login_name])
@@ -834,8 +834,8 @@ describe "Notifications" do
     UserFactory.create &.login_name("MingMoon")
     UserFactory.create &.login_name("MingSky")
     UserFactory.create &.login_name("Ming_Sky")
-    ApiClient.new.headers("HX-Request-Type": "partial").get("/htmx/mentions?q=#{URI.encode_path("Ming")}").status_code.should eq(401)
-    response = ApiClient.new.get("/htmx/mentions?q=#{URI.encode_path("ming_")}&backdoor_user_id=#{user.id}")
+    ApiClient.new.headers("HX-Request-Type": "partial").get("/htmx/users/autocomplete?q=#{URI.encode_path("Ming")}").status_code.should eq(401)
+    response = ApiClient.new.get("/htmx/users/autocomplete?q=#{URI.encode_path("ming_")}&backdoor_user_id=#{user.id}")
     response.status_code.should eq(200)
     JSON.parse(response.body).as_a.map(&.["login_name"].as_s).should eq(["Ming_Sky"])
   end
@@ -850,15 +850,15 @@ describe "Notifications" do
       user.login_name("another_billy")
     end
 
-    response = ApiClient.new.get("/htmx/mentions?q=bILLY&backdoor_user_id=#{first.id}")
+    response = ApiClient.new.get("/htmx/users/autocomplete?q=bILLY&backdoor_user_id=#{first.id}")
     JSON.parse(response.body).as_a.should be_empty
 
-    response = ApiClient.new.get("/htmx/mentions?q=another&backdoor_user_id=#{first.id}")
+    response = ApiClient.new.get("/htmx/users/autocomplete?q=another&backdoor_user_id=#{first.id}")
     candidates = JSON.parse(response.body).as_a
     candidates.map(&.["login_name"].as_s).should eq([second.login_name])
     candidates.first["nickname"].as_s.should eq("Billy Zheng")
 
-    response = ApiClient.new.get("/htmx/mentions?q=ZW9&backdoor_user_id=#{first.id}")
+    response = ApiClient.new.get("/htmx/users/autocomplete?q=ZW9&backdoor_user_id=#{first.id}")
     JSON.parse(response.body).as_a.first["login_name"].as_s.should eq(first.login_name)
     UserQuery.new.with_login_names(UserMarkdown.render("@zw963")[:mentions]).id.asc_order.results.map(&.id).should eq([first.id])
     UserQuery.new.with_login_names(UserMarkdown.render("@Billy")[:mentions]).results.should be_empty

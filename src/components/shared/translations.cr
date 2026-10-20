@@ -21,7 +21,6 @@ class Shared::Translations < BaseComponent
       "file_too_large"     => r("javascript.file_too_large").t(size: "%{size}"),
       "upload_failed"      => r("javascript.upload_failed").t(message: "%{message}"),
       "upload_error"       => r("javascript.upload_error").t,
-      "mention_users"      => r("javascript.mention_users").t,
       "copy"               => r("javascript.copy").t,
       "copied"             => r("javascript.copied").t,
     }

@@ -70,7 +70,7 @@ HEREDOC
         end
       end
 
-      div class: "panel1 hidden p-4" do
+      div class: "panel1 relative hidden p-4" do
         render_form(editor_height)
       end
 
@@ -90,20 +90,26 @@ HEREDOC
     me = current_user
 
     textarea_opt = {
-      id:                 "#{html_id}_text_area",
-      rows:               5,
-      name:               "content",
-      placeholder:        r(".placeholder").t,
-      "aria-describedby": "#{html_id}_mention_help",
-      required:           "",
-      data_mentions_url:  Htmx::Users::Autocomplete.path,
-      class:              "#{editor_height} block w-full resize-y overflow-y-auto rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm leading-7 text-gray-900 shadow-inner transition outline-none placeholder:text-gray-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400",
+      id:                          "#{html_id}_text_area",
+      rows:                        5,
+      name:                        "content",
+      placeholder:                 r(".placeholder").t,
+      "aria-describedby":          "#{html_id}_mention_help",
+      required:                    "",
+      data_users_autocomplete_url: Htmx::Users::Autocomplete.path,
+      class:                       "#{editor_height} block w-full resize-y overflow-y-auto rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm leading-7 text-gray-900 shadow-inner transition outline-none placeholder:text-gray-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400",
     }
 
     textarea_opt = textarea_opt.merge(disabled: "") if me.nil?
 
     textarea textarea_opt do
       text content
+    end
+
+    div(
+      hidden: true,
+      class: "user-autocomplete-options absolute inset-x-4 bottom-4 z-20 max-h-56 overflow-y-auto rounded-xl border border-gray-200 bg-white py-1 shadow-lg"
+    ) do
     end
   end
 
