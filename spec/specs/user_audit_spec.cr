@@ -348,6 +348,8 @@ describe "User events" do
     response.status_code.should eq(200)
     document.xpath_nodes("//main//ol/li").size.should eq(20)
     document.xpath_node("//main//h1").not_nil!.content.should eq("账户记录")
+    document.xpath_node("//main//header//a").not_nil!["href"].should eq(Users::Show.with(login_name: user.login_name).path)
+    document.xpath_node("//main//aside").should be_nil
     document.xpath_node("//nav[@id='nav-user-panel']/a[@href='/admin']").not_nil!["class"].should_not contain("is-active")
     response.body.should contain(user.nickname)
     response.body.should_not contain("admin-private")
@@ -411,8 +413,10 @@ describe "User events" do
     users.each do |user|
       document.xpath_node("//main//ol/li/p[1]//a[@href='/users/#{user.login_name}/profile']").should_not be_nil
     end
-    document.xpath_node("//aside//a[@href='/user_audits']").not_nil!["class"].should contain("bg-gray-900")
-    document.xpath_node("//nav[@id='nav-user-panel']/a[@href='/admin']").not_nil!["class"].should contain("is-active")
+    document.xpath_node("//main//aside//a[@href='/user_audits']").not_nil!["class"].should contain("bg-gray-900")
+    document.xpath_node("//main//h1").not_nil!.content.should eq("账户记录")
+    document.xpath_node("//main//header//a").should be_nil
+    document.xpath_node("//nav[@id='nav-user-panel']/a[@href='/admin']").not_nil!["class"].should_not contain("is-active")
     URI.parse(next_path).path.should eq("/user_audits")
 
     response = ApiClient.new.get(next_path)
@@ -422,6 +426,8 @@ describe "User events" do
     rows.size.should eq(1)
     rows.first.content.should contain("Old nickname 0 → New nickname 0")
 
+    response = ApiClient.new.get("/admin?backdoor_user_id=#{admin.id}")
+    XML.parse_html(response.body).xpath_node("//aside//a[@href='/user_audits']").should_not be_nil
     UserAuditQuery.new.select_count.should eq(21)
   end
 
@@ -527,10 +533,12 @@ describe "User events" do
 
     {"zh-CN" => "暂无账户记录。", "en" => "No account history yet."}.each do |locale, message|
       response = ApiClient.new.get("/user_audits?locale=#{locale}&backdoor_user_id=#{admin.id}")
+      document = XML.parse_html(response.body)
 
       response.status_code.should eq(200)
       response.body.should contain(message)
-      XML.parse_html(response.body).xpath_node("//main//ol").should be_nil
+      document.xpath_node("//main//ol").should be_nil
+      document.xpath_node("//main//div[@role='region']//nav").should be_nil
     end
   end
 

@@ -1,9 +1,6 @@
 ---
 en:
   admin:
-    events:
-      index_page:
-        description: Profile changes, password actions and sign-ins across all accounts.
     nodes:
       create:
         node_created: Node created
@@ -294,8 +291,6 @@ en:
     description: Crystal China is a Chinese community for Crystal documentation, experiences and discussions.
 
   me:
-    events_page:
-      description: History of profile changes, password changes and sign-ins.
     show_page:
       page_title: This is your profile
       next_steps: 'Next, you may want to:'
@@ -460,6 +455,13 @@ en:
     unavailable: The image upload service is temporarily unavailable. Please try again later
 
   user_audits:
+    index_page:
+      personal_description: History of profile changes, password changes and sign-ins.
+      site_description: Profile changes, password actions and sign-ins across all accounts.
+      login_name_placeholder: Full login name
+      event_kind: Event type
+      all_kinds: All events
+      profile_changes: Profile changes
     list:
       empty: No account history yet.
       account: 'Account: '

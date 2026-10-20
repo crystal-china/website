@@ -2,6 +2,8 @@ class UserAudits::IndexPage < MainLayout
   needs user : User?
   needs audits : Array(UserAudit)
   needs pages : Lucky::Paginator
+  needs login_name : String
+  needs kind : UserAudit::Kind?
 
   def page_title : String
     r("common.events").t
@@ -53,6 +55,8 @@ class UserAudits::IndexPage < MainLayout
         "aria-labelledby": "user-audits-title",
         tabindex: "0"
       ) do
+        render_filters if user.nil?
+
         mount(
           UserAudits::List,
           audits: audits,
@@ -60,6 +64,60 @@ class UserAudits::IndexPage < MainLayout
           show_account: user.nil?
         )
       end
+    end
+  end
+
+  private def render_filters : Nil
+    form(
+      action: UserAudits::Index.path,
+      method: "get",
+      class: "grid gap-3 border-b border-gray-200 px-6 py-4 sm:grid-cols-[minmax(0,1fr)_12rem_auto]"
+    ) do
+      div class: "form-field" do
+        label r("fields.login_name").t, for: "audits-login-name", class: "form-label"
+        input(
+          type: "search",
+          id: "audits-login-name",
+          name: "login_name",
+          value: login_name,
+          placeholder: r(".login_name_placeholder").t,
+          autocomplete: "off",
+          class: "form-input"
+        )
+      end
+
+      div class: "form-field" do
+        label r(".event_kind").t, for: "audits-kind", class: "form-label"
+        select_tag(
+          id: "audits-kind",
+          name: "kind",
+          class: "form-input"
+        ) do
+          option r(".all_kinds").t, value: ""
+
+          UserAudit::Kind.each do |event_kind|
+            option(
+              kind_label(event_kind),
+              attrs: kind == event_kind ? [:selected] : [] of Symbol,
+              value: event_kind.to_s.underscore
+            )
+          end
+        end
+      end
+
+      div class: "flex items-end" do
+        button r("common.search").t, type: "submit", class: "form-submit w-full"
+      end
+    end
+  end
+
+  private def kind_label(kind : UserAudit::Kind) : String
+    case kind
+    in .profile_changed?    then r(".profile_changes").t
+    in .password_changed?   then r("user_audits.list.password_changed").t
+    in .oauth_signed_in?    then r("user_audits.list.oauth_signed_in").t
+    in .password_removed?   then r("user_audits.list.password_removed").t
+    in .password_signed_in? then r("user_audits.list.password_signed_in").t
     end
   end
 end

@@ -1,9 +1,6 @@
 ---
 zh-CN:
   admin:
-    events:
-      index_page:
-        description: 查看全站账户的资料变更、密码操作和登录记录。
     nodes:
       create:
         node_created: 节点已创建
@@ -291,8 +288,6 @@ zh-CN:
     description: Crystal China 是 Crystal 中文社区，提供 Crystal 编程语言文档、经验与讨论。
 
   me:
-    events_page:
-      description: 记录个人资料修改、密码修改和登录活动。
     show_page:
       page_title: 个人主页
       next_steps: 接下来你可以：
@@ -454,6 +449,13 @@ zh-CN:
     unavailable: 图片上传服务暂时不可用，请稍后重试
 
   user_audits:
+    index_page:
+      personal_description: 记录个人资料修改、密码修改和登录活动。
+      site_description: 查看全站账户的资料变更、密码操作和登录记录。
+      login_name_placeholder: 完整登录用户名
+      event_kind: 事件类型
+      all_kinds: 所有事件
+      profile_changes: 资料变更
     list:
       empty: 暂无账户记录。
       account: 账户：
