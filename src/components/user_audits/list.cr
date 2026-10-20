@@ -34,7 +34,7 @@ class UserAudits::List < BaseComponent
       end
     end
 
-    render_pagination unless pages.one_page?
+    render_pagination if pages.total > 1
   end
 
   private def render_account(user : User?, id : Int64?) : Nil
