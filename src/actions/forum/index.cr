@@ -17,6 +17,15 @@ class Forum::Index < ForumAction
       per_page: 20
     )
 
+    if context.request.headers["HX-Request-Type"]? == "partial"
+      return component(
+        Forum::List,
+        topics: topics,
+        pages: pages,
+        current_user: current_user
+      )
+    end
+
     html(
       Forum::IndexPage,
       topics: topics,
