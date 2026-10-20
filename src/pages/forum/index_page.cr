@@ -43,7 +43,10 @@ class Forum::IndexPage < ForumLayout
         end
       end
 
-      render_pagination unless pages.one_page?
+      mount(
+        Shared::Pagination,
+        pages: pages
+      )
     end
   end
 
@@ -96,32 +99,6 @@ class Forum::IndexPage < ForumLayout
             time: relative_time(topic.last_active_at)
           )
         )
-      end
-    end
-  end
-
-  private def render_pagination : Nil
-    nav class: "mt-6 flex items-center justify-center gap-4 text-sm", "aria-label": r(".pagination").t do
-      if (previous_path = pages.path_to_previous)
-        a(
-          r("common.previous_page").t,
-          href: previous_path,
-          class: "form-secondary"
-        )
-      else
-        span r("common.previous_page").t, class: "form-secondary cursor-not-allowed opacity-50"
-      end
-
-      span r("common.page_number").t(page: pages.page.to_s, total: pages.total.to_s), class: "text-gray-600"
-
-      if (next_path = pages.path_to_next)
-        a(
-          r("common.next_page").t,
-          href: next_path,
-          class: "form-secondary"
-        )
-      else
-        span r("common.next_page").t, class: "form-secondary cursor-not-allowed opacity-50"
       end
     end
   end

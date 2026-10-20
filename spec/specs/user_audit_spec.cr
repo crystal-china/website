@@ -343,7 +343,7 @@ describe "User events" do
 
     response = ApiClient.new.get("/user_audits?backdoor_user_id=#{admin.id}&user_id=#{user.id}")
     document = XML.parse_html(response.body)
-    next_path = document.xpath_node("//nav[@aria-label='账户记录分页']//a[.='下一页']").not_nil!["href"]
+    next_path = document.xpath_node("//main//nav/a[.='下一页']").not_nil!["href"]
 
     response.status_code.should eq(200)
     document.xpath_nodes("//main//ol/li").size.should eq(20)
@@ -403,7 +403,7 @@ describe "User events" do
     response = ApiClient.new.get("/user_audits?backdoor_user_id=#{admin.id}")
     document = XML.parse_html(response.body)
     rows = document.xpath_nodes("//main//ol/li").to_a
-    next_path = document.xpath_node("//nav[@aria-label='账户记录分页']//a[.='下一页']").not_nil!["href"]
+    next_path = document.xpath_node("//main//nav/a[.='下一页']").not_nil!["href"]
 
     response.status_code.should eq(200)
     rows.size.should eq(20)

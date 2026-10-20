@@ -108,7 +108,7 @@ describe "Account history filters" do
     SaveUserAudit.create!(user_id: admin.id, kind: :password_signed_in)
     response = ApiClient.new.get("/user_audits?login_name=targetuser&kind=password_signed_in&backdoor_user_id=#{admin.id}")
     document = XML.parse_html(response.body)
-    next_path = document.xpath_node("//nav[@aria-label='账户记录分页']//a[.='下一页']").not_nil!["href"]
+    next_path = document.xpath_node("//main//nav/a[.='下一页']").not_nil!["href"]
     query_params = URI.parse(next_path).query_params
 
     response.status_code.should eq(200)

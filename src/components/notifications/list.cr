@@ -25,20 +25,12 @@ class Notifications::List < BaseComponent
         end
       end
 
-      if pages.total > 1
-        nav(
-          class: "flex items-center justify-center gap-4 border-t border-gray-200 p-4",
-          "aria-label": r(".pagination").t
-        ) do
-          if (path = pages.path_to_previous)
-            render_page_link(r("common.previous_page").t, path)
-          end
-          span r("common.page_number").t(page: pages.page.to_s, total: pages.total.to_s), class: "text-sm text-gray-600"
-          if (path = pages.path_to_next)
-            render_page_link(r("common.next_page").t, path)
-          end
-        end
-      end
+      mount(
+        Shared::Pagination,
+        pages: pages,
+        classes: "flex items-center justify-center gap-4 border-t border-gray-200 p-4 text-sm",
+        htmx_target: "closest section"
+      )
     end
 
     tag(
@@ -56,17 +48,6 @@ class Notifications::List < BaseComponent
     ) do
       mount Navbar::NotificationLink, current_user: current_user
     end
-  end
-
-  private def render_page_link(label : String, path : String) : Nil
-    a(
-      label,
-      href: path,
-      hx_get: path,
-      hx_target: "closest section",
-      hx_swap: "outerHTML",
-      class: "form-secondary"
-    )
   end
 
   private def render_notification(notification : Notification) : Nil

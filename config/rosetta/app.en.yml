@@ -34,7 +34,6 @@ en:
         comment_id: 'Comment #%{id} · '
         no_topics: No deleted topics.
         deleted_at: Deleted %{time}
-        pagination: Trash pagination
     users:
       remove_password:
         no_password: This account has no local password to remove.
@@ -239,7 +238,6 @@ en:
         other: "%{count} replies"
       last_reply: 'Last reply:'
       last_active_at: Last active %{time}
-      pagination: Community pagination
     new_page:
       publish: Publish
     show_page:
@@ -319,7 +317,6 @@ en:
       read_all: Mark all as read
       date: "%Y-%m-%d"
       empty: No notifications yet. Replies and mentions will appear here.
-      pagination: Notification pagination
       topic_reply: replied to your topic
       comment_reply: replied to your comment
       mention: mentioned you
@@ -475,7 +472,6 @@ en:
       oauth_provider: Signed in through %{provider}.
       password_removed: Local password removed
       password_removed_description: Password sign-in is disabled and old sessions have been invalidated.
-      pagination: Account history pagination
 
   users:
     update:

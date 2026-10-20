@@ -34,7 +34,11 @@ class UserAudits::List < BaseComponent
       end
     end
 
-    render_pagination if pages.total > 1
+    mount(
+      Shared::Pagination,
+      pages: pages,
+      classes: "flex items-center justify-center gap-4 border-t border-gray-200 px-6 py-4 text-sm"
+    )
   end
 
   private def render_account(user : User?, id : Int64?) : Nil
@@ -72,31 +76,6 @@ class UserAudits::List < BaseComponent
     when .password_removed?
       h2 r(".password_removed").t, class: "m-0 text-sm font-medium text-gray-900"
       para r(".password_removed_description").t, class: "mt-2 mb-0 text-sm text-gray-600"
-    end
-  end
-
-  private def render_pagination : Nil
-    nav(
-      class: "flex items-center justify-center gap-4 border-t border-gray-200 px-6 py-4 text-sm",
-      "aria-label": r(".pagination").t
-    ) do
-      if (previous_path = pages.path_to_previous)
-        a(
-          r("common.previous_page").t,
-          href: previous_path,
-          class: "form-secondary"
-        )
-      end
-
-      span r("common.page_number").t(page: pages.page.to_s, total: pages.total.to_s), class: "text-gray-600"
-
-      if (next_path = pages.path_to_next)
-        a(
-          r("common.next_page").t,
-          href: next_path,
-          class: "form-secondary"
-        )
-      end
     end
   end
 end

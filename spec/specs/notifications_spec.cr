@@ -321,6 +321,7 @@ describe "Notifications" do
     other = UserFactory.create
     response = ApiClient.new.get("/notifications?backdoor_user_id=#{user.id}")
     XML.parse_html(response.body).xpath_node("//button[@hx-post='/notifications/read_all'][@disabled]").should_not be_nil
+    XML.parse_html(response.body).xpath_node("//section/nav").should be_nil
 
     21.times do |index|
       SaveNotification.create!(user_id: user.id, actor_id: other.id, kind: :mention,

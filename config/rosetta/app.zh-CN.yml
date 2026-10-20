@@ -34,7 +34,6 @@ zh-CN:
         comment_id: '评论 #%{id} · '
         no_topics: 没有已删除的主题。
         deleted_at: 删除于 %{time}
-        pagination: 回收站分页
     users:
       remove_password:
         no_password: 此账号没有本站密码，无需移除。
@@ -236,7 +235,6 @@ zh-CN:
         other: "%{count} 条回复"
       last_reply: 最后回复：
       last_active_at: 最后活跃于 %{time}
-      pagination: 社区分页
     new_page:
       publish: 发布
     show_page:
@@ -315,7 +313,6 @@ zh-CN:
       read_all: 全部标为已读
       date: "%Y年%m月%d日"
       empty: 还没有通知。有人回复或提及你时，会显示在这里。
-      pagination: 通知分页
       topic_reply: 回复了你的主题
       comment_reply: 回复了你的评论
       mention: 提及了你
@@ -469,7 +466,6 @@ zh-CN:
       oauth_provider: 通过 %{provider} 登录。
       password_removed: 移除本站密码
       password_removed_description: 密码登录已禁用，已有登录会话已失效。
-      pagination: 账户记录分页
 
   users:
     update:

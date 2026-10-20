@@ -33,7 +33,10 @@ class Admin::Trash::IndexPage < AdminLayout
       render_topics
     end
 
-    render_pagination unless pages.one_page?
+    mount(
+      Shared::Pagination,
+      pages: pages
+    )
   end
 
   private def render_comments : Nil
@@ -98,27 +101,5 @@ class Admin::Trash::IndexPage < AdminLayout
       at,
       r(".deleted_at").t(time: time_in_zone(at).to_s("%Y-%m-%d %H:%M:%S %z"))
     )
-  end
-
-  private def render_pagination : Nil
-    nav class: "mt-6 flex items-center justify-center gap-4 text-sm", "aria-label": r(".pagination").t do
-      if (previous_path = pages.path_to_previous)
-        a(
-          r("common.previous_page").t,
-          href: previous_path,
-          class: "form-secondary"
-        )
-      end
-
-      span r("common.page_number").t(page: pages.page.to_s, total: pages.total.to_s), class: "text-gray-600"
-
-      if (next_path = pages.path_to_next)
-        a(
-          r("common.next_page").t,
-          href: next_path,
-          class: "form-secondary"
-        )
-      end
-    end
   end
 end
