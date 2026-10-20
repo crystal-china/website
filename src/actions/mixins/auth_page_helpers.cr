@@ -18,7 +18,7 @@ module AuthPageHelpers
     if providers.empty?
       auth_page_single_column { yield }
     else
-      section class: "mx-auto grid w-full max-w-4xl gap-8 px-8 py-12 lg:grid-cols-[minmax(0,1fr)_18rem]" do
+      section class: "page-content mx-auto grid w-full max-w-4xl gap-8 px-8 lg:grid-cols-[minmax(0,1fr)_18rem]" do
         yield
         mount Shared::OAuth, providers: providers
       end
@@ -26,7 +26,7 @@ module AuthPageHelpers
   end
 
   def auth_page_single_column(&) : Nil
-    section class: "mx-auto w-full max-w-3xl px-8 py-12" do
+    section class: "page-content mx-auto w-full max-w-3xl px-8" do
       yield
     end
   end

@@ -12,7 +12,7 @@ abstract class AdminLayout < MainLayout
   end
 
   def content : Nil
-    section class: "#{page_container_classes} py-10" do
+    section class: "#{page_container_classes} page-content" do
       div class: "flex flex-col items-start gap-8 lg:flex-row" do
         mount Admin::Sidebar, current_user: current_user
 

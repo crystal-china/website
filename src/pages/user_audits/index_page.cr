@@ -14,7 +14,7 @@ class UserAudits::IndexPage < MainLayout
   end
 
   def content : Nil
-    div class: "#{page_container_classes} py-10" do
+    div class: "#{page_container_classes} page-content" do
       if user.nil?
         div class: "flex flex-col items-start gap-8 lg:flex-row" do
           mount Admin::Sidebar, current_user: current_user

@@ -1,6 +1,33 @@
 require "../spec_helper"
 
 describe "Page positioning" do
+  it "uses the shared page spacing for ordinary pages" do
+    user = UserFactory.create
+    public_paths = [
+      "/",
+      "/sign_in",
+      "/sign_up",
+      "/password_reset_requests/new",
+      "/forum",
+    ]
+    private_paths = [
+      "/me",
+      Users::Show.with(login_name: user.login_name).path,
+      Users::Edit.with(id: user.id).path,
+      UserAudits::Index.path,
+    ]
+
+    (public_paths + private_paths.map { |path| "#{path}?backdoor_user_id=#{user.id}" }).each do |path|
+      response = ApiClient.new.get(path)
+
+      response.status_code.should eq(200)
+      document = XML.parse_html(response.body)
+      container = document.xpath_node("//main/*[contains(concat(' ', @class, ' '), ' page-content ')]").not_nil!
+      container["class"].split.should_not contain("py-10")
+      container["class"].split.should_not contain("py-12")
+    end
+  end
+
   it "keeps the document sidebar in its reserved column" do
     response = ApiClient.new.get("/docs/index")
     document = XML.parse_html(response.body)
@@ -11,6 +38,7 @@ describe "Page positioning" do
     sidebar["class"].should contain("desktop-sidebar")
     sidebar["class"].should contain("lg:w-80")
     sidebar.parent.not_nil!["class"].should contain("lg:w-80")
+    document.xpath_node("//main[contains(@class, 'page-content')]").should be_nil
   end
 
   it "shares the fixed node navigation on topic lists and details, but not editors" do
@@ -25,7 +53,7 @@ describe "Page positioning" do
 
       response.status_code.should eq(200)
       sidebar["class"].should contain("desktop-sidebar")
-      sidebar["class"].should contain("lg:[--sidebar-gap:2.5rem]")
+      sidebar.xpath_node("ancestor::section[contains(@class, 'page-content')]").should_not be_nil
       sidebar.parent.not_nil!["class"].should contain("lg:w-56")
       sidebar.xpath_node(".//a[@href='/forum?node=layout-test']").should_not be_nil
     end
@@ -48,7 +76,7 @@ describe "Page positioning" do
 
     response.status_code.should eq(200)
     sidebar["class"].should contain("desktop-sidebar")
-    sidebar["class"].should contain("lg:[--sidebar-gap:2.5rem]")
+    sidebar.xpath_node("ancestor::section[contains(@class, 'page-content')]").should_not be_nil
     sidebar.parent.not_nil!["class"].should contain("lg:w-56")
     document.xpath_node("//main/section/div/div/header/h1").not_nil!.content.should eq("后台管理")
     {"/admin", "/admin/nodes", "/user_audits", "/admin/trash"}.each do |path|

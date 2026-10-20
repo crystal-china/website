@@ -6,7 +6,7 @@ abstract class ForumLayout < MainLayout
   abstract def forum_content : Nil
 
   def content : Nil
-    section class: "#{page_container_classes} py-10" do
+    section class: "#{page_container_classes} page-content" do
       if show_sidebars?
         div class: "flex flex-col items-start gap-8 lg:flex-row" do
           render_node_navigation(current_node)
@@ -34,7 +34,7 @@ abstract class ForumLayout < MainLayout
 
     aside class: "min-w-0 w-full shrink-0 lg:w-56" do
       nav(
-        class: "desktop-sidebar app-panel p-3 lg:w-56 lg:[--sidebar-gap:2.5rem]",
+        class: "desktop-sidebar app-panel p-3 lg:w-56",
         "aria-label": r("forum_layout.nodes").t
       ) do
         ul class: "m-0 flex list-none gap-1 overflow-x-auto p-0 lg:flex-col lg:overflow-visible" do

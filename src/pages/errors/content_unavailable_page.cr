@@ -6,7 +6,7 @@ class Errors::ContentUnavailablePage < MainLayout
   end
 
   def content : Nil
-    section class: "#{page_container_classes} py-10" do
+    section class: "#{page_container_classes} page-content" do
       div class: "app-panel mx-auto max-w-2xl px-6 py-10 sm:px-8" do
         para "404", class: "m-0 text-sm font-semibold text-gray-400"
         h1 page_title, class: "mt-3 text-2xl font-semibold text-gray-900"

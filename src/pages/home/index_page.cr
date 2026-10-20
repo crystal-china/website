@@ -2,9 +2,9 @@ class Home::IndexPage < MainLayout
   def content : Nil
     link_group_heading_classes = "mt-8 mb-3 text-[1.6em] leading-tight font-bold tracking-tight"
 
-    div class: page_container_classes do
+    div class: "#{page_container_classes} page-content" do
       header class: "flex flex-col items-center" do
-        h1 r(".heading").t, class: "mt-10 mb-4 text-center text-[2em] leading-tight font-bold tracking-tight"
+        h1 r(".heading").t, class: "mt-0 mb-4 text-center text-[2em] leading-tight font-bold tracking-tight"
 
         div(
           class: "latest-release-info",
@@ -37,7 +37,7 @@ class Home::IndexPage < MainLayout
       # 使用 CSS Grid 布局。子元素不再按普通文档流堆叠，而是放进网格里。
       nav(
         "aria-label": r(".links").t,
-        class: "mb-10 grid w-full grid-cols-1 items-start gap-x-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[repeat(5,max-content)] xl:justify-between"
+        class: "grid w-full grid-cols-1 items-start gap-x-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-[repeat(5,max-content)] xl:justify-between"
       ) do
         section do
           h2 r(".official").t, class: link_group_heading_classes

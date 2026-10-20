@@ -8,7 +8,7 @@ class Users::EditPage < MainLayout
   end
 
   def content : Nil
-    div class: "#{page_container_classes} py-10" do
+    div class: "#{page_container_classes} page-content" do
       mount(
         Shared::UserProfileForm,
         user: user,

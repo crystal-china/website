@@ -1,4 +1,10 @@
 @layer components {
+  /* 普通页面和其中的固定侧栏共用距导航栏的间距；文档阅读页独立布局。 */
+  .page-content {
+    --sidebar-gap: var(--page-gap);
+    padding-block: var(--page-gap);
+  }
+
   .site-navbar {
     position: sticky;
     top: 0;

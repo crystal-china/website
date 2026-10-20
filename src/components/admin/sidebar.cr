@@ -2,7 +2,7 @@ class Admin::Sidebar < BaseComponent
   def render : Nil
     aside class: "w-full shrink-0 lg:w-56" do
       nav(
-        class: "desktop-sidebar app-panel p-3 lg:w-56 lg:[--sidebar-gap:2.5rem]",
+        class: "desktop-sidebar app-panel p-3 lg:w-56",
         "aria-label": r("admin_layout.page_title").t
       ) do
         ul class: "m-0 flex list-none flex-wrap gap-1 p-0 lg:flex-col" do

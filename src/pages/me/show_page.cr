@@ -1,6 +1,8 @@
 class Me::ShowPage < MainLayout
   def content : Nil
-    h1 r(".page_title").t, class: "mt-10 mb-4 text-[2em] leading-tight font-bold tracking-tight"
+    div class: "#{page_container_classes} page-content" do
+      h1 r(".page_title").t, class: "mt-0 mb-4 text-[2em] leading-tight font-bold tracking-tight"
+    end
     # h3 "Email:  #{@current_user.email}"
     # helpful_tips
   end

@@ -6,7 +6,7 @@ class Docs::SetupPage < MainLayout
   end
 
   def content : Nil
-    section class: "#{page_container_classes} py-10" do
+    section class: "#{page_container_classes} page-content" do
       article class: "prose-neutral mx-auto max-w-3xl prose" do
         h1 r(".heading").t
         para r(".introduction").t
