@@ -370,7 +370,7 @@ class Db::Seed::SampleData < LuckyTask::Task
   end
 
   private def seed_trash(users : Array(User), node : Node, doc_thread_id : Int64, topic_thread_id : Int64) : Nil
-    admin, author, replier, reader = users
+    admin, author, replier, reader = users.first(4)
 
     [{"文档", doc_thread_id}, {"社区", topic_thread_id}].each do |source, thread_id|
       visible_root = CreateComment.create!(

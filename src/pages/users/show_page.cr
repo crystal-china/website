@@ -12,7 +12,7 @@ class Users::ShowPage < MainLayout
   def content : Nil
     online_hours, online_minutes = (user.online_seconds // 60).divmod(60)
 
-    div class: "#{page_container_classes} py-10 sm:py-16" do
+    div class: "#{page_container_classes} py-10" do
       article class: "app-panel mx-auto max-w-2xl overflow-hidden" do
         div(
           class: "h-16 border-b border-sky-100 bg-gradient-to-r from-sky-100 via-slate-100 to-amber-50 sm:h-20",
