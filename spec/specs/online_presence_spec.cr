@@ -107,8 +107,8 @@ describe OnlinePresence do
       document = XML.parse_html(response.body)
 
       response.status_code.should eq(200)
-      document.xpath_node("//dl/dt[last()]").not_nil!.content.should eq(labels[0])
-      document.xpath_node("//dl/dd[last()]").not_nil!.content.should eq(labels[1])
+      document.xpath_node("//dl/div[last()]/dt").not_nil!.content.should eq(labels[0])
+      document.xpath_node("//dl/div[last()]/dd").not_nil!.content.should eq(labels[1])
     end
   end
 

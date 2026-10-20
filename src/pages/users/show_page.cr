@@ -15,7 +15,7 @@ class Users::ShowPage < MainLayout
     div class: "#{page_container_classes} py-10 sm:py-16" do
       article class: "app-panel mx-auto max-w-2xl overflow-hidden" do
         div(
-          class: "h-24 border-b border-sky-100 bg-gradient-to-r from-sky-100 via-slate-100 to-amber-50 sm:h-32",
+          class: "h-16 border-b border-sky-100 bg-gradient-to-r from-sky-100 via-slate-100 to-amber-50 sm:h-20",
           "aria-hidden": "true"
         )
 
@@ -65,31 +65,37 @@ class Users::ShowPage < MainLayout
             end
           end
 
-          dl class: "mt-8 border-t border-gray-100 pt-5 text-sm" do
-            dt r(".joined").t, class: "text-gray-500"
-            dd class: "mt-1 ml-0 font-medium text-gray-800" do
-              local_time(
-                user.created_at,
-                time_in_zone(user.created_at).to_s("%Y-%m-%d")
-              )
+          dl class: "mt-8 grid gap-5 border-t border-gray-100 pt-5 text-sm sm:grid-cols-3" do
+            div do
+              dt r(".joined").t, class: "text-gray-500"
+              dd class: "mt-1 ml-0 font-medium text-gray-800" do
+                local_time(
+                  user.created_at,
+                  time_in_zone(user.created_at).to_s("%Y-%m-%d")
+                )
+              end
             end
 
             unless user.hide_online_status?
               if (last_active_at = user.last_active_at)
-                dt r("common.last_active").t, class: "mt-5 text-gray-500"
-                dd class: "mt-1 ml-0 font-medium text-gray-800" do
-                  local_time(
-                    last_active_at,
-                    relative_time(last_active_at)
-                  )
+                div do
+                  dt r("common.last_active").t, class: "text-gray-500"
+                  dd class: "mt-1 ml-0 font-medium text-gray-800" do
+                    local_time(
+                      last_active_at,
+                      relative_time(last_active_at)
+                    )
+                  end
                 end
               end
 
-              dt r(".online_time").t, class: "mt-5 text-gray-500"
-              dd(
-                r(".online_duration").t(hours: online_hours.to_s, minutes: online_minutes.to_s),
-                class: "mt-1 ml-0 font-medium text-gray-800"
-              )
+              div do
+                dt r(".online_time").t, class: "text-gray-500"
+                dd(
+                  r(".online_duration").t(hours: online_hours.to_s, minutes: online_minutes.to_s),
+                  class: "mt-1 ml-0 font-medium text-gray-800"
+                )
+              end
             end
           end
         end

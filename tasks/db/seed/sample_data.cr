@@ -40,6 +40,12 @@ class Db::Seed::SampleData < LuckyTask::Task
 
     seed_account_events(users)
 
+    User::SaveOperation.update!(
+      users[1],
+      last_active_at: Time.utc - 2.hours,
+      online_seconds: (8.hours + 36.minutes).total_seconds.to_i64
+    )
+
     nodes = {} of String => Node
     [
       {"general", "综合讨论", "Crystal 语言及其生态相关的综合讨论。", "#16a34a", 100},
