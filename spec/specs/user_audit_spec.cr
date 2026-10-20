@@ -84,6 +84,59 @@ describe "User events" do
     end
   end
 
+  it "migrates account references without rewriting events and can restore the old constraints" do
+    AppDatabase.transaction do
+      AppDatabase.exec "CREATE SCHEMA user_audit_associations_migration_spec"
+      AppDatabase.exec "SET LOCAL search_path TO user_audit_associations_migration_spec"
+      AppDatabase.exec "CREATE TABLE users (id bigint PRIMARY KEY)"
+      AppDatabase.exec "INSERT INTO users VALUES (1), (2)"
+      original = CreateUserAudit::V20250315162146.new
+      original.migrate
+      original.prepared_statements.each { |statement| AppDatabase.exec(statement) }
+      AppDatabase.exec "INSERT INTO user_audits (user_id, actor_id, kind) VALUES (2, 1, 5), (999, NULL, 5)"
+      before = AppDatabase.query_all("SELECT user_id, actor_id, created_at, updated_at FROM user_audits ORDER BY id", as: {Int64, Int64?, Time, Time})
+      migration = AllowMissingUserAuditAccounts::V20261020120000.new
+      migration.migrate
+      migration.prepared_statements.each { |statement| AppDatabase.exec(statement) }
+
+      AppDatabase.query_all("SELECT user_id, actor_id, created_at, updated_at FROM user_audits ORDER BY id", as: {Int64, Int64?, Time, Time}).should eq(before)
+      AppDatabase.query_one(
+        "SELECT is_nullable FROM information_schema.columns WHERE table_schema = 'user_audit_associations_migration_spec' AND table_name = 'user_audits' AND column_name = 'user_id'",
+        as: String
+      ).should eq("YES")
+      AppDatabase.query_one("SELECT count(*) FROM pg_constraint WHERE conrelid = 'user_audits'::regclass AND contype = 'f'", as: Int64).should eq(0)
+
+      migration.reset_prepared_statements
+      migration.rollback
+      migration.prepared_statements.each { |statement| AppDatabase.exec(statement) }
+
+      AppDatabase.query_one(
+        "SELECT is_nullable FROM information_schema.columns WHERE table_schema = 'user_audit_associations_migration_spec' AND table_name = 'user_audits' AND column_name = 'user_id'",
+        as: String
+      ).should eq("NO")
+      AppDatabase.exec "DELETE FROM users WHERE id = 1"
+      AppDatabase.query_all("SELECT actor_id FROM user_audits ORDER BY id", as: Int64?).should eq([nil, nil])
+      AppDatabase.rollback
+    end
+  end
+
+  it "requires both account IDs when saving events and defaults new events to self-actions" do
+    user = UserFactory.create
+    audit = SaveUserAudit.create!(user_id: user.id, kind: :password_signed_in)
+
+    audit.actor_id.should eq(user.id)
+    SaveUserAudit.create(kind: :password_signed_in) do |operation, _|
+      operation.saved?.should be_false
+      operation.user_id.errors.should_not be_empty
+      operation.actor_id.errors.should_not be_empty
+    end
+    SaveUserAudit.update(audit, actor_id: nil) do |operation, _|
+      operation.saved?.should be_false
+      operation.actor_id.errors.should_not be_empty
+    end
+    UserAuditQuery.find(audit.id).actor_id.should eq(user.id)
+  end
+
   it "keeps every profile change as a separate historical event" do
     user = UserFactory.create
     original_nickname = user.nickname
@@ -403,8 +456,14 @@ describe "User events" do
   it "keeps deleted accounts' events readable in the admin history" do
     admin = UserFactory.create &.email("audit-admin@example.com")
     user = UserFactory.create
-    SaveUserAudit.create!(user_id: user.id, kind: :password_signed_in)
+    audit = SaveUserAudit.create!(user_id: user.id, kind: :password_signed_in)
     UserQuery.new.id(user.id).delete
+    audit = UserAuditQuery.new.id(audit.id).preload_user.preload_actor.first
+
+    audit.user_id.should eq(user.id)
+    audit.actor_id.should eq(user.id)
+    audit.user.should be_nil
+    audit.actor.should be_nil
 
     {"zh-CN" => "未知或已删除账户 ##{user.id}", "en" => "Unknown or deleted account ##{user.id}"}.each do |locale, label|
       response = ApiClient.new.get("/user_audits?locale=#{locale}&backdoor_user_id=#{admin.id}")
@@ -413,7 +472,53 @@ describe "User events" do
       response.status_code.should eq(200)
       document.xpath_nodes("//main//ol/li").size.should eq(1)
       document.xpath_node("//main//ol/li/p[1]").not_nil!.content.should contain(label)
+      document.xpath_node("//main//ol/li/p[last()]").not_nil!.content.should contain(label)
       document.xpath_node("//main//ol/li/p[last()]//a").should be_nil
+    end
+  end
+
+  it "retains a deleted administrator's ID in both personal and site-wide history" do
+    admin = UserFactory.create &.email("audit-admin@example.com")
+    user = UserFactory.create
+    actor = UserFactory.create
+    audit = SaveUserAudit.create!(user_id: user.id, actor_id: actor.id, kind: :password_removed)
+    UserQuery.new.id(actor.id).delete
+
+    {"zh-CN" => "未知或已删除账户 ##{actor.id}", "en" => "Unknown or deleted account ##{actor.id}"}.each do |locale, label|
+      {nil, user.id}.each do |target_id|
+        path = "/user_audits?locale=#{locale}&backdoor_user_id=#{admin.id}"
+        path += "&user_id=#{target_id}" if target_id
+        response = ApiClient.new.get(path)
+        document = XML.parse_html(response.body)
+
+        response.status_code.should eq(200)
+        document.xpath_node("//main//ol/li/p[last()]").not_nil!.content.should contain(label)
+        document.xpath_node("//main//ol/li/p[last()]//a").should be_nil
+        response.body.should contain(user.login_name)
+      end
+    end
+
+    stored = UserAuditQuery.find(audit.id)
+
+    stored.user_id.should eq(user.id)
+    stored.actor_id.should eq(actor.id)
+    stored.created_at.should eq(audit.created_at)
+    stored.updated_at.should eq(audit.updated_at)
+  end
+
+  it "still displays historical events whose actor ID is already unknown" do
+    admin = UserFactory.create &.email("audit-admin@example.com")
+    user = UserFactory.create
+    audit = SaveUserAudit.create!(user_id: user.id, kind: :password_signed_in)
+    UserAuditQuery.new.id(audit.id).update(actor_id: nil)
+
+    {"zh-CN" => "未知或账号已删除", "en" => "Unknown or account deleted"}.each do |locale, label|
+      response = ApiClient.new.get("/user_audits?locale=#{locale}&backdoor_user_id=#{admin.id}")
+      document = XML.parse_html(response.body)
+
+      response.status_code.should eq(200)
+      document.xpath_node("//main//ol/li/p[last()]").not_nil!.content.should contain(label)
+      UserAuditQuery.find(audit.id).actor_id.should be_nil
     end
   end
 

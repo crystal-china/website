@@ -1,6 +1,5 @@
 class Admin::Events::IndexPage < AdminLayout
   needs audits : Array(UserAudit)
-  needs users_by_id : Hash(Int64, User)
   needs pages : Lucky::Paginator
 
   def page_title : String
@@ -17,7 +16,7 @@ class Admin::Events::IndexPage < AdminLayout
       mount(
         UserAudits::List,
         audits: audits,
-        users_by_id: users_by_id,
+        show_account: true,
         pages: pages
       )
     end

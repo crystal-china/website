@@ -463,9 +463,9 @@ en:
     list:
       empty: No account history yet.
       account: 'Account: '
-      unknown_account: 'Unknown or deleted account #%{id}'
+      unknown_account: Unknown or account deleted
+      unknown_account_id: 'Unknown or deleted account #%{id}'
       actor: 'Performed by:'
-      unknown_actor: Unknown or account deleted
       profile_changed: Changed %{field}
       password_changed: Password changed
       password_privacy: Only the change time is recorded, never the password or its hash.

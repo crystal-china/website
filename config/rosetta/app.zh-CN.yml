@@ -457,9 +457,9 @@ zh-CN:
     list:
       empty: 暂无账户记录。
       account: 账户：
-      unknown_account: '未知或已删除账户 #%{id}'
+      unknown_account: 未知或账号已删除
+      unknown_account_id: '未知或已删除账户 #%{id}'
       actor: 操作人：
-      unknown_actor: 未知或账号已删除
       profile_changed: 修改%{field}
       password_changed: 修改密码
       password_privacy: 仅记录修改时间，不保存密码或密码哈希。

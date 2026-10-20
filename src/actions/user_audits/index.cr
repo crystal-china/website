@@ -16,7 +16,13 @@ class UserAudits::Index < BrowserAction
              me
            end
     query = UserAuditQuery.new.id.desc_order.preload_actor
-    query = query.user_id(user.id) if user
+    
+    if user
+      query = query.user_id(user.id)
+    else
+      query = query.preload_user
+    end
+    
     pages, paginated = paginate(query, per_page: 20)
     audits = paginated.results
 
@@ -28,12 +34,9 @@ class UserAudits::Index < BrowserAction
         pages: pages
       )
     else
-      users_by_id = UserQuery.new.id.in(audits.map(&.user_id).uniq!).results.to_h { |account| {account.id, account} }
-
       html(
         Admin::Events::IndexPage,
         audits: audits,
-        users_by_id: users_by_id,
         pages: pages
       )
     end

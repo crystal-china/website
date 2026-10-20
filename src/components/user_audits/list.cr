@@ -1,7 +1,7 @@
 class UserAudits::List < BaseComponent
   needs audits : Array(UserAudit)
   needs pages : Lucky::Paginator
-  needs users_by_id : Hash(Int64, User)? = nil
+  needs show_account : Bool = false
 
   def render : Nil
     if audits.empty?
@@ -10,15 +10,11 @@ class UserAudits::List < BaseComponent
       ol class: "m-0 list-none divide-y divide-gray-200 p-0" do
         audits.each do |audit|
           li class: "px-6 py-5" do
-            if (users = users_by_id)
+            if show_account?
               para class: "mt-0 mb-3 text-sm text-gray-600" do
                 text r(".account").t
 
-                if (user = users[audit.user_id]?)
-                  mount Shared::UserName, user: user
-                else
-                  text r(".unknown_account").t(id: audit.user_id.to_s)
-                end
+                render_account(audit.user, audit.user_id)
               end
             end
 
@@ -26,11 +22,7 @@ class UserAudits::List < BaseComponent
             para class: "mt-2 mb-0 text-xs text-gray-500" do
               text r(".actor").t
 
-              if (actor = audit.actor)
-                mount Shared::UserName, user: actor
-              else
-                text r(".unknown_actor").t
-              end
+              render_account(audit.actor, audit.actor_id)
             end
             local_time(
               audit.created_at,
@@ -43,6 +35,16 @@ class UserAudits::List < BaseComponent
     end
 
     render_pagination unless pages.one_page?
+  end
+
+  private def render_account(user : User?, id : Int64?) : Nil
+    if user
+      mount Shared::UserName, user: user
+    elsif id
+      text r(".unknown_account_id").t(id: id.to_s)
+    else
+      text r(".unknown_account").t
+    end
   end
 
   private def render_event(audit : UserAudit) : Nil
