@@ -25,6 +25,8 @@ class Db::Seed::SampleData < LuckyTask::Task
       {"me@163.com", "小明", "xiaoming"},
       {"user1@163.com", "Ruby 转 Crystal", "ruby_to_crystal"},
       {"user2@163.com", "并发学习者", "concurrency"},
+      {"user3@163.com", "小红", "xiaohong"},
+      {"user4@163.com", "小李", "xiaoli"},
     ].map do |email, nickname, login_name|
       SignUpUser.create!(
         email: email,
@@ -281,6 +283,7 @@ class Db::Seed::SampleData < LuckyTask::Task
     puts "  Grandchild: /comments/#{doc_grandchild.id}"
     puts "Sign in as admin@crystal-china.org, me@163.com or user1@163.com to test notification jumps."
     puts "All sample accounts use password: temp1234."
+    puts "Try @xi to autocomplete xiaohong, xiaoli and xiaoming."
     puts "Set ADMIN_EMAILS=admin@crystal-china.org before starting the app to enable the sample administrator."
     puts "Trash: /admin/trash (#{CommentQuery.new.only_soft_deleted.select_count} comments, including page 2), /admin/trash?kind=topics."
     puts "Notifications span today, yesterday and the day before, with read/unread replies, mentions, and administrator edits, moves and deletions."
