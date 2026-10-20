@@ -4,6 +4,25 @@ class UserAudits::List < BaseComponent
   needs show_account : Bool = false
 
   def render : Nil
+    section id: "user-audits-list" do
+      render_audits
+
+      # 只让分页链接继承局部刷新，记录中的用户链接仍走整页导航。
+      div(
+        "hx-target:inherited": "#user-audits-list",
+        "hx-swap:inherited": "outerHTML show:none scroll:top scrollTarget:#user-audits-scroll",
+        "hx-sync:inherited": "#user-audits-list:replace"
+      ) do
+        mount(
+          Shared::Pagination,
+          pages: pages,
+          classes: "flex items-center justify-center gap-4 border-t border-gray-200 px-6 py-4 text-sm"
+        )
+      end
+    end
+  end
+
+  private def render_audits : Nil
     if audits.empty?
       para r(".empty").t, class: "m-0 px-6 py-10 text-center text-gray-500"
     else
@@ -33,12 +52,6 @@ class UserAudits::List < BaseComponent
         end
       end
     end
-
-    mount(
-      Shared::Pagination,
-      pages: pages,
-      classes: "flex items-center justify-center gap-4 border-t border-gray-200 px-6 py-4 text-sm"
-    )
   end
 
   private def render_account(user : User?, id : Int64?) : Nil

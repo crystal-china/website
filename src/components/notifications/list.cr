@@ -25,12 +25,17 @@ class Notifications::List < BaseComponent
         end
       end
 
-      mount(
-        Shared::Pagination,
-        pages: pages,
-        classes: "flex items-center justify-center gap-4 border-t border-gray-200 p-4 text-sm",
-        htmx_target: "closest section"
-      )
+      div(
+        "hx-target:inherited": "closest section",
+        "hx-swap:inherited": "outerHTML show:none",
+        "hx-push-url:inherited": "false"
+      ) do
+        mount(
+          Shared::Pagination,
+          pages: pages,
+          classes: "flex items-center justify-center gap-4 border-t border-gray-200 p-4 text-sm"
+        )
+      end
     end
 
     tag(

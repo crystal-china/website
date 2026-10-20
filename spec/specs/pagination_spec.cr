@@ -43,7 +43,7 @@ describe Shared::Pagination do
     end
   end
 
-  it "preserves notification HTMX targets, custom styles and translated labels" do
+  it "keeps custom styles and translated labels without prescribing HTMX behavior" do
     pages = Lucky::Paginator.new(
       page: 1,
       per_page: 20,
@@ -53,8 +53,7 @@ describe Shared::Pagination do
     html = Rosetta.with_locale("en") do
       Shared::Pagination.new(
         pages: pages,
-        classes: "border-t p-4",
-        htmx_target: "closest section"
+        classes: "border-t p-4"
       ).render_to_string
     end
     document = XML.parse_html(html)
@@ -65,9 +64,9 @@ describe Shared::Pagination do
     nav["aria-label"]?.should be_nil
     nav.xpath_nodes("./a").size.should eq(1)
     nav.content.should eq("PreviousPage 1 of 2Next")
-    link["hx-get"].should eq(link["href"])
-    link["hx-target"].should eq("closest section")
-    link["hx-swap"].should eq("outerHTML")
+    link["hx-get"]?.should be_nil
+    link["hx-target"]?.should be_nil
+    link["hx-swap"]?.should be_nil
     URI.parse(link["href"]).query_params["locale"].should eq("en")
   end
 

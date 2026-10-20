@@ -126,6 +126,58 @@ describe "Account history filters" do
     document.xpath_node("//input[@name='login_name']").not_nil!["value"].should eq("targetuser")
     document.xpath_node("//select/option[@selected]").not_nil!["value"].should eq("password_signed_in")
     document.xpath_node("//main//form//input[@name='page']").should be_nil
+
+    response = ApiClient.new.headers("HX-Request-Type": "partial").get(next_path)
+    document = XML.parse_html(response.body)
+    list = document.xpath_node("//section[@id='user-audits-list']").not_nil!
+    pagination_container = list.xpath_node("./div[nav]").not_nil!
+
+    response.status_code.should eq(200)
+    response.body.should_not contain("<!DOCTYPE")
+    document.xpath_node("//header | //footer | //form").should be_nil
+    list.xpath_nodes("./ol/li").size.should eq(1)
+    list.content.should contain(user.nickname)
+    pagination_container["hx-target:inherited"].should eq("#user-audits-list")
+    pagination_container["hx-swap:inherited"].should eq("outerHTML show:none scroll:top scrollTarget:#user-audits-scroll")
+    pagination_container["hx-sync:inherited"].should eq("#user-audits-list:replace")
+    list["hx-target:inherited"]?.should be_nil
+    previous_path = pagination_container.xpath_node("./nav/a").not_nil!["href"]
+    URI.parse(previous_path).query_params["login_name"].should eq("targetuser")
+    URI.parse(previous_path).query_params["kind"].should eq("password_signed_in")
+    URI.parse(previous_path).query_params["page"].should eq("1")
+  end
+
+  it "keeps direct visits and history restores as full pages" do
+    user = UserFactory.create
+    path = "/user_audits?page=2&backdoor_user_id=#{user.id}"
+
+    {
+      ApiClient.new,
+      ApiClient.new.headers("HX-Request-Type": "full", "HX-History-Restore-Request": "true"),
+    }.each do |client|
+      response = client.get(path)
+      document = XML.parse_html(response.body)
+
+      response.status_code.should eq(200)
+      response.body.should contain("<!DOCTYPE")
+      document.xpath_node("//main//section[@id='user-audits-list']").should_not be_nil
+      document.xpath_node("//*[@id='user-audits-scroll']").should_not be_nil
+    end
+  end
+
+  it "keeps personal-history permissions on partial requests, including empty results" do
+    user = UserFactory.create
+    other = UserFactory.create
+    client = ApiClient.new.headers("HX-Request-Type": "partial")
+    response = client.get("/user_audits?backdoor_user_id=#{user.id}")
+    document = XML.parse_html(response.body)
+
+    response.status_code.should eq(200)
+    document.xpath_node("//section[@id='user-audits-list']").should_not be_nil
+    document.xpath_node("//section//ol | //section//nav").should be_nil
+    document.xpath_node("//main | //header | //footer").should be_nil
+    client.get("/user_audits?user_id=#{other.id}&backdoor_user_id=#{user.id}").status_code.should eq(403)
+    client.get("/user_audits").status_code.should eq(401)
   end
 
   it "does not apply site-wide filters to personal histories or expose them to ordinary users" do

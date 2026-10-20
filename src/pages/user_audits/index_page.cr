@@ -50,6 +50,7 @@ class UserAudits::IndexPage < MainLayout
       end
 
       div(
+        id: "user-audits-scroll",
         class: "min-h-0 overflow-y-auto overscroll-contain",
         role: "region",
         "aria-labelledby": "user-audits-title",

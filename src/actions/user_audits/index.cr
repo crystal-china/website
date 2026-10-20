@@ -34,6 +34,16 @@ class UserAudits::Index < BrowserAction
 
     pages, audits = paginate(query, per_page: 20)
 
+    if context.request.headers["HX-Request-Type"]? == "partial"
+      return component(
+        UserAudits::List,
+        audits: audits.results,
+        pages: pages,
+        show_account: user.nil?,
+        current_user: me
+      )
+    end
+
     html(
       UserAudits::IndexPage,
       user: user,

@@ -346,7 +346,10 @@ describe "Notifications" do
     read_all["hx-swap"].should eq("innerHTML")
     read_all["disabled"]?.should be_nil
 
-    response.body.should contain(%(hx-target="closest section"))
+    pagination_container = document.xpath_node("//section/div[nav]").not_nil!
+    pagination_container["hx-target:inherited"].should eq("closest section")
+    pagination_container["hx-swap:inherited"].should eq("outerHTML show:none")
+    pagination_container["hx-push-url:inherited"].should eq("false")
     response.body.should contain("第 1 / 2 页")
     response.body.should contain("21 条未读通知")
     XML.parse_html(response.body).xpath_node("//*[@id='notification-status']//span[@aria-hidden='true']").not_nil!.content.should eq("21")
@@ -369,7 +372,7 @@ describe "Notifications" do
       response.headers["Location"]?.should be_nil
       response.body.should contain("弹窗通知20")
       response.body.should contain("第 1 / 2 页")
-      response.body.should contain(%(hx-get="/notifications?page=2"))
+      response.body.should contain(%(href="/notifications?page=2"))
       response.body.should contain(%(hx-target="#notification-status"))
       response.body.should_not contain("条未读通知")
       XML.parse_html(response.body).xpath_node("//hx-partial[@hx-target='#notifications-read-all']/button[@disabled]").should_not be_nil

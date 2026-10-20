@@ -1,7 +1,6 @@
 class Shared::Pagination < BaseComponent
   needs pages : Lucky::Paginator
   needs classes : String = "mt-6 flex items-center justify-center gap-4 text-sm"
-  needs htmx_target : String? = nil
 
   def render : Nil
     return if pages.total <= 1
@@ -15,15 +14,7 @@ class Shared::Pagination < BaseComponent
 
   private def render_page_link(label : String, path : String?) : Nil
     if path
-      attributes = {"href" => path, "class" => "form-secondary"}
-
-      if (target = htmx_target)
-        attributes["hx-get"] = path
-        attributes["hx-target"] = target
-        attributes["hx-swap"] = "outerHTML"
-      end
-
-      a label, attributes
+      a label, href: path, class: "form-secondary"
     else
       span label, class: "form-secondary cursor-not-allowed opacity-50"
     end
