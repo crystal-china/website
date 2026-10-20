@@ -33,7 +33,7 @@ private def audit_page_after_callback(response : HTTP::Client::Response) : Strin
   headers = HTTP::Headers.new
   HTTP::Cookies.from_server_headers(response.headers).add_request_headers(headers)
 
-  ApiClient.new.headers(Cookie: headers["Cookie"]).get("/me/events").body
+  ApiClient.new.headers(Cookie: headers["Cookie"]).get("/user_audits").body
 end
 
 describe "User events" do
@@ -187,7 +187,7 @@ describe "User events" do
     SaveUserAudit.create!(user_id: user.id, kind: :password_signed_in)
 
     {"zh-CN" => "密码登录", "en" => "Password sign-in"}.each do |locale, expected|
-      response = ApiClient.new.get("/me/events?backdoor_user_id=#{user.id}&locale=#{locale}")
+      response = ApiClient.new.get("/user_audits?backdoor_user_id=#{user.id}&locale=#{locale}")
       document = XML.parse_html(response.body)
 
       response.status_code.should eq(200)
@@ -246,7 +246,7 @@ describe "User events" do
       SaveUserAudit.create!(user_id: user.id, kind: UserAudit::Kind::OauthSignedIn, oauth_provider: "github")
     end
 
-    response = ApiClient.new.get("/me/events?backdoor_user_id=#{user.id}")
+    response = ApiClient.new.get("/user_audits?backdoor_user_id=#{user.id}")
     document = XML.parse_html(response.body)
 
     response.status_code.should eq(200)
@@ -254,14 +254,14 @@ describe "User events" do
     response.body.should contain("下一页")
     response.body.should_not contain("private-provider")
 
-    response = ApiClient.new.get("/me/events?backdoor_user_id=#{user.id}&page=2")
+    response = ApiClient.new.get("/user_audits?backdoor_user_id=#{user.id}&page=2")
     XML.parse_html(response.body).xpath_nodes("//main//ol/li").size.should eq(1)
   end
 
   it "shows relative event times with the full timestamp on hover" do
     user = UserFactory.create
     audit = SaveUserAudit.create!(user_id: user.id, kind: :oauth_signed_in, oauth_provider: "github", created_at: Time.utc - 2.hours)
-    response = ApiClient.new.get("/me/events?backdoor_user_id=#{user.id}")
+    response = ApiClient.new.get("/user_audits?backdoor_user_id=#{user.id}")
     time = XML.parse_html(response.body).xpath_node("//main//ol/li/time").not_nil!
 
     time.content.should eq(TimeInWords::Helpers(TimeInWords::I18n::ZH_CN).from(time: audit.created_at))
@@ -274,7 +274,7 @@ describe "User events" do
     other = UserFactory.create
 
     {other.id, Int64::MAX}.each do |target_id|
-      response = ApiClient.new.get("/me/events?backdoor_user_id=#{user.id}&user_id=#{target_id}")
+      response = ApiClient.new.get("/user_audits?backdoor_user_id=#{user.id}&user_id=#{target_id}")
 
       response.status_code.should eq(403)
     end
@@ -288,13 +288,14 @@ describe "User events" do
       SaveUserAudit.create!(user_id: user.id, kind: UserAudit::Kind::OauthSignedIn, oauth_provider: "target-provider")
     end
 
-    response = ApiClient.new.get("/me/events?backdoor_user_id=#{admin.id}&user_id=#{user.id}")
+    response = ApiClient.new.get("/user_audits?backdoor_user_id=#{admin.id}&user_id=#{user.id}")
     document = XML.parse_html(response.body)
     next_path = document.xpath_node("//nav[@aria-label='账户记录分页']//a[.='下一页']").not_nil!["href"]
 
     response.status_code.should eq(200)
     document.xpath_nodes("//main//ol/li").size.should eq(20)
     document.xpath_node("//main//h1").not_nil!.content.should eq("账户记录")
+    document.xpath_node("//nav[@id='nav-user-panel']/a[@href='/admin']").not_nil!["class"].should_not contain("is-active")
     response.body.should contain(user.nickname)
     response.body.should_not contain("admin-private")
     URI.parse(next_path).query_params["user_id"].should eq(user.id.to_s)
@@ -305,17 +306,127 @@ describe "User events" do
     XML.parse_html(response.body).xpath_nodes("//main//ol/li").size.should eq(1)
     response.body.should contain("target-provider")
 
-    response = ApiClient.new.get("/me/events?backdoor_user_id=#{admin.id}")
+    response = ApiClient.new.get("/user_audits?backdoor_user_id=#{admin.id}&user_id=#{admin.id}")
 
     response.body.should contain("admin-private")
     response.body.should_not contain("target-provider")
   end
 
   it "requires sign-in to view account history" do
-    response = ApiClient.new.get("/me/events")
+    response = ApiClient.new.get("/user_audits")
 
     response.status_code.should eq(303)
     response.headers["Location"].should contain(SignIns::New.path)
+  end
+
+  it "keeps ordinary users scoped to their own history when no account is specified" do
+    user = UserFactory.create
+    other = UserFactory.create
+    SaveUserAudit.create!(user_id: user.id, kind: :oauth_signed_in, oauth_provider: "own-provider")
+    SaveUserAudit.create!(user_id: other.id, kind: :oauth_signed_in, oauth_provider: "other-provider")
+    response = ApiClient.new.get("/user_audits?backdoor_user_id=#{user.id}")
+
+    response.status_code.should eq(200)
+    response.body.should contain("own-provider")
+    response.body.should_not contain("other-provider")
+    XML.parse_html(response.body).xpath_node("//main//aside").should be_nil
+  end
+
+  it "paginates all accounts' events newest first and links to the page from the admin area" do
+    admin = UserFactory.create &.email("audit-admin@example.com")
+    users = [UserFactory.create, UserFactory.create, admin]
+    21.times do |index|
+      SaveUserAudit.create!(
+        user_id: users[index % users.size].id,
+        actor_id: admin.id,
+        kind: :profile_changed,
+        changed_column_name: "nickname",
+        from: "Old nickname #{index}",
+        to: "New nickname #{index}"
+      )
+    end
+    response = ApiClient.new.get("/user_audits?backdoor_user_id=#{admin.id}")
+    document = XML.parse_html(response.body)
+    rows = document.xpath_nodes("//main//ol/li").to_a
+    next_path = document.xpath_node("//nav[@aria-label='账户记录分页']//a[.='下一页']").not_nil!["href"]
+
+    response.status_code.should eq(200)
+    rows.size.should eq(20)
+    rows.first.content.should contain("Old nickname 20 → New nickname 20")
+    rows.last.content.should contain("Old nickname 1 → New nickname 1")
+    rows.first.xpath_node("./p[last()]").not_nil!.content.should contain(admin.login_name)
+    users.each do |user|
+      document.xpath_node("//main//ol/li/p[1]//a[@href='/users/#{user.login_name}/profile']").should_not be_nil
+    end
+    document.xpath_node("//aside//a[@href='/user_audits']").not_nil!["class"].should contain("bg-gray-900")
+    document.xpath_node("//nav[@id='nav-user-panel']/a[@href='/admin']").not_nil!["class"].should contain("is-active")
+    URI.parse(next_path).path.should eq("/user_audits")
+
+    response = ApiClient.new.get(next_path)
+    rows = XML.parse_html(response.body).xpath_nodes("//main//ol/li").to_a
+
+    response.status_code.should eq(200)
+    rows.size.should eq(1)
+    rows.first.content.should contain("Old nickname 0 → New nickname 0")
+
+    UserAuditQuery.new.select_count.should eq(21)
+  end
+
+  it "renders all event kinds in both languages and escapes profile values in the admin history" do
+    admin = UserFactory.create &.email("audit-admin@example.com")
+    user = UserFactory.create
+    UserAudit::Kind.values.each do |kind|
+      SaveUserAudit.create!(
+        user_id: user.id,
+        actor_id: admin.id,
+        kind: kind,
+        changed_column_name: kind.profile_changed? ? "nickname" : nil,
+        from: kind.profile_changed? ? "<script>alert(1)</script>" : nil,
+        to: kind.profile_changed? ? "New nickname" : nil,
+        oauth_provider: kind.oauth_signed_in? ? "github" : nil
+      )
+    end
+
+    {"zh-CN" => ["修改昵称", "修改密码", "第三方登录", "移除本站密码", "密码登录"],
+     "en"    => ["Changed Nickname", "Password changed", "OAuth sign-in", "Local password removed", "Password sign-in"]}.each do |locale, headings|
+      response = ApiClient.new.get("/user_audits?locale=#{locale}&backdoor_user_id=#{admin.id}")
+      document = XML.parse_html(response.body)
+
+      response.status_code.should eq(200)
+      document.xpath_nodes("//main//ol/li/h2").map(&.content).should eq(headings.reverse)
+      document.xpath_node("//main//ol//script").should be_nil
+      document.xpath_node("//main//ol").not_nil!.content.should contain("<script>alert(1)</script> → New nickname")
+      response.body.should contain("github")
+    end
+  end
+
+  it "keeps deleted accounts' events readable in the admin history" do
+    admin = UserFactory.create &.email("audit-admin@example.com")
+    user = UserFactory.create
+    SaveUserAudit.create!(user_id: user.id, kind: :password_signed_in)
+    UserQuery.new.id(user.id).delete
+
+    {"zh-CN" => "未知或已删除账户 ##{user.id}", "en" => "Unknown or deleted account ##{user.id}"}.each do |locale, label|
+      response = ApiClient.new.get("/user_audits?locale=#{locale}&backdoor_user_id=#{admin.id}")
+      document = XML.parse_html(response.body)
+
+      response.status_code.should eq(200)
+      document.xpath_nodes("//main//ol/li").size.should eq(1)
+      document.xpath_node("//main//ol/li/p[1]").not_nil!.content.should contain(label)
+      document.xpath_node("//main//ol/li/p[last()]//a").should be_nil
+    end
+  end
+
+  it "shows an empty site-wide history in both languages" do
+    admin = UserFactory.create &.email("audit-admin@example.com")
+
+    {"zh-CN" => "暂无账户记录。", "en" => "No account history yet."}.each do |locale, message|
+      response = ApiClient.new.get("/user_audits?locale=#{locale}&backdoor_user_id=#{admin.id}")
+
+      response.status_code.should eq(200)
+      response.body.should contain(message)
+      XML.parse_html(response.body).xpath_node("//main//ol").should be_nil
+    end
   end
 
   it "keeps profiles public and shows the history link only to their owner and admins" do
@@ -327,13 +438,13 @@ describe "User events" do
       path = "/users/#{user.login_name}/profile"
       path += "?backdoor_user_id=#{viewer_id}" if viewer_id
       response = ApiClient.new.get(path)
-      link = XML.parse_html(response.body).xpath_node("//main//a[starts-with(@href, '/me/events')]")
+      link = XML.parse_html(response.body).xpath_node("//main//a[starts-with(@href, '/user_audits')]")
 
       response.status_code.should eq(200)
 
       if viewer_id == user.id || viewer_id == admin.id
         link.should_not be_nil
-        link.not_nil!["href"].should eq(Me::Events.with(user_id: user.id).path)
+        link.not_nil!["href"].should eq(UserAudits::Index.with(user_id: user.id).path)
       else
         link.should be_nil
       end

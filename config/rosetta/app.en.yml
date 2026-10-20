@@ -1,6 +1,9 @@
 ---
 en:
   admin:
+    events:
+      index_page:
+        description: Profile changes, password actions and sign-ins across all accounts.
     nodes:
       create:
         node_created: Node created
@@ -293,18 +296,6 @@ en:
   me:
     events_page:
       description: History of profile changes, password changes and sign-ins.
-      empty: No account history yet.
-      actor: 'Performed by:'
-      unknown_actor: Unknown or account deleted
-      profile_changed: Changed %{field}
-      password_changed: Password changed
-      password_privacy: Only the change time is recorded, never the password or its hash.
-      password_signed_in: Password sign-in
-      oauth_signed_in: OAuth sign-in
-      oauth_provider: Signed in through %{provider}.
-      password_removed: Local password removed
-      password_removed_description: Password sign-in is disabled and old sessions have been invalidated.
-      pagination: Account history pagination
     show_page:
       page_title: This is your profile
       next_steps: 'Next, you may want to:'
@@ -467,6 +458,23 @@ en:
     unsupported_type: Only JPEG, PNG, GIF, WebP and AVIF images are allowed
     invalid_response: The image upload service returned an invalid response
     unavailable: The image upload service is temporarily unavailable. Please try again later
+
+  user_audits:
+    list:
+      empty: No account history yet.
+      account: 'Account: '
+      unknown_account: 'Unknown or deleted account #%{id}'
+      actor: 'Performed by:'
+      unknown_actor: Unknown or account deleted
+      profile_changed: Changed %{field}
+      password_changed: Password changed
+      password_privacy: Only the change time is recorded, never the password or its hash.
+      password_signed_in: Password sign-in
+      oauth_signed_in: OAuth sign-in
+      oauth_provider: Signed in through %{provider}.
+      password_removed: Local password removed
+      password_removed_description: Password sign-in is disabled and old sessions have been invalidated.
+      pagination: Account history pagination
 
   users:
     update:

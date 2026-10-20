@@ -96,7 +96,7 @@ describe "Account management" do
     audits.size.should eq(2)
     audits.all? { |audit| audit.actor_id == admin.id }.should be_true
 
-    history = client.get("/me/events?user_id=#{user.id}")
+    history = client.get("/user_audits?user_id=#{user.id}")
     history.body.should contain("操作人：")
     history.body.should contain(admin.login_name)
     history.body.should contain("/users/RenamedUser/profile")

@@ -24,85 +24,10 @@ class Me::EventsPage < MainLayout
           )
         end
 
-        if audits.empty?
-          para r(".empty").t, class: "m-0 px-6 py-10 text-center text-gray-500"
-        else
-          ol class: "m-0 list-none divide-y divide-gray-200 p-0" do
-            audits.each do |audit|
-              li class: "px-6 py-5" do
-                render_event(audit)
-                para class: "mt-2 mb-0 text-xs text-gray-500" do
-                  text r(".actor").t
-
-                  if (actor = audit.actor)
-                    mount Shared::UserName, user: actor
-                  else
-                    text r(".unknown_actor").t
-                  end
-                end
-                local_time(
-                  audit.created_at,
-                  relative_time(audit.created_at),
-                  class: "mt-2 block text-xs text-gray-500"
-                )
-              end
-            end
-          end
-        end
-
-        render_pagination unless pages.one_page?
-      end
-    end
-  end
-
-  private def render_event(audit : UserAudit) : Nil
-    case audit.kind
-    when .profile_changed?
-      h2(
-        r(".profile_changed").t(
-          field: ValidationErrors.field_name(audit.changed_column_name.not_nil!)
-        ),
-        class: "m-0 text-sm font-medium text-gray-900"
-      )
-      para class: "mt-2 mb-0 text-sm break-words text-gray-600" do
-        text audit.from.presence || r("common.unset").t
-        text " → "
-        text audit.to.presence || r("common.unset").t
-      end
-    when .password_changed?
-      h2 r(".password_changed").t, class: "m-0 text-sm font-medium text-gray-900"
-      para r(".password_privacy").t, class: "mt-2 mb-0 text-sm text-gray-600"
-    when .password_signed_in?
-      h2 r(".password_signed_in").t, class: "m-0 text-sm font-medium text-gray-900"
-    when .oauth_signed_in?
-      h2 r(".oauth_signed_in").t, class: "m-0 text-sm font-medium text-gray-900"
-      para r(".oauth_provider").t(provider: audit.oauth_provider.to_s), class: "mt-2 mb-0 text-sm text-gray-600"
-    when .password_removed?
-      h2 r(".password_removed").t, class: "m-0 text-sm font-medium text-gray-900"
-      para r(".password_removed_description").t, class: "mt-2 mb-0 text-sm text-gray-600"
-    end
-  end
-
-  private def render_pagination : Nil
-    nav(
-      class: "flex items-center justify-center gap-4 border-t border-gray-200 px-6 py-4 text-sm",
-      "aria-label": r(".pagination").t
-    ) do
-      if (previous_path = pages.path_to_previous)
-        a(
-          r("common.previous_page").t,
-          href: previous_path,
-          class: "form-secondary"
-        )
-      end
-
-      span r("common.page_number").t(page: pages.page.to_s, total: pages.total.to_s), class: "text-gray-600"
-
-      if (next_path = pages.path_to_next)
-        a(
-          r("common.next_page").t,
-          href: next_path,
-          class: "form-secondary"
+        mount(
+          UserAudits::List,
+          audits: audits,
+          pages: pages
         )
       end
     end

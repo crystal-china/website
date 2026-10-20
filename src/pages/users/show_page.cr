@@ -51,7 +51,7 @@ class Users::ShowPage < MainLayout
                 )
                 link(
                   r("common.events").t,
-                  to: Me::Events.with(user_id: user.id),
+                  to: UserAudits::Index.with(user_id: user.id),
                   class: "form-secondary"
                 )
               end

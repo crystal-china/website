@@ -40,6 +40,14 @@ abstract class AdminLayout < MainLayout
 
               li do
                 link(
+                  r("common.events").t,
+                  to: UserAudits::Index,
+                  class: admin_nav_link_classes(active: current_path == UserAudits::Index.path)
+                )
+              end
+
+              li do
+                link(
                   r("common.trash").t,
                   to: Admin::Trash::Index,
                   class: admin_nav_link_classes(active: current_path.starts_with?("/admin/trash"))

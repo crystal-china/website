@@ -1,6 +1,9 @@
 ---
 zh-CN:
   admin:
+    events:
+      index_page:
+        description: 查看全站账户的资料变更、密码操作和登录记录。
     nodes:
       create:
         node_created: 节点已创建
@@ -290,18 +293,6 @@ zh-CN:
   me:
     events_page:
       description: 记录个人资料修改、密码修改和登录活动。
-      empty: 暂无账户记录。
-      actor: 操作人：
-      unknown_actor: 未知或账号已删除
-      profile_changed: 修改%{field}
-      password_changed: 修改密码
-      password_privacy: 仅记录修改时间，不保存密码或密码哈希。
-      password_signed_in: 密码登录
-      oauth_signed_in: 第三方登录
-      oauth_provider: 通过 %{provider} 登录。
-      password_removed: 移除本站密码
-      password_removed_description: 密码登录已禁用，已有登录会话已失效。
-      pagination: 账户记录分页
     show_page:
       page_title: 个人主页
       next_steps: 接下来你可以：
@@ -461,6 +452,23 @@ zh-CN:
     unsupported_type: 只允许上传 JPEG、PNG、GIF、WebP 或 AVIF 图片
     invalid_response: 图片上传服务返回了无效响应
     unavailable: 图片上传服务暂时不可用，请稍后重试
+
+  user_audits:
+    list:
+      empty: 暂无账户记录。
+      account: 账户：
+      unknown_account: '未知或已删除账户 #%{id}'
+      actor: 操作人：
+      unknown_actor: 未知或账号已删除
+      profile_changed: 修改%{field}
+      password_changed: 修改密码
+      password_privacy: 仅记录修改时间，不保存密码或密码哈希。
+      password_signed_in: 密码登录
+      oauth_signed_in: 第三方登录
+      oauth_provider: 通过 %{provider} 登录。
+      password_removed: 移除本站密码
+      password_removed_description: 密码登录已禁用，已有登录会话已失效。
+      pagination: 账户记录分页
 
   users:
     update:
