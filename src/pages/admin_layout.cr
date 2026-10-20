@@ -42,7 +42,7 @@ abstract class AdminLayout < MainLayout
                 link(
                   r("common.events").t,
                   to: UserAudits::Index,
-                  class: admin_nav_link_classes(active: current_path == UserAudits::Index.path)
+                  class: admin_nav_link_classes
                 )
               end
 
@@ -64,7 +64,7 @@ abstract class AdminLayout < MainLayout
     end
   end
 
-  private def admin_nav_link_classes(*, active : Bool) : String
+  private def admin_nav_link_classes(*, active : Bool = false) : String
     base = "flex items-center rounded-lg px-3 py-2 text-sm font-medium no-underline transition-colors"
     state = active ? "bg-gray-900 text-white" : "text-gray-700 hover:bg-gray-100 hover:text-gray-950"
 

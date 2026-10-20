@@ -65,10 +65,7 @@ HYPER
           link(
             r(".admin").t,
             to: Admin::Index,
-            class: menu_link_class(
-              active: current_path.starts_with?("/admin") ||
-                      (current_path == UserAudits::Index.path && context.request.query_params["user_id"]?.nil?)
-            )
+            class: menu_link_class(active: current_path.starts_with?("/admin"))
           )
         end
 
