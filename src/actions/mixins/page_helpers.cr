@@ -102,7 +102,7 @@ module PageHelpers
 
   private def htmx_success(script) : String
     <<-HEREDOC
-on htmx:after:request(ctx)[ctx.response.raw.ok]
+on htmx:after:request(ctx)[ctx.sourceElement is me and ctx.response.raw.ok]
 #{script}
 end
 HEREDOC

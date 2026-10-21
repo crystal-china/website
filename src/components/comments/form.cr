@@ -7,17 +7,11 @@ class Comments::Form < BaseComponent
   needs target_comment_id : Int64? = nil
 
   def render : Nil
-    mount(
-      Comments::Editor,
-      content: content,
-      current_user: current_user,
-      html_id: html_id,
-      draft_key: draft_key
-    ) do
-      me = current_user
-      text = r("common.reply").t
-      order_by_input_id = "#{html_id}_order_by"
-      after_submit = htmx_success <<-HEREDOC
+    me = current_user
+    text = r("common.reply").t
+    order_by_input_id = "#{html_id}_order_by"
+
+    after_submit = htmx_success <<-HEREDOC
 set textarea to ##{html_id}_text_area
 set input_tab to ##{html_id}1
 
@@ -32,62 +26,64 @@ end
 close the closest <dialog/>
 HEREDOC
 
-      hx_include = if order_by
-                     "##{html_id}_text_area,##{order_by_input_id}"
-                   else
-                     "##{html_id}_text_area,#comments-order-by"
-                   end
+    opts = {
+      hx_target:   "#comments",
+      hx_post:     Htmx::Comments::CreateOrUpdate.path_without_query_params,
+      hx_swap:     "outerHTML",
+      hx_push_url: "false",
+      hx_disable:  "find button[type=submit]",
+      script:      after_submit,
+    }
 
-      opts = {
-        class:      "form-submit py-2 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500",
-        hx_target:  "#comments",
-        hx_include: hx_include,
-        hx_post:    Htmx::Comments::CreateOrUpdate.path_without_query_params,
-        hx_disable: "this",
-        script:     after_submit,
-        flow_id:    "#{html_id}-do_comment",
-      }
+    opts = opts.merge(hx_include: "#comments-order-by") unless order_by
 
-      if me.nil?
-        opts = opts.merge(disabled: "")
-      else
-        if !comment_id.nil?
-          # comment_id 不为空，说明当前表单针对的是一条已有评论。
-          # 然后再用 content 是否为空区分表单模式：
-          # - 空：这是“回复这条评论”，即新建子评论
-          # - 非空：这是“编辑这条已有评论”
-          if content.blank?
-            # 为评论新增评论
-            target_id = target_comment_id || comment_id
-            opts = opts.merge(
-              hx_vals: %({"id": #{comment_id}, "op": "new"}),
-              hx_target: "#comment-#{target_id}-comments",
-              hx_swap: "outerHTML"
-            )
-          else
-            opts = opts.merge(
-              hx_vals: %({"id": #{comment_id}, "op": "edit"}),
-              hx_target: "#comment-#{comment_id}-content",
-              hx_swap: "outerHTML",
-            )
-            text = r("common.update").t
-          end
-        else
-          # 为 CommentThread 新建顶级评论
-          thread_id = comment_thread_id.not_nil!
+    if (key = draft_key)
+      opts = opts.merge(data_draft_key: key)
+    end
+
+    unless me.nil?
+      if !comment_id.nil?
+        # comment_id 不为空，说明当前表单针对的是一条已有评论。
+        # 然后再用 content 是否为空区分表单模式：
+        # - 空：这是“回复这条评论”，即新建子评论
+        # - 非空：这是“编辑这条已有评论”
+        if content.blank?
+          # 为评论新增评论
+          target_id = target_comment_id || comment_id
           opts = opts.merge(
-            hx_vals: %({"comment_thread_id": #{thread_id}}),
+            hx_vals: %({"id": #{comment_id}, "op": "new"}),
+            hx_target: "#comment-#{target_id}-comments"
           )
+        else
+          opts = opts.merge(
+            hx_vals: %({"id": #{comment_id}, "op": "edit"}),
+            hx_target: "#comment-#{comment_id}-content",
+          )
+          text = r("common.update").t
         end
-      end
-
-      if !comment_id.nil? && !me.nil?
-        button(
-          r("common.cancel").t,
-          script: "on click send closeRequested to the closest <dialog/>",
-          class: "form-secondary px-4 py-2"
+      else
+        # 为 CommentThread 新建顶级评论
+        thread_id = comment_thread_id.not_nil!
+        opts = opts.merge(
+          hx_vals: %({"comment_thread_id": #{thread_id}}),
         )
       end
+    end
+
+    submit_opts = {
+      type:    "submit",
+      class:   "form-submit py-2 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500",
+      flow_id: "#{html_id}-do_comment",
+    }
+    submit_opts = submit_opts.merge(disabled: "") if me.nil?
+
+    form(
+      opts,
+      id: "#{html_id}-form",
+      action: Htmx::Comments::CreateOrUpdate.path_without_query_params,
+      method: "post"
+    ) do
+      csrf_hidden_input
 
       if (current_order_by = order_by)
         input(
@@ -98,7 +94,23 @@ HEREDOC
         )
       end
 
-      button(text, opts)
+      mount(
+        Comments::Editor,
+        content: content,
+        current_user: me,
+        html_id: html_id
+      ) do
+        if !comment_id.nil? && !me.nil?
+          button(
+            r("common.cancel").t,
+            type: "button",
+            script: "on click send closeRequested to the closest <dialog/>",
+            class: "form-secondary px-4 py-2"
+          )
+        end
+
+        button(text, submit_opts)
+      end
     end
   end
 

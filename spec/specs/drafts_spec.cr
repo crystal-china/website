@@ -124,6 +124,56 @@ describe "Local editor drafts" do
     response.headers["HX-Push-Url"]?.should be_nil
   end
 
+  it "submits comments through forms while keeping preview and cancellation separate" do
+    user = UserFactory.create
+    node = SaveNode.create!(name: "表单节点", slug: "comment-forms", summary: "表单测试", color: "#0284c7", position: 0)
+    topic = CreateTopic.create!(user_id: user.id, node_id: node.id, title: "评论表单", content: "主题正文")
+    thread = CommentThreadQuery.new.topic_id(topic.id).first
+    root = CreateComment.create!(user_id: user.id, comment_thread_id: thread.id, content: "根评论")
+    child = CreateComment.create!(user_id: user.id, parent_id: root.id, content: "子评论")
+    client = drafts_client(user)
+
+    {
+      "/forum/#{topic.id}"                             => {"tab", "#comments", {comment_thread_id: thread.id}.to_json},
+      "/htmx/comments/new?id=#{child.id}&order_by=asc" => {"comment", "#comment-#{root.id}-comments", {id: child.id, op: "new"}.to_json},
+      "/htmx/comments/edit/#{root.id}?order_by=desc"   => {"comment", "#comment-#{root.id}-content", {id: root.id, op: "edit"}.to_json},
+    }.each do |path, (html_id, target, values)|
+      document = XML.parse_html(client.get(path).body)
+      form = document.xpath_node("//form[@id='#{html_id}-form']").not_nil!
+
+      document.xpath_nodes("//*[@id='#{html_id}-form']").size.should eq(1)
+      form.xpath_nodes(".//form").should be_empty
+      form["action"].should eq("/htmx/comments")
+      form["method"].should eq("post")
+      form["hx-post"].should eq("/htmx/comments")
+      form["hx-target"].should eq(target)
+      form["hx-swap"].should eq("outerHTML")
+      form["hx-push-url"].should eq("false")
+      form["hx-disable"].should eq("find button[type=submit]")
+      JSON.parse(form["hx-vals"]).should eq(JSON.parse(values))
+      form.xpath_node(".//textarea[@name='content']").should_not be_nil
+      form.xpath_node(".//input[@name='_csrf']").should_not be_nil
+      form.xpath_node(".//button[@type='submit']").should_not be_nil
+      form.xpath_nodes(".//button[@hx-post]").should be_empty
+      form.xpath_node(".//input[@hx-put='/htmx/docs/markdown_render']").should_not be_nil
+      form["script"].should contain("ctx.sourceElement is me")
+
+      if html_id == "tab"
+        form["hx-include"].should eq("#comments-order-by")
+        form.xpath_node(".//input[@name='order_by']").should be_nil
+      else
+        form["hx-include"]?.should be_nil
+        form.xpath_node(".//input[@name='order_by']").not_nil!["value"].should eq(path.ends_with?("asc") ? "asc" : "desc")
+        form.xpath_node(".//button[@type='button']").should_not be_nil
+      end
+    end
+
+    guest = XML.parse_html(ApiClient.new.get("/forum/#{topic.id}").body)
+    guest.xpath_node("//form[@id='tab-form']//button[@type='submit'][@disabled]").should_not be_nil
+    guest.xpath_nodes("//*[@data-draft-key]").should be_empty
+    Comments::Dialog.comment_form_target.should eq("#comment-form")
+  end
+
   it "confirms root replies, child replies and comment edits but not rejected or preview requests" do
     user = UserFactory.create
     doc = SaveDoc.create!(path_index: "/docs/draft-test")

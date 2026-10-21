@@ -1,14 +1,12 @@
 class Comments::Editor < BaseComponent
   needs content : String = ""
   needs html_id : String = "tab"
-  needs draft_key : String? = nil
   needs editor_height : String = "h-[11rem] min-h-[11rem] max-h-[40rem]"
 
   def render(&) : Nil
     me = current_user
     id_input = "#{html_id}1"
     id_preview = "#{html_id}2"
-    attributes = {} of String => String
     preview_script = <<-HEREDOC
   on click
     set textarea to ##{html_id}_text_area
@@ -25,15 +23,7 @@ class Comments::Editor < BaseComponent
   end
 HEREDOC
 
-    if (key = draft_key)
-      attributes["data-draft-key"] = key
-    end
-
-    div(
-      attributes,
-      class: "app-panel",
-      id: "#{html_id}-form"
-    ) do
+    div class: "app-panel" do
       input(
         type: "radio",
         checked: "",

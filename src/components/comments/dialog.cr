@@ -3,7 +3,7 @@ class Comments::Dialog < BaseComponent
   private FORM_ID   = "comment-form"
 
   def self.comment_form_target : String
-    "div##{FORM_ID}"
+    "##{FORM_ID}"
   end
 
   def self.open_comment_dialog : String
