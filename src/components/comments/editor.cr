@@ -1,14 +1,39 @@
 class Comments::Editor < BaseComponent
   needs content : String = ""
   needs html_id : String = "tab"
+  needs draft_key : String? = nil
   needs editor_height : String = "h-[11rem] min-h-[11rem] max-h-[40rem]"
 
   def render(&) : Nil
     me = current_user
     id_input = "#{html_id}1"
     id_preview = "#{html_id}2"
+    attributes = {} of String => String
+    preview_script = <<-HEREDOC
+  on click
+    set textarea to ##{html_id}_text_area
+    set preview to ##{html_id}_preview
+    set preview.style.height to `${textarea.offsetHeight}px`
+  end
 
-    div class: "app-panel", id: "#{html_id}-form" do
+  on mouseenter
+    if the value of ##{html_id}_text_area is empty
+      set my *cursor to "not-allowed"
+    else
+      set my *cursor to "pointer"
+    end
+  end
+HEREDOC
+
+    if (key = draft_key)
+      attributes["data-draft-key"] = key
+    end
+
+    div(
+      attributes,
+      class: "app-panel",
+      id: "#{html_id}-form"
+    ) do
       input(
         type: "radio",
         checked: "",
@@ -43,21 +68,7 @@ class Comments::Editor < BaseComponent
             for: id_preview,
             flow_id: "#{html_id}-preview_comment",
             class: "segmented-option label2 cursor-pointer",
-            script: <<-HEREDOC
-  on click
-    set textarea to ##{html_id}_text_area
-    set preview to ##{html_id}_preview
-    set preview.style.height to `${textarea.offsetHeight}px`
-  end
-
-  on mouseenter
-    if the value of ##{html_id}_text_area is empty
-      set my *cursor to "not-allowed"
-    else
-      set my *cursor to "pointer"
-    end
-  end
-HEREDOC
+            script: preview_script
           )
         end
 

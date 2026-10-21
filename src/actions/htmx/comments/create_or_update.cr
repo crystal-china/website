@@ -33,6 +33,7 @@ class Htmx::Comments::CreateOrUpdate < CommentAction
           content: content,
           actor_id: me.id
         )
+        context.response.headers["X-Draft-Saved"] = "true"
 
         q = CommentQuery.new.id(comment.id).preload_user
         q = q.preload_parent &.preload_user
@@ -71,6 +72,8 @@ class Htmx::Comments::CreateOrUpdate < CommentAction
       pagination = comments_pagination(comment_thread_id: comment_thread_id, order_by: order_by)
       html_id = "comments"
     end
+
+    context.response.headers["X-Draft-Saved"] = "true"
 
     if root_comment
       component(

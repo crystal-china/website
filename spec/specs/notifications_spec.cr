@@ -423,7 +423,7 @@ describe "Notifications" do
       response.body.should_not contain("<hx-partial")
     end
 
-    response = client.get("/forum?backdoor_user_id=#{user.id}")
+    response = client.headers("HX-Request-Type": "full").get("/forum?backdoor_user_id=#{user.id}")
     response.body.should contain(%(id="notifications-dialog"))
     document = XML.parse_html(response.body)
     header = document.xpath_node("//dialog[@id='notifications-dialog']//header").not_nil!

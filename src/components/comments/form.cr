@@ -11,7 +11,8 @@ class Comments::Form < BaseComponent
       Comments::Editor,
       content: content,
       current_user: current_user,
-      html_id: html_id
+      html_id: html_id,
+      draft_key: draft_key
     ) do
       me = current_user
       text = r("common.reply").t
@@ -99,5 +100,23 @@ HEREDOC
 
       button(text, opts)
     end
+  end
+
+  private def draft_key : String?
+    me = current_user
+
+    # 未登录，不启用草稿。
+    return if me.nil?
+
+    target = if comment_id
+               # 回复评论 20：         7:reply:20
+               # 编辑评论 20：         7:comment:20:edit
+               content.blank? ? "reply:#{comment_id}" : "comment:#{comment_id}:edit"
+             else
+               # 给评论区 10 发顶级评论：7:thread:10
+               "thread:#{comment_thread_id}"
+             end
+
+    "#{me.id}:#{target}"
   end
 end

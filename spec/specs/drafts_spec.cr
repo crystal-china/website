@@ -15,15 +15,20 @@ describe "Local editor drafts" do
     end
   end
 
-  it "marks only topic fields with stable user-specific draft keys" do
+  it "marks only topic and comment fields with stable user-specific draft keys" do
     user = UserFactory.create
     node = SaveNode.create!(name: "草稿节点", slug: "drafts", summary: "草稿测试", color: "#0284c7", position: 0)
     topic = CreateTopic.create!(user_id: user.id, node_id: node.id, title: "草稿主题", content: "已保存正文")
+    thread = CommentThreadQuery.new.topic_id(topic.id).first
+    comment = CreateComment.create!(user_id: user.id, comment_thread_id: thread.id, content: "已保存评论")
     client = drafts_client(user)
 
     {
-      "/forum/new"              => "#{user.id}:topic:new",
-      "/forum/#{topic.id}/edit" => "#{user.id}:topic:#{topic.id}:edit",
+      "/forum/new"                          => "#{user.id}:topic:new",
+      "/forum/#{topic.id}/edit"             => "#{user.id}:topic:#{topic.id}:edit",
+      "/forum/#{topic.id}"                  => "#{user.id}:thread:#{thread.id}",
+      "/htmx/comments/new?id=#{comment.id}" => "#{user.id}:reply:#{comment.id}",
+      "/htmx/comments/edit/#{comment.id}"   => "#{user.id}:comment:#{comment.id}:edit",
     }.each do |path, key|
       response = client.get(path)
       document = XML.parse_html(response.body)
@@ -33,16 +38,19 @@ describe "Local editor drafts" do
       containers.size.should eq(1)
       containers.first["data-draft-key"].should eq(key)
       fields = containers.first.xpath_nodes(".//*[@data-draft-field]")
-      fields.map(&.["name"]).sort!.should eq(["content", "topic:node_id", "topic:title"])
+      fields.map(&.["name"]).sort!.should eq(path.ends_with?("/new") || path.ends_with?("/edit") ? ["content", "topic:node_id", "topic:title"] : ["content"])
       fields.each(&.["id"].should_not(be_empty))
-      containers.first["hx-push-url"].should eq("false")
+
+      if path == "/forum/new" || path == "/forum/#{topic.id}/edit"
+        containers.first["hx-push-url"].should eq("false")
+      end
     end
 
     XML.parse_html(ApiClient.new.get("/forum/#{topic.id}").body).xpath_nodes("//*[@data-draft-key]").should be_empty
     XML.parse_html(client.get("/users/#{user.id}/edit").body).xpath_nodes("//*[@data-draft-key]").should be_empty
   end
 
-  it "confirms successful HTMX topic saves before navigating, but keeps ordinary redirects" do
+  it "renders saved topics directly for HTMX submissions but keeps ordinary redirects" do
     user = UserFactory.create
     node = SaveNode.create!(name: "提交节点", slug: "draft-save", summary: "提交测试", color: "#0284c7", position: 0)
     client = drafts_client(user)
@@ -57,21 +65,87 @@ describe "Local editor drafts" do
 
     response.status_code.should eq(200)
     response.headers["X-Draft-Saved"].should eq("true")
-    response.headers["HX-Location"].should eq("/forum/#{topic.id}")
+    response.headers["HX-Push-Url"].should eq("/forum/#{topic.id}")
+    response.headers["HX-Location"]?.should be_nil
+    response.headers["Location"]?.should be_nil
+    document = XML.parse_html(response.body)
 
-    response = client.put("/forum/#{topic.id}", topic: {title: "修改标题", node_id: node.id}, content: "修改正文")
+    response.body.should contain("<!DOCTYPE")
+    document.xpath_node("//main//h1").not_nil!.content.should eq("草稿提交")
+    document.xpath_node("//head/title").not_nil!.content.should contain("草稿提交")
+    document.xpath_node("//link[@rel='canonical']").not_nil!["href"].should eq("#{Lucky::RouteHelper.settings.base_uri}/forum/#{topic.id}")
+    document.xpath_node("//meta[@property='og:url']").not_nil!["content"].should eq("#{Lucky::RouteHelper.settings.base_uri}/forum/#{topic.id}")
+    document.xpath_node("//main//aside/nav").should_not be_nil
+    document.xpath_node("//section[@id='form_with_comments']").should_not be_nil
+    response.body.should contain("草稿正文")
+    response.body.should contain("/forum/#{topic.id}/edit")
+
+    moved_node = SaveNode.create!(name: "移动后的节点", slug: "draft-save-moved", summary: "移动测试", color: "#16a34a", position: 0)
+    response = client.put("/forum/#{topic.id}", topic: {title: "修改标题", node_id: moved_node.id}, content: "修改正文")
+    response.status_code.should eq(200)
     response.headers["X-Draft-Saved"].should eq("true")
-    response.headers["HX-Location"].should eq("/forum/#{topic.id}")
+    response.headers["HX-Push-Url"].should eq("/forum/#{topic.id}")
+    response.headers["HX-Location"]?.should be_nil
+    document = XML.parse_html(response.body)
+
+    document.xpath_node("//main//h1").not_nil!.content.should eq("修改标题")
+    document.xpath_node("//head/title").not_nil!.content.should contain("修改标题")
+    document.xpath_node("//main//article/header/p/a[@href='/forum?node=#{moved_node.slug}']").not_nil!.content.should eq(moved_node.name)
+    response.body.should contain("修改正文")
+    response.body.should_not contain("草稿正文")
+    message = Rosetta.find("forum.update.topic_updated").t
+    response.body.should contain(message)
 
     cookies = HTTP::Cookies.from_server_headers(response.headers)
     session = Lucky::Session.from_cookie_jar(Lucky::CookieJar.from_request_cookies(cookies))
-    session.get?(Lucky::FlashStore::SESSION_KEY).not_nil!.should contain("success")
+    JSON.parse(session.get?(Lucky::FlashStore::SESSION_KEY) || "{}").as_h.has_key?("success").should be_false
+
+    headers = HTTP::Headers.new
+    cookies.add_request_headers(headers)
+    refreshed = ApiClient.new.headers(Cookie: headers["Cookie"]).get("/forum/#{topic.id}")
+    refreshed.status_code.should eq(200)
+    refreshed.body.should_not contain(message)
+    XML.parse_html(refreshed.body).xpath_node("//main//h1").not_nil!.content.should eq("修改标题")
+
+    guest = ApiClient.new.get("/forum/#{topic.id}")
+    guest.status_code.should eq(200)
+    XML.parse_html(guest.body).xpath_node("//main//h1").not_nil!.content.should eq("修改标题")
+    guest.body.should_not contain("/forum/#{topic.id}/edit")
+    guest.headers["X-Draft-Saved"]?.should be_nil
 
     response = client.post("/forum", topic: {title: "", node_id: node.id}, content: "")
     response.status_code.should eq(200)
     response.headers["X-Draft-Saved"]?.should be_nil
     response.headers["HX-Location"]?.should be_nil
-    response = client.put("/forum/#{topic.id}", content: "")
+    response.headers["HX-Push-Url"]?.should be_nil
+    response = client.put("/forum/#{topic.id}", topic: {title: "修改标题", node_id: moved_node.id}, content: "")
+    response.status_code.should eq(200)
+    response.headers["X-Draft-Saved"]?.should be_nil
+    response.headers["HX-Push-Url"]?.should be_nil
+  end
+
+  it "confirms root replies, child replies and comment edits but not rejected or preview requests" do
+    user = UserFactory.create
+    doc = SaveDoc.create!(path_index: "/docs/draft-test")
+    thread = CommentThreadQuery.new.doc_id(doc.id).first
+    client = drafts_client(user)
+    response = client.post("/htmx/comments", comment_thread_id: thread.id, content: "顶级评论")
+    response.status_code.should eq(200)
+    response.headers["X-Draft-Saved"].should eq("true")
+    comment = CommentQuery.new.comment_thread_id(thread.id).first
+
+    response = client.post("/htmx/comments", id: comment.id, op: "new", content: "子评论")
+    response.status_code.should eq(200)
+    response.headers["X-Draft-Saved"].should eq("true")
+    response = client.post("/htmx/comments", id: comment.id, op: "edit", content: "编辑评论")
+    response.status_code.should eq(200)
+    response.headers["X-Draft-Saved"].should eq("true")
+
+    response = client.post("/htmx/comments", comment_thread_id: thread.id, content: "")
+    response.status_code.should eq(400)
+    response.headers["X-Draft-Saved"]?.should be_nil
+    response = client.put("/htmx/docs/markdown_render", content: "仅预览")
+    response.status_code.should eq(200)
     response.headers["X-Draft-Saved"]?.should be_nil
   end
 end

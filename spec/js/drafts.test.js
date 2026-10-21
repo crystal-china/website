@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
-import setupDraft, { clearSavedDraft } from "../../src/js/drafts.js";
+import { setupDraft, clearSavedDraft } from "../../src/js/drafts.js";
 
 const originalWindow = globalThis.window;
 let storage;
