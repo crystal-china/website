@@ -16,10 +16,7 @@ HYPER
   end
 
   def render : Nil
-    dialog(
-      id: DIALOG_ID,
-      class: "mx-auto mt-[8vh] max-h-[calc(100vh_-_2rem)] w-[calc(100%_-_2rem)] pb-0 sm:mt-[16vh] sm:w-[50em] sm:max-w-full",
-      script: <<-HYPER
+    dialog_script = <<-HYPER
 on closeRequested
   set textarea to the first <textarea/> in me
   if textarea and textarea.value is not textarea.defaultValue
@@ -40,6 +37,11 @@ on keydown[event.key is "Escape"]
   send closeRequested to me
 end
 HYPER
+
+    dialog(
+      id: DIALOG_ID,
+      class: "mx-auto mt-[8vh] max-h-[calc(100vh_-_2rem)] w-[calc(100%_-_2rem)] pb-0 sm:mt-[16vh] sm:w-[50em] sm:max-w-full",
+      script: dialog_script
     ) do
       div id: FORM_ID do
       end

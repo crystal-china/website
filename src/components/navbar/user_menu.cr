@@ -4,10 +4,7 @@ class Navbar::UserMenu < BaseComponent
 
     return if user.nil?
 
-    # 原生 details 负责展开和键盘操作；只补上点击外部及 Esc 关闭。
-    details(
-      class: "nav-user-menu",
-      script: <<-HYPER
+    menu_script = <<-HYPER
 on click from elsewhere
   remove @open from me
 end
@@ -18,6 +15,11 @@ on keydown[event.key is "Escape"]
   focus the first <summary/> in me
 end
 HYPER
+
+    # 原生 details 负责展开和键盘操作；只补上点击外部及 Esc 关闭。
+    details(
+      class: "nav-user-menu",
+      script: menu_script
     ) do
       summary(
         class: "nav-user-trigger",

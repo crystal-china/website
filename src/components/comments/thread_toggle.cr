@@ -5,6 +5,17 @@ class Comments::ThreadToggle < BaseComponent
 
   def render : Nil
     wrapper_class = comment.descendants_count > 0 ? "shrink-0" : "hidden"
+    expand_script = htmx_success <<-HEREDOC
+add @hidden to me
+remove @hidden from the next <button/>
+HEREDOC
+    collapse_script = <<-HYPER
+on click
+  put "" into #comment-#{comment.id}-comments
+  add @hidden to me
+  remove @hidden from the previous <button/>
+end
+HYPER
 
     div id: "comment-#{comment.id}-thread-toggle", class: wrapper_class do
       if comment.descendants_count > 0
@@ -24,10 +35,7 @@ class Comments::ThreadToggle < BaseComponent
           hx_target: "#comment-#{comment.id}-comments",
           hx_swap: "outerHTML",
           flow_id: "comment-#{comment.id}-load_thread",
-          script: htmx_success <<-HEREDOC
-add @hidden to me
-remove @hidden from the next <button/>
-HEREDOC
+          script: expand_script
         ) do
           text r(".expand").t(count: comment.descendants_count)
           mount(
@@ -43,13 +51,7 @@ HEREDOC
           attrs: expanded? ? [] of Symbol : [:hidden],
           class: button_class,
           flow_id: "comment-#{comment.id}-collapse_thread",
-          script: <<-HYPER
-on click
-  put "" into #comment-#{comment.id}-comments
-  add @hidden to me
-  remove @hidden from the previous <button/>
-end
-HYPER
+          script: collapse_script
         )
       end
     end

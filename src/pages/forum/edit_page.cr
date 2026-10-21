@@ -7,18 +7,7 @@ class Forum::EditPage < ForumLayout
   end
 
   def forum_content : Nil
-    article class: "app-panel w-full overflow-hidden" do
-      header class: "panel-header" do
-        h1 r(".page_title").t, class: "panel-title"
-      end
-
-      form_for(
-        Forum::Update.with(topic.id),
-        class: "panel-body space-y-6",
-        hx_push_url: "false",
-        # 标记草稿的归属
-        data_draft_key: "#{current_user.not_nil!.id}:topic:#{topic.id}:edit",
-        script: <<-HYPER
+    cancel_editing_script = <<-HYPER
 on cancelEditing
   set title_input to the first <input[type="text"]/> in me
   set textarea to the first <textarea/> in me
@@ -47,6 +36,19 @@ on keydown[event.key is "Escape"]
   send cancelEditing to me
 end
 HYPER
+
+    article class: "app-panel w-full overflow-hidden" do
+      header class: "panel-header" do
+        h1 r(".page_title").t, class: "panel-title"
+      end
+
+      form_for(
+        Forum::Update.with(topic.id),
+        class: "panel-body space-y-6",
+        hx_push_url: "false",
+        # 标记草稿的归属
+        data_draft_key: "#{current_user.not_nil!.id}:topic:#{topic.id}:edit",
+        script: cancel_editing_script
       ) do
         mount(
           Forum::TopicFields,

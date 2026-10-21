@@ -1,16 +1,18 @@
 class OnlineUsers::Dialog < BaseComponent
   def render : Nil
-    dialog(
-      id: "online-users-dialog",
-      "aria-labelledby": "online-users-title",
-      class: "mx-auto mt-[8vh] max-h-[calc(100vh_-_2rem)] w-[calc(100%_-_2rem)] max-w-3xl rounded-xl border border-gray-300 bg-white p-0 shadow-xl sm:mt-[16vh]",
-      script: <<-HYPER
+    dialog_script = <<-HYPER
 #{dialog_outside_click("close me")}
 
 on close
   focus the first <button/> in #online-users-status
 end
 HYPER
+
+    dialog(
+      id: "online-users-dialog",
+      "aria-labelledby": "online-users-title",
+      class: "mx-auto mt-[8vh] max-h-[calc(100vh_-_2rem)] w-[calc(100%_-_2rem)] max-w-3xl rounded-xl border border-gray-300 bg-white p-0 shadow-xl sm:mt-[16vh]",
+      script: dialog_script
     ) do
       header class: "flex items-start justify-between gap-3 border-b border-gray-200 p-4" do
         div do

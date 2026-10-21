@@ -15,6 +15,12 @@ class Comments::Toolbar < BaseComponent
 
       div class: "segmented-control" do
         [{r(".oldest").t, "asc"}, {r(".newest").t, "desc"}].each do |title, order|
+          order_script = <<-HYPER
+  on click
+    set the value of the first .comment-order-state in the closest <article/> to "#{order}"
+  end
+HYPER
+
           a(
             title,
             class: pagination[:order_by] == order ? selected : unselected,
@@ -22,11 +28,7 @@ class Comments::Toolbar < BaseComponent
             hx_get: "#{pagination[:url]}&order_by=#{order}",
             hx_target: "##{html_id}",
             hx_swap: "outerHTML",
-            script: <<-HYPER
-  on click
-    set the value of the first .comment-order-state in the closest <article/> to "#{order}"
-  end
-HYPER
+            script: order_script
           )
         end
       end
