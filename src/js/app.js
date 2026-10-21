@@ -9,6 +9,7 @@ import "hyperscript.org";
 
 import createAssetUrl from "./assetUrl.js";
 import copyCodeButton from "./copyCodeButton.js";
+import { setupDraft, clearSavedDraft } from "./drafts.js";
 import trackPageView from "./firebaseAnalytics.js";
 import setupHtmxErrorAlert from "./htmxErrorAlert.js";
 import setupLogo from "./logoViewer.js";
@@ -27,6 +28,15 @@ import t from "./i18n.js";
 htmx.config.noSwap.push("4xx", "5xx");
 setupHtmxErrorAlert(htmx);
 saveTimeZone();
+document.addEventListener("htmx:after:request", clearSavedDraft);
+
+// 临时测试：模拟发布主题时网络中断，不向服务器发送请求。
+// document.addEventListener("htmx:before:request", (event) => {
+//     const ctx = event.detail.ctx;
+//     if (ctx.request.method === "POST" && new URL(ctx.request.action, location.href).pathname === "/forum") {
+//         ctx.fetch = () => Promise.reject(new TypeError("Simulated network failure"));
+//     }
+// });
 
 const frontendConfig = JSON.parse(
     document.getElementById("app-config")?.textContent ?? "{}",
@@ -52,6 +62,8 @@ document.addEventListener("htmx:config:request", (event) => {
 });
 
 function initializeContent(root) {
+    findElements(root, "[data-draft-key]").forEach(setupDraft);
+
     // Stored HTML and cached documentation can predate the selected locale.
     findElements(root, ".box.info > .titlebar").forEach((title) => {
         title.textContent = `💡 ${t("tip")}`;

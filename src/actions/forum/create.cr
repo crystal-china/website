@@ -8,7 +8,7 @@ class Forum::Create < ForumAction
       content: content
     ) do |operation, topic|
       if topic
-        redirect Forum::Show.with(id: topic.id)
+        redirect_after_save(topic)
       else
         build_failed_flash(operation)
 

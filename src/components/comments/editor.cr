@@ -93,6 +93,7 @@ HEREDOC
       id:                          "#{html_id}_text_area",
       rows:                        5,
       name:                        "content",
+      data_draft_field:            "",
       placeholder:                 r(".placeholder").t,
       "aria-describedby":          "#{html_id}_mention_help",
       required:                    "",

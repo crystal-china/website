@@ -15,6 +15,9 @@ class Forum::EditPage < ForumLayout
       form_for(
         Forum::Update.with(topic.id),
         class: "panel-body space-y-6",
+        hx_push_url: "false",
+        # 标记草稿的归属
+        data_draft_key: "#{current_user.not_nil!.id}:topic:#{topic.id}:edit",
         script: <<-HYPER
 on cancelEditing
   set title_input to the first <input[type="text"]/> in me

@@ -11,7 +11,12 @@ class Forum::NewPage < ForumLayout
         h1 r("common.new_topic").t, class: "panel-title"
       end
 
-      form_for Forum::Create, class: "panel-body space-y-6" do
+      form_for(
+        Forum::Create,
+        class: "panel-body space-y-6",
+        hx_push_url: "false",
+        data_draft_key: "#{current_user.not_nil!.id}:topic:new"
+      ) do
         mount(
           Forum::TopicFields,
           operation: operation,

@@ -17,6 +17,7 @@ class Forum::TopicFields(T) < BaseComponent
         select_input(
           node_id_attribute,
           attrs: [:required],
+          data_draft_field: "",
           class: "form-input"
         ) do
           select_prompt r(".choose_node").t
@@ -30,7 +31,11 @@ class Forum::TopicFields(T) < BaseComponent
         Shared::Field,
         attribute: operation.title,
         label_text: r("fields.title").t,
-        &.text_input(autofocus: "true", required: "")
+        &.text_input(
+          autofocus: "true",
+          required: "",
+          data_draft_field: ""
+        )
       )
     end
 
