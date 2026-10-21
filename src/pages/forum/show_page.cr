@@ -9,6 +9,10 @@ class Forum::ShowPage < ForumLayout
     topic.title
   end
 
+  def canonical_url : String
+    "#{Lucky::RouteHelper.settings.base_uri}#{Forum::Show.with(id: topic.id).path}"
+  end
+
   def forum_content : Nil
     article class: "mx-auto w-full max-w-[90ch]" do
       header class: "border-b border-gray-200 pb-5" do

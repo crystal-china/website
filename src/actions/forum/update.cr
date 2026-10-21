@@ -15,7 +15,7 @@ class Forum::Update < ForumAction
       if operation.saved?
         flash.success = r(".topic_updated").t
 
-        redirect_after_save(topic)
+        render_saved_topic(topic)
       else
         build_failed_flash(operation)
 

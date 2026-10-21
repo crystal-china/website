@@ -5,18 +5,32 @@ abstract class ForumAction < BrowserAction
     NodeQuery.new.sorted.results
   end
 
-  private def redirect_after_save(topic : Topic) : Lucky::Response
+  private def render_saved_topic(topic : Topic) : Lucky::Response
     path = Forum::Show.with(id: topic.id).path
 
-    if context.request.headers["HX-Request-Type"]?
-      # HTTP 重定向会丢失中间响应头；让 HTMX 先清理草稿，再进入详情页。
-      flash.keep
-      context.response.headers["X-Draft-Saved"] = "true"
-      context.response.headers["HX-Location"] = path
+    return redirect to: path unless context.request.headers["HX-Request-Type"]?
 
-      head 200
-    else
-      redirect to: path
+    topic = TopicQuery.new.id(topic.id).preload_user.preload_node.first
+
+    context.response.headers["X-Draft-Saved"] = "true"
+    context.response.headers["HX-Push-Url"] = path
+
+    render_topic(topic)
+  end
+
+  private def render_topic(topic : Topic) : Lucky::Response
+    comment_thread = CommentThreadQuery.new.topic_id(topic.id).first
+    can_delete_topic = false
+
+    if (me = current_user)
+      can_delete_topic = me.admin? || (me.id == topic.user_id && !comment_thread.comments_query.with_soft_deleted.any?)
     end
+
+    html(
+      Forum::ShowPage,
+      topic: topic,
+      comment_thread: comment_thread,
+      can_delete_topic: can_delete_topic
+    )
   end
 end
