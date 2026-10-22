@@ -47,7 +47,7 @@ class Forum::TopicFields(T) < BaseComponent
       )
 
       mount(
-        Comments::Editor,
+        Shared::MarkdownEditor,
         content: operation.content.value || "",
         current_user: current_user,
         html_id: "topic",

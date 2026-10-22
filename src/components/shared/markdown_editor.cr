@@ -1,4 +1,4 @@
-class Comments::Editor < BaseComponent
+class Shared::MarkdownEditor < BaseComponent
   needs content : String = ""
   needs html_id : String = "tab"
   needs editor_height : String = "h-[11rem] min-h-[11rem] max-h-[40rem]"

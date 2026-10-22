@@ -89,14 +89,6 @@ en:
       updated: Updated successfully
       reply_to: 'Reply to #%{floor} @%{login_name}'
       reply_to_deleted: Reply to a deleted comment
-    editor:
-      write: Write
-      preview: Preview
-      sign_in_to_comment: Sign in to comment
-      markdown_supported: Markdown supported
-      mention_limit: Mention up to %{count} users. Additional mentions do not send notifications.
-      placeholder: Markdown supported; type @ and a login-name prefix for suggestions
-      preview_loading: Loading preview...
     load_more_button:
       load_more: Load more comments
       no_more: No more comments
@@ -372,6 +364,14 @@ en:
       no_matches: No matching content found.
 
   shared:
+    markdown_editor:
+      write: Write
+      preview: Preview
+      sign_in_to_comment: Sign in to comment
+      markdown_supported: Markdown supported
+      mention_limit: Mention up to %{count} users. Additional mentions do not send notifications.
+      placeholder: Markdown supported; type @ and a login-name prefix for suggestions
+      preview_loading: Loading preview...
     o_auth:
       title: Sign in with a provider
       description: Use a previously connected provider to sign in.

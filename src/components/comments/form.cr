@@ -95,7 +95,7 @@ HEREDOC
       end
 
       mount(
-        Comments::Editor,
+        Shared::MarkdownEditor,
         content: content,
         current_user: me,
         html_id: html_id
