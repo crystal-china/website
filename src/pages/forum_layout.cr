@@ -2,6 +2,7 @@ require "./main_layout"
 
 abstract class ForumLayout < MainLayout
   needs nodes : Array(Node)
+  needs followed_topics : Bool = false
 
   abstract def forum_content : Nil
 
@@ -41,7 +42,7 @@ abstract class ForumLayout < MainLayout
           li class: "shrink-0" do
             link(
               r("forum_layout.all_topics").t,
-              to: Forum::Index,
+              to: Forum::Index.with(following: followed_topics? ? true : nil),
               class: "#{link_classes} #{current_node.nil? ? active_classes : inactive_classes}"
             )
           end
@@ -49,7 +50,7 @@ abstract class ForumLayout < MainLayout
           nodes.each do |listed_node|
             li class: "shrink-0" do
               link(
-                to: Forum::Index.with(node: listed_node.slug),
+                to: Forum::Index.with(node: listed_node.slug, following: followed_topics? ? true : nil),
                 class: "#{link_classes} #{current_node.try(&.id) == listed_node.id ? active_classes : inactive_classes}"
               ) do
                 span class: "h-2.5 w-2.5 shrink-0 rounded-sm", style: "background-color: #{listed_node.color}"

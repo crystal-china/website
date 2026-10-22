@@ -18,7 +18,7 @@ abstract class ForumAction < BrowserAction
     render_topic(topic)
   end
 
-  private def render_topic(topic : Topic) : Lucky::Response
+  private def render_topic(topic : Topic, *, followed_topics : Bool = false) : Lucky::Response
     comment_thread = CommentThreadQuery.new.topic_id(topic.id).first
     can_delete_topic = false
     following = false
@@ -33,7 +33,8 @@ abstract class ForumAction < BrowserAction
       topic: topic,
       comment_thread: comment_thread,
       can_delete_topic: can_delete_topic,
-      following: following
+      following: following,
+      followed_topics: followed_topics
     )
   end
 end

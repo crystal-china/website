@@ -232,6 +232,9 @@ en:
     index_page:
       node_title: "%{name} - Community"
       description: Discuss Crystal and its ecosystem.
+      all: All
+      following: Following
+      no_followed_topics: No followed topics here. Click Follow on a topic to add it.
       node_label: 'Node: %{name}'
       posted_at: " Posted %{time}"
       edited_at: " · Edited %{time}"

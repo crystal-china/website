@@ -230,6 +230,9 @@ zh-CN:
     index_page:
       node_title: "%{name} - 社区"
       description: 讨论 Crystal 语言及其生态。
+      all: 全部
+      following: 仅关注
+      no_followed_topics: 没有符合条件的关注主题。可在主题详情页点击“关注”。
       node_label: 节点：%{name}
       posted_at: " 发布于 %{time}"
       edited_at: " · 编辑于 %{time}"

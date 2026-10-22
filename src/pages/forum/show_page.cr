@@ -56,7 +56,7 @@ class Forum::ShowPage < ForumLayout
         para class: "mt-3 mb-0 text-sm text-gray-500" do
           link(
             topic.node.name,
-            to: Forum::Index.with(node: topic.node.slug),
+            to: Forum::Index.with(node: topic.node.slug, following: followed_topics? ? true : nil),
             class: "font-medium text-[#145591] no-underline hover:text-[#0f477b] hover:underline"
           )
           text " · "

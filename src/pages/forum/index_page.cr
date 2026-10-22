@@ -9,6 +9,7 @@ class Forum::IndexPage < ForumLayout
 
   def forum_content : Nil
     current_node = node
+
     heading = current_node.try(&.name) || r("common.community").t
     description = current_node.try(&.summary) || r(".description").t
 
@@ -18,21 +19,42 @@ class Forum::IndexPage < ForumLayout
         para description, class: "mt-2 mb-0 text-sm text-gray-600"
       end
 
-      link(
-        r("common.new_topic").t,
-        to: Forum::New,
-        class: "form-submit"
-      ) if current_user
+      if current_user
+        div class: "flex flex-wrap items-center gap-3" do
+          render_follow_filter
+
+          link(
+            r("common.new_topic").t,
+            to: Forum::New,
+            class: "form-submit"
+          )
+        end
+      end
     end
 
     mount(
       Forum::List,
       topics: topics,
-      pages: pages
+      pages: pages,
+      followed_topics: followed_topics?
     )
   end
 
   private def current_node : Node?
     node
+  end
+
+  private def render_follow_filter : Nil
+    div id: "forum-follow-filter", class: "segmented-control" do
+      [{r(".all").t, false}, {r(".following").t, true}].each do |label, only_followed|
+        classes = followed_topics? == only_followed ? "segmented-option segmented-option-active" : "segmented-option"
+
+        link(
+          label,
+          to: Forum::Index.with(node: node.try(&.slug), following: only_followed ? true : nil),
+          class: classes
+        )
+      end
+    end
   end
 end
