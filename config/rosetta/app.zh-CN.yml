@@ -479,6 +479,13 @@ zh-CN:
       password_removed_description: 密码登录已禁用，已有登录会话已失效。
 
   users:
+    topics:
+      created: 创建的主题
+      replied: 最近回复
+      no_topics: 还没有创建主题。
+      no_replies: 还没有回复。
+      created_at: "发布于 %{time}"
+      replied_at: "回复于 %{time}"
     update:
       profile_updated: 个人资料已更新
     edit_page:

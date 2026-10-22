@@ -485,6 +485,13 @@ en:
       password_removed_description: Password sign-in is disabled and old sessions have been invalidated.
 
   users:
+    topics:
+      created: Created topics
+      replied: Recent replies
+      no_topics: No topics created yet.
+      no_replies: No replies yet.
+      created_at: "Posted %{time}"
+      replied_at: "Replied %{time}"
     update:
       profile_updated: Profile updated
     edit_page:

@@ -1,5 +1,8 @@
 class Users::ShowPage < MainLayout
   needs user : User
+  needs entries : Array(Topic) | Array(Comment)
+  needs pages : Lucky::Paginator
+  needs show_replies : Bool
 
   def page_title : String
     "#{user.nickname} (@#{user.login_name})"
@@ -99,6 +102,16 @@ class Users::ShowPage < MainLayout
             end
           end
         end
+      end
+
+      div class: "mx-auto mt-6 max-w-2xl" do
+        mount(
+          Users::Topics,
+          user: user,
+          entries: entries,
+          pages: pages,
+          show_replies: show_replies?
+        )
       end
     end
   end
