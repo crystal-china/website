@@ -302,16 +302,17 @@ describe "Notifications" do
     document = XML.parse_html(response.body)
     paths = notifications.to_h do |notification|
       form = document.xpath_node("//form[@action='/notifications/#{notification.id}/read']").not_nil!
-      icon = form.xpath_node(".//svg").not_nil!
+      icon = form.xpath_node(".//img[contains(@src, '/svgs/notifications/')]").not_nil!
 
-      icon.parent.not_nil!["aria-hidden"].should eq("true")
+      icon["alt"].should eq("")
       form.xpath_node(".//span[@aria-label='#{notification.read_at ? "Read" : "Unread"}']").should_not be_nil
-      {notification.kind, icon.xpath_node("./path").not_nil!["d"]}
+      {notification.kind, icon["src"]}
     end
 
     response.status_code.should eq(200)
     paths.values.uniq!.size.should eq(5)
     paths[Notification::Kind::TopicReply].should eq(paths[Notification::Kind::CommentReply])
+    paths[Notification::Kind::TopicReply].should eq(paths[Notification::Kind::FollowedTopicReply])
     paths[Notification::Kind::TopicEdited].should eq(paths[Notification::Kind::CommentEdited])
     paths[Notification::Kind::TopicDeleted].should eq(paths[Notification::Kind::CommentDeleted])
   end
