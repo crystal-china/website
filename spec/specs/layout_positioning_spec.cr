@@ -66,6 +66,29 @@ describe "Page positioning" do
     end
   end
 
+  it "puts topic replies before the editor but keeps the document editor first" do
+    user = UserFactory.create
+    node = SaveNode.create!(name: "评论布局", slug: "comment-layout", summary: "评论布局测试", color: "#16a34a", position: 0)
+    topic = CreateTopic.create!(user_id: user.id, node_id: node.id, title: "评论顺序", content: "测试正文")
+
+    {"/forum/#{topic.id}", "/docs/index"}.each do |path|
+      response = ApiClient.new.get("#{path}?backdoor_user_id=#{user.id}")
+      document = XML.parse_html(response.body)
+      section = document.xpath_node("//section[@id='form_with_comments']").not_nil!
+
+      response.status_code.should eq(200)
+      section.xpath_nodes("./div[@id='comments']").size.should eq(1)
+      section.xpath_nodes("./form[@id='tab-form']").size.should eq(1)
+      section.xpath_node("./form//div[@id='comments']").should be_nil
+
+      if path.starts_with?("/forum/")
+        section.xpath_node("./div[@id='comments']/following-sibling::form[@id='tab-form']").should_not be_nil
+      else
+        section.xpath_node("./form[@id='tab-form']/following-sibling::div[@id='comments']").should_not be_nil
+      end
+    end
+  end
+
   it "reserves a fixed admin navigation column beside the page heading" do
     previous_emails = ENV["ADMIN_EMAILS"]?
     ENV["ADMIN_EMAILS"] = "layout-admin@example.com"

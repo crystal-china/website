@@ -71,14 +71,14 @@ class Forum::ShowPage < ForumLayout
         raw(topic.content_html || user_markdown(topic.content))
       end
 
-      section id: "form_with_comments", class: "mt-10" do
+      section id: "form_with_comments", class: "mt-10 space-y-6" do
+        show_comments_when_revealed(comment_thread.id)
+
         mount(
           Comments::Form,
           current_user: current_user,
           comment_thread_id: comment_thread.id
         )
-
-        show_comments_when_revealed(comment_thread.id)
       end
     end
 
