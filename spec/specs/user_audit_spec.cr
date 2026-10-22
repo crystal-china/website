@@ -84,38 +84,27 @@ describe "User events" do
     end
   end
 
-  it "migrates account references without rewriting events and can restore the old constraints" do
+  it "allows missing accounts and preserves historical IDs when accounts are physically deleted" do
     AppDatabase.transaction do
       AppDatabase.exec "CREATE SCHEMA user_audit_associations_migration_spec"
       AppDatabase.exec "SET LOCAL search_path TO user_audit_associations_migration_spec"
       AppDatabase.exec "CREATE TABLE users (id bigint PRIMARY KEY)"
       AppDatabase.exec "INSERT INTO users VALUES (1), (2)"
-      original = CreateUserAudit::V20250315162146.new
-      original.migrate
-      original.prepared_statements.each { |statement| AppDatabase.exec(statement) }
-      AppDatabase.exec "INSERT INTO user_audits (user_id, actor_id, kind) VALUES (2, 1, 5), (999, NULL, 5)"
-      before = AppDatabase.query_all("SELECT user_id, actor_id, created_at, updated_at FROM user_audits ORDER BY id", as: {Int64, Int64?, Time, Time})
-      migration = AllowMissingUserAuditAccounts::V20261020120000.new
+      migration = CreateUserAudit::V20250315162146.new
       migration.migrate
       migration.prepared_statements.each { |statement| AppDatabase.exec(statement) }
+      AppDatabase.exec "INSERT INTO user_audits (user_id, actor_id, kind) VALUES (2, 1, 5), (999, NULL, 5), (NULL, 999, 5)"
+      before = AppDatabase.query_all("SELECT user_id, actor_id, created_at, updated_at FROM user_audits ORDER BY id", as: {Int64?, Int64?, Time, Time})
 
-      AppDatabase.query_all("SELECT user_id, actor_id, created_at, updated_at FROM user_audits ORDER BY id", as: {Int64, Int64?, Time, Time}).should eq(before)
       AppDatabase.query_one(
         "SELECT is_nullable FROM information_schema.columns WHERE table_schema = 'user_audit_associations_migration_spec' AND table_name = 'user_audits' AND column_name = 'user_id'",
         as: String
       ).should eq("YES")
       AppDatabase.query_one("SELECT count(*) FROM pg_constraint WHERE conrelid = 'user_audits'::regclass AND contype = 'f'", as: Int64).should eq(0)
 
-      migration.reset_prepared_statements
-      migration.rollback
-      migration.prepared_statements.each { |statement| AppDatabase.exec(statement) }
+      AppDatabase.exec "DELETE FROM users"
 
-      AppDatabase.query_one(
-        "SELECT is_nullable FROM information_schema.columns WHERE table_schema = 'user_audit_associations_migration_spec' AND table_name = 'user_audits' AND column_name = 'user_id'",
-        as: String
-      ).should eq("NO")
-      AppDatabase.exec "DELETE FROM users WHERE id = 1"
-      AppDatabase.query_all("SELECT actor_id FROM user_audits ORDER BY id", as: Int64?).should eq([nil, nil])
+      AppDatabase.query_all("SELECT user_id, actor_id, created_at, updated_at FROM user_audits ORDER BY id", as: {Int64?, Int64?, Time, Time}).should eq(before)
       AppDatabase.rollback
     end
   end
