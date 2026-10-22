@@ -306,8 +306,12 @@ zh-CN:
   notifications:
     dialog:
       loading: 正在读取通知...
-    list:
+    controls:
+      all: 全部
+      unread_only: 仅未读
       read_all: 全部标为已读
+    list:
+      empty_unread: 没有未读通知。
       date: "%Y年%m月%d日"
       empty: 还没有通知。有人回复或提及你时，会显示在这里。
       topic_reply: 回复了你的主题

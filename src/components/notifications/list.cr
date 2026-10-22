@@ -2,13 +2,14 @@ class Notifications::List < BaseComponent
   needs notifications : NotificationQuery
   needs pages : Lucky::Paginator
   needs has_unread : Bool
+  needs unread : Bool
 
   def render : Nil
     section class: "bg-white" do
       items = notifications.results
 
       if items.empty?
-        para r(".empty").t, class: "m-0 px-6 py-12 text-center text-gray-500"
+        para unread? ? r(".empty_unread").t : r(".empty").t, class: "m-0 px-6 py-12 text-center text-gray-500"
       else
         items.group_by { |notification| time_in_zone(notification.created_at).date }.each_value do |group|
           date = time_in_zone(group.first.created_at)
@@ -40,10 +41,14 @@ class Notifications::List < BaseComponent
 
     tag(
       "hx-partial",
-      hx_target: "#notifications-read-all",
+      hx_target: "#notifications-controls",
       hx_swap: "outerHTML"
     ) do
-      mount ::Notifications::ReadAllButton, has_unread: has_unread?
+      mount(
+        ::Notifications::Controls,
+        has_unread: has_unread?,
+        unread: unread?
+      )
     end
 
     tag(

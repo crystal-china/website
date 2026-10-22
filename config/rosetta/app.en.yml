@@ -310,8 +310,12 @@ en:
   notifications:
     dialog:
       loading: Loading notifications...
-    list:
+    controls:
+      all: All
+      unread_only: Unread
       read_all: Mark all as read
+    list:
+      empty_unread: No unread notifications.
       date: "%Y-%m-%d"
       empty: No notifications yet. Replies and mentions will appear here.
       topic_reply: replied to your topic

@@ -4,6 +4,7 @@ module NotificationHelpers
   private def render_notifications : Lucky::Response
     query = NotificationQuery.new.user_id(current_user.id)
     has_unread = query.clone.read_at.is_nil.any?
+    query = query.read_at.is_nil if unread
     pages = Lucky::Paginator.new(
       page: paginator_page,
       per_page: 20,
@@ -12,7 +13,7 @@ module NotificationHelpers
       # 如果使用 paginate 方法，会使用当前请求地址 full_path: context.request.resource
       # 这这对 read_all, 会 GET /notifications/read_all?page=2, 这是错误的。
       # 因此，固定使用通知列表地址
-      full_path: Notifications::Index.path
+      full_path: unread ? Notifications::Index.with(unread: true).path : Notifications::Index.path
     )
     notifications = query.id.desc_order.preload_actor.limit(pages.per_page).offset(pages.offset)
 
@@ -21,6 +22,7 @@ module NotificationHelpers
       notifications: notifications,
       pages: pages,
       has_unread: has_unread,
+      unread: unread,
       current_user: current_user
     )
   end

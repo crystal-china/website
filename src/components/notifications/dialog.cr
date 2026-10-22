@@ -17,22 +17,21 @@ HYPER
       class: "mx-auto mt-[8vh] max-h-[calc(100vh_-_2rem)] w-[calc(100%_-_2rem)] max-w-2xl overflow-hidden rounded-xl border border-gray-300 bg-white p-0 shadow-xl sm:mt-[16vh]",
       script: dialog_script
     ) do
-      header class: "flex items-center justify-between gap-2 border-b border-gray-200 p-3 sm:p-4" do
+      header class: "flex flex-wrap items-center gap-3 border-b border-gray-200 p-3 sm:p-4" do
         h2(
           r("common.notifications").t,
           id: "notifications-title",
-          class: "m-0 text-base font-semibold text-gray-900"
+          class: "m-0 flex-1 text-base font-semibold text-gray-900 sm:flex-none"
         )
 
-        div class: "flex shrink-0 items-center gap-3" do
-          mount ::Notifications::ReadAllButton, has_unread: false
-          button(
-            r("common.close").t,
-            type: "button",
-            class: "cursor-pointer text-sm text-gray-500 hover:text-gray-900",
-            script: "on click close the closest <dialog/>"
-          )
-        end
+        mount ::Notifications::Controls, has_unread: false
+
+        button(
+          r("common.close").t,
+          type: "button",
+          class: "cursor-pointer text-sm text-gray-500 hover:text-gray-900",
+          script: "on click close the closest <dialog/>"
+        )
       end
 
       div(
