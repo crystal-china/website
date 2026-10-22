@@ -1,4 +1,6 @@
 abstract class CommentAction < BrowserAction
+  PER_PAGE = 10
+
   include Lucky::Paginator::BackendHelpers
   include Auth::AllowGuests
   include MarkdownFormatter
@@ -15,7 +17,7 @@ abstract class CommentAction < BrowserAction
     CommentQuery.new.id(root_id).any?
   end
 
-  def comments_pagination(comment_thread_id : Int64? = nil, root_id : Int64? = nil, order_by : String = "desc", per_page : Int32 = 10) : NamedTuple(
+  def comments_pagination(comment_thread_id : Int64? = nil, root_id : Int64? = nil, order_by : String = "desc") : NamedTuple(
     count: Int32 | Int64,
     comments: Avram::Queryable(Comment),
     page: Lucky::Paginator?,
@@ -43,7 +45,7 @@ abstract class CommentAction < BrowserAction
       q = q.preload_votes &.user_id(me.id)
     end
 
-    page, comments = paginate(q, per_page: per_page)
+    page, comments = paginate(q, per_page: PER_PAGE)
 
     {
       count:    page.item_count,

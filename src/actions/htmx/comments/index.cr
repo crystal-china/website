@@ -39,7 +39,7 @@ class Htmx::Comments::Index < CommentAction
       end
 
       preceding = order_by == "asc" ? preceding.floor.lt(anchor.floor) : preceding.floor.gt(anchor.floor)
-      @focused_page = (preceding.select_count // 10 + 1).to_i
+      @focused_page = (preceding.select_count // PER_PAGE + 1).to_i
       page_number = @focused_page
     end
 
