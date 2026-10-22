@@ -171,7 +171,9 @@ describe "Local editor drafts" do
     guest = XML.parse_html(ApiClient.new.get("/forum/#{topic.id}").body)
     guest.xpath_node("//form[@id='tab-form']//button[@type='submit'][@disabled]").should_not be_nil
     guest.xpath_nodes("//*[@data-draft-key]").should be_empty
-    Comments::Dialog.comment_form_target.should eq("#comment-form")
+    guest.xpath_node("//dialog[@id='comment-dialog']/form[@id='comment-form']").should_not be_nil
+    guest.xpath_nodes("//form//form").should be_empty
+    Comments::Dialog.comment_form_target.should eq("form#comment-form")
   end
 
   it "confirms root replies, child replies and comment edits but not rejected or preview requests" do

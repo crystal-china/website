@@ -3,7 +3,7 @@ class Comments::Dialog < BaseComponent
   private FORM_ID   = "comment-form"
 
   def self.comment_form_target : String
-    "##{FORM_ID}"
+    "form##{FORM_ID}"
   end
 
   def self.open_comment_dialog : String
@@ -43,7 +43,7 @@ HYPER
       class: "mx-auto mt-[8vh] max-h-[calc(100vh_-_2rem)] w-[calc(100%_-_2rem)] pb-0 sm:mt-[16vh] sm:w-[50em] sm:max-w-full",
       script: dialog_script
     ) do
-      div id: FORM_ID do
+      form id: FORM_ID do
       end
     end
   end
