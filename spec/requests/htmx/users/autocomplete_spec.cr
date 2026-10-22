@@ -1,4 +1,4 @@
-require "../../spec_helper"
+require "../../../spec_helper"
 
 describe Htmx::Users::Autocomplete do
   around_each do |example|
