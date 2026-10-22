@@ -45,16 +45,13 @@ class Forum::IndexPage < ForumLayout
   end
 
   private def render_follow_filter : Nil
-    div id: "forum-follow-filter", class: "segmented-control" do
-      [{r(".all").t, false}, {r(".following").t, true}].each do |label, only_followed|
-        classes = followed_topics? == only_followed ? "segmented-option segmented-option-active" : "segmented-option"
+    all_path = Forum::Index.with(node: node.try(&.slug)).path
+    following_path = Forum::Index.with(node: node.try(&.slug), following: true).path
 
-        link(
-          label,
-          to: Forum::Index.with(node: node.try(&.slug), following: only_followed ? true : nil),
-          class: classes
-        )
-      end
-    end
+    mount(
+      Shared::Toggle,
+      options: [{r(".all").t, all_path}, {r(".following").t, following_path}],
+      selected: followed_topics? ? following_path : all_path
+    )
   end
 end

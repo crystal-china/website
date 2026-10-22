@@ -346,8 +346,8 @@ describe "Notifications" do
     document.xpath_nodes("//section//a[contains(@class, 'segmented-option')]").should be_empty
     read_all = controls.xpath_node("./button").not_nil!
     read_all["id"].should eq("notifications-read-all")
-    read_all["hx-target"].should eq("#notifications-content")
-    read_all["hx-swap"].should eq("innerHTML")
+    controls["hx-target:inherited"].should eq("#notifications-content")
+    controls["hx-swap:inherited"].should eq("innerHTML")
     read_all["disabled"]?.should be_nil
 
     pagination_container = document.xpath_node("//section/div[nav]").not_nil!

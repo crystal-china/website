@@ -36,9 +36,11 @@ describe "Notification filters" do
     filter = document.xpath_node("//a[contains(@class, 'segmented-option-active')]").not_nil!
     filter.content.should eq("仅未读")
     filter["href"].should eq("/notifications?unread=true")
-    filter["hx-target"].should eq("#notifications-content")
-    filter["hx-swap"].should eq("innerHTML")
-    filter["hx-push-url"].should eq("false")
+    controls = document.xpath_node("//div[@id='notifications-controls']").not_nil!
+    controls["hx-target:inherited"].should eq("#notifications-content")
+    controls["hx-swap:inherited"].should eq("innerHTML")
+    controls["hx-push-url:inherited"].should eq("false")
+    filter["hx-get"]?.should be_nil
     document.xpath_node("//button[@id='notifications-read-all']").not_nil!["hx-post"].should eq("/notifications/read_all?unread=true")
 
     next_page = document.xpath_node("//nav/a").not_nil!["href"]

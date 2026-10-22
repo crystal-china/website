@@ -16,16 +16,16 @@ describe "Followed topics list" do
 
     response = ApiClient.new.get("/forum")
     response.status_code.should eq(200)
-    XML.parse_html(response.body).xpath_node("//div[@id='forum-follow-filter']").should be_nil
+    XML.parse_html(response.body).xpath_node("//main//header//div[@class='segmented-control']").should be_nil
     ApiClient.new.get("/forum?following=false").status_code.should eq(200)
 
     response = ApiClient.new.get("/forum?backdoor_user_id=#{user.id}")
     document = XML.parse_html(response.body)
-    entry = document.xpath_node("//div[@id='forum-follow-filter']/a[@href='/forum?following=true']").not_nil!
+    entry = document.xpath_node("//main//header//div[@class='segmented-control']/a[@href='/forum?following=true']").not_nil!
 
     entry.content.should eq("仅关注")
     entry["class"].should_not contain("segmented-option-active")
-    document.xpath_node("//div[@id='forum-follow-filter']/a[@href='/forum']").not_nil!["class"].should contain("segmented-option-active")
+    document.xpath_node("//main//header//div[@class='segmented-control']/a[@href='/forum']").not_nil!["class"].should contain("segmented-option-active")
     document.xpath_node("//main//aside//a[@href='/forum?following=true']").should be_nil
     document.xpath_node("//main//aside//a[@href='/forum']").not_nil!["class"].should contain("bg-gray-900")
   end
@@ -52,7 +52,7 @@ describe "Followed topics list" do
     list.content.should_not contain(others_topic.title)
     list.content.should_not contain(own_topic.title)
     document.xpath_nodes("//main//aside//a[contains(@class, 'bg-gray-900')]").map(&.["href"]).should eq(["/forum?following=true"])
-    document.xpath_node("//div[@id='forum-follow-filter']/a[contains(@class, 'segmented-option-active')]").not_nil!.content.should eq("仅关注")
+    document.xpath_node("//main//header//div[@class='segmented-control']/a[contains(@class, 'segmented-option-active')]").not_nil!.content.should eq("仅关注")
     document.xpath_node("//main//header//a[@href='/forum/new']").should_not be_nil
   end
 
@@ -69,7 +69,7 @@ describe "Followed topics list" do
     end
     response = ApiClient.new.get("/forum?node=#{node.slug}&following=true&backdoor_user_id=#{user.id}&page=2")
     document = XML.parse_html(response.body)
-    filter = document.xpath_node("//div[@id='forum-follow-filter']").not_nil!
+    filter = document.xpath_node("//main//header//div[@class='segmented-control']").not_nil!
     all_path = filter.xpath_node("./a[1]").not_nil!["href"]
     following_path = filter.xpath_node("./a[2]").not_nil!["href"]
     active_node = document.xpath_node("//main//aside//a[contains(@class, 'bg-gray-900')]").not_nil!
@@ -159,7 +159,7 @@ describe "Followed topics list" do
 
     response.status_code.should eq(200)
     document.xpath_node("//main//h1").not_nil!.content.should eq(node.name)
-    document.xpath_node("//div[@id='forum-follow-filter']/a[contains(@class, 'segmented-option-active')]").not_nil!.content.should eq("仅关注")
+    document.xpath_node("//main//header//div[@class='segmented-control']/a[contains(@class, 'segmented-option-active')]").not_nil!.content.should eq("仅关注")
     document.xpath_node("//section[@id='forum-topics']").not_nil!.content.should contain(topic.title)
   end
 
@@ -239,7 +239,7 @@ describe "Followed topics list" do
 
     response.status_code.should eq(200)
     document.xpath_node("//main//h1").not_nil!.content.should eq(node.name)
-    document.xpath_node("//div[@id='forum-follow-filter']/a[contains(@class, 'segmented-option-active')]").not_nil!.content.should eq("仅关注")
+    document.xpath_node("//main//header//div[@class='segmented-control']/a[contains(@class, 'segmented-option-active')]").not_nil!.content.should eq("仅关注")
     document.xpath_node("//main//aside/nav").should_not be_nil
   end
 
