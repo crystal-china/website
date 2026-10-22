@@ -17,7 +17,7 @@ class Footer < BaseComponent
           id: "online-users-status",
           # 停留在页面时保持在线登记，并定时更新通知状态。
           hx_trigger: "load, every 2m",
-          hx_patch: Htmx::OnlineUsers.path,
+          hx_patch: Htmx::Heartbeat.path,
         ) do
           text r(".counting").t
         end

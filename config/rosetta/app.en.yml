@@ -159,6 +159,11 @@ en:
     comments_invitation: Share your thoughts, questions and suggestions in the comments
 
   docs:
+    sidebar:
+      title: Contents
+    page_navigation:
+      no_previous: No previous page
+      no_next: No next page
     setup_page:
       page_title: Documentation setup
       heading: Set up your documentation
@@ -289,7 +294,7 @@ en:
 
   navbar:
     source: Source code
-    notification_link:
+    notification_button:
       unread_count:
         one: "%{count} unread notification"
         other: "%{count} unread notifications"
@@ -327,10 +332,6 @@ en:
       loading: Loading online users...
     list:
       empty: No users are publicly online.
-
-  pager:
-    no_previous: No previous page
-    no_next: No next page
 
   password_reset_request_email:
     instructions: "Use the following link to reset your password"
@@ -401,9 +402,6 @@ en:
       hide_online_status_help: Hide your online presence, last activity and time online. Time online is still recorded.
       confirm_remove_password: Remove the local password? Old sessions will be invalidated. The user will need OAuth or a password reset to sign in.
       current_avatar: Current avatar
-
-  sidebar:
-    title: Contents
 
   sign_ins:
     create:

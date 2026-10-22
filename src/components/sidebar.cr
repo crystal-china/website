@@ -1,4 +1,4 @@
-class Sidebar < BaseComponent
+class Docs::Sidebar < BaseComponent
   def render_child(ary, this_path) : Nil
     if !ary.empty?
       expanded = (current_path == this_path || contains_current_path?(ary)) ? "block" : "hidden"

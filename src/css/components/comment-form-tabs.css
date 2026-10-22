@@ -1,5 +1,5 @@
 @layer utilities {
-  /* ---------------- 文档评论表单 tabs ---------------- */
+  /* ---------------- Markdown 编辑器 tabs ---------------- */
   .input1:checked ~ .panel1 {
     @apply !block;
   }
@@ -8,8 +8,8 @@
     @apply !block;
   }
 
-  .input1:focus-visible ~ .doc-form-toolbar .label1,
-  .input2:focus-visible ~ .doc-form-toolbar .label2 {
+  .input1:focus-visible ~ .markdown-editor-toolbar .label1,
+  .input2:focus-visible ~ .markdown-editor-toolbar .label2 {
     @apply ring-2 ring-sky-500 ring-offset-2;
   }
 }

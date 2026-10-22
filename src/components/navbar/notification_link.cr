@@ -1,4 +1,4 @@
-class Navbar::NotificationLink < BaseComponent
+class Navbar::NotificationButton < BaseComponent
   def render : Nil
     user = current_user
 

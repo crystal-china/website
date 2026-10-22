@@ -1,4 +1,4 @@
-class Pager < BaseComponent
+class Docs::PageNavigation < BaseComponent
   include PageHelpers
 
   def render : Nil

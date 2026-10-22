@@ -1,4 +1,4 @@
-class Htmx::OnlineUsers < BrowserAction
+class Htmx::Heartbeat < BrowserAction
   include Auth::AllowGuests
 
   patch "/htmx/online_users" do

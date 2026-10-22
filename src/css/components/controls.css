@@ -28,8 +28,8 @@
   }
 
   .segmented-option-active,
-  .input1:checked ~ .doc-form-toolbar .label1,
-  .input2:checked ~ .doc-form-toolbar .label2 {
+  .input1:checked ~ .markdown-editor-toolbar .label1,
+  .input2:checked ~ .markdown-editor-toolbar .label2 {
     @apply border-gray-300 bg-white font-semibold text-gray-950 shadow-[0_1px_2px_rgb(15_23_42/0.08)];
   }
 }

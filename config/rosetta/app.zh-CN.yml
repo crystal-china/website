@@ -157,6 +157,11 @@ zh-CN:
     comments_invitation: 欢迎在评论区留下你的见解、问题或建议
 
   docs:
+    sidebar:
+      title: 目录
+    page_navigation:
+      no_previous: 没有上一页了
+      no_next: 没有下一页了
     setup_page:
       page_title: 文档初始化
       heading: 创建文档入口
@@ -286,7 +291,7 @@ zh-CN:
 
   navbar:
     source: 本站源码
-    notification_link:
+    notification_button:
       unread_count:
         other: "%{count} 条未读通知"
     user_menu:
@@ -323,10 +328,6 @@ zh-CN:
       loading: 正在读取在线用户...
     list:
       empty: 暂无公开在线的用户。
-
-  pager:
-    no_previous: 没有上一页了
-    no_next: 没有下一页了
 
   password_reset_request_email:
     instructions: "请点击以下链接重置你的密码"
@@ -395,9 +396,6 @@ zh-CN:
       hide_online_status_help: 不出现在在线人数和名单中，并隐藏活跃时间和累计在线时长。仅影响展示，后台仍会累计在线时长。
       confirm_remove_password: 确定移除本站密码？旧登录会话将失效，之后需通过第三方登录或重置密码登录。
       current_avatar: 当前头像
-
-  sidebar:
-    title: 目录
 
   sign_ins:
     create:

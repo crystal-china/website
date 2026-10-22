@@ -28,7 +28,7 @@ class Shared::OnlineUsers < BaseComponent
       hx_target: "#notification-status",
       hx_swap: "outerHTML"
     ) do
-      mount Navbar::NotificationLink, current_user: current_user
+      mount Navbar::NotificationButton, current_user: current_user
     end
   end
 end

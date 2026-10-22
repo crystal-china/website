@@ -1,4 +1,8 @@
-class Htmx::Docs::MarkdownRender < DocAction
+class Htmx::Markdown::Preview < BrowserAction
+  include Auth::AllowGuests
+  include MarkdownFormatter
+  include PageHelpers
+
   param content : String
 
   put "/htmx/docs/markdown_render" do

@@ -37,14 +37,14 @@ HEREDOC
         name: html_id,
         id: id_preview,
         class: "input2 sr-only",
-        hx_put: Htmx::Docs::MarkdownRender.path_without_query_params,
+        hx_put: Htmx::Markdown::Preview.path_without_query_params,
         hx_target: "next div.markdown-preview",
         hx_include: "##{html_id}_text_area",
         hx_indicator: "next img.htmx-indicator",
         script: "bind @disabled to (the value of ##{html_id}_text_area is empty)",
       )
 
-      div class: "panel-toolbar doc-form-toolbar grid gap-4 p-4 md:grid-cols-[auto_1fr_auto] md:items-center" do
+      div class: "panel-toolbar markdown-editor-toolbar grid gap-4 p-4 md:grid-cols-[auto_1fr_auto] md:items-center" do
         div class: "segmented-control" do
           label(
             r(".write").t,
