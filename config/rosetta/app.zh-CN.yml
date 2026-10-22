@@ -218,6 +218,11 @@ zh-CN:
     author_card:
       author: 主题作者
       joined: 加入于 %{date}
+    follow_button:
+      follow: 关注
+      unfollow: 取消关注
+      follow_help: 关注后接收这个主题的新回复通知
+      unfollow_help: 不再接收关注通知，直接回复和提及通知不受影响
     topic_fields:
       choose_node: 请选择节点
     edit_page:
@@ -316,6 +321,7 @@ zh-CN:
       empty: 还没有通知。有人回复或提及你时，会显示在这里。
       topic_reply: 回复了你的主题
       comment_reply: 回复了你的评论
+      followed_topic_reply: 回复了你关注的主题
       mention: 提及了你
       topic_edited: 编辑了你的主题
       topic_moved: 移动了你的主题

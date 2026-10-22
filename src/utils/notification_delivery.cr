@@ -6,11 +6,19 @@ module NotificationDelivery
     recipients = {} of Int64 => Notification::Kind
     thread = comment.comment_thread!
 
+    # 这里使用哈希合并，为针对同一个人针对同一个 target 的通知去重。
     if (topic_id = thread.topic_id)
+      # 先放入关注者；作者、直接回复和明确提及依次覆盖较低优先级的通知。
+      TopicFollowQuery.new.topic_id(topic_id).each do |follow|
+        # （1） 类型为针对主题的关注
+        recipients[follow.follower_id] = :followed_topic_reply
+      end
+      # （2） 主题作者回复覆盖 （1）
       recipients[TopicQuery.find(topic_id).user_id] = :topic_reply
     end
 
     if (parent_id = comment.parent_id)
+      # （3） 针对评论的回复覆盖 （1）
       recipients[CommentQuery.find(parent_id).user_id] = :comment_reply
     end
 
@@ -18,6 +26,7 @@ module NotificationDelivery
     recipients.delete(comment.user_id)
 
     mentioned_user_ids(login_names).each do |user_id|
+      # (4) 最高优先级，直接提及
       recipients[user_id] = :mention
     end
 
@@ -114,9 +123,10 @@ module NotificationDelivery
                    end
 
     recipients.each do |user_id, kind|
-      # 回复/提及只通知一次；管理操作可以针对同一内容反复发生，不去重。
+      # 管理相关的类型，可以反复发生，不去重。
       case kind
-      when .topic_reply?, .comment_reply?, .mention?
+      when .topic_reply?, .comment_reply?, .mention?, .followed_topic_reply?
+        # 编辑主题或评论时，避免重复通知已经被 @过的人
         next if NotificationQuery.new.user_id(user_id).url(url).kind(kind).any?
       end
 

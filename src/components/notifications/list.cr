@@ -63,14 +63,15 @@ class Notifications::List < BaseComponent
   private def render_notification(notification : Notification) : Nil
     unread = notification.read_at.nil?
     description = case notification.kind
-                  in .topic_reply?     then r(".topic_reply").t
-                  in .comment_reply?   then r(".comment_reply").t
-                  in .mention?         then r(".mention").t
-                  in .topic_edited?    then r(".topic_edited").t
-                  in .topic_moved?     then r(".topic_moved").t
-                  in .topic_deleted?   then r(".topic_deleted").t
-                  in .comment_edited?  then r(".comment_edited").t
-                  in .comment_deleted? then r(".comment_deleted").t
+                  in .topic_reply?          then r(".topic_reply").t
+                  in .comment_reply?        then r(".comment_reply").t
+                  in .followed_topic_reply? then r(".followed_topic_reply").t
+                  in .mention?              then r(".mention").t
+                  in .topic_edited?         then r(".topic_edited").t
+                  in .topic_moved?          then r(".topic_moved").t
+                  in .topic_deleted?        then r(".topic_deleted").t
+                  in .comment_edited?       then r(".comment_edited").t
+                  in .comment_deleted?      then r(".comment_deleted").t
                   end
 
     # 目标可能返回 404；完整页面导航可显示提示页，而不是被 HTMX 的 noSwap 拦住。
@@ -114,7 +115,7 @@ class Notifications::List < BaseComponent
 
   private def render_event_icon(kind : Notification::Kind) : Nil
     path, colors = case kind
-                   in .topic_reply?, .comment_reply?
+                   in .topic_reply?, .comment_reply?, .followed_topic_reply?
                      {"M9 6 4 11l5 5M4 11h9a7 7 0 0 1 7 7", "bg-sky-100 text-sky-700"}
                    in .mention?
                      {"M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0", "bg-amber-100 text-amber-700"}
