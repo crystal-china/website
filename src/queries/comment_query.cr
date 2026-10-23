@@ -5,8 +5,17 @@ class CommentQuery < Comment::BaseQuery
     defaults &.only_kept
   end
 
-  def visible_topic_replies : self
-    join_comment_thread(CommentThreadQuery.new.join_topic(TopicQuery.new)).with_visible_root
+  def publicly_visible_topic_comments : self
+    publicly_visible_comments.join_comment_thread(CommentThreadQuery.new.topic_id.is_not_nil)
+  end
+
+  def publicly_visible_comments : self
+    # 先检查，评论所属主题是否可见？（即：如果主题被软删除，那么它级联的记录全部不可访问）
+    query = join_comment_thread(CommentThreadQuery.new.publicly_visible)
+
+    # 除非它是一个子评论，此时进入下一轮判断。
+    # 如果是子评论，要判断它 root 评论是否可见。
+    query.with_visible_root
   end
 
   # 这是另一个写法。

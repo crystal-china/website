@@ -1,8 +1,6 @@
 class CommentThread < BaseModel
   def target_visible? : Bool
-    return true unless (topic_id = self.topic_id)
-
-    TopicQuery.new.id(topic_id).any?
+    CommentThreadQuery.new.id(id).publicly_visible.any?
   end
 
   table do

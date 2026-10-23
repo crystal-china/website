@@ -6,15 +6,7 @@ abstract class CommentAction < BrowserAction
   include MarkdownFormatter
 
   def comment_available?(comment : Comment) : Bool
-    # 先检查，评论所属主题是否可见？（即：如果主题被软删除，那么它级联的记录全部不可访问）
-    return false unless CommentThreadQuery.find(comment.comment_thread_id).target_visible?
-
-    # 如果上一条没问题，那么它的顶级评论默认可见。
-    # 除非它是一个子评论，此时进入下一轮判断。
-    return true unless (root_id = comment.root_id)
-
-    # 如果是子评论，要判断它 root 评论是否可见。
-    CommentQuery.new.id(root_id).any?
+    CommentQuery.new.id(comment.id).publicly_visible_comments.any?
   end
 
   def comments_pagination(comment_thread_id : Int64? = nil, root_id : Int64? = nil, order_by : String = "desc") : NamedTuple(

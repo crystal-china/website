@@ -28,6 +28,7 @@ describe "Soft deletion" do
     CommentQuery.new.id(child.id).first?.should be_nil
     CommentQuery.new.only_soft_deleted.id(child.id).first.id.should eq(child.id)
     CommentQuery.new.id(grandchild.id).first?.should_not be_nil
+    CommentQuery.new.publicly_visible_comments.id.asc_order.map(&.id).should eq([root.id, grandchild.id])
     CommentQuery.find(root.id).descendants_count.should eq(1)
     CommentQuery.new.with_soft_deleted.id(child.id).first.children_count.should eq(1)
     ApiClient.new.get("/admin/trash?backdoor_user_id=#{user.id}").status_code.should eq(404)
@@ -54,10 +55,12 @@ describe "Soft deletion" do
     DeleteComment.delete!(root)
     CommentQuery.new.id(root.id).first?.should be_nil
     CommentQuery.new.id(grandchild.id).first?.should_not be_nil
+    CommentQuery.new.publicly_visible_comments.any?.should be_false
     ApiClient.new.get("/htmx/comments?root_id=#{root.id}").status_code.should eq(404)
 
     CommentQuery.new.only_soft_deleted.id(root.id).first.restore
     CommentQuery.find(root.id).id.should eq(root.id)
+    CommentQuery.new.publicly_visible_comments.id.asc_order.map(&.id).should eq([root.id, child.id, grandchild.id])
   end
 
   it "hides and restores topics without deleting their comment threads" do
@@ -74,6 +77,7 @@ describe "Soft deletion" do
     TopicQuery.new.only_soft_deleted.id(topic.id).first.id.should eq(topic.id)
     CommentThreadQuery.find(thread_id).target_visible?.should be_false
     CommentQuery.find(comment.id).content.should eq("保留评论")
+    CommentQuery.new.publicly_visible_comments.any?.should be_false
     ApiClient.new.get("/forum/#{topic.id}").status_code.should eq(404)
     ApiClient.new.get("/htmx/comments?comment_thread_id=#{thread_id}").status_code.should eq(404)
     ApiClient.new.get("/admin/trash?kind=topics&backdoor_user_id=#{user.id}").status_code.should eq(404)
@@ -91,5 +95,53 @@ describe "Soft deletion" do
 
     TopicQuery.find(topic.id).id.should eq(topic.id)
     CommentThreadQuery.find(thread_id).target_visible?.should be_true
+    CommentQuery.new.publicly_visible_comments.first.id.should eq(comment.id)
+  end
+
+  it "blocks comment reads and writes when the root or topic is deleted, without changing votes" do
+    user = UserFactory.create
+    node = SaveNode.create!(name: "可见性测试", slug: "comment-visibility", summary: "测试", color: "#16a34a", position: 0)
+    topic = CreateTopic.create!(user_id: user.id, node_id: node.id, title: "评论可见性", content: "内容")
+    thread = CommentThreadQuery.new.topic_id(topic.id).first
+    root = CreateComment.create!(user_id: user.id, comment_thread_id: thread.id, content: "根评论")
+    child = CreateComment.create!(user_id: user.id, parent_id: root.id, content: "子评论")
+    auth = "backdoor_user_id=#{user.id}"
+    client = ApiClient.new
+
+    Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
+      client.patch("/htmx/vote?#{auth}", comment_id: child.id, vote_type: "👍").status_code.should eq(200)
+
+      [:root, :topic].each do |target|
+        if target == :root
+          DeleteComment.delete!(root)
+        else
+          DeleteTopic.delete!(topic)
+        end
+
+        client.get("/comments/#{child.id}").status_code.should eq(404)
+        client.get("/htmx/comments/new?id=#{child.id}&#{auth}").status_code.should eq(404)
+        client.get("/htmx/comments/edit/#{child.id}?#{auth}").status_code.should eq(404)
+        client.post("/htmx/comments?#{auth}", id: child.id, op: "new", content: "不能回复").status_code.should eq(404)
+        client.post("/htmx/comments?#{auth}", id: child.id, op: "edit", content: "不能编辑").status_code.should eq(404)
+        client.delete("/htmx/comments/#{child.id}?#{auth}").status_code.should eq(404)
+        client.patch("/htmx/vote?#{auth}", comment_id: child.id, vote_type: "👍").status_code.should eq(404)
+        CommentQuery.new.with_soft_deleted.select_count.should eq(2)
+        CommentQuery.find(child.id).content.should eq(child.content)
+        CommentQuery.find(child.id).vote_counts.👍.should eq(1)
+        VoteQuery.new.comment_id(child.id).select_count.should eq(1)
+
+        if target == :root
+          root = CommentQuery.new.only_soft_deleted.id(root.id).first.restore
+        else
+          topic = TopicQuery.new.only_soft_deleted.id(topic.id).first.restore
+        end
+
+        client.get("/comments/#{child.id}").status_code.should eq(303)
+      end
+
+      client.patch("/htmx/vote?#{auth}", comment_id: child.id, vote_type: "👍").status_code.should eq(200)
+      CommentQuery.find(child.id).vote_counts.👍.should eq(0)
+      VoteQuery.new.comment_id(child.id).any?.should be_false
+    end
   end
 end

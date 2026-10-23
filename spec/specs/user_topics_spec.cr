@@ -87,7 +87,7 @@ describe "User profile topics" do
     newest = user_topics_reply(topic, user, at + 2.days)
     DeleteComment.delete!(newest)
 
-    visible_replies = -> { CommentQuery.new.user_id(user.id).visible_topic_replies.created_at.desc_order.id.desc_order.map(&.id) }
+    visible_replies = -> { CommentQuery.new.user_id(user.id).publicly_visible_topic_comments.created_at.desc_order.id.desc_order.map(&.id) }
 
     visible_replies.call.should eq([child.id, earlier.id])
     DeleteComment.delete!(root)

@@ -8,7 +8,7 @@ class Users::Show < BrowserAction
     user = UserQuery.new.with_login_name(login_name).first
 
     if show_replies
-      query = CommentQuery.new.user_id(user.id).visible_topic_replies.created_at.desc_order.id.desc_order
+      query = CommentQuery.new.user_id(user.id).publicly_visible_topic_comments.created_at.desc_order.id.desc_order
       query = query.preload_comment_thread(&.preload_topic(&.preload_node))
       pages, comments = paginate(query, per_page: 20)
       entries = comments.results

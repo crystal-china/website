@@ -21,16 +21,9 @@ class Htmx::Vote < BrowserAction
 
     transaction_committed = AppDatabase.transaction do
       comment = CommentQuery.new.id(comment_id).for_update.first
-      unless CommentThreadQuery.find(comment.comment_thread_id).target_visible?
+      unless CommentQuery.new.id(comment.id).publicly_visible_comments.any?
         status = 404
         AppDatabase.rollback
-      end
-
-      if (root_id = comment.root_id)
-        if CommentQuery.new.id(root_id).none?
-          status = 404
-          AppDatabase.rollback
-        end
       end
 
       vote_counts = Hash(String, Int32).from_json(comment.vote_counts.to_json)
