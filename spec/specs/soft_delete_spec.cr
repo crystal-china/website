@@ -17,7 +17,7 @@ describe "Soft deletion" do
   it "hides and restores comments without losing descendants or visible counts" do
     user = UserFactory.create
     admin = UserFactory.create &.email("soft-delete-admin@example.com")
-    doc = SaveDoc.create!(path_index: "/docs/soft-delete-spec")
+    doc = SaveDoc.create!(path_index: "/docs/soft-delete-spec", content: "文档正文")
     thread = CommentThreadQuery.new.doc_id(doc.id).first
     root = CreateComment.create!(user_id: user.id, comment_thread_id: thread.id, content: "root")
     child = CreateComment.create!(user_id: user.id, parent_id: root.id, content: "child")
@@ -96,6 +96,68 @@ describe "Soft deletion" do
     TopicQuery.find(topic.id).id.should eq(topic.id)
     CommentThreadQuery.find(thread_id).target_visible?.should be_true
     CommentQuery.new.publicly_visible_comments.first.id.should eq(comment.id)
+  end
+
+  it "keeps newly synced empty Markdown documents visible" do
+    doc = DocContent.sync("/docs/empty-document", "")
+    thread = CommentThreadQuery.new.doc_id(doc.id).first
+
+    DocQuery.find(doc.id).content.should eq("")
+    thread.target_visible?.should be_true
+  end
+
+  it "hides comments on missing documents and restores access when the source returns" do
+    user = UserFactory.create
+    admin = UserFactory.create &.email("soft-delete-admin@example.com")
+    doc = DocContent.sync("/docs/missing-document", "文档正文")
+    thread = CommentThreadQuery.new.doc_id(doc.id).first
+    root = CreateComment.create!(user_id: user.id, comment_thread_id: thread.id, content: "根评论")
+    child = CreateComment.create!(user_id: user.id, parent_id: root.id, content: "保留的子评论")
+    auth = "backdoor_user_id=#{user.id}"
+    client = ApiClient.new
+
+    Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
+      client.patch("/htmx/vote?#{auth}", comment_id: child.id, vote_type: "👍").status_code.should eq(200)
+      SaveDoc.update!(doc, content: nil)
+
+      thread.target_visible?.should be_false
+      CommentQuery.new.publicly_visible_comments.any?.should be_false
+      client.get("/htmx/comments?comment_thread_id=#{thread.id}").status_code.should eq(404)
+      client.get("/htmx/comments?root_id=#{root.id}").status_code.should eq(404)
+      client.get("/comments/#{child.id}").status_code.should eq(404)
+      client.get("/htmx/comments/new?id=#{child.id}&#{auth}").status_code.should eq(404)
+      client.get("/htmx/comments/edit/#{child.id}?#{auth}").status_code.should eq(404)
+      client.post("/htmx/comments?#{auth}", comment_thread_id: thread.id, content: "不能新增").status_code.should eq(404)
+      client.post("/htmx/comments?#{auth}", id: child.id, op: "new", content: "不能回复").status_code.should eq(404)
+      client.post("/htmx/comments?#{auth}", id: child.id, op: "edit", content: "不能编辑").status_code.should eq(404)
+      client.delete("/htmx/comments/#{child.id}?#{auth}").status_code.should eq(404)
+      client.patch("/htmx/vote?#{auth}", comment_id: child.id, vote_type: "👍").status_code.should eq(404)
+      CommentQuery.new.select_count.should eq(2)
+      CommentQuery.find(child.id).content.should eq(child.content)
+      CommentQuery.find(child.id).vote_counts.👍.should eq(1)
+      VoteQuery.new.comment_id(child.id).select_count.should eq(1)
+
+      DeleteComment.delete!(root)
+      response = client.post("/admin/trash/comments/#{root.id}/restore?backdoor_user_id=#{admin.id}&locale=zh-CN")
+      cookies = HTTP::Cookies.from_server_headers(response.headers)
+      session = Lucky::Session.from_cookie_jar(Lucky::CookieJar.from_request_cookies(cookies))
+      message = JSON.parse(session.get(Lucky::FlashStore::SESSION_KEY))["success"].as_s
+
+      response.status_code.should eq(303)
+      message.should eq("评论已恢复，但所属文档已不可用，暂时不可见")
+      client.get("/comments/#{child.id}").status_code.should eq(404)
+
+      restored = DocContent.sync(doc.path_index, "")
+
+      restored.id.should eq(doc.id)
+      restored.content.should eq("")
+      thread.target_visible?.should be_true
+      CommentQuery.new.publicly_visible_comments.select_count.should eq(2)
+      client.get("/comments/#{child.id}").status_code.should eq(303)
+      client.get("/htmx/comments?root_id=#{root.id}").status_code.should eq(200)
+      client.patch("/htmx/vote?#{auth}", comment_id: child.id, vote_type: "👍").status_code.should eq(200)
+      VoteQuery.new.comment_id(child.id).any?.should be_false
+    end
   end
 
   it "blocks comment reads and writes when the root or topic is deleted, without changing votes" do

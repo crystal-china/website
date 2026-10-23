@@ -22,6 +22,7 @@ zh-CN:
       restore_comment:
         comment_restored: 评论已恢复
         topic_still_deleted: 评论已恢复，但所属主题仍被删除，暂时不可见
+        doc_unavailable: 评论已恢复，但所属文档已不可用，暂时不可见
         root_still_deleted: 评论已恢复，但根评论仍被删除，暂时不可见
       restore_topic:
         topic_restored: 主题已恢复

@@ -22,6 +22,7 @@ en:
       restore_comment:
         comment_restored: Comment restored
         topic_still_deleted: Comment restored, but its topic is still deleted and the comment remains hidden
+        doc_unavailable: Comment restored, but its document is unavailable and the comment remains hidden
         root_still_deleted: Comment restored, but its root comment is still deleted and the comment remains hidden
       restore_topic:
         topic_restored: Topic restored

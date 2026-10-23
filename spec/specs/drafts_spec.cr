@@ -178,7 +178,7 @@ describe "Local editor drafts" do
 
   it "confirms root replies, child replies and comment edits but not rejected or preview requests" do
     user = UserFactory.create
-    doc = SaveDoc.create!(path_index: "/docs/draft-test")
+    doc = SaveDoc.create!(path_index: "/docs/draft-test", content: "文档正文")
     thread = CommentThreadQuery.new.doc_id(doc.id).first
     client = drafts_client(user)
     response = client.post("/htmx/comments", comment_thread_id: thread.id, content: "顶级评论")
