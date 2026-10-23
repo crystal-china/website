@@ -63,14 +63,15 @@ class Notifications::List < BaseComponent
   private def render_notification(notification : Notification) : Nil
     unread = notification.read_at.nil?
     description = case notification.kind
-                  in .topic_reply?     then r(".topic_reply").t
-                  in .comment_reply?   then r(".comment_reply").t
-                  in .mention?         then r(".mention").t
-                  in .topic_edited?    then r(".topic_edited").t
-                  in .topic_moved?     then r(".topic_moved").t
-                  in .topic_deleted?   then r(".topic_deleted").t
-                  in .comment_edited?  then r(".comment_edited").t
-                  in .comment_deleted? then r(".comment_deleted").t
+                  in .topic_reply?          then r(".topic_reply").t
+                  in .comment_reply?        then r(".comment_reply").t
+                  in .followed_topic_reply? then r(".followed_topic_reply").t
+                  in .mention?              then r(".mention").t
+                  in .topic_edited?         then r(".topic_edited").t
+                  in .topic_moved?          then r(".topic_moved").t
+                  in .topic_deleted?        then r(".topic_deleted").t
+                  in .comment_edited?       then r(".comment_edited").t
+                  in .comment_deleted?      then r(".comment_deleted").t
                   end
 
     # 目标可能返回 404；完整页面导航可显示提示页，而不是被 HTMX 的 noSwap 拦住。
@@ -113,36 +114,21 @@ class Notifications::List < BaseComponent
   end
 
   private def render_event_icon(kind : Notification::Kind) : Nil
-    path, colors = case kind
-                   in .topic_reply?, .comment_reply?
-                     {"M9 6 4 11l5 5M4 11h9a7 7 0 0 1 7 7", "bg-sky-100 text-sky-700"}
-                   in .mention?
-                     {"M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-4 8M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0", "bg-amber-100 text-amber-700"}
-                   in .topic_edited?, .comment_edited?
-                     {"m16 3 5 5M4 15 16 3a2 2 0 0 1 5 5L9 20l-6 1 1-6Z", "bg-slate-100 text-slate-600"}
-                   in .topic_moved?
-                     {"m8 3-4 4 4 4M4 7h16m-4 6 4 4-4 4M20 17H4", "bg-teal-100 text-teal-700"}
-                   in .topic_deleted?, .comment_deleted?
-                     {"M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7", "bg-red-100 text-red-700"}
-                   end
+    src, background = case kind
+                      in .topic_reply?, .comment_reply?, .followed_topic_reply?
+                        {asset("svgs/notifications/reply.svg"), "bg-sky-100"}
+                      in .mention?
+                        {asset("svgs/notifications/mention.svg"), "bg-amber-100"}
+                      in .topic_edited?, .comment_edited?
+                        {asset("svgs/notifications/edit.svg"), "bg-slate-100"}
+                      in .topic_moved?
+                        {asset("svgs/notifications/move.svg"), "bg-teal-100"}
+                      in .topic_deleted?, .comment_deleted?
+                        {asset("svgs/notifications/delete.svg"), "bg-red-100"}
+                      end
 
-    span(
-      class: "flex h-8 w-8 items-center justify-center rounded-lg #{colors}",
-      "aria-hidden": "true"
-    ) do
-      tag(
-        "svg",
-        viewBox: "0 0 24 24",
-        fill: "none",
-        stroke: "currentColor",
-        "stroke-width": "1.75",
-        "stroke-linecap": "round",
-        "stroke-linejoin": "round",
-        class: "h-4 w-4",
-        focusable: "false"
-      ) do
-        tag "path", d: path
-      end
+    span class: "flex h-8 w-8 items-center justify-center rounded-lg #{background}" do
+      img src: src, alt: "", class: "h-4 w-4"
     end
   end
 end

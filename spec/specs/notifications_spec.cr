@@ -302,16 +302,17 @@ describe "Notifications" do
     document = XML.parse_html(response.body)
     paths = notifications.to_h do |notification|
       form = document.xpath_node("//form[@action='/notifications/#{notification.id}/read']").not_nil!
-      icon = form.xpath_node(".//svg").not_nil!
+      icon = form.xpath_node(".//img[contains(@src, '/svgs/notifications/')]").not_nil!
 
-      icon.parent.not_nil!["aria-hidden"].should eq("true")
+      icon["alt"].should eq("")
       form.xpath_node(".//span[@aria-label='#{notification.read_at ? "Read" : "Unread"}']").should_not be_nil
-      {notification.kind, icon.xpath_node("./path").not_nil!["d"]}
+      {notification.kind, icon["src"]}
     end
 
     response.status_code.should eq(200)
     paths.values.uniq!.size.should eq(5)
     paths[Notification::Kind::TopicReply].should eq(paths[Notification::Kind::CommentReply])
+    paths[Notification::Kind::TopicReply].should eq(paths[Notification::Kind::FollowedTopicReply])
     paths[Notification::Kind::TopicEdited].should eq(paths[Notification::Kind::CommentEdited])
     paths[Notification::Kind::TopicDeleted].should eq(paths[Notification::Kind::CommentDeleted])
   end
@@ -346,8 +347,8 @@ describe "Notifications" do
     document.xpath_nodes("//section//a[contains(@class, 'segmented-option')]").should be_empty
     read_all = controls.xpath_node("./button").not_nil!
     read_all["id"].should eq("notifications-read-all")
-    read_all["hx-target"].should eq("#notifications-content")
-    read_all["hx-swap"].should eq("innerHTML")
+    controls["hx-target:inherited"].should eq("#notifications-content")
+    controls["hx-swap:inherited"].should eq("innerHTML")
     read_all["disabled"]?.should be_nil
 
     pagination_container = document.xpath_node("//section/div[nav]").not_nil!

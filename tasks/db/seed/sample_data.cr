@@ -109,6 +109,11 @@ class Db::Seed::SampleData < LuckyTask::Task
       )
     end.to_a
 
+    # 小明关注第一篇和第三篇主题；管理员关注小明的主题。
+    [{topics[0], users[1]}, {topics[2], users[1]}, {topics[1], users[0]}].each do |topic, follower|
+      SaveTopicFollow.create!(topic_id: topic.id, follower_id: follower.id)
+    end
+
     topics.each_with_index do |topic, index|
       thread_id = CommentThreadQuery.new.topic_id(topic.id).first.id
 

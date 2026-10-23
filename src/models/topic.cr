@@ -6,6 +6,7 @@ class Topic < BaseModel
     belongs_to node : Node
     belongs_to last_reply_user : User?
     has_one comment_thread : CommentThread?
+    has_many topic_follows : TopicFollow
 
     column title : String
     column content : String

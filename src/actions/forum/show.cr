@@ -1,6 +1,8 @@
 class Forum::Show < ForumAction
   include Auth::AllowGuests
 
+  param following : Bool = false
+
   get "/forum/:id" do
     topic = TopicQuery.new.id(id).preload_user.preload_node.first?
 
@@ -12,6 +14,6 @@ class Forum::Show < ForumAction
       )
     end
 
-    render_topic(topic)
+    render_topic(topic, followed_topics: following)
   end
 end

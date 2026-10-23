@@ -2,13 +2,17 @@
 class Forum::List < BaseComponent
   needs topics : TopicQuery
   needs pages : Lucky::Paginator
+  needs followed_topics : Bool = false
 
   def render : Nil
     current_topics = topics.results
 
     section id: "forum-topics" do
       if current_topics.empty?
-        para r("common.no_topics").t, class: "app-panel m-0 px-6 py-10 text-center text-gray-500"
+        para(
+          followed_topics? ? r(".no_followed_topics").t : r("common.no_topics").t,
+          class: "app-panel m-0 px-6 py-10 text-center text-gray-500"
+        )
       else
         div class: "app-panel divide-y divide-gray-200 overflow-hidden" do
           current_topics.each do |topic|
@@ -34,14 +38,14 @@ class Forum::List < BaseComponent
         h2 class: "m-0 text-lg font-semibold" do
           link(
             topic.title,
-            to: Forum::Show.with(id: topic.id),
+            to: Forum::Show.with(id: topic.id, following: followed_topics? ? true : nil),
             class: "text-[#145591] no-underline hover:underline"
           )
         end
 
         para class: "mt-2 mb-0 flex flex-wrap items-center gap-x-1 text-xs text-gray-500" do
           link(
-            to: Forum::Index.with(node: topic.node.slug),
+            to: Forum::Index.with(node: topic.node.slug, following: followed_topics? ? true : nil),
             title: topic.node.name,
             "aria-label": r(".node_label").t(name: topic.node.name),
             class: "inline-flex h-5 w-5 items-center justify-center rounded-full no-underline hover:bg-gray-200"
