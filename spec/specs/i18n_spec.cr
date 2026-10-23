@@ -102,6 +102,30 @@ describe "Internationalization" do
     ApiClient.new.get("/sign_in").status_code.should eq(200)
   end
 
+  it "localizes the home heading and both initial and loaded release labels" do
+    environment = ENV["LUCKY_ENV"]
+    ENV["LUCKY_ENV"] = "development"
+
+    {
+      "zh-CN" => {"Crystal 编程语言中文站", "最新版本："},
+      "en"    => {"The Crystal programming language - Chinese community", "Latest release:"},
+    }.each do |locale, (heading, label)|
+      response = ApiClient.new.get("/?locale=#{locale}")
+      document = XML.parse_html(response.body)
+
+      response.status_code.should eq(200)
+      document.xpath_node("//main//h1").not_nil!.content.should eq(heading)
+      document.xpath_node("//div[@class='latest-release-info']").not_nil!.content.should contain(label)
+
+      response = ApiClient.new.get("/htmx/crystal_latest_release?locale=#{locale}")
+
+      response.status_code.should eq(200)
+      XML.parse_html(response.body).xpath_node("//a").not_nil!.content.should eq("#{label} unknown")
+    end
+  ensure
+    ENV["LUCKY_ENV"] = environment if environment
+  end
+
   it "uses the same localized validation message in the field and the failure flash" do
     user = UserFactory.create
 

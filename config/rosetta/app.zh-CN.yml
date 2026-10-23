@@ -255,7 +255,7 @@ zh-CN:
 
   home:
     index_page:
-      heading: The Crystal programming language 中文站
+      heading: Crystal 编程语言中文站
       loading_release: 获取最新版本...
       links: 常用站点链接
       latest_release: 最新版本：
