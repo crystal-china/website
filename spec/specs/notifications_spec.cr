@@ -627,6 +627,7 @@ describe "Notifications" do
     `@#{ignored.login_name}`
     <a href="https://example.com">@#{ignored.login_name}</a>
     <code>@#{ignored.login_name}</code>
+    text <iframe>@#{ignored.login_name}</iframe>
 
     ```info
     谢谢 @#{ignored.login_name}中文。
