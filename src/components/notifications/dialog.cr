@@ -24,7 +24,11 @@ HYPER
           class: "m-0 flex-1 text-base font-semibold text-gray-900 sm:flex-none"
         )
 
-        mount ::Notifications::Controls, has_unread: false
+        mount(
+          ::Notifications::Controls,
+          has_unread_notifications: false,
+          only_show_unread: context.session.get?(:notifications_unread) == "true"
+        )
 
         button(
           r("common.close").t,

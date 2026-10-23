@@ -1,10 +1,10 @@
 class Notifications::Controls < BaseComponent
-  needs has_unread : Bool
-  needs unread : Bool = false
+  needs has_unread_notifications : Bool
+  needs only_show_unread : Bool = false
 
   def render : Nil
-    all_path = Notifications::Index.path
-    unread_path = Notifications::Index.with(unread: true).path
+    all_path = Notifications::Index.with(only_show_unread: false).path
+    unread_path = Notifications::Index.with(only_show_unread: true).path
 
     div(
       id: "notifications-controls",
@@ -16,15 +16,15 @@ class Notifications::Controls < BaseComponent
       mount(
         Shared::Toggle,
         options: [{r(".all").t, all_path}, {r(".unread_only").t, unread_path}],
-        selected: unread? ? unread_path : all_path
+        selected: only_show_unread? ? unread_path : all_path
       )
 
       button(
         r(".read_all").t,
         id: "notifications-read-all",
         type: "button",
-        attrs: has_unread? ? [] of Symbol : [:disabled],
-        hx_post: unread? ? Notifications::ReadAll.with(unread: true).path : Notifications::ReadAll.path,
+        attrs: has_unread_notifications? ? [] of Symbol : [:disabled],
+        hx_post: Notifications::ReadAll.path,
         class: "form-secondary cursor-pointer rounded-md px-2.5 py-1.5 text-xs whitespace-nowrap shadow-none hover:shadow-none disabled:cursor-not-allowed disabled:opacity-50"
       )
     end

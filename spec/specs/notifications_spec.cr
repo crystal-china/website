@@ -471,7 +471,7 @@ describe "Notifications" do
     header = document.xpath_node("//dialog[@id='notifications-dialog']//header").not_nil!
     header.xpath_node(".//button[@script='on click close the closest <dialog/>']").should_not be_nil
     header.xpath_node(".//button[@id='notifications-read-all'][@disabled]").should_not be_nil
-    header.xpath_node("./div[@id='notifications-controls']//a[@href='/notifications?unread=true']").should_not be_nil
+    header.xpath_node("./div[@id='notifications-controls']//a[@href='/notifications?only_show_unread=true']").should_not be_nil
     document.xpath_node("//dialog[@id='notifications-dialog']/div[@id='notifications-content'][contains(@class, 'overflow-y-auto')]").should_not be_nil
     response.body.should_not contain("nav-icon-link is-active")
   end
