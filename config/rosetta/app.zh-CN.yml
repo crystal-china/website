@@ -427,6 +427,7 @@ zh-CN:
       signed_up: 注册成功
     oauth:
       callback:
+        email_unavailable: 第三方未提供邮箱，无法完成登录。请检查邮箱授权，或使用本站账号登录。
         password_warning: 此账号已设置本站密码。如果不是你本人设置，请前往个人设置修改密码。
         signed_in: 登录成功
     new_page:

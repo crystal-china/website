@@ -433,6 +433,7 @@ en:
       signed_up: Signed up successfully
     oauth:
       callback:
+        email_unavailable: The provider did not return an email address. Check email permissions or sign in with a local account.
         password_warning: This account already has a local password. If you did not set it, change it in your account settings.
         signed_in: Signed in successfully
     new_page:

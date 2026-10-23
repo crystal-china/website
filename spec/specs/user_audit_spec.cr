@@ -9,7 +9,7 @@ private class AuditOAuthProvider < MultiAuth::Provider
     MultiAuth::User.new(
       "audit_spec", "1", "Audit user", "{}",
       OAuth2::AccessToken::Bearer.new("unused", 3600),
-      email: params["code"], nickname: "AuditUser"
+      email: params["code"]?, nickname: "AuditUser"
     )
   end
 end
@@ -18,7 +18,7 @@ MultiAuth.config("audit_spec") do |redirect_uri, _|
   AuditOAuthProvider.new(redirect_uri, "", "").as(MultiAuth::Provider)
 end
 
-private def audit_oauth_callback(email : String) : HTTP::Client::Response
+private def audit_oauth_callback(email : String?, locale : String = "zh-CN") : HTTP::Client::Response
   client = ApiClient.new
   response = client.get("/multi_auth/audit_spec")
   state = URI.parse(response.headers["Location"]).query_params["state"]
@@ -26,7 +26,13 @@ private def audit_oauth_callback(email : String) : HTTP::Client::Response
   HTTP::Cookies.from_server_headers(response.headers).add_request_headers(headers)
 
   client.headers(Cookie: headers["Cookie"])
-  client.get("/multi_auth/audit_spec/callback?state=#{state}&code=#{URI.encode_path(email)}")
+  query = URI::Params.build do |params|
+    params.add "state", state
+    params.add "locale", locale
+    params.add "code", email if email
+  end
+
+  client.get("/multi_auth/audit_spec/callback?#{query}")
 end
 
 private def audit_page_after_callback(response : HTTP::Client::Response) : String
@@ -278,6 +284,27 @@ describe "User events" do
 
     response.status_code.should eq(400)
     UserAuditQuery.new.any?.should be_false
+  end
+
+  it "rejects missing or blank OAuth emails with a localized message and no account or sign-in event" do
+    {
+      "zh-CN" => "第三方未提供邮箱，无法完成登录。请检查邮箱授权，或使用本站账号登录。",
+      "en"    => "The provider did not return an email address. Check email permissions or sign in with a local account.",
+    }.each do |locale, message|
+      [nil, "", " \t "].each do |email|
+        response = audit_oauth_callback(email, locale)
+        cookies = HTTP::Cookies.from_server_headers(response.headers)
+        session = Lucky::Session.from_cookie_jar(Lucky::CookieJar.from_request_cookies(cookies))
+
+        response.status_code.should eq(303)
+        response.headers["Location"].should eq(SignIns::New.path)
+        JSON.parse(session.get(Lucky::FlashStore::SESSION_KEY))["failure"].as_s.should eq(message)
+        session.get?(Authentic.settings.sign_in_key).should be_nil
+        session.get?("oauth_state:audit_spec").should be_nil
+        UserQuery.new.any?.should be_false
+        UserAuditQuery.new.any?.should be_false
+      end
+    end
   end
 
   it "shows only the current user's events and paginates the history" do
