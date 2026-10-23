@@ -106,6 +106,35 @@ describe "Soft deletion" do
     thread.target_visible?.should be_true
   end
 
+  it "blocks votes on missing documents without changing existing votes, but allows empty documents" do
+    user = UserFactory.create
+    other = UserFactory.create
+    doc = DocContent.sync("/docs/document-votes", "")
+    path = "/htmx/vote?backdoor_user_id=#{user.id}"
+    client = ApiClient.new
+
+    Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
+      client.patch(path, doc_id: doc.id, vote_type: "👍").status_code.should eq(200)
+      vote = VoteQuery.new.doc_id(doc.id).first
+      SaveDoc.update!(doc, content: nil)
+
+      client.patch(path, doc_id: doc.id, vote_type: "👍").status_code.should eq(404)
+      client.patch(path, doc_id: doc.id, vote_type: "👎").status_code.should eq(404)
+      client.patch("/htmx/vote?backdoor_user_id=#{other.id}", doc_id: doc.id, vote_type: "👍").status_code.should eq(404)
+      VoteQuery.new.doc_id(doc.id).map(&.id).should eq([vote.id])
+      DocQuery.find(doc.id).vote_counts.👍.should eq(1)
+      DocQuery.find(doc.id).vote_counts.👎.should eq(0)
+
+      DocContent.sync(doc.path_index, "")
+
+      client.patch(path, doc_id: doc.id, vote_type: "invalid").status_code.should eq(400)
+      client.patch(path, doc_id: 0, vote_type: "👍").status_code.should eq(404)
+      client.patch(path, doc_id: doc.id, vote_type: "👍").status_code.should eq(200)
+      VoteQuery.new.doc_id(doc.id).any?.should be_false
+      DocQuery.find(doc.id).vote_counts.👍.should eq(0)
+    end
+  end
+
   it "hides comments on missing documents and restores access when the source returns" do
     user = UserFactory.create
     admin = UserFactory.create &.email("soft-delete-admin@example.com")

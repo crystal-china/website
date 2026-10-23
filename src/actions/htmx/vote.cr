@@ -71,7 +71,7 @@ class Htmx::Vote < BrowserAction
     user_voted_types = [] of String
 
     transaction_committed = AppDatabase.transaction do
-      doc = DocQuery.new.id(doc_id).for_update.first
+      doc = DocQuery.new.id(doc_id).content.is_not_nil.for_update.first
       vote_counts = Hash(String, Int32).from_json(doc.vote_counts.to_json)
 
       AppDatabase.rollback unless vote_counts.has_key?(vote_type)
