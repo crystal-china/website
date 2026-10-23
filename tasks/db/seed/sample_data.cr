@@ -268,22 +268,7 @@ class Db::Seed::SampleData < LuckyTask::Task
       first_topic_thread_id
     )
 
-    now = Time.local
-    users.each do |user|
-      notifications = NotificationQuery.new.user_id(user.id).id.asc_order.results
-
-      # 按 ID 顺序分成三批，依次放到前天、昨天和今天；最早三条标为已读。
-      notifications.each_with_index do |notification, index|
-        at = now - (2 - index * 3 // notifications.size).days
-
-        SaveNotification.update!(
-          notification,
-          created_at: at,
-          updated_at: at,
-          read_at: index < 3 ? at : nil
-        )
-      end
-    end
+    seed_notifications(users, nodes, concurrency_thread_id)
 
     puts "Created #{TopicQuery.new.select_count} visible topics, #{users.size} users and comments on two searchable Markdown documents."
     puts "Try /forum?page=2, /forum/#{topics.first.id}, /docs/index, and search for PGroonga."
@@ -292,14 +277,109 @@ class Db::Seed::SampleData < LuckyTask::Task
     puts "  Root: /comments/#{doc_root.id}"
     puts "  Child: /comments/#{doc_child.id}"
     puts "  Grandchild: /comments/#{doc_grandchild.id}"
-    puts "Sign in as admin@crystal-china.org, me@163.com or user1@163.com to test notification jumps."
+    puts "Sign in as me@163.com to test all notification types and jumps; admin@crystal-china.org has an empty notification list."
     puts "All sample accounts use password: temp1234."
     puts "Try @xi to autocomplete xiaohong, xiaoli and xiaoming."
     puts "Set ADMIN_EMAILS=admin@crystal-china.org before starting the app to enable the sample administrator."
     puts "Trash: /admin/trash (#{CommentQuery.new.only_soft_deleted.select_count} comments, including page 2), /admin/trash?kind=topics."
-    puts "Notifications span today, yesterday and the day before, with read/unread replies, mentions, and administrator edits, moves and deletions."
+    puts "Xiaoming has 36 notifications across two pages; each page includes all 9 types, with 27 unread and 9 read notifications across three days."
     puts "Account history: /me/events; admin and xiaoming have multiple pages, ruby_to_crystal has one event, concurrency has none."
     puts "History includes nickname/login-name changes, password changes, password/OAuth logins, and administrator password removals."
+  end
+
+  private def seed_notifications(users : Array(User), nodes : Hash(String, Node), doc_thread_id : Int64) : Nil
+    admin, user, replier = users.first(3)
+
+    # 清除前面准备主题和回收站时产生的通知，下面通过真实操作生成固定的演示场景。
+    NotificationQuery.truncate
+
+    [
+      "Channel 关闭后如何让生产者正常退出",
+      "给 Markdown 链接检查工具补充 CI 测试",
+      "为中文全文搜索设计可重复执行的同步任务",
+      "在树莓派上演练 PostgreSQL 备份与恢复",
+    ].each do |title|
+      topic = CreateTopic.create!(
+        user_id: user.id,
+        node_id: nodes["general"].id,
+        title: title,
+        content: "## 讨论目标\n\n#{title}是我最近遇到的实际问题。我准备先写一个可复现的小例子，再比较实现复杂度和维护成本。欢迎补充具体代码、测试方法和失败时的处理步骤。"
+      )
+      thread_id = CommentThreadQuery.new.topic_id(topic.id).first.id
+      CreateComment.create!(
+        comment_thread_id: thread_id,
+        user_id: replier.id,
+        content: "建议先为「#{title}」列出正常、失败和重复执行三种情况，再逐项验证。这样不仅能定位问题，也方便把解决过程整理成文档。"
+      )
+      root = CreateComment.create!(
+        comment_thread_id: doc_thread_id,
+        user_id: user.id,
+        content: "我在研究「#{title}」，发现把任务的输入、输出和退出条件写清楚很有帮助。文档中的并发示例也可以增加一段失败后的收尾过程。"
+      )
+      CreateComment.create!(
+        parent_id: root.id,
+        user_id: replier.id,
+        content: "同意你的思路。我会先覆盖资源释放和异常传播，再验证重复执行不会留下额外任务。这条回复可以从通知跳转并展开文档的子评论。"
+      )
+      CreateComment.create!(
+        comment_thread_id: doc_thread_id,
+        user_id: replier.id,
+        content: "@#{user.login_name} 关于「#{title}」，可以先给出一段最小可运行示例，再附上预期输出和实际结果，其他读者会更容易复现。"
+      )
+      topic = UpdateTopic.update!(topic, title: "#{title}（补充复现步骤）", actor_id: admin.id)
+      UpdateTopic.update!(topic, node_id: nodes["help"].id, actor_id: admin.id)
+
+      deleted_topic = CreateTopic.create!(
+        user_id: user.id,
+        node_id: nodes["general"].id,
+        title: "重复讨论：#{title}",
+        content: "这篇主题与已有讨论重复，管理员将其移入回收站。通知保留当时的标题和正文摘要，点击后应显示内容已不可用的提示。"
+      )
+      DeleteTopic.delete!(deleted_topic, actor_id: admin.id)
+      UpdateComment.update!(
+        root,
+        content: "#{root.content}\n\n管理员补充：请附上 Crystal 版本、执行命令和完整的错误信息，方便大家复现。",
+        actor_id: admin.id
+      )
+
+      deleted_comment = CreateComment.create!(
+        comment_thread_id: doc_thread_id,
+        user_id: user.id,
+        content: "关于「#{title}」的重复留言，管理员会删除这条评论。可以检查删除通知的摘要，以及跳转到已删除评论时的提示。"
+      )
+      DeleteComment.delete!(deleted_comment, actor_id: admin.id)
+
+      followed_topic = CreateTopic.create!(
+        user_id: replier.id,
+        node_id: nodes["projects"].id,
+        title: "实践记录：#{title}",
+        content: "我会在这篇主题里持续记录「#{title}」的实现过程，包括可运行示例、测试结果和最终取舍。关注后即可收到新回复通知。"
+      )
+      SaveTopicFollow.create!(topic_id: followed_topic.id, follower_id: user.id)
+      followed_thread_id = CommentThreadQuery.new.topic_id(followed_topic.id).first.id
+      CreateComment.create!(
+        comment_thread_id: followed_thread_id,
+        user_id: admin.id,
+        content: "感谢分享实践记录。建议把验证步骤和失败后的恢复方法放在一起，后续读者可以按顺序执行；有新的测试结果也欢迎继续补充。"
+      )
+    end
+
+    now = Time.local
+    users.each do |recipient|
+      notifications = NotificationQuery.new.user_id(recipient.id).id.asc_order.results
+
+      # 每轮依次生成九种通知，保证两页都有全部类型；日期和已读状态只用于演示。
+      notifications.each_with_index do |notification, index|
+        at = now - (2 - index * 3 // notifications.size).days
+
+        SaveNotification.update!(
+          notification,
+          created_at: at,
+          updated_at: at,
+          read_at: index % 4 == 0 ? at : nil
+        )
+      end
+    end
   end
 
   private def seed_account_events(users : Array(User)) : Nil
