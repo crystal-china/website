@@ -122,13 +122,11 @@ module NotificationDelivery
                      end
                    end
 
+    existing = existing_notifications(url, recipients)
+
     recipients.each do |user_id, kind|
-      # 管理相关的类型，可以反复发生，不去重。
-      case kind
-      when .topic_reply?, .comment_reply?, .mention?, .followed_topic_reply?
-        # 编辑主题或评论时，避免重复通知已经被 @过的人
-        next if NotificationQuery.new.user_id(user_id).url(url).kind(kind).any?
-      end
+      # 编辑主题或评论时，避免重复通知已经被 @过的人
+      next if existing.includes?({user_id, kind})
 
       SaveNotification.create!(
         user_id: user_id,
@@ -139,6 +137,31 @@ module NotificationDelivery
         excerpt: excerpt
       )
     end
+  end
+
+  private def self.existing_notifications(
+    url : String,
+    recipients : Hash(Int64, Notification::Kind),
+  ) : Set(Tuple(Int64, Notification::Kind))
+    # 管理相关的类型，可以反复发生，不去重。
+    recipients = recipients.select do |_, kind|
+      case kind
+      when .topic_reply?, .comment_reply?, .mention?, .followed_topic_reply?
+        true
+      else
+        false
+      end
+    end
+    existing = Set(Tuple(Int64, Notification::Kind)).new
+
+    return existing if recipients.empty?
+
+    query = NotificationQuery.new.url(url).user_id.in(recipients.keys).kind.in(recipients.values.uniq!)
+    query.each do |notification|
+      existing << {notification.user_id, notification.kind}
+    end
+
+    existing
   end
 
   private def self.mentioned_user_ids(login_names : Array(String)) : Array(Int64)

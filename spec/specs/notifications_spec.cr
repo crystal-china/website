@@ -172,6 +172,43 @@ describe "Management notifications" do
     TopicQuery.find(topic.id).content.should eq(topic.content)
     NotificationQuery.new.select_count.should eq(1)
   end
+
+  it "uses one duplicate query for multiple recipients and none for management notifications" do
+    author = UserFactory.create
+    replier = UserFactory.create
+    admin = UserFactory.create &.email("notification-admin@example.com")
+    followers = Array.new(5) { UserFactory.create }
+    topic = notification_topic(author)
+    thread = CommentThreadQuery.new.topic_id(topic.id).first
+    followers.each { |follower| SaveTopicFollow.create!(topic_id: topic.id, follower_id: follower.id) }
+    comment = CreateComment.create!(user_id: replier.id, comment_thread_id: thread.id, content: "新回复")
+    first_notification = NotificationQuery.new.user_id(followers.first.id).first
+    SaveNotification.update!(first_notification, read_at: Time.utc)
+    NotificationQuery.new.user_id(followers.last.id).delete
+    test_mode = Pulsar.test_mode_enabled?
+    Pulsar.test_mode_enabled = true
+    Avram::Events::QueryEvent.logged_events.clear
+
+    NotificationDelivery.comment_created(comment, [] of String)
+    queries = Avram::Events::QueryEvent.logged_events.map(&.query)
+
+    queries.count { |sql| sql.starts_with?("SELECT") && sql.includes?("FROM notifications") }.should eq(1)
+    NotificationQuery.new.url("/comments/#{comment.id}").select_count.should eq(6)
+    NotificationQuery.new.user_id(followers.last.id).first.kind.should eq(Notification::Kind::FollowedTopicReply)
+    NotificationQuery.find(first_notification.id).read_at.should_not be_nil
+    Avram::Events::QueryEvent.logged_events.clear
+
+    2.times do |index|
+      comment = UpdateComment.update!(comment, content: "管理员补充 #{index}", actor_id: admin.id)
+    end
+    queries = Avram::Events::QueryEvent.logged_events.map(&.query)
+
+    queries.count { |sql| sql.starts_with?("SELECT") && sql.includes?("FROM notifications") }.should eq(0)
+    NotificationQuery.new.user_id(replier.id).kind(Notification::Kind::CommentEdited).select_count.should eq(2)
+  ensure
+    Pulsar.test_mode_enabled = test_mode if test_mode.is_a?(Bool)
+    Avram::Events::QueryEvent.logged_events.clear
+  end
 end
 
 describe "Mention notification preferences" do
