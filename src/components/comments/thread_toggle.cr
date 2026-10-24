@@ -58,6 +58,6 @@ HYPER
   end
 
   private def button_class : String
-    "action-button action-button-accent"
+    "action-button action-button-accent w-52"
   end
 end
