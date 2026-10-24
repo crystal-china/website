@@ -9,6 +9,7 @@ class Htmx::Comments::Edit < CommentAction
     return head 404 unless comment_available?(comment)
 
     return head 403 unless comment.user_id == me.id || me.admin?
+    return head 409 if comment.withdrawn?
 
     component(
       ::Comments::Form,

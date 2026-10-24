@@ -26,6 +26,11 @@ class Htmx::Vote < BrowserAction
         AppDatabase.rollback
       end
 
+      if comment.withdrawn?
+        status = 409
+        AppDatabase.rollback
+      end
+
       vote_counts = Hash(String, Int32).from_json(comment.vote_counts.to_json)
 
       AppDatabase.rollback unless vote_counts.has_key?(vote_type)
