@@ -461,24 +461,24 @@ class Db::Seed::SampleData < LuckyTask::Task
       visible_root = CreateComment.create!(
         comment_thread_id: thread_id,
         user_id: author.id,
-        content: "回收站演示：#{source}评论的中间一层被删除后，其他回复仍然保留。展开本分支，可以检查引用已删除评论时的提示。"
+        content: "撤回演示：#{source}子评论有直接回复时只能撤回。展开本分支，可以检查紧凑占位卡片、恢复原文、后代回复，以及管理员也不能绕过的删除限制。"
       )
-      deleted_child = CreateComment.create!(
+      withdrawn_child = CreateComment.create!(
         parent_id: visible_root.id,
         user_id: replier.id,
-        content: "这条#{source}子评论将由管理员删除，但它下面仍有一条保留的回复。可以从回收站恢复本条评论，比较恢复前后的引用文字和数量。"
+        content: "这条#{source}子评论将由作者撤回，但原文和下面的一条回复仍然保留。点击恢复，应重新显示这段内容，而不是打开一个空编辑器。"
       )
       CreateComment.create!(
-        parent_id: deleted_child.id,
+        parent_id: withdrawn_child.id,
         user_id: reader.id,
-        content: "我回复的是中间一层，而不是根评论。即使中间一层被删除，这条回复仍然可见，页面应提示我回复的是已删除的评论。"
+        content: "我回复的是中间一层，而不是根评论。父评论撤回后，我的回复仍可见；删除我这条回复后，父评论除了恢复按钮，还应显示删除按钮。"
       )
-      DeleteComment.delete!(deleted_child, actor_id: admin.id)
+      Comment::SaveOperation.update!(withdrawn_child, withdrawn: true)
 
       deleted_root = CreateComment.create!(
         comment_thread_id: thread_id,
         user_id: author.id,
-        content: "回收站演示：这条#{source}根评论被删除后，整个分支暂时不可见，但子评论记录和已生成的 HTML 都应保留。"
+        content: "回收站演示：这条#{source}根评论的后代已从叶子开始依次删除，所以根评论也可以删除。"
       )
       hidden_child = CreateComment.create!(
         parent_id: deleted_root.id,
@@ -488,8 +488,9 @@ class Db::Seed::SampleData < LuckyTask::Task
       hidden_grandchild = CreateComment.create!(
         parent_id: hidden_child.id,
         user_id: reader.id,
-        content: "这条后代评论没有被软删除，只因根评论被删除而不可见。恢复根评论后，可以再次通过原来的跳转链接访问。"
+        content: "这条叶子评论先被软删除，随后父评论和根评论才可以删除。它们的原文和 HTML 都保留在回收站。"
       )
+      DeleteComment.delete!(hidden_grandchild, actor_id: admin.id)
       DeleteComment.delete!(hidden_child, actor_id: admin.id)
       DeleteComment.delete!(deleted_root, actor_id: admin.id)
 
@@ -533,11 +534,12 @@ class Db::Seed::SampleData < LuckyTask::Task
       user_id: reader.id,
       content: "这条评论在主题删除之前就已经单独删除。只恢复主题，不应该把它一起恢复。"
     )
-    CreateComment.create!(
+    grandchild = CreateComment.create!(
       parent_id: child.id,
       user_id: author.id,
-      content: "恢复主题后，这条没有被删除的后代评论仍然保留，并显示回复已删除评论的提示。"
+      content: "这条叶子回复在主题删除前单独删除，之后父评论才允许删除；恢复主题不会自动恢复它们。"
     )
+    DeleteComment.delete!(grandchild, actor_id: admin.id)
     DeleteComment.delete!(child, actor_id: admin.id)
     DeleteTopic.delete!(topic, actor_id: admin.id)
 
