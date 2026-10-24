@@ -1,32 +1,67 @@
-class Comments::CardAction < BaseComponent
+class Comments::CardControls < BaseComponent
   needs comment : Comment
   needs order_by : String
-  needs thread_expanded : Bool = false
+  # 子评论按钮是展开还是关闭。
+  needs reply_expanded : Bool = false
+  # 是否保留现有展开／折叠按钮，不重新设置它的状态。
+  needs preserve_thread_toggle : Bool = false
 
   def render : Nil
     div(
-      id: "comment-#{comment.id}-actions",
+      id: "comment-#{comment.id}-controls",
       class: "flex flex-1 flex-wrap items-center justify-end gap-x-4 gap-y-3"
     ) do
       if comment.parent_id.nil?
-        mount(
-          Comments::ThreadToggle,
-          comment: comment,
-          order_by: order_by,
-          expanded: thread_expanded?,
-          current_user: current_user
-        )
+        if preserve_thread_toggle?
+          # 保留展开／折叠按钮当前状态，与卡片内保留的回复列表一致。
+          div id: "comment-#{comment.id}-thread-toggle", hx_preserve: "true"
+        else
+          mount(
+            Comments::ThreadToggle,
+            comment: comment,
+            order_by: order_by,
+            expanded: reply_expanded?,
+            current_user: current_user
+          )
+        end
       end
 
       if (me = current_user)
-        render_comment_actions(me)
+        if comment.withdrawn?
+          render_withdrawn_actions(me)
+        else
+          render_comment_actions(me)
+        end
       end
     end
   end
 
-  private def render_comment_actions(me : User) : Nil
+  private def render_withdrawn_actions(me : User) : Nil
+    return unless me.id == comment.user_id || me.admin?
+
     list_id = comment.root_id ? "comment-#{comment.root_id}-comments" : "comments"
 
+    button(
+      r("common.restore").t,
+      type: "button",
+      class: "action-button action-button-accent",
+      hx_post: Htmx::Comments::Restore.with(id: comment.id).path,
+      hx_include: "##{list_id}-order-by",
+      hx_target: "#comment-#{comment.id}-body",
+      # HTMX 4 的 settle 过渡会先覆盖 hx-preserve，跳过过渡才能保留回复 DOM。
+      hx_swap: "outerHTML settle:0"
+    )
+
+    if comment.deletable?
+      mount(
+        Comments::DeleteOrWithdraw,
+        comment: comment,
+        current_user: me
+      )
+    end
+  end
+
+  private def render_comment_actions(me : User) : Nil
     opts = {
       type:       "button",
       class:      "action-button action-button-accent",
@@ -36,7 +71,7 @@ class Comments::CardAction < BaseComponent
       script:     Comments::Dialog.open_comment_dialog,
     }
 
-    div class: "flex shrink-0 flex-wrap items-center justify-end gap-2" do
+    div class: "flex max-w-full shrink-0 flex-wrap items-center justify-end gap-2" do
       button(
         r("common.reply").t,
         opts,
@@ -50,24 +85,11 @@ class Comments::CardAction < BaseComponent
           hx_get: Htmx::Comments::Edit.with(id: comment.id, order_by: order_by).path
         )
 
-        if me.admin? || !CommentQuery.new.with_soft_deleted.parent_id(comment.id).any?
-          confirmation = if comment.root_id.nil? && comment.descendants_count > 0
-                           r(".confirm_delete_branch").t
-                         else
-                           r(".confirm_delete").t
-                         end
-
-          button(
-            r("common.delete").t,
-            type: "button",
-            class: "action-button action-button-danger",
-            hx_delete: Htmx::Comments::Delete.with(id: comment.id).path,
-            hx_include: "##{list_id}-order-by",
-            hx_target: "##{list_id}",
-            hx_swap: "outerHTML swap:1s",
-            hx_confirm: confirmation
-          )
-        end
+        mount(
+          Comments::DeleteOrWithdraw,
+          comment: comment,
+          current_user: me
+        )
       end
     end
   end

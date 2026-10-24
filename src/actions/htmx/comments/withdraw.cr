@@ -9,7 +9,7 @@ class Htmx::Comments::Withdraw < CommentAction
     AppDatabase.transaction do
       target = lock_comment(CommentQuery.find(id))
 
-      return head 403 unless target.user_id == me.id
+      return head 403 unless target.user_id == me.id || me.admin?
       return head 404 unless comment_available?(target)
 
       Comment::SaveOperation.update!(target, withdrawn: true)
@@ -18,11 +18,11 @@ class Htmx::Comments::Withdraw < CommentAction
     comment = CommentQuery.new.id(id).preload_user.preload_parent(&.preload_user).first
 
     component(
-      ::Comments::Card,
+      ::Comments::CardBody,
       comment: comment,
       formatter: formatter,
       order_by: order_by,
-      preserve_reply_list: true,
+      preserve_thread_toggle: true,
       current_user: me
     )
   end

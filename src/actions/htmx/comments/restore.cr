@@ -9,7 +9,7 @@ class Htmx::Comments::Restore < CommentAction
     AppDatabase.transaction do
       target = lock_comment(CommentQuery.find(id))
 
-      return head 403 unless target.user_id == me.id
+      return head 403 unless target.user_id == me.id || me.admin?
       return head 404 unless comment_available?(target)
 
       Comment::SaveOperation.update!(target, withdrawn: false)
@@ -20,11 +20,11 @@ class Htmx::Comments::Restore < CommentAction
     query.preload_votes(&.user_id(me.id))
 
     component(
-      ::Comments::Card,
+      ::Comments::CardBody,
       comment: query.first,
       formatter: formatter,
       order_by: order_by,
-      preserve_reply_list: true,
+      preserve_thread_toggle: true,
       current_user: me
     )
   end

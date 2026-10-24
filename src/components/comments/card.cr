@@ -3,17 +3,17 @@ class Comments::Card < BaseComponent
   needs comment : Comment
   needs order_by : String
   needs show_update_success : Bool = false
-  needs focused_comment : Comment? = nil
+  needs focused_comment_id : Int64? = nil
+
+  # 新生成的按钮是否按展开状态显示。
+  needs reply_expanded : Bool = false
 
   def render : Nil
-    focus = focused_comment
-
-    # **当前卡片是不是目标评论所属的根评论？**如果是，就自动展开它，才能找到目标子评论。
-    expand_thread = focus.try(&.root_id) == comment.id
+    focus_id = focused_comment_id
     options = {} of String => String
 
-    if focus.try(&.id) == comment.id
-      options["script"] = <<-HYPER
+    if focus_id == comment.id
+      scroll_to_and_highlight_comment_script = <<-HYPER
 init
   wait a tick
   scroll to the middle of me smoothly
@@ -22,6 +22,8 @@ init
   remove .comment-focused
 end
 HYPER
+
+      options["script"] = scroll_to_and_highlight_comment_script
     end
 
     article(
@@ -30,45 +32,21 @@ HYPER
       id: "comment-#{comment.id}"
     ) do
       mount(
-        Comments::CardContent,
+        Comments::CardBody,
         formatter: formatter,
         comment: comment,
+        order_by: order_by,
         show_update_success: show_update_success?,
+        reply_expanded: reply_expanded?,
         current_user: current_user
       )
 
-      me = current_user
-      voted_types = me ? comment.votes.map(&.vote_type) : [] of String
-
-      footer(
-        id: "comment-#{comment.id}-footer",
-        class: "mt-2 flex flex-wrap items-end justify-between gap-x-4 gap-y-3"
-      ) do
-        div class: "flex min-w-0 flex-wrap items-center gap-2 text-sm" do
-          mount(
-            Shared::VoteButton,
-            vote_counts: Hash(String, Int32).from_json(comment.vote_counts.to_json),
-            comment_id: comment.id,
-            current_user: me,
-            voted_types: voted_types
-          )
-        end
-
-        mount(
-          Comments::CardAction,
-          comment: comment,
-          order_by: order_by,
-          thread_expanded: expand_thread,
-          current_user: me
-        )
-      end
-
-      if expand_thread && focus
+      if reply_expanded? && focus_id
         div(
           id: "comment-#{comment.id}-comments",
           hx_get: Htmx::Comments::Index.with(
             root_id: comment.id,
-            comment_id: focus.id,
+            comment_id: focus_id,
             order_by: order_by
           ).path,
           hx_trigger: "load",
@@ -84,8 +62,10 @@ HYPER
   end
 
   private def comment_card_classes : String
-    classes = "app-panel mt-6 px-4 py-2 sm:px-7"
-    classes += comment.parent_id ? " bg-green-100 sm:ml-8" : " bg-white"
+    # 主体局部替换后，背景色随其撤回状态变化，不需要重新渲染外壳。
+    classes = "app-panel mt-6 px-4 py-2 sm:px-7 has-[>.comment-withdrawn]:bg-gray-100"
+    classes += comment.parent_id ? " bg-green-100" : " bg-white"
+    classes += " sm:ml-8" if comment.parent_id
     classes
   end
 end

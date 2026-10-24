@@ -23,14 +23,14 @@ class Comments::Deleted < BaseComponent
     if root
       tag(
         "hx-partial",
-        hx_target: "#comment-#{root.id}-actions",
+        hx_target: "#comment-#{root.id}-controls",
         hx_swap: "outerHTML swap:1s"
       ) do
         mount(
-          Comments::CardAction,
+          Comments::CardControls,
           comment: root,
           order_by: pagination[:order_by],
-          thread_expanded: pagination[:count] > 0,
+          reply_expanded: pagination[:count] > 0,
           current_user: current_user
         )
       end

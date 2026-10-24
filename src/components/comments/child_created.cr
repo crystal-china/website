@@ -16,14 +16,14 @@ class Comments::ChildCreated < BaseComponent
 
     tag(
       "hx-partial",
-      hx_target: "#comment-#{root_comment.id}-actions",
+      hx_target: "#comment-#{root_comment.id}-controls",
       hx_swap: "outerHTML"
     ) do
       mount(
-        Comments::CardAction,
+        Comments::CardControls,
         comment: root_comment,
         order_by: pagination[:order_by],
-        thread_expanded: true,
+        reply_expanded: true,
         current_user: current_user
       )
     end
