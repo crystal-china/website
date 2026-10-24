@@ -81,9 +81,10 @@ zh-CN:
   comments:
     card:
       locating_comment: 正在定位评论...
-    card_action:
-      confirm_delete_branch: 删除后，子回复也将不可见。确定继续？
+    delete_or_withdraw:
       confirm_delete: 删除这条回复？
+      withdraw: 撤回
+      confirm_withdraw: 撤回此评论？之后可以恢复原文，回复仍然可见。
     card_content:
       edited_at: 已编辑于 %{time}
       floor: "%{floor} 楼"
@@ -103,6 +104,7 @@ zh-CN:
       newest: 最新
 
   common:
+    comment_withdrawn: 此评论内容已撤回
     unknown: "未知"
     discard_changes: "内容尚未保存，确定放弃修改吗？"
     comment: 评论

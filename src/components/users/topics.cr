@@ -72,7 +72,7 @@ class Users::Topics < BaseComponent
 
       if reply
         link(
-          reply.content[0, 240],
+          reply.withdrawn? ? r("common.comment_withdrawn").t : reply.content[0, 240],
           to: Comments::Show.with(id: reply.id),
           class: "mt-3 block line-clamp-3 text-sm leading-relaxed break-words whitespace-pre-line text-gray-700 no-underline hover:text-sky-700"
         )

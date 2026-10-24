@@ -10,7 +10,11 @@ class Comments::CardContent < BaseComponent
       hr class: "my-2 border-0 border-t border-gray-300"
 
       div class: "prose-neutral max-w-none prose text-base leading-7" do
-        raw(comment.content_html || user_markdown(comment.content))
+        if comment.withdrawn?
+          para r("common.comment_withdrawn").t, class: "text-sm text-gray-500"
+        else
+          raw(comment.content_html || user_markdown(comment.content))
+        end
       end
     end
   end

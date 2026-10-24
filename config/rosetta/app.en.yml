@@ -81,9 +81,10 @@ en:
   comments:
     card:
       locating_comment: Locating comment...
-    card_action:
-      confirm_delete_branch: Deleting this comment also hides its replies. Continue?
+    delete_or_withdraw:
       confirm_delete: Delete this reply?
+      withdraw: Withdraw
+      confirm_withdraw: Withdraw this comment? You can restore it later. Replies remain visible.
     card_content:
       edited_at: Edited %{time}
       floor: "#%{floor}"
@@ -104,6 +105,7 @@ en:
       newest: Newest
 
   common:
+    comment_withdrawn: This comment has been withdrawn
     unknown: "unknown"
     discard_changes: "You have unsaved changes. Discard them?"
     comment: Comment
