@@ -98,6 +98,73 @@ describe "Soft deletion" do
     CommentQuery.new.publicly_visible_comments.first.id.should eq(comment.id)
   end
 
+  it "allows deletion from leaves upward and prevents administrators from bypassing reply counters" do
+    author = UserFactory.create
+    other = UserFactory.create
+    admin = UserFactory.create &.email("soft-delete-admin@example.com")
+    doc = SaveDoc.create!(path_index: "/docs/delete-child-counts", content: "文档正文")
+    thread = CommentThreadQuery.new.doc_id(doc.id).first
+    root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "root")
+    child = CreateComment.create!(user_id: other.id, parent_id: root.id, content: "child")
+    grandchild = CreateComment.create!(user_id: other.id, parent_id: child.id, content: "grandchild")
+    leaf = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "leaf")
+    client = ApiClient.new
+    response = client.get("/htmx/comments?comment_thread_id=#{thread.id}&backdoor_user_id=#{author.id}")
+    document = XML.parse_html(response.body)
+
+    document.xpath_node("//button[@hx-delete='/htmx/comments/#{root.id}']").should be_nil
+    document.xpath_node("//button[@hx-post='/htmx/comments/#{root.id}/withdraw']").should_not be_nil
+    document.xpath_node("//button[@hx-delete='/htmx/comments/#{leaf.id}']").should_not be_nil
+    response = client.get("/htmx/comments?comment_thread_id=#{thread.id}&backdoor_user_id=#{admin.id}")
+    XML.parse_html(response.body).xpath_node("//button[@hx-post='/htmx/comments/#{root.id}/withdraw']").should_not be_nil
+
+    Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
+      client.delete("/htmx/comments/#{root.id}?backdoor_user_id=#{other.id}").status_code.should eq(403)
+      client.delete("/htmx/comments/#{root.id}?backdoor_user_id=#{author.id}").status_code.should eq(409)
+      client.delete("/htmx/comments/#{root.id}?backdoor_user_id=#{admin.id}").status_code.should eq(409)
+      client.delete("/htmx/comments/#{child.id}?backdoor_user_id=#{admin.id}").status_code.should eq(409)
+      client.delete("/htmx/comments/#{grandchild.id}?backdoor_user_id=#{other.id}").status_code.should eq(200)
+      CommentQuery.find(child.id).children_count.should eq(0)
+      client.delete("/htmx/comments/#{root.id}?backdoor_user_id=#{author.id}").status_code.should eq(409)
+      client.delete("/htmx/comments/#{child.id}?backdoor_user_id=#{other.id}").status_code.should eq(200)
+      CommentQuery.find(root.id).descendants_count.should eq(0)
+
+      response = client.get("/htmx/comments?comment_thread_id=#{thread.id}&backdoor_user_id=#{author.id}")
+      XML.parse_html(response.body).xpath_node("//button[@hx-delete='/htmx/comments/#{root.id}']").should_not be_nil
+      client.delete("/htmx/comments/#{leaf.id}?backdoor_user_id=#{author.id}").status_code.should eq(200)
+      client.delete("/htmx/comments/#{root.id}?backdoor_user_id=#{author.id}").status_code.should eq(200)
+      CommentQuery.new.with_soft_deleted.id(root.id).first.children_count.should eq(0)
+    end
+  end
+
+  it "renders authors' delete buttons without querying each comment's children" do
+    author = UserFactory.create
+    doc = SaveDoc.create!(path_index: "/docs/delete-button-queries", content: "文档正文")
+    thread = CommentThreadQuery.new.doc_id(doc.id).first
+    10.times { CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "comment") }
+    test_mode = Pulsar.test_mode_enabled?
+    Pulsar.test_mode_enabled = true
+    Avram::Events::QueryEvent.logged_events.clear
+
+    response = ApiClient.new.get("/htmx/comments?comment_thread_id=#{thread.id}&backdoor_user_id=#{author.id}")
+    queries = Avram::Events::QueryEvent.logged_events.map(&.query)
+
+    response.status_code.should eq(200)
+    XML.parse_html(response.body).xpath_nodes("//button[@hx-delete]").size.should eq(10)
+    queries.any? { |sql| sql.starts_with?("SELECT 1") && sql.includes?("parent_id") }.should be_false
+
+    Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
+      comment = CommentQuery.new.first
+      Avram::Events::QueryEvent.logged_events.clear
+      ApiClient.new.delete("/htmx/comments/#{comment.id}?backdoor_user_id=#{author.id}").status_code.should eq(200)
+      queries = Avram::Events::QueryEvent.logged_events.map(&.query)
+      queries.any? { |sql| sql.starts_with?("SELECT 1") && sql.includes?("parent_id") }.should be_false
+    end
+  ensure
+    Pulsar.test_mode_enabled = test_mode if test_mode.is_a?(Bool)
+    Avram::Events::QueryEvent.logged_events.clear
+  end
+
   it "keeps newly synced empty Markdown documents visible" do
     doc = DocContent.sync("/docs/empty-document", "")
     thread = CommentThreadQuery.new.doc_id(doc.id).first
@@ -160,6 +227,7 @@ describe "Soft deletion" do
       client.post("/htmx/comments?#{auth}", id: child.id, op: "new", content: "不能回复").status_code.should eq(404)
       client.post("/htmx/comments?#{auth}", id: child.id, op: "edit", content: "不能编辑").status_code.should eq(404)
       client.delete("/htmx/comments/#{child.id}?#{auth}").status_code.should eq(404)
+      client.post("/htmx/comments/#{child.id}/withdraw?#{auth}").status_code.should eq(404)
       client.patch("/htmx/vote?#{auth}", comment_id: child.id, vote_type: "👍").status_code.should eq(404)
       CommentQuery.new.select_count.should eq(2)
       CommentQuery.find(child.id).content.should eq(child.content)
