@@ -19,14 +19,16 @@ class Htmx::Comments::CreateOrUpdate < CommentAction
 
     if !id.nil?
       comment = CommentQuery.find(id.not_nil!)
-      return head 404 unless comment_available?(comment)
 
       case op
       when "edit"
+        return head 404 unless comment_available?(comment)
+
         # 编辑一条已有评论。这里 comment 可能是：
         # - CommentThread 的顶级评论
         # - 针对 comment 的子评论
         return head 403 unless comment.user_id == me.id || me.admin?
+        return head 409 if comment.withdrawn?
 
         UpdateComment.update!(
           comment,
@@ -49,11 +51,22 @@ class Htmx::Comments::CreateOrUpdate < CommentAction
         # 为一条已有评论新建子评论。这里的 comment 是“被回复的那条旧评论”。
         # 回复顶级评论时，它自己就是线程根；回复子评论时，继承该子评论所属的线程根。
         root_id = comment.root_id || comment.id
-        comment = CreateComment.create!(
-          user_id: me.id,
-          parent_id: comment.id,
-          content: content
-        )
+        reply : Comment? = nil
+        AppDatabase.transaction do
+          parent = lock_comment(comment)
+
+          next unless comment_available?(parent)
+
+          reply = CreateComment.create!(
+            user_id: me.id,
+            parent_id: parent.id,
+            content: content
+          )
+        end
+
+        return head 404 if reply.nil?
+
+        comment = reply.not_nil!
         pagination = comments_pagination(root_id: root_id, order_by: order_by)
         html_id = "comment-#{root_id}-comments"
         root_comment = CommentQuery.find(root_id)
