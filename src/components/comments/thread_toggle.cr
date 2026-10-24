@@ -4,12 +4,12 @@ class Comments::ThreadToggle < BaseComponent
   needs expanded : Bool = false
 
   def render : Nil
-    wrapper_class = comment.descendants_count > 0 ? "shrink-0" : "hidden"
-    expand_script = htmx_success <<-HEREDOC
+    wrapper_class = comment.descendants_count > 0 ? "comment-thread-toggle" : "hidden"
+    show_collapse_button_after_loading_replies = htmx_success <<-HEREDOC
 add @hidden to me
 remove @hidden from the next <button/>
 HEREDOC
-    collapse_script = <<-HYPER
+    clear_replies_and_show_expand_button = <<-HYPER
 on click
   put "" into #comment-#{comment.id}-comments
   add @hidden to me
@@ -29,15 +29,17 @@ HYPER
         button(
           type: "button",
           attrs: expanded? ? [:hidden] : [] of Symbol,
-          class: button_class,
+          class: "comment-thread-expand",
           hx_get: "/htmx/comments?root_id=#{comment.id}&page=1",
           hx_include: "previous input",
           hx_target: "#comment-#{comment.id}-comments",
           hx_swap: "outerHTML",
           flow_id: "comment-#{comment.id}-load_thread",
-          script: expand_script
+          script: show_collapse_button_after_loading_replies
         ) do
-          text r(".expand").t(count: comment.descendants_count)
+          span class: "comment-thread-icon"
+          span r(".expand").t(count: comment.descendants_count)
+
           mount(
             Shared::Spinner,
             text: r("common.loading_comments").t,
@@ -46,18 +48,16 @@ HYPER
         end
 
         button(
-          r(".collapse").t,
           type: "button",
           attrs: expanded? ? [] of Symbol : [:hidden],
-          class: button_class,
+          class: "comment-thread-collapse",
           flow_id: "comment-#{comment.id}-collapse_thread",
-          script: collapse_script
-        )
+          script: clear_replies_and_show_expand_button
+        ) do
+          span class: "comment-thread-icon"
+          span r(".collapse").t
+        end
       end
     end
-  end
-
-  private def button_class : String
-    "action-button action-button-accent w-52"
   end
 end

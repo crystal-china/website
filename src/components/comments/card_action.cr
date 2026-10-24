@@ -1,31 +1,12 @@
 class Comments::CardControls < BaseComponent
   needs comment : Comment
   needs order_by : String
-  # 子评论按钮是展开还是关闭。
-  needs reply_expanded : Bool = false
-  # 是否保留现有展开／折叠按钮，不重新设置它的状态。
-  needs preserve_thread_toggle : Bool = false
 
   def render : Nil
     div(
       id: "comment-#{comment.id}-controls",
       class: "flex flex-1 flex-wrap items-center justify-end gap-x-4 gap-y-3"
     ) do
-      if comment.parent_id.nil?
-        if preserve_thread_toggle?
-          # 保留展开／折叠按钮当前状态，与卡片内保留的回复列表一致。
-          div id: "comment-#{comment.id}-thread-toggle", hx_preserve: "true"
-        else
-          mount(
-            Comments::ThreadToggle,
-            comment: comment,
-            order_by: order_by,
-            expanded: reply_expanded?,
-            current_user: current_user
-          )
-        end
-      end
-
       if (me = current_user)
         if comment.withdrawn?
           render_withdrawn_actions(me)
@@ -48,8 +29,7 @@ class Comments::CardControls < BaseComponent
       hx_post: Htmx::Comments::Restore.with(id: comment.id).path,
       hx_include: "##{list_id}-order-by",
       hx_target: "#comment-#{comment.id}-body",
-      # HTMX 4 的 settle 过渡会先覆盖 hx-preserve，跳过过渡才能保留回复 DOM。
-      hx_swap: "outerHTML settle:0"
+      hx_swap: "outerHTML swap:1s"
     )
 
     if comment.deletable?

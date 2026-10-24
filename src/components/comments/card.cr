@@ -5,7 +5,7 @@ class Comments::Card < BaseComponent
   needs show_update_success : Bool = false
   needs focused_comment_id : Int64? = nil
 
-  # 新生成的按钮是否按展开状态显示。
+  # 通知定位子评论时，自动展开所属根评论的回复。
   needs reply_expanded : Bool = false
 
   def render : Nil
@@ -37,25 +37,36 @@ HYPER
         comment: comment,
         order_by: order_by,
         show_update_success: show_update_success?,
-        reply_expanded: reply_expanded?,
         current_user: current_user
       )
 
-      if reply_expanded? && focus_id
-        div(
-          id: "comment-#{comment.id}-comments",
-          hx_get: Htmx::Comments::Index.with(
-            root_id: comment.id,
-            comment_id: focus_id,
-            order_by: order_by
-          ).path,
-          hx_trigger: "load",
-          hx_swap: "outerHTML"
-        ) do
-          mount Shared::Spinner, text: r(".locating_comment").t
+      div class: "comment-thread" do
+        if comment.parent_id.nil?
+          mount(
+            Comments::ThreadToggle,
+            comment: comment,
+            order_by: order_by,
+            expanded: reply_expanded?,
+            current_user: current_user
+          )
         end
-      else
-        div id: "comment-#{comment.id}-comments" do
+
+        if reply_expanded? && focus_id
+          div(
+            id: "comment-#{comment.id}-comments",
+            hx_get: Htmx::Comments::Index.with(
+              root_id: comment.id,
+              comment_id: focus_id,
+              order_by: order_by
+            ).path,
+            hx_trigger: "load",
+            hx_swap: "outerHTML"
+          ) do
+            mount Shared::Spinner, text: r(".locating_comment").t
+          end
+        else
+          div id: "comment-#{comment.id}-comments" do
+          end
         end
       end
     end
@@ -66,6 +77,8 @@ HYPER
     classes = "app-panel mt-6 px-4 py-2 sm:px-7 has-[>.comment-withdrawn]:bg-gray-100"
     classes += comment.parent_id ? " bg-green-100" : " bg-white"
     classes += " sm:ml-8" if comment.parent_id
+    classes += " comment-root" if comment.parent_id.nil?
+
     classes
   end
 end

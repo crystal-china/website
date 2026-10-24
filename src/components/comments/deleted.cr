@@ -30,7 +30,20 @@ class Comments::Deleted < BaseComponent
           Comments::CardControls,
           comment: root,
           order_by: pagination[:order_by],
-          reply_expanded: pagination[:count] > 0,
+          current_user: current_user
+        )
+      end
+
+      tag(
+        "hx-partial",
+        hx_target: "#comment-#{root.id}-thread-toggle",
+        hx_swap: "outerHTML swap:1s"
+      ) do
+        mount(
+          Comments::ThreadToggle,
+          comment: root,
+          order_by: pagination[:order_by],
+          expanded: pagination[:count] > 0,
           current_user: current_user
         )
       end

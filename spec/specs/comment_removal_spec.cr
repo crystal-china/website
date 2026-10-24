@@ -58,7 +58,7 @@ describe "Comment deletion and withdrawal" do
       response.body.should_not contain("private original body")
       restore_button = document.xpath_node("//div[@id='comment-#{child.id}-body']//button[@hx-post='/htmx/comments/#{child.id}/restore']").not_nil!
       restore_button.content.should eq("恢复")
-      restore_button["hx-swap"].should eq("outerHTML settle:0")
+      restore_button["hx-swap"].should eq("outerHTML swap:1s")
       restore_button["hx-target"].should eq("#comment-#{child.id}-body")
       document.xpath_node("//article | //div[@id='comment-#{child.id}-comments']").should be_nil
       document.xpath_node("//header | //footer | //time | //img | //button[@hx-patch]").should be_nil
@@ -150,7 +150,7 @@ describe "Comment deletion and withdrawal" do
 
       document.xpath_node("//div[@id='comment-#{root.id}-body']").should_not be_nil
       document.xpath_node("//article | //div[@id='comment-#{root.id}-comments']").should be_nil
-      document.xpath_node("//div[@id='comment-#{root.id}-thread-toggle'][@hx-preserve='true']").should_not be_nil
+      document.xpath_node("//div[@id='comment-#{root.id}-thread-toggle'] | //*[@hx-preserve]").should be_nil
 
       response = client.get("/htmx/comments?comment_thread_id=#{thread.id}&backdoor_user_id=#{admin.id}")
       XML.parse_html(response.body).xpath_node("//button[@hx-post='/htmx/comments/#{root.id}/restore']").should_not be_nil
@@ -178,7 +178,9 @@ describe "Comment deletion and withdrawal" do
     response.body.should contain("此评论内容已撤回")
     document = XML.parse_html(response.body)
     document.xpath_node("//article[@id='comment-#{root.id}']/div[@id='comment-#{root.id}-body'][@class='comment-withdrawn']").should_not be_nil
-    document.xpath_node("//article[@id='comment-#{root.id}']/div[@id='comment-#{root.id}-comments']").should_not be_nil
+    document.xpath_node("//article[@id='comment-#{root.id}']/div[@class='comment-thread']/div[@id='comment-#{root.id}-comments']").should_not be_nil
+    document.xpath_node("//article[@id='comment-#{root.id}']/div[@class='comment-thread']/div[@id='comment-#{root.id}-thread-toggle']").should_not be_nil
+    document.xpath_node("//div[@id='comment-#{root.id}-body']//div[@id='comment-#{root.id}-thread-toggle']").should be_nil
     document.xpath_node("//button[@flow-id='comment-#{root.id}-load_thread'][not(@hidden)]").should_not be_nil
     document.xpath_node("//button[@flow-id='comment-#{root.id}-collapse_thread'][@hidden]").should_not be_nil
     document.xpath_node("//button[@hx-post='/htmx/comments/#{root.id}/restore']").should be_nil
@@ -190,6 +192,36 @@ describe "Comment deletion and withdrawal" do
     Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
       client.post("/htmx/comments/#{root.id}/withdraw?backdoor_user_id=#{author.id}").status_code.should eq(404)
       client.post("/htmx/comments/#{root.id}/restore?backdoor_user_id=#{author.id}").status_code.should eq(404)
+    end
+  end
+
+  it "refreshes the independent thread toggle when the first reply is created and the last reply is deleted" do
+    author = UserFactory.create
+    doc = DocContent.sync("/docs/thread-toggle", "文档正文")
+    thread = CommentThreadQuery.new.doc_id(doc.id).first
+    root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "root")
+    client = ApiClient.new
+
+    response = client.get("/htmx/comments?comment_thread_id=#{thread.id}&backdoor_user_id=#{author.id}")
+    document = XML.parse_html(response.body)
+
+    document.xpath_node("//div[@id='comment-#{root.id}-thread-toggle'][@class='hidden']").should_not be_nil
+
+    Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
+      response = client.post("/htmx/comments?backdoor_user_id=#{author.id}", id: root.id, op: "new", content: "first reply")
+      document = XML.parse_html(response.body)
+      child = CommentQuery.new.parent_id(root.id).first
+
+      response.status_code.should eq(200)
+      document.xpath_node("//hx-partial[@hx-target='#comment-#{root.id}-thread-toggle']//button[@flow-id='comment-#{root.id}-collapse_thread'][not(@hidden)]").should_not be_nil
+      document.xpath_node("//hx-partial[@hx-target='#comment-#{root.id}-controls']//button[@hx-post='/htmx/comments/#{root.id}/withdraw']").should_not be_nil
+
+      response = client.delete("/htmx/comments/#{child.id}?backdoor_user_id=#{author.id}")
+      document = XML.parse_html(response.body)
+
+      response.status_code.should eq(200)
+      document.xpath_node("//hx-partial[@hx-target='#comment-#{root.id}-thread-toggle']/div[@class='hidden']").should_not be_nil
+      document.xpath_node("//hx-partial[@hx-target='#comment-#{root.id}-controls']//button[@hx-delete='/htmx/comments/#{root.id}']").should_not be_nil
     end
   end
 

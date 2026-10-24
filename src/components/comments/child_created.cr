@@ -23,7 +23,20 @@ class Comments::ChildCreated < BaseComponent
         Comments::CardControls,
         comment: root_comment,
         order_by: pagination[:order_by],
-        reply_expanded: true,
+        current_user: current_user
+      )
+    end
+
+    tag(
+      "hx-partial",
+      hx_target: "#comment-#{root_comment.id}-thread-toggle",
+      hx_swap: "outerHTML"
+    ) do
+      mount(
+        Comments::ThreadToggle,
+        comment: root_comment,
+        order_by: pagination[:order_by],
+        expanded: true,
         current_user: current_user
       )
     end

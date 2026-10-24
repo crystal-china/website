@@ -51,4 +51,121 @@
       transform: none;
     }
   }
+
+  .comment-withdrawn {
+    @apply flex flex-wrap items-center justify-between gap-3;
+  }
+
+  /* 主体和回复区域保持独立 DOM，左侧留出分支线的位置。 */
+  .comment-root {
+    --comment-thread-line: #cbd5e1;
+    --comment-thread-background: #fff;
+    --comment-thread-icon-size: 1rem;
+    --comment-thread-gap: 0.75rem;
+    display: grid;
+    grid-template-columns: 1.75rem minmax(0, 1fr);
+    column-gap: var(--comment-thread-gap);
+  }
+
+  .comment-root:has(> .comment-withdrawn) {
+    --comment-thread-background: var(--color-gray-100);
+  }
+
+  .comment-root > .comment-body,
+  .comment-root > .comment-thread {
+    display: contents;
+  }
+
+  /* 撤回提示与恢复按钮作为一个整体排在同一行，不再拆成两行网格。 */
+  .comment-root > .comment-withdrawn,
+  .comment-root > .comment-body > [id$="-content"] {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+  }
+
+  .comment-root > .comment-body > footer {
+    grid-column: 2;
+    grid-row: 2;
+    min-width: 0;
+    margin-top: 0.5rem;
+  }
+
+  .comment-thread > [id$="-comments"] {
+    grid-column: 2;
+    grid-row: 4;
+    min-width: 0;
+  }
+
+  /* 回复存在时，竖线从加减号中心向下延伸；折叠清空列表后自然消失。 */
+  .comment-root > .comment-thread > [id$="-comments"]:not(:empty) {
+    margin-left: calc(var(--comment-thread-icon-size) / 2 - var(--comment-thread-gap));
+    padding-left: 1rem;
+    border-left: 1px solid var(--comment-thread-line);
+  }
+
+  /* 加减按钮始终位于操作栏下方同一位置，不随展开状态移动。 */
+  .comment-thread-toggle {
+    display: flex;
+    grid-column: 1 / -1;
+    grid-row: 3;
+    align-self: center;
+    margin-top: 0.75rem;
+    padding-left: 1.75rem;
+    z-index: 1;
+  }
+
+  .comment-thread-expand,
+  .comment-thread-collapse {
+    @apply inline-flex cursor-pointer items-center gap-3 border-0 bg-transparent p-0 text-sm font-medium text-sky-800 hover:text-sky-600;
+  }
+
+  .comment-thread-icon {
+    position: relative;
+    display: block;
+    width: var(--comment-thread-icon-size);
+    height: var(--comment-thread-icon-size);
+    flex-shrink: 0;
+    border: 1.5px solid currentColor;
+    border-radius: 50%;
+    background: var(--comment-thread-background);
+  }
+
+  .comment-thread-icon::before,
+  .comment-thread-expand .comment-thread-icon::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    width: 0.5rem;
+    height: 1.5px;
+    margin: auto;
+    background: currentColor;
+  }
+
+  .comment-thread-expand .comment-thread-icon::after {
+    transform: rotate(90deg);
+  }
+
+  .comment-thread:has(> .comment-thread-toggle)::before {
+    content: "";
+    grid-column: 1;
+    grid-row: 1 / 4;
+    margin-top: 2rem;
+    margin-bottom: 0.625rem;
+    border-left: 1px solid var(--comment-thread-line);
+    border-bottom: 1px solid var(--comment-thread-line);
+    border-bottom-left-radius: 1rem;
+  }
+
+  .comment-root:has(> .comment-withdrawn) > .comment-thread > .comment-thread-toggle {
+    margin-top: 0.375rem;
+  }
+
+  .comment-root:has(> .comment-withdrawn) > .comment-thread::before {
+    margin-top: 0.625rem;
+  }
+
+  .comment-root > .comment-thread > [id$="-comments"] > article {
+    margin-left: 0;
+  }
 }

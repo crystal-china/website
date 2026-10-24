@@ -22,7 +22,6 @@ class Htmx::Comments::Withdraw < CommentAction
       comment: comment,
       formatter: formatter,
       order_by: order_by,
-      preserve_thread_toggle: true,
       current_user: me
     )
   end

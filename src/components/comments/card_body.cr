@@ -3,9 +3,6 @@ class Comments::CardBody < BaseComponent
   needs comment : Comment
   needs order_by : String
   needs show_update_success : Bool = false
-  needs reply_expanded : Bool = false
-  # 展开按钮暂时仍在主体内；撤回／恢复时只保留它，不触碰外面的回复列表。
-  needs preserve_thread_toggle : Bool = false
 
   def render : Nil
     div(
@@ -21,18 +18,14 @@ class Comments::CardBody < BaseComponent
   end
 
   private def render_withdrawn : Nil
-    div class: "flex flex-wrap items-center justify-between gap-3" do
-      para r("common.comment_withdrawn").t, class: "m-0 text-sm text-gray-500"
+    para r("common.comment_withdrawn").t, class: "m-0 text-sm text-gray-500"
 
-      mount(
-        Comments::CardControls,
-        comment: comment,
-        order_by: order_by,
-        reply_expanded: reply_expanded?,
-        preserve_thread_toggle: preserve_thread_toggle?,
-        current_user: current_user
-      )
-    end
+    mount(
+      Comments::CardControls,
+      comment: comment,
+      order_by: order_by,
+      current_user: current_user
+    )
   end
 
   private def render_content : Nil
@@ -65,8 +58,6 @@ class Comments::CardBody < BaseComponent
         Comments::CardControls,
         comment: comment,
         order_by: order_by,
-        reply_expanded: reply_expanded?,
-        preserve_thread_toggle: preserve_thread_toggle?,
         current_user: me
       )
     end
