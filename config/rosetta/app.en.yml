@@ -82,9 +82,8 @@ en:
     card:
       locating_comment: Locating comment...
     delete_or_withdraw:
-      confirm_delete: Delete this reply?
+      confirm_delete: This cannot be undone.
       withdraw: Withdraw
-      confirm_withdraw: Withdraw this comment? You can restore it later. Replies remain visible.
     card_content:
       edited_at: Edited %{time}
       floor: "#%{floor}"

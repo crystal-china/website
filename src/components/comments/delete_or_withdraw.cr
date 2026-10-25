@@ -30,8 +30,7 @@ class Comments::DeleteOrWithdraw < BaseComponent
           r(".withdraw").t,
           opts,
           hx_post: Htmx::Comments::Withdraw.with(id: comment.id).path,
-          hx_target: "#comment-#{comment.id}-body",
-          hx_confirm: r(".confirm_withdraw").t
+          hx_target: "#comment-#{comment.id}-body"
         )
       end
     end

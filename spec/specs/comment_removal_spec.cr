@@ -59,6 +59,7 @@ describe "Comment deletion and withdrawal" do
       restore_button = document.xpath_node("//div[@id='comment-#{child.id}-body']//button[@hx-post='/htmx/comments/#{child.id}/restore']").not_nil!
       restore_button.content.should eq("恢复")
       restore_button["hx-swap"].should eq("outerHTML swap:1s")
+      restore_button["hx-confirm"]?.should be_nil
       restore_button["hx-target"].should eq("#comment-#{child.id}-body")
       document.xpath_node("//article | //div[@id='comment-#{child.id}-replies-list']").should be_nil
       document.xpath_node("//header | //footer | //time | //img | //button[@hx-patch]").should be_nil
@@ -206,6 +207,7 @@ describe "Comment deletion and withdrawal" do
     document = XML.parse_html(response.body)
 
     document.xpath_node("//div[@id='comment-#{root.id}-replies-toggle'][@class='hidden']").should_not be_nil
+    document.xpath_node("//button[@hx-delete='/htmx/comments/#{root.id}']").not_nil!["hx-confirm"].should eq("删除后无法回复")
 
     response = client.get("/htmx/comments/new?id=#{root.id}&backdoor_user_id=#{author.id}")
     XML.parse_html(response.body).xpath_node("//form[@hx-target='#comment-#{root.id}-replies']").should_not be_nil
@@ -220,6 +222,7 @@ describe "Comment deletion and withdrawal" do
       document.xpath_node("//div[@id='comment-#{root.id}-replies']/div[@id='comment-#{root.id}-replies-list']//article[@id='comment-#{child.id}']").should_not be_nil
       document.xpath_node("//hx-partial[@hx-target='#comment-#{root.id}-replies-toggle']").should be_nil
       document.xpath_node("//hx-partial[@hx-target='#comment-#{root.id}-controls']//button[@hx-post='/htmx/comments/#{root.id}/withdraw']").should_not be_nil
+      document.xpath_node("//button[@hx-post='/htmx/comments/#{root.id}/withdraw']").not_nil!["hx-confirm"]?.should be_nil
 
       response = client.get("/htmx/comments/new?id=#{child.id}&backdoor_user_id=#{author.id}")
       XML.parse_html(response.body).xpath_node("//form[@hx-target='#comment-#{root.id}-replies']").should_not be_nil

@@ -82,9 +82,8 @@ zh-CN:
     card:
       locating_comment: 正在定位评论...
     delete_or_withdraw:
-      confirm_delete: 删除这条回复？
+      confirm_delete: 删除后无法回复
       withdraw: 撤回
-      confirm_withdraw: 撤回此评论？之后可以恢复原文，回复仍然可见。
     card_content:
       edited_at: 已编辑于 %{time}
       floor: "%{floor} 楼"
