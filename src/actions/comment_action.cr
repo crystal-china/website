@@ -33,10 +33,12 @@ abstract class CommentAction < BrowserAction
     if comment_thread_id
       q = CommentQuery.new.comment_thread_id(comment_thread_id).parent_id.is_nil
       url = "/htmx/comments?comment_thread_id=#{comment_thread_id}"
+      item_count = CommentThreadQuery.find(comment_thread_id).root_comments_count
     else
       root_id = root_id.not_nil!
       q = CommentQuery.new.root_id(root_id)
       url = "/htmx/comments?root_id=#{root_id}"
+      item_count = CommentQuery.find(root_id).descendants_count
     end
 
     q = order_by == "desc" ? q.floor.desc_order : q.floor.asc_order
@@ -47,7 +49,14 @@ abstract class CommentAction < BrowserAction
       q = q.preload_votes &.user_id(me.id)
     end
 
-    page, comments = paginate(q, per_page: PER_PAGE)
+    # Avram 的 paginate 总会执行 COUNT；这里复用数据库 trigger 维护的计数。
+    page = Lucky::Paginator.new(
+      page: paginator_page,
+      per_page: PER_PAGE,
+      item_count: item_count,
+      full_path: context.request.resource
+    )
+    comments = q.limit(page.per_page).offset(page.offset)
 
     {
       count:    page.item_count,

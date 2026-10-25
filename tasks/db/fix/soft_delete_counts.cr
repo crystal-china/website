@@ -14,6 +14,16 @@ class Db::Fix::SoftDeleteCounts < LuckyTask::Task
           WHERE child.root_id = parent.id AND child.soft_deleted_at IS NULL
         )
         SQL
+
+      AppDatabase.exec <<-SQL
+        UPDATE comment_threads AS thread
+        SET root_comments_count = (
+          SELECT COUNT(*) FROM comments
+          WHERE comment_thread_id = thread.id
+            AND parent_id IS NULL
+            AND soft_deleted_at IS NULL
+        )
+        SQL
     end
 
     puts "Visible comment counters rebuilt"
