@@ -21,6 +21,7 @@ class Comments::CardContent < BaseComponent
 
   private def render_avatar_name_and_time : Nil
     user = comment.user
+    fade_comment_update_success_message_script = "init transition my opacity to 0% over 3 seconds"
 
     header class: "flex flex-wrap items-start justify-between gap-3 sm:flex-nowrap" do
       div class: "flex min-w-0 items-center gap-3" do
@@ -67,7 +68,7 @@ class Comments::CardContent < BaseComponent
         if show_update_success?
           output(
             class: "text-xs font-medium text-green-600",
-            script: "init transition my opacity to 0% over 3 seconds"
+            script: fade_comment_update_success_message_script
           ) do
             text r(".updated").t
           end

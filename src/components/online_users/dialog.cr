@@ -1,18 +1,19 @@
 class OnlineUsers::Dialog < BaseComponent
   def render : Nil
-    dialog_script = <<-HYPER
+    close_online_users_dialog_and_restore_button_focus_script = <<-HYPER
 #{dialog_outside_click("close me")}
 
 on close
   focus the first <button/> in #online-users-status
 end
 HYPER
+    close_online_users_dialog_on_button_click_script = "on click close the closest <dialog/>"
 
     dialog(
       id: "online-users-dialog",
       "aria-labelledby": "online-users-title",
       class: "mx-auto mt-[8vh] max-h-[calc(100vh_-_2rem)] w-[calc(100%_-_2rem)] max-w-3xl rounded-xl border border-gray-300 bg-white p-0 shadow-xl sm:mt-[16vh]",
-      script: dialog_script
+      script: close_online_users_dialog_and_restore_button_focus_script
     ) do
       header class: "flex items-start justify-between gap-3 border-b border-gray-200 p-4" do
         div do
@@ -28,7 +29,7 @@ HYPER
           r("common.close").t,
           type: "button",
           class: "cursor-pointer text-sm text-gray-500 hover:text-gray-900",
-          script: "on click close the closest <dialog/>"
+          script: close_online_users_dialog_on_button_click_script
         )
       end
 

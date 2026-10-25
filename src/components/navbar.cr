@@ -76,11 +76,13 @@ class Navbar < BaseComponent
   end
 
   private def render_search_button : Nil
+    open_search_dialog_on_click_script = "on click call #search_dialog.showModal()"
+
     button(
       r("common.search").t,
       type: "button",
       class: nav_item_class(active: true),
-      script: "on click call #search_dialog.showModal()"
+      script: open_search_dialog_on_click_script
     )
   end
 

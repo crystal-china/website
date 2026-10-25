@@ -4,7 +4,7 @@ class Navbar::UserMenu < BaseComponent
 
     return if user.nil?
 
-    menu_script = <<-HYPER
+    close_user_menu_on_outside_click_or_escape_script = <<-HYPER
 on click from elsewhere
   remove @open from me
 end
@@ -19,7 +19,7 @@ HYPER
     # 原生 details 负责展开和键盘操作；只补上点击外部及 Esc 关闭。
     details(
       class: "nav-user-menu",
-      script: menu_script
+      script: close_user_menu_on_outside_click_or_escape_script
     ) do
       summary(
         class: "nav-user-trigger",

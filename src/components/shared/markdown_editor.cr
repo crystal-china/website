@@ -7,7 +7,7 @@ class Shared::MarkdownEditor < BaseComponent
     me = current_user
     id_input = "#{html_id}1"
     id_preview = "#{html_id}2"
-    preview_script = <<-HEREDOC
+    match_markdown_preview_height_and_update_cursor_script = <<-HEREDOC
   on click
     set textarea to ##{html_id}_text_area
     set preview to ##{html_id}_preview
@@ -22,6 +22,7 @@ class Shared::MarkdownEditor < BaseComponent
     end
   end
 HEREDOC
+    disable_markdown_preview_when_editor_is_empty_script = "bind @disabled to (the value of ##{html_id}_text_area is empty)"
 
     div class: "app-panel" do
       input(
@@ -41,7 +42,7 @@ HEREDOC
         hx_target: "next div.markdown-preview",
         hx_include: "##{html_id}_text_area",
         hx_indicator: "next img.htmx-indicator",
-        script: "bind @disabled to (the value of ##{html_id}_text_area is empty)",
+        script: disable_markdown_preview_when_editor_is_empty_script,
       )
 
       div class: "panel-toolbar markdown-editor-toolbar grid gap-4 p-4 md:grid-cols-[auto_1fr_auto] md:items-center" do
@@ -58,7 +59,7 @@ HEREDOC
             for: id_preview,
             flow_id: "#{html_id}-preview_comment",
             class: "segmented-option label2 cursor-pointer",
-            script: preview_script
+            script: match_markdown_preview_height_and_update_cursor_script
           )
         end
 

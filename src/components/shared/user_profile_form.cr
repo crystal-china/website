@@ -6,6 +6,7 @@ class Shared::UserProfileForm < BaseComponent
 
   def render : Nil
     login_name_editable = user.login_name_change_allowed? || current_user.not_nil!.admin?
+    remove_password_button_after_successful_request_script = htmx_success("remove me")
 
     section class: "app-panel mx-auto w-full max-w-3xl overflow-hidden" do
       header class: "panel-header flex flex-wrap items-center justify-between gap-4" do
@@ -122,7 +123,7 @@ class Shared::UserProfileForm < BaseComponent
                   hx_swap: "innerHTML",
                   hx_confirm: r(".confirm_remove_password").t,
                   hx_disable: "this",
-                  script: htmx_success("remove me")
+                  script: remove_password_button_after_successful_request_script
                 )
               end
             end

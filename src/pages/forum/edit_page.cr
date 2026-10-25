@@ -7,7 +7,7 @@ class Forum::EditPage < ForumLayout
   end
 
   def forum_content : Nil
-    cancel_editing_script = <<-HYPER
+    confirm_unsaved_topic_before_leaving_editor_script = <<-HYPER
 on cancelEditing
   set title_input to the first <input[type="text"]/> in me
   set textarea to the first <textarea/> in me
@@ -36,6 +36,7 @@ on keydown[event.key is "Escape"]
   send cancelEditing to me
 end
 HYPER
+    request_topic_edit_cancellation_script = "on click send cancelEditing to the closest <form/>"
 
     article class: "app-panel w-full overflow-hidden" do
       header class: "panel-header" do
@@ -48,7 +49,7 @@ HYPER
         hx_push_url: "false",
         # 标记草稿的归属
         data_draft_key: "#{current_user.not_nil!.id}:topic:#{topic.id}:edit",
-        script: cancel_editing_script
+        script: confirm_unsaved_topic_before_leaving_editor_script
       ) do
         mount(
           Forum::TopicFields,
@@ -60,7 +61,7 @@ HYPER
             r("common.cancel").t,
             type: "button",
             class: "form-secondary",
-            script: "on click send cancelEditing to the closest <form/>"
+            script: request_topic_edit_cancellation_script
           )
           submit r("common.save").t, class: "form-submit"
         end

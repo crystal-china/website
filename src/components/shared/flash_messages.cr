@@ -2,6 +2,8 @@ class Shared::FlashMessages < BaseComponent
   needs flash : Lucky::FlashStore
 
   def render : Nil
+    dismiss_flash_message_on_click_script = "on click remove me"
+
     flash.each do |flash_type, flash_message|
       flash_class = case flash_type
                     when "failure"
@@ -15,7 +17,7 @@ class Shared::FlashMessages < BaseComponent
       div(
         class: "flash-message #{flash_class} cursor-pointer",
         flow_id: "flash",
-        script: "on click remove me"
+        script: dismiss_flash_message_on_click_script
       ) do
         text flash_message
       end

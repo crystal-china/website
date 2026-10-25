@@ -15,7 +15,7 @@ class Comments::Toolbar < BaseComponent
 
       div class: "segmented-control" do
         [{r(".oldest").t, "asc"}, {r(".newest").t, "desc"}].each do |title, order|
-          order_script = <<-HYPER
+          remember_reply_sort_order_before_reloading_list_script = <<-HYPER
   on click
     set the value of the first .comment-order-state in the closest <article/> to "#{order}"
   end
@@ -28,7 +28,7 @@ HYPER
             hx_get: "#{pagination[:url]}&order_by=#{order}",
             hx_target: "##{html_id}",
             hx_swap: "outerHTML",
-            script: order_script
+            script: remember_reply_sort_order_before_reloading_list_script
           )
         end
       end
