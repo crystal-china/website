@@ -4,7 +4,7 @@ class Navbar::NotificationButton < BaseComponent
 
     return if user.nil?
 
-    unread_count = NotificationQuery.new.user_id(user.id).read_at.is_nil.select_count
+    unread_count = user.unread_notifications_count
     label = unread_count > 0 ? r(".unread_count").t(count: unread_count) : r("common.notifications").t
     open_notifications_dialog_on_click_script = "on click open #notifications-dialog"
 

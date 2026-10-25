@@ -29,6 +29,8 @@
 
 撤回和恢复只返回 `Comments::CardBody`，替换 `comment-ID-body`。外面的 `article` 和回复列表不在替换范围内，不需要用 `hx-preserve` 保留回复列表。
 
+删除、撤回和恢复都先淡出一秒再替换。根评论主体使用 `display: contents`，动画应用到主体的直接子元素，回复列表不会一起淡出。撤回和恢复不弹确认框；删除确认提示“删除后无法回复”。
+
 展开／折叠按钮与回复列表一起放在独立的 `comment-replies` 区域，始终位于评论操作栏下方同一位置。折叠时显示圆形加号和回复数量，展开后原位置显示圆形减号和折叠文字。分支弯线和图标均使用 CSS，不需要 SVG 或布局 JS。
 
 例如 A 已展开 B、C，撤回 A 时只更新正文和操作按钮，B、C 以及减号按钮完全不参与替换；如果原本折叠，则仍保持折叠。不再需要额外的保留状态参数或 `hx-preserve`。
@@ -49,4 +51,12 @@
 4. `src/components/comments/card_body.cr`：正常主体和撤回后的紧凑主体。
 5. `src/components/comments/card_controls.cr`、`delete_or_withdraw.cr`：恢复、删除、撤回按钮。
 
-部署时先执行 `lucky db.migrate`，再重启服务。保留原来的 `children_count` 和软删除计数 trigger，不需要计数回填任务。
+## 分页计数与部署
+
+主评论区使用 `comment_threads.root_comments_count`，只统计未软删除的根评论；根评论下的子分页使用已有的 `comments.descendants_count`。撤回不改变数量。trigger 在新增、软删除、恢复和物理删除时维护计数，普通分页不再调用 Avram 自动执行 COUNT 的 `paginate`。
+
+通知定位仍需计算目标评论前面有多少条记录，以确定它所在的页码；这个 COUNT 不是总数统计，继续保留。
+
+部署时先执行 `lucky db.migrate`，再重启服务。`20261025120000_add_root_comments_count_to_comment_threads.cr` 会在同一次迁移中创建计数和 trigger，并自动回填已有记录，不需要另跑回填任务。
+
+如果以后手工修改数据造成计数不一致，可运行 `bin/tasks db.fix.soft_delete_counts`，同时重建根评论数、直接回复数和后代数。这个 task 不改编辑时间、不发通知。

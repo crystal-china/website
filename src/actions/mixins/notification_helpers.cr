@@ -1,15 +1,18 @@
 module NotificationHelpers
   include Lucky::Paginator::BackendHelpers
 
-  private def render_notifications : Lucky::Response
+  private def render_notifications(user : User = current_user) : Lucky::Response
     only_show_unread = session.get?(:notifications_unread) == "true"
-    query = NotificationQuery.new.user_id(current_user.id)
-    has_unread_notifications = query.read_at.is_nil.any?
+    query = NotificationQuery.new.user_id(user.id)
+    has_unread_notifications = user.unread_notifications_count > 0
+    item_count = only_show_unread ? user.unread_notifications_count : user.notifications_count
+
     query = query.read_at.is_nil if only_show_unread
+
     pages = Lucky::Paginator.new(
       page: paginator_page,
       per_page: 20,
-      item_count: query.select_count,
+      item_count: item_count,
       # GET 和 POST 都返回列表，分页始终请求读取列表的 GET 路由。
       # 如果使用 paginate 方法，会使用当前请求地址 full_path: context.request.resource
       # 这这对 read_all, 会 GET /notifications/read_all?page=2, 这是错误的。
@@ -24,7 +27,7 @@ module NotificationHelpers
       pages: pages,
       has_unread_notifications: has_unread_notifications,
       only_show_unread: only_show_unread,
-      current_user: current_user
+      current_user: user
     )
   end
 end

@@ -15,10 +15,17 @@ abstract class ForumAction < BrowserAction
     context.response.headers["X-Draft-Saved"] = "true"
     context.response.headers["HX-Push-Url"] = path
 
-    render_topic(topic)
+    # 保存时可能产生 @自己的通知，直接返回的详情页需使用更新后的铃铛计数。
+    render_topic(topic, current_user: current_user.try(&.reload))
   end
 
-  private def render_topic(topic : Topic, *, followed_topics : Bool = false) : Lucky::Response
+  # html 的 expose 使用同名参数；保存后传入新对象，普通访问沿用当前用户。
+  private def render_topic(
+    topic : Topic,
+    *,
+    followed_topics : Bool = false,
+    current_user : User? = self.current_user,
+  ) : Lucky::Response
     comment_thread = CommentThreadQuery.new.topic_id(topic.id).first
     can_delete_topic = false
     following = false
