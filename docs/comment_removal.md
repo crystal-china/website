@@ -35,7 +35,9 @@
 
 `Comments::ListMore` 判断当前评论与定位目标的关系：目标根评论收到 `reply_expanded: true` 和目标 ID，目标评论收到自己的 ID，其余评论的目标 ID 为 `nil`。`Card` 不再判断根评论关系，也不再接收完整的目标评论对象。
 
-新增、删除回复会重新渲染当前分支列表，并通过 `hx-partial` 同步更新根评论操作区和独立的展开按钮。因此最后一条回复删除后，展开按钮消失，父评论重新显示删除按钮，即使父评论已经撤回。
+新增、删除子评论直接返回完整的 `Comments::Thread`，替换 `comment-ID-thread`，一次更新展开按钮和回复列表，不再单独 partial 更新 toggle。根评论正文中的操作区仍通过 `hx-partial` 更新：最后一条回复删除后，展开按钮消失，父评论重新显示删除按钮，即使父评论已经撤回。
+
+普通展开、排序和加载更多仍只更新内部列表 `comment-ID-comments`，折叠也只清空这个列表，不替换整个 thread。
 
 回复、删除、撤回和恢复均在事务内先锁根评论，再锁目标评论。回复在取得锁后重新检查可见性，删除在取得锁后检查最新计数。
 
@@ -43,7 +45,7 @@
 
 1. migration 和 `src/models/comment.cr`：新增状态、保留原有删除条件。
 2. `src/actions/htmx/comments/withdraw.cr`、`restore.cr`：权限、事务、切换状态与评论主体响应。
-3. `src/components/comments/list_more.cr`、`card.cr`：定位关系、回复展开与列表容器。
+3. `src/components/comments/list_more.cr`、`card.cr`、`thread.cr`：定位关系、回复展开与整个回复区域的渲染。
 4. `src/components/comments/card_body.cr`：正常主体和撤回后的紧凑主体。
 5. `src/components/comments/card_action.cr`、`delete_or_withdraw.cr`：恢复、删除、撤回按钮。
 

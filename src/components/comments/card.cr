@@ -40,34 +40,15 @@ HYPER
         current_user: current_user
       )
 
-      div class: "comment-thread" do
-        if comment.parent_id.nil?
-          mount(
-            Comments::ThreadToggle,
-            comment: comment,
-            order_by: order_by,
-            expanded: reply_expanded?,
-            current_user: current_user
-          )
-        end
-
-        if reply_expanded? && focus_id
-          div(
-            id: "comment-#{comment.id}-comments",
-            hx_get: Htmx::Comments::Index.with(
-              root_id: comment.id,
-              comment_id: focus_id,
-              order_by: order_by
-            ).path,
-            hx_trigger: "load",
-            hx_swap: "outerHTML"
-          ) do
-            mount Shared::Spinner, text: r(".locating_comment").t
-          end
-        else
-          div id: "comment-#{comment.id}-comments" do
-          end
-        end
+      if comment.parent_id.nil?
+        mount(
+          Comments::Thread,
+          formatter: formatter,
+          root_comment: comment,
+          order_by: order_by,
+          focused_comment_id: reply_expanded? ? focus_id : nil,
+          current_user: current_user
+        )
       end
     end
   end

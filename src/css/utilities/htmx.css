@@ -1,5 +1,6 @@
 @layer utilities {
-  [role="feed"].htmx-swapping > article[id^="comment-"]:has(button.htmx-request) {
+  [role="feed"].htmx-swapping > article[id^="comment-"]:has(button.htmx-request),
+  .comment-thread.htmx-swapping > [role="feed"] > article[id^="comment-"]:has(button.htmx-request) {
     opacity: 0;
     transition: opacity 1s ease-out;
   }
