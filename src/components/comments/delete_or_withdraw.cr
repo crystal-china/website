@@ -7,8 +7,8 @@ class Comments::DeleteOrWithdraw < BaseComponent
     return if me.nil? || (me.id != comment.user_id && !me.admin?)
 
     span id: "comment-#{comment.id}-delete-or-withdraw" do
-      list_id = comment.root_id ? "comment-#{comment.root_id}-comments" : "comments"
-      delete_target_id = comment.root_id ? "comment-#{comment.root_id}-thread" : "comments"
+      list_id = comment.root_id ? "comment-#{comment.root_id}-replies-list" : "comments"
+      delete_target_id = comment.root_id ? "comment-#{comment.root_id}-replies" : "comments"
       hx_swap = "outerHTML"
       opts = {
         type:       "button",

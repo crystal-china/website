@@ -42,7 +42,7 @@ HYPER
 
       if comment.parent_id.nil?
         mount(
-          Comments::Thread,
+          Comments::Replies,
           formatter: formatter,
           root_comment: comment,
           order_by: order_by,

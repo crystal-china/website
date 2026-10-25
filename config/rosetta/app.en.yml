@@ -94,7 +94,7 @@ en:
     load_more_button:
       load_more: Load more comments
       no_more: No more comments
-    thread_toggle:
+    replies_toggle:
       expand: Load replies (%{count})
       collapse: Collapse replies
     toolbar:

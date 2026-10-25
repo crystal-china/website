@@ -8,7 +8,7 @@ class Comments::Deleted < BaseComponent
 
     if root
       mount(
-        Comments::Thread,
+        Comments::Replies,
         formatter: formatter,
         root_comment: root,
         order_by: pagination[:order_by],

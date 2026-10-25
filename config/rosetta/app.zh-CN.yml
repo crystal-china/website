@@ -94,7 +94,7 @@ zh-CN:
     load_more_button:
       load_more: 加载更多评论
       no_more: 没有更多评论了
-    thread_toggle:
+    replies_toggle:
       expand: 加载子评论，共 %{count} 条
       collapse: 折叠子评论
     toolbar:

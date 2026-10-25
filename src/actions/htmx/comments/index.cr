@@ -59,7 +59,7 @@ class Htmx::Comments::Index < CommentAction
         comment_id: root_id
       )
     else
-      html_id = root_id ? "comment-#{root_id}-comments" : "comments"
+      html_id = root_id ? "comment-#{root_id}-replies-list" : "comments"
 
       component(
         ::Comments::List,

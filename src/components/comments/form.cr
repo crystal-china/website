@@ -52,7 +52,7 @@ HEREDOC
           target_id = target_comment_id || comment_id
           opts = opts.merge(
             hx_vals: %({"id": #{comment_id}, "op": "new"}),
-            hx_target: "#comment-#{target_id}-thread"
+            hx_target: "#comment-#{target_id}-replies"
           )
         else
           opts = opts.merge(

@@ -135,7 +135,7 @@ describe "Local editor drafts" do
 
     {
       "/forum/#{topic.id}"                             => {"tab", "#comments", {comment_thread_id: thread.id}.to_json},
-      "/htmx/comments/new?id=#{child.id}&order_by=asc" => {"comment", "#comment-#{root.id}-thread", {id: child.id, op: "new"}.to_json},
+      "/htmx/comments/new?id=#{child.id}&order_by=asc" => {"comment", "#comment-#{root.id}-replies", {id: child.id, op: "new"}.to_json},
       "/htmx/comments/edit/#{root.id}?order_by=desc"   => {"comment", "#comment-#{root.id}-content", {id: root.id, op: "edit"}.to_json},
     }.each do |path, (html_id, target, values)|
       document = XML.parse_html(client.get(path).body)

@@ -68,7 +68,7 @@ class Htmx::Comments::CreateOrUpdate < CommentAction
 
         comment = reply.not_nil!
         pagination = comments_pagination(root_id: root_id, order_by: order_by)
-        html_id = "comment-#{root_id}-comments"
+        html_id = "comment-#{root_id}-replies-list"
         root_comment = CommentQuery.find(root_id)
       else
         return head 400

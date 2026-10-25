@@ -6,7 +6,7 @@ class Comments::ChildCreated < BaseComponent
 
   def render : Nil
     mount(
-      Comments::Thread,
+      Comments::Replies,
       formatter: formatter,
       root_comment: root_comment,
       order_by: pagination[:order_by],

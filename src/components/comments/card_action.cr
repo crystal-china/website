@@ -20,7 +20,7 @@ class Comments::CardControls < BaseComponent
   private def render_withdrawn_actions(me : User) : Nil
     return unless me.id == comment.user_id || me.admin?
 
-    list_id = comment.root_id ? "comment-#{comment.root_id}-comments" : "comments"
+    list_id = comment.root_id ? "comment-#{comment.root_id}-replies-list" : "comments"
 
     button(
       r("common.restore").t,
