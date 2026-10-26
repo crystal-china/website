@@ -159,7 +159,7 @@ shards:
 
   rosetta:
     git: https://github.com/wout/rosetta.git
-    version: 1.0.1
+    version: 1.1.0
 
   sanitize:
     git: https://github.com/straight-shoota/sanitize.git
