@@ -26,7 +26,6 @@ class Comments::Replies < BaseComponent
             pagination: pages,
             html_id: "comment-#{root_comment.id}-replies-list",
             comment_id: comment_id,
-            current_user: current_user
           )
         else
           # 删除最后一条回复后，保留空容器，toggle 自动隐藏。
@@ -69,7 +68,6 @@ class Comments::Replies < BaseComponent
       comment: root_comment,
       order_by: order_by,
       expanded: expanded,
-      current_user: current_user
     )
   end
 end

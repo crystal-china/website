@@ -49,7 +49,6 @@ class Forum::TopicFields(T) < BaseComponent
       mount(
         Shared::MarkdownEditor,
         content: operation.content.value || "",
-        current_user: current_user,
         html_id: "topic",
         editor_height: "h-[24rem] min-h-[24rem] max-h-[60rem]"
       ) do

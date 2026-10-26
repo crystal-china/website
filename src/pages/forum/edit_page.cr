@@ -55,7 +55,6 @@ HYPER
           Forum::TopicFields,
           operation: operation,
           nodes: nodes,
-          current_user: current_user
         ) do
           button(
             r("common.cancel").t,

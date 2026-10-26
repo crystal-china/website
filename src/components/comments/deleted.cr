@@ -13,14 +13,12 @@ class Comments::Deleted < BaseComponent
         root_comment: root,
         order_by: pagination[:order_by],
         pagination: pagination,
-        current_user: current_user
       )
     else
       mount(
         Comments::List,
         formatter: formatter,
         pagination: pagination,
-        current_user: current_user,
         comment_id: nil,
         html_id: "comments"
       )
@@ -36,7 +34,6 @@ class Comments::Deleted < BaseComponent
           Comments::CardControls,
           comment: root,
           order_by: pagination[:order_by],
-          current_user: current_user
         )
       end
     end

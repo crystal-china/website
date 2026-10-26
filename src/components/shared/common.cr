@@ -3,7 +3,7 @@ class Shared::Common < BaseComponent
 
   def render : Nil
     # 放在 body 中，确保 hx-boost 导航后同步切换前端提示语言。
-    mount Shared::Translations, current_user: current_user
+    mount Shared::Translations
 
     div(
       id: "page-analytics",

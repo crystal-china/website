@@ -11,7 +11,6 @@ class Forum::Follows::Create < BrowserAction
       Forum::FollowButton,
       topic: topic,
       following: true,
-      current_user: me
     )
   end
 end

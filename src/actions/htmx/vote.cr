@@ -66,7 +66,6 @@ class Htmx::Vote < BrowserAction
       Shared::VoteButton,
       vote_counts: vote_counts,
       comment_id: comment_id,
-      current_user: current_user,
       voted_types: user_voted_types
     )
   end
@@ -112,7 +111,6 @@ class Htmx::Vote < BrowserAction
       Shared::VoteButton,
       vote_counts: vote_counts,
       doc_id: doc_id,
-      current_user: current_user,
       voted_types: user_voted_types
     )
   end

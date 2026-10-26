@@ -25,7 +25,6 @@ class Users::Show < BrowserAction
         entries: entries,
         pages: pages,
         show_replies: show_replies,
-        current_user: current_user
       )
     end
 

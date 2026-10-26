@@ -98,7 +98,6 @@ HEREDOC
       mount(
         Shared::MarkdownEditor,
         content: content,
-        current_user: me,
         html_id: html_id
       ) do
         if !comment_id.nil? && !me.nil?

@@ -40,7 +40,6 @@ class Htmx::Comments::Delete < CommentAction
       formatter: formatter,
       pagination: pagination,
       root_comment: root_comment,
-      current_user: me
     )
   end
 end

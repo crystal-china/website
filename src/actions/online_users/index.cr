@@ -13,7 +13,6 @@ class OnlineUsers::Index < BrowserAction
     component(
       ::OnlineUsers::List,
       users: users,
-      current_user: current_user
     )
   end
 end

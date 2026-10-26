@@ -24,7 +24,6 @@ class Htmx::Comments::Restore < CommentAction
       comment: query.first,
       formatter: formatter,
       order_by: order_by,
-      current_user: me
     )
   end
 end

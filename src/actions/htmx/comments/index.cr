@@ -55,7 +55,6 @@ class Htmx::Comments::Index < CommentAction
         formatter: formatter,
         pagination: pagination,
         page_number: page_number,
-        current_user: current_user,
         comment_id: root_id
       )
     else
@@ -65,7 +64,6 @@ class Htmx::Comments::Index < CommentAction
         ::Comments::List,
         formatter: formatter,
         pagination: pagination,
-        current_user: current_user,
         comment_id: root_id,
         html_id: html_id,
         focused_comment: focused_comment

@@ -21,7 +21,6 @@ class Forum::NewPage < ForumLayout
           Forum::TopicFields,
           operation: operation,
           nodes: nodes,
-          current_user: current_user
         ) do
           link(
             r("common.cancel").t,

@@ -40,7 +40,6 @@ class UserAudits::Index < BrowserAction
         audits: audits.results,
         pages: pages,
         show_account: user.nil?,
-        current_user: me
       )
     end
 

@@ -24,7 +24,6 @@ class Comments::CardBody < BaseComponent
       Comments::CardControls,
       comment: comment,
       order_by: order_by,
-      current_user: current_user
     )
   end
 
@@ -34,7 +33,6 @@ class Comments::CardBody < BaseComponent
       formatter: formatter,
       comment: comment,
       show_update_success: show_update_success?,
-      current_user: current_user
     )
 
     me = current_user
@@ -49,7 +47,6 @@ class Comments::CardBody < BaseComponent
           Shared::VoteButton,
           vote_counts: Hash(String, Int32).from_json(comment.vote_counts.to_json),
           comment_id: comment.id,
-          current_user: me,
           voted_types: voted_types
         )
       end
@@ -58,7 +55,6 @@ class Comments::CardBody < BaseComponent
         Comments::CardControls,
         comment: comment,
         order_by: order_by,
-        current_user: me
       )
     end
   end

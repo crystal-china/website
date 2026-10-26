@@ -17,7 +17,7 @@ class UserAudits::IndexPage < MainLayout
     div class: "#{page_container_classes} page-content" do
       if user.nil?
         div class: "flex flex-col items-start gap-8 lg:flex-row" do
-          mount Admin::Sidebar, current_user: current_user
+          mount Admin::Sidebar
 
           div class: "w-full min-w-0 flex-1" do
             render_events_panel

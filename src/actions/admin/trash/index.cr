@@ -30,7 +30,6 @@ class Admin::Trash::Index < AdminAction
         comments: comments,
         topics: topics,
         pages: pages,
-        current_user: current_user
       )
     end
 

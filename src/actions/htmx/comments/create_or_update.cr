@@ -45,7 +45,6 @@ class Htmx::Comments::CreateOrUpdate < CommentAction
           formatter: formatter,
           comment: q.first,
           show_update_success: true,
-          current_user: me
         )
       when "new"
         # 为一条已有评论新建子评论。这里的 comment 是“被回复的那条旧评论”。
@@ -93,7 +92,6 @@ class Htmx::Comments::CreateOrUpdate < CommentAction
         ::Comments::ChildCreated,
         formatter: formatter,
         pagination: pagination,
-        current_user: me,
         comment_id: comment.id,
         root_comment: root_comment
       )
@@ -102,7 +100,6 @@ class Htmx::Comments::CreateOrUpdate < CommentAction
         ::Comments::List,
         formatter: formatter,
         pagination: pagination,
-        current_user: me,
         comment_id: comment.id,
         html_id: html_id.to_s
       )

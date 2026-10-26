@@ -17,7 +17,6 @@ class Admin::Nodes::EditPage < AdminLayout
         mount(
           Admin::Nodes::Fields,
           operation: operation,
-          current_user: current_user
         ) do
           link(
             r("common.cancel").t,

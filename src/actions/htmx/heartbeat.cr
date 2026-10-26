@@ -11,7 +11,6 @@ class Htmx::Heartbeat < BrowserAction
       Shared::OnlineUsers,
       user_count: user_count,
       guest_count: guest_count,
-      current_user: current_user
     )
   end
 end

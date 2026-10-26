@@ -37,7 +37,6 @@ HYPER
         comment: comment,
         order_by: order_by,
         show_update_success: show_update_success?,
-        current_user: current_user
       )
 
       if comment.parent_id.nil?
@@ -47,7 +46,6 @@ HYPER
           root_comment: comment,
           order_by: order_by,
           focused_comment_id: reply_expanded? ? focus_id : nil,
-          current_user: current_user
         )
       end
     end

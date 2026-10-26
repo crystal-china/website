@@ -19,7 +19,11 @@ abstract class CommentAction < BrowserAction
     CommentQuery.new.id(comment.id).for_update.first
   end
 
-  def comments_pagination(comment_thread_id : Int64? = nil, root_id : Int64? = nil, order_by : String = "desc") : NamedTuple(
+  def comments_pagination(
+    comment_thread_id : Int64? = nil,
+    root_id : Int64? = nil,
+    order_by : String = "desc",
+  ) : NamedTuple(
     count: Int32 | Int64,
     comments: Avram::Queryable(Comment),
     page: Lucky::Paginator?,

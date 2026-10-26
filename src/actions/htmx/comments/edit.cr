@@ -13,7 +13,6 @@ class Htmx::Comments::Edit < CommentAction
 
     component(
       ::Comments::Form,
-      current_user: current_user,
       content: comment.content,
       html_id: "comment",
       order_by: order_by,

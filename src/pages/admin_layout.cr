@@ -14,7 +14,7 @@ abstract class AdminLayout < MainLayout
   def content : Nil
     section class: "#{page_container_classes} page-content" do
       div class: "flex flex-col items-start gap-8 lg:flex-row" do
-        mount Admin::Sidebar, current_user: current_user
+        mount Admin::Sidebar
 
         # 标题挪到右侧内容列，让它和侧栏顶部对齐。
         div class: "w-full min-w-0 flex-1" do

@@ -11,7 +11,6 @@ class Comments::ChildCreated < BaseComponent
       root_comment: root_comment,
       order_by: pagination[:order_by],
       pagination: pagination,
-      current_user: current_user,
       comment_id: comment_id
     )
 
@@ -24,7 +23,6 @@ class Comments::ChildCreated < BaseComponent
         Comments::CardControls,
         comment: root_comment,
         order_by: pagination[:order_by],
-        current_user: current_user
       )
     end
   end

@@ -25,7 +25,6 @@ class Comments::List < BaseComponent
         formatter: formatter,
         pagination: pagination,
         page_number: pagination[:page].try(&.page) || 1,
-        current_user: current_user,
         comment_id: comment_id,
         focused_comment: focused_comment
       )

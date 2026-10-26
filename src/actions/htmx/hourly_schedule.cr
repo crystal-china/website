@@ -45,7 +45,6 @@ class Htmx::HourlySchedule < BrowserAction
       hour: record.hour,
       available: record.available,
       comment: record.comment,
-      current_user: me
     )
   end
 end

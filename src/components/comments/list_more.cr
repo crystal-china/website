@@ -28,7 +28,6 @@ class Comments::ListMore < BaseComponent
         comment: comment,
         order_by: pagination[:order_by],
         show_update_success: comment_id == comment.id,
-        current_user: current_user,
         reply_expanded: reply_expanded,
         focused_comment_id: focus_id
       )

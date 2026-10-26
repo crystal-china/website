@@ -28,7 +28,6 @@ class Forum::Index < ForumAction
         topics: topics,
         pages: pages,
         followed_topics: following,
-        current_user: current_user
       )
     end
 

@@ -36,7 +36,6 @@ class Comments::CardControls < BaseComponent
       mount(
         Comments::DeleteOrWithdraw,
         comment: comment,
-        current_user: me
       )
     end
   end
@@ -68,7 +67,6 @@ class Comments::CardControls < BaseComponent
         mount(
           Comments::DeleteOrWithdraw,
           comment: comment,
-          current_user: me
         )
       end
     end

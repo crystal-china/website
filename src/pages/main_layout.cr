@@ -1,6 +1,7 @@
 abstract class MainLayout
   include Lucky::HTMLPage
   include PageHelpers
+  include CurrentUserComponents
 
   needs current_user : User?
 
@@ -47,13 +48,12 @@ abstract class MainLayout
       content
     end
 
-    mount Footer, current_user: current_user
+    mount Footer
 
     if current_user && scope
       mount(
         Search::Dialog,
         scope: scope,
-        current_user: current_user
       )
     end
 
@@ -63,11 +63,10 @@ abstract class MainLayout
   private def render_navbar_and_flash : Nil
     mount(
       Navbar,
-      current_user: current_user,
       search_scope: search_scope
     )
     mount Shared::PageFlash, flash: context.flash
-    mount ::Notifications::Dialog, current_user: current_user if current_user
+    mount ::Notifications::Dialog if current_user
   end
 
   private def search_scope : String?

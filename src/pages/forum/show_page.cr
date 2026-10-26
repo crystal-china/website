@@ -27,7 +27,6 @@ class Forum::ShowPage < ForumLayout
                   Forum::FollowButton,
                   topic: topic,
                   following: following?,
-                  current_user: me
                 )
               end
 
@@ -86,7 +85,6 @@ class Forum::ShowPage < ForumLayout
 
         mount(
           Comments::Form,
-          current_user: current_user,
           comment_thread_id: comment_thread.id
         )
       end
@@ -107,7 +105,6 @@ class Forum::ShowPage < ForumLayout
     mount(
       Forum::AuthorCard,
       user: topic.user,
-      current_user: current_user
     )
   end
 end

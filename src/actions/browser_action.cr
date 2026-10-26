@@ -1,5 +1,6 @@
 abstract class BrowserAction < Lucky::Action
   include SetLocale
+  include CurrentUserComponents
   include Lucky::ProtectFromForgery
 
   # By default all actions are required to use underscores.

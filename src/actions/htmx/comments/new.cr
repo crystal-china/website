@@ -14,7 +14,6 @@ class Htmx::Comments::New < CommentAction
 
     component(
       ::Comments::Form,
-      current_user: me,
       html_id: "comment",
       order_by: order_by,
       comment_id: comment.id,

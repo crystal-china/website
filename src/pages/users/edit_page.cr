@@ -15,7 +15,6 @@ class Users::EditPage < MainLayout
         op: op,
         return_path: return_path,
         password_changed_at: password_changed_at,
-        current_user: current_user
       )
     end
   end

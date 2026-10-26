@@ -44,7 +44,7 @@ class Footer < BaseComponent
         end
       end
 
-      mount ::OnlineUsers::Dialog, current_user: current_user if current_user
+      mount ::OnlineUsers::Dialog if current_user
     end
   end
 
