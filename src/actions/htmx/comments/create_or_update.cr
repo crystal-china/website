@@ -16,6 +16,7 @@ class Htmx::Comments::CreateOrUpdate < CommentAction
     return head 400 if id.nil? && comment_thread_id.nil?
 
     root_comment : Comment? = nil
+    topic : Topic? = nil
 
     if !id.nil?
       comment = CommentQuery.find(id.not_nil!)
@@ -67,7 +68,6 @@ class Htmx::Comments::CreateOrUpdate < CommentAction
 
         comment = reply.not_nil!
         pagination = comments_pagination(root_id: root_id, order_by: order_by)
-        html_id = "comment-#{root_id}-replies-list"
         root_comment = CommentQuery.find(root_id)
       else
         return head 400
@@ -75,14 +75,20 @@ class Htmx::Comments::CreateOrUpdate < CommentAction
     else
       # 给 CommentThread 新建顶级评论
       comment_thread_id = self.comment_thread_id.not_nil!
-      return head 404 unless CommentThreadQuery.find(comment_thread_id).target_visible?
+      thread = CommentThreadQuery.find(comment_thread_id)
+
+      return head 404 unless thread.target_visible?
+
       comment = CreateComment.create!(
         user_id: me.id,
         comment_thread_id: comment_thread_id,
         content: content
       )
       pagination = comments_pagination(comment_thread_id: comment_thread_id, order_by: order_by)
-      html_id = "comments"
+
+      if (topic_id = thread.topic_id)
+        topic = TopicQuery.find(topic_id)
+      end
     end
 
     context.response.headers["X-Draft-Saved"] = "true"
@@ -97,11 +103,11 @@ class Htmx::Comments::CreateOrUpdate < CommentAction
       )
     else
       component(
-        ::Comments::List,
+        ::Comments::Created,
         formatter: formatter,
         pagination: pagination,
         comment_id: comment.id,
-        html_id: html_id.to_s
+        topic: topic
       )
     end
   end

@@ -53,36 +53,11 @@ class Forum::ShowPage < ForumLayout
                 )
               end
 
-              if me.id == topic.user_id || me.admin?
-                link(
-                  to: Forum::Edit.with(id: topic.id),
-                  title: r("common.edit").t,
-                  class: "icon-action-button"
-                ) do
-                  img(
-                    src: asset("svgs/notifications/edit.svg"),
-                    alt: r("common.edit").t,
-                    class: "icon-action-image"
-                  )
-                end
-              end
-
-              if can_delete_topic?
-                button(
-                  type: "button",
-                  title: r("common.delete").t,
-                  class: "icon-action-button icon-action-danger",
-                  hx_delete: Forum::Delete.with(id: topic.id).path,
-                  hx_confirm: r(".confirm_delete").t,
-                  hx_disable: "this"
-                ) do
-                  img(
-                    src: asset("svgs/notifications/delete.svg"),
-                    alt: r("common.delete").t,
-                    class: "icon-action-image"
-                  )
-                end
-              end
+              mount(
+                Forum::TopicControls,
+                topic: topic,
+                can_delete_topic: can_delete_topic?
+              )
             end
           end
         end
