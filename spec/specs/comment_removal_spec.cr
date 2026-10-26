@@ -208,11 +208,21 @@ describe "Comment deletion and withdrawal" do
 
     document.xpath_node("//div[@id='comment-#{root.id}-replies-toggle'][@class='hidden']").should_not be_nil
     document.xpath_node("//button[@hx-delete='/htmx/comments/#{root.id}']").not_nil!["hx-confirm"].should eq("删除后无法回复")
+    document.xpath_node("//button[@hx-post='/htmx/comments/#{root.id}/withdraw']").should_not be_nil
 
     response = client.get("/htmx/comments/new?id=#{root.id}&backdoor_user_id=#{author.id}")
     XML.parse_html(response.body).xpath_node("//form[@hx-target='#comment-#{root.id}-replies']").should_not be_nil
 
     Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
+      response = client.post("/htmx/comments/#{root.id}/withdraw?backdoor_user_id=#{author.id}")
+      document = XML.parse_html(response.body)
+
+      response.status_code.should eq(200)
+      document.xpath_node("//button[@hx-post='/htmx/comments/#{root.id}/restore']").should_not be_nil
+      document.xpath_node("//button[@hx-delete='/htmx/comments/#{root.id}']").should_not be_nil
+      document.xpath_node("//button[@hx-post='/htmx/comments/#{root.id}/withdraw']").should be_nil
+      client.post("/htmx/comments/#{root.id}/restore?backdoor_user_id=#{author.id}").status_code.should eq(200)
+
       response = client.post("/htmx/comments?backdoor_user_id=#{author.id}", id: root.id, op: "new", content: "first reply")
       document = XML.parse_html(response.body)
       child = CommentQuery.new.parent_id(root.id).first
@@ -223,6 +233,8 @@ describe "Comment deletion and withdrawal" do
       document.xpath_node("//hx-partial[@hx-target='#comment-#{root.id}-replies-toggle']").should be_nil
       document.xpath_node("//hx-partial[@hx-target='#comment-#{root.id}-controls']//button[@hx-post='/htmx/comments/#{root.id}/withdraw']").should_not be_nil
       document.xpath_node("//button[@hx-post='/htmx/comments/#{root.id}/withdraw']").not_nil!["hx-confirm"]?.should be_nil
+      document.xpath_node("//button[@hx-delete='/htmx/comments/#{child.id}']").should_not be_nil
+      document.xpath_node("//button[@hx-post='/htmx/comments/#{child.id}/withdraw']").should_not be_nil
 
       response = client.get("/htmx/comments/new?id=#{child.id}&backdoor_user_id=#{author.id}")
       XML.parse_html(response.body).xpath_node("//form[@hx-target='#comment-#{root.id}-replies']").should_not be_nil
@@ -235,6 +247,7 @@ describe "Comment deletion and withdrawal" do
       document.xpath_node("//div[@id='comment-#{root.id}-replies']/div[@id='comment-#{root.id}-replies-list']").not_nil!.children.should be_empty
       document.xpath_node("//hx-partial[@hx-target='#comment-#{root.id}-replies-toggle']").should be_nil
       document.xpath_node("//hx-partial[@hx-target='#comment-#{root.id}-controls']//button[@hx-delete='/htmx/comments/#{root.id}']").should_not be_nil
+      document.xpath_node("//hx-partial[@hx-target='#comment-#{root.id}-controls']//button[@hx-post='/htmx/comments/#{root.id}/withdraw']").should_not be_nil
     end
   end
 

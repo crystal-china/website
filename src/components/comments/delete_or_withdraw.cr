@@ -6,7 +6,7 @@ class Comments::DeleteOrWithdraw < BaseComponent
 
     return if me.nil? || (me.id != comment.user_id && !me.admin?)
 
-    span id: "comment-#{comment.id}-delete-or-withdraw" do
+    span id: "comment-#{comment.id}-delete-or-withdraw", class: "inline-flex flex-wrap items-center gap-2" do
       list_id = comment.root_id ? "comment-#{comment.root_id}-replies-list" : "comments"
       delete_target_id = comment.root_id ? "comment-#{comment.root_id}-replies" : "comments"
       hx_swap = "outerHTML"
@@ -25,7 +25,9 @@ class Comments::DeleteOrWithdraw < BaseComponent
           hx_target: "##{delete_target_id}",
           hx_confirm: r(".confirm_delete").t
         )
-      elsif !comment.withdrawn?
+      end
+
+      if !comment.withdrawn?
         button(
           r(".withdraw").t,
           opts,
