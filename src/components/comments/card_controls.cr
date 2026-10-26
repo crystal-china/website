@@ -25,7 +25,7 @@ class Comments::CardControls < BaseComponent
     button(
       type: "button",
       title: r("common.restore").t,
-      class: "comment-action-button comment-action-primary",
+      class: "icon-action-button icon-action-primary",
       hx_post: Htmx::Comments::Restore.with(id: comment.id).path,
       hx_include: "##{list_id}-order-by",
       hx_target: "#comment-#{comment.id}-body",
@@ -34,7 +34,7 @@ class Comments::CardControls < BaseComponent
       img(
         src: asset("svgs/comments/restore.svg"),
         alt: r("common.restore").t,
-        class: "comment-action-icon"
+        class: "icon-action-image"
       )
     end
 
@@ -49,7 +49,7 @@ class Comments::CardControls < BaseComponent
   private def render_comment_actions(me : User) : Nil
     opts = {
       type:       "button",
-      class:      "comment-action-button",
+      class:      "icon-action-button",
       hx_target:  Comments::Dialog.comment_form_target,
       hx_swap:    "outerHTML",
       hx_disable: "this",
@@ -60,13 +60,13 @@ class Comments::CardControls < BaseComponent
       button(
         opts,
         title: r("common.reply").t,
-        class: "comment-action-button comment-action-primary",
+        class: "icon-action-button icon-action-primary",
         hx_get: Htmx::Comments::New.with(id: comment.id, order_by: order_by).path
       ) do
         img(
           src: asset("svgs/notifications/reply.svg"),
           alt: r("common.reply").t,
-          class: "comment-action-icon"
+          class: "icon-action-image"
         )
       end
 
@@ -79,7 +79,7 @@ class Comments::CardControls < BaseComponent
           img(
             src: asset("svgs/notifications/edit.svg"),
             alt: r("common.edit").t,
-            class: "comment-action-icon"
+            class: "icon-action-image"
           )
         end
 

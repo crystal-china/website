@@ -64,7 +64,7 @@ describe "Comment deletion and withdrawal" do
       restore_button["hx-confirm"]?.should be_nil
       restore_button["hx-target"].should eq("#comment-#{child.id}-body")
       document.xpath_node("//article | //div[@id='comment-#{child.id}-replies-list']").should be_nil
-      document.xpath_node("//header | //footer | //time | //img[not(@class='comment-action-icon')] | //button[@hx-patch]").should be_nil
+      document.xpath_node("//header | //footer | //time | //img[not(@class='icon-action-image')] | //button[@hx-patch]").should be_nil
       {withdrawn.content, withdrawn.content_html}.should eq({child.content, child.content_html})
       withdrawn.withdrawn?.should be_true
       withdrawn.soft_deleted_at.should be_nil

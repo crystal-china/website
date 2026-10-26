@@ -15,7 +15,7 @@ class Comments::DeleteOrWithdraw < BaseComponent
       hx_swap = "outerHTML"
       opts = {
         type:       "button",
-        class:      "comment-action-button",
+        class:      "icon-action-button",
         hx_include: "##{list_id}-order-by",
         hx_swap:    "#{hx_swap} swap:1s",
       }
@@ -30,7 +30,7 @@ class Comments::DeleteOrWithdraw < BaseComponent
           img(
             src: asset("svgs/comments/withdraw.svg"),
             alt: r(".withdraw").t,
-            class: "comment-action-icon"
+            class: "icon-action-image"
           )
         end
       end
@@ -39,7 +39,7 @@ class Comments::DeleteOrWithdraw < BaseComponent
         button(
           opts,
           title: r("common.delete").t,
-          class: "comment-action-button comment-action-danger",
+          class: "icon-action-button icon-action-danger",
           hx_delete: Htmx::Comments::Delete.with(id: comment.id).path,
           hx_target: "##{delete_target_id}",
           hx_confirm: r(".confirm_delete").t
@@ -47,7 +47,7 @@ class Comments::DeleteOrWithdraw < BaseComponent
           img(
             src: asset("svgs/notifications/delete.svg"),
             alt: r("common.delete").t,
-            class: "comment-action-icon"
+            class: "icon-action-image"
           )
         end
       end
