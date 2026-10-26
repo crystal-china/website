@@ -63,6 +63,110 @@ describe "Soft deletion" do
     CommentQuery.new.publicly_visible_comments.id.asc_order.map(&.id).should eq([root.id, child.id, grandchild.id])
   end
 
+  it "requires administrators to restore parents before their replies without changing rejected records" do
+    admin = UserFactory.create &.email("soft-delete-admin@example.com")
+    author = UserFactory.create
+    node = SaveNode.create!(name: "恢复顺序", slug: "restore-parent-first", summary: "测试", color: "#16a34a", position: 0)
+    topic = CreateTopic.create!(user_id: author.id, node_id: node.id, title: "恢复顺序", content: "正文")
+    thread = CommentThreadQuery.new.topic_id(topic.id).first
+    root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "根评论")
+    child = CreateComment.create!(user_id: author.id, parent_id: root.id, content: "子评论")
+    grandchild = CreateComment.create!(user_id: author.id, parent_id: child.id, content: "孙评论")
+
+    [grandchild, child, root].each do |comment|
+      DeleteComment.delete!(comment)
+    end
+
+    child = child.reload
+    grandchild = grandchild.reload
+    notifications_count = NotificationQuery.new.select_count
+    client = ApiClient.new
+    test_mode = Pulsar.test_mode_enabled?
+    Pulsar.test_mode_enabled = true
+
+    Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
+      {
+        "zh-CN" => "不可恢复",
+        "en"    => "Cannot restore this comment.",
+      }.each do |locale, expected_message|
+        Avram::Events::QueryEvent.logged_events.clear
+
+        response = client.post("/admin/trash/comments/#{child.id}/restore?backdoor_user_id=#{admin.id}&locale=#{locale}")
+        cookies = HTTP::Cookies.from_server_headers(response.headers)
+        session = Lucky::Session.from_cookie_jar(Lucky::CookieJar.from_request_cookies(cookies))
+        flash = JSON.parse(session.get(Lucky::FlashStore::SESSION_KEY))
+
+        response.status_code.should eq(303)
+        URI.parse(response.headers["Location"]).path.should eq("/admin/trash")
+        flash["failure"].as_s.should eq(expected_message)
+        flash["success"]?.should be_nil
+        Avram::Events::QueryEvent.logged_events.none? { |event| event.query.includes?("FOR UPDATE") }.should be_true
+        child.reload.soft_deleted_at.should eq(child.soft_deleted_at)
+        child.reload.updated_at.should eq(child.updated_at)
+        topic.reload.replies_count.should eq(0)
+        thread.reload.root_comments_count.should eq(0)
+        root.reload.descendants_count.should eq(0)
+      end
+
+      response = client.post("/admin/trash/comments/#{root.id}/restore?backdoor_user_id=#{author.id}")
+
+      response.status_code.should eq(404)
+      root.reload.soft_deleted?.should be_true
+      client.post("/admin/trash/comments/#{root.id}/restore?backdoor_user_id=#{admin.id}").status_code.should eq(303)
+      root.reload.soft_deleted?.should be_false
+      topic.reload.replies_count.should eq(1)
+
+      # 根评论存在也不够：直接父评论仍被删除时，不能越过它恢复孙评论。
+      client.post("/admin/trash/comments/#{grandchild.id}/restore?backdoor_user_id=#{admin.id}").status_code.should eq(303)
+      grandchild.reload.soft_deleted_at.should eq(grandchild.soft_deleted_at)
+      grandchild.reload.updated_at.should eq(grandchild.updated_at)
+      topic.reload.replies_count.should eq(1)
+      child.reload.children_count.should eq(0)
+
+      client.post("/admin/trash/comments/#{child.id}/restore?backdoor_user_id=#{admin.id}").status_code.should eq(303)
+      client.post("/admin/trash/comments/#{grandchild.id}/restore?backdoor_user_id=#{admin.id}").status_code.should eq(303)
+
+      CommentQuery.new.publicly_visible_comments.id.asc_order.map(&.id).should eq([root.id, child.id, grandchild.id])
+      root.reload.children_count.should eq(1)
+      root.reload.descendants_count.should eq(2)
+      child.reload.children_count.should eq(1)
+      topic.reload.replies_count.should eq(3)
+      NotificationQuery.new.select_count.should eq(notifications_count)
+    end
+  ensure
+    Pulsar.test_mode_enabled = test_mode if test_mode.is_a?(Bool)
+    Avram::Events::QueryEvent.logged_events.clear
+  end
+
+  it "rejects restoring a reply when its root is deleted even if its direct parent still exists" do
+    admin = UserFactory.create &.email("soft-delete-admin@example.com")
+    doc = SaveDoc.create!(path_index: "/docs/restore-deleted-root", content: "正文")
+    thread = CommentThreadQuery.new.doc_id(doc.id).first
+    root = CreateComment.create!(user_id: admin.id, comment_thread_id: thread.id, content: "根评论")
+    child = CreateComment.create!(user_id: admin.id, parent_id: root.id, content: "子评论")
+    grandchild = CreateComment.create!(user_id: admin.id, parent_id: child.id, content: "孙评论")
+
+    DeleteComment.delete!(grandchild)
+    DeleteComment.delete!(root)
+
+    grandchild = grandchild.reload
+
+    Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
+      response = ApiClient.new.post("/admin/trash/comments/#{grandchild.id}/restore?backdoor_user_id=#{admin.id}&locale=zh-CN")
+      cookies = HTTP::Cookies.from_server_headers(response.headers)
+      session = Lucky::Session.from_cookie_jar(Lucky::CookieJar.from_request_cookies(cookies))
+      flash = JSON.parse(session.get(Lucky::FlashStore::SESSION_KEY))
+
+      response.status_code.should eq(303)
+      flash["failure"].as_s.should eq("不可恢复")
+      flash["success"]?.should be_nil
+      grandchild.reload.soft_deleted_at.should eq(grandchild.soft_deleted_at)
+      grandchild.reload.updated_at.should eq(grandchild.updated_at)
+      root.reload.soft_deleted?.should be_true
+      child.reload.soft_deleted?.should be_false
+    end
+  end
+
   it "hides and restores topics without deleting their comment threads" do
     user = UserFactory.create
     admin = UserFactory.create &.email("soft-delete-admin@example.com")
@@ -96,6 +200,55 @@ describe "Soft deletion" do
     TopicQuery.find(topic.id).id.should eq(topic.id)
     CommentThreadQuery.find(thread_id).target_visible?.should be_true
     CommentQuery.new.publicly_visible_comments.first.id.should eq(comment.id)
+  end
+
+  it "requires the topic to be restored before restoring its root comments or replies" do
+    admin = UserFactory.create &.email("soft-delete-admin@example.com")
+    author = UserFactory.create
+    node = SaveNode.create!(name: "恢复主题优先", slug: "restore-topic-first", summary: "测试", color: "#16a34a", position: 0)
+    topic = CreateTopic.create!(user_id: author.id, node_id: node.id, title: "先恢复主题", content: "正文")
+    thread = CommentThreadQuery.new.topic_id(topic.id).first
+    root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "存在的根评论")
+    child = CreateComment.create!(user_id: author.id, parent_id: root.id, content: "删除的子评论")
+    other_root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "删除的根评论")
+
+    DeleteComment.delete!(child)
+    DeleteComment.delete!(other_root)
+    DeleteTopic.delete!(topic)
+
+    deleted_comments = [child.reload, other_root.reload]
+    notifications_count = NotificationQuery.new.select_count
+    client = ApiClient.new
+
+    Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
+      deleted_comments.each do |comment|
+        response = client.post("/admin/trash/comments/#{comment.id}/restore?backdoor_user_id=#{admin.id}&locale=zh-CN")
+        cookies = HTTP::Cookies.from_server_headers(response.headers)
+        session = Lucky::Session.from_cookie_jar(Lucky::CookieJar.from_request_cookies(cookies))
+        flash = JSON.parse(session.get(Lucky::FlashStore::SESSION_KEY))
+
+        response.status_code.should eq(303)
+        flash["failure"].as_s.should eq("不可恢复")
+        flash["success"]?.should be_nil
+        comment.reload.soft_deleted_at.should eq(comment.soft_deleted_at)
+        comment.reload.updated_at.should eq(comment.updated_at)
+      end
+
+      topic.reload.soft_deleted?.should be_true
+      topic.reload.replies_count.should eq(1)
+      thread.reload.root_comments_count.should eq(1)
+      root.reload.descendants_count.should eq(0)
+      NotificationQuery.new.select_count.should eq(notifications_count)
+      client.post("/admin/trash/topics/#{topic.id}/restore?backdoor_user_id=#{admin.id}").status_code.should eq(303)
+
+      deleted_comments.each do |comment|
+        client.post("/admin/trash/comments/#{comment.id}/restore?backdoor_user_id=#{admin.id}").status_code.should eq(303)
+        comment.reload.soft_deleted?.should be_false
+      end
+
+      topic.reload.replies_count.should eq(3)
+      CommentQuery.new.publicly_visible_comments.select_count.should eq(3)
+    end
   end
 
   it "allows deletion from leaves upward and prevents administrators from bypassing reply counters" do
@@ -235,13 +388,19 @@ describe "Soft deletion" do
       VoteQuery.new.comment_id(child.id).select_count.should eq(1)
 
       DeleteComment.delete!(root)
+
+      deleted_root = root.reload
       response = client.post("/admin/trash/comments/#{root.id}/restore?backdoor_user_id=#{admin.id}&locale=zh-CN")
       cookies = HTTP::Cookies.from_server_headers(response.headers)
       session = Lucky::Session.from_cookie_jar(Lucky::CookieJar.from_request_cookies(cookies))
-      message = JSON.parse(session.get(Lucky::FlashStore::SESSION_KEY))["success"].as_s
+      flash = JSON.parse(session.get(Lucky::FlashStore::SESSION_KEY))
 
       response.status_code.should eq(303)
-      message.should eq("评论已恢复，但所属文档已不可用，暂时不可见")
+      flash["failure"].as_s.should eq("不可恢复")
+      flash["success"]?.should be_nil
+      root.reload.soft_deleted_at.should eq(deleted_root.soft_deleted_at)
+      root.reload.updated_at.should eq(deleted_root.updated_at)
+      thread.reload.root_comments_count.should eq(0)
       client.get("/comments/#{child.id}").status_code.should eq(404)
 
       restored = DocContent.sync(doc.path_index, "")
@@ -249,6 +408,8 @@ describe "Soft deletion" do
       restored.id.should eq(doc.id)
       restored.content.should eq("")
       thread.target_visible?.should be_true
+      root.reload.soft_deleted?.should be_true
+      client.post("/admin/trash/comments/#{root.id}/restore?backdoor_user_id=#{admin.id}").status_code.should eq(303)
       CommentQuery.new.publicly_visible_comments.select_count.should eq(2)
       client.get("/comments/#{child.id}").status_code.should eq(303)
       client.get("/htmx/comments?root_id=#{root.id}").status_code.should eq(200)
