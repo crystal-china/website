@@ -39,7 +39,8 @@ describe "Trash pagination" do
     it "paginates #{kind} locally while keeping direct visits and restores as full pages" do
       admin = UserFactory.create &.email("trash-pagination-admin@example.com")
       ids = seed_deleted_trash(admin, kind)
-      response = ApiClient.new.get("/admin/trash?kind=#{kind}&backdoor_user_id=#{admin.id}")
+      path = Admin::Trash::Index.with(kind: kind, q: "回收站").path
+      response = ApiClient.new.get("#{path}&backdoor_user_id=#{admin.id}")
       document = XML.parse_html(response.body)
       list = document.xpath_node("//main//section[@id='trash-list']").not_nil!
       pagination_container = list.xpath_node("./div[nav]").not_nil!
@@ -52,6 +53,17 @@ describe "Trash pagination" do
       pagination_container["hx-sync:inherited"].should eq("#trash-list:replace")
       list["hx-target:inherited"]?.should be_nil
       URI.parse(next_path).query_params["kind"].should eq(kind)
+      URI.parse(next_path).query_params["q"].should eq("回收站")
+      document.xpath_node("//input[@id='trash-keyword']").not_nil!["value"].should eq("回收站")
+      search_form = document.xpath_node("//form[input[@name='kind']]").not_nil!
+
+      search_form["method"].should eq("get")
+      search_form.xpath_node("./input[@name='kind']").not_nil!["value"].should eq(kind)
+      search_form.xpath_node(".//input[@name='page']").should be_nil
+
+      document.xpath_nodes("//nav[@aria-label='回收站分类']/a").each do |link|
+        URI.parse(link["href"]).query_params["q"].should eq("回收站")
+      end
 
       partial_client = ApiClient.new.headers("HX-Request-Type": "partial")
       response = partial_client.get(next_path)
@@ -68,6 +80,7 @@ describe "Trash pagination" do
       previous_path = list.xpath_node("./div/nav/a").not_nil!["href"]
       URI.parse(previous_path).query_params["kind"].should eq(kind)
       URI.parse(previous_path).query_params["page"].should eq("1")
+      URI.parse(previous_path).query_params["q"].should eq("回收站")
 
       {
         ApiClient.new,
@@ -103,6 +116,66 @@ describe "Trash pagination" do
         list.xpath_node(".//nav").should be_nil
         document.xpath_node("//*[contains(@class, 'flash-message--success')]").should_not be_nil
       end
+    end
+  end
+
+  it "matches deleted topic titles or content without interpreting SQL or LIKE metacharacters" do
+    admin = UserFactory.create &.email("trash-pagination-admin@example.com")
+    node = SaveNode.create!(name: "搜索测试", slug: "trash-search", summary: "测试", color: "#16a34a", position: 0)
+    title_match = CreateTopic.create!(user_id: admin.id, node_id: node.id, title: "Crystal 标题匹配", content: "普通正文")
+    content_match = CreateTopic.create!(user_id: admin.id, node_id: node.id, title: "正文匹配", content: "Crystal 100% a_b C:\\temp O'Reilly")
+    unrelated = CreateTopic.create!(user_id: admin.id, node_id: node.id, title: "无关主题", content: "普通正文")
+
+    [title_match, content_match, unrelated].each do |topic|
+      DeleteTopic.delete!(topic)
+    end
+
+    CreateTopic.create!(user_id: admin.id, node_id: node.id, title: "Crystal 正常主题", content: content_match.content)
+
+    {
+      "  crystal  "  => [content_match.id, title_match.id],
+      "标题匹配"         => [title_match.id],
+      "正文匹配"         => [content_match.id],
+      "%"            => [content_match.id],
+      "_"            => [content_match.id],
+      "\\"           => [content_match.id],
+      "O'Reilly"     => [content_match.id],
+      "' OR TRUE --" => [] of Int64,
+      "   "          => [unrelated.id, content_match.id, title_match.id],
+    }.each do |keyword, expected_ids|
+      path = Admin::Trash::Index.with(kind: "topics", q: keyword).path
+      response = ApiClient.new.get("#{path}&backdoor_user_id=#{admin.id}")
+      document = XML.parse_html(response.body)
+      restore_paths = document.xpath_nodes("//section[@id='trash-list']//article//form").map(&.["action"])
+
+      response.status_code.should eq(200)
+      restore_paths.should eq(expected_ids.map { |id| "/admin/trash/topics/#{id}/restore" })
+      document.xpath_node("//input[@id='trash-keyword']").not_nil!["value"].should eq(keyword.strip)
+    end
+  end
+
+  it "filters deleted comment content and treats LIKE wildcards as literal characters" do
+    admin = UserFactory.create &.email("trash-pagination-admin@example.com")
+    doc = SaveDoc.create!(path_index: "/docs/trash-search", content: "搜索测试")
+    thread = CommentThreadQuery.new.doc_id(doc.id).first
+    matching = CreateComment.create!(user_id: admin.id, comment_thread_id: thread.id, content: "Crystal 100% a_b C:\\temp")
+    unrelated = CreateComment.create!(user_id: admin.id, comment_thread_id: thread.id, content: "普通评论")
+
+    DeleteComment.delete!(matching)
+    DeleteComment.delete!(unrelated)
+    CreateComment.create!(user_id: admin.id, comment_thread_id: thread.id, content: matching.content)
+
+    {"crystal", "%", "_", "\\", "missing"}.each do |keyword|
+      path = Admin::Trash::Index.with(q: keyword).path
+      client = ApiClient.new.headers("HX-Request-Type": "partial")
+      response = client.get("#{path}&backdoor_user_id=#{admin.id}")
+      document = XML.parse_html(response.body)
+      restore_paths = document.xpath_nodes("//section[@id='trash-list']//article//form").map(&.["action"])
+      expected = keyword == "missing" ? [] of String : ["/admin/trash/comments/#{matching.id}/restore"]
+
+      response.status_code.should eq(200)
+      restore_paths.should eq(expected)
+      document.xpath_node("//main | //input[@id='trash-keyword']").should be_nil
     end
   end
 

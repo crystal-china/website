@@ -29,11 +29,13 @@ en:
       index_page:
         description: Deleted content is retained in the database and can be restored by an administrator.
         categories: Trash categories
-        no_comments: No deleted comments.
+        no_comments: No matching deleted comments.
+        keyword: Keyword
+        keyword_placeholder: Enter a keyword
         topic_id: 'Topic #%{id}'
         doc_id: 'Document #%{id}'
         comment_id: 'Comment #%{id} · '
-        no_topics: No deleted topics.
+        no_topics: No matching deleted topics.
         deleted_at: Deleted %{time}
         preview: Preview
       preview_topic_page:

@@ -29,11 +29,13 @@ zh-CN:
       index_page:
         description: 删除的内容保留在数据库中，可由管理员恢复。
         categories: 回收站分类
-        no_comments: 没有已删除的评论。
+        no_comments: 没有符合条件的已删除评论。
+        keyword: 关键词
+        keyword_placeholder: 输入关键词
         topic_id: '主题 #%{id}'
         doc_id: '文档 #%{id}'
         comment_id: '评论 #%{id} · '
-        no_topics: 没有已删除的主题。
+        no_topics: 没有符合条件的已删除主题。
         deleted_at: 删除于 %{time}
         preview: 预览
       preview_topic_page:
