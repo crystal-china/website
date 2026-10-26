@@ -5,7 +5,7 @@ class Comments::CardControls < BaseComponent
   def render : Nil
     div(
       id: "comment-#{comment.id}-controls",
-      class: "flex flex-1 flex-wrap items-center justify-end gap-x-4 gap-y-3"
+      class: "flex flex-1 flex-wrap items-center justify-end gap-1"
     ) do
       if (me = current_user)
         if comment.withdrawn?
@@ -23,14 +23,20 @@ class Comments::CardControls < BaseComponent
     list_id = comment.root_id ? "comment-#{comment.root_id}-replies-list" : "comments"
 
     button(
-      r("common.restore").t,
       type: "button",
-      class: "action-button action-button-accent",
+      title: r("common.restore").t,
+      class: "comment-action-button comment-action-primary",
       hx_post: Htmx::Comments::Restore.with(id: comment.id).path,
       hx_include: "##{list_id}-order-by",
       hx_target: "#comment-#{comment.id}-body",
       hx_swap: "outerHTML swap:1s"
-    )
+    ) do
+      img(
+        src: asset("svgs/comments/restore.svg"),
+        alt: r("common.restore").t,
+        class: "comment-action-icon"
+      )
+    end
 
     if comment.deletable?
       mount(
@@ -43,26 +49,39 @@ class Comments::CardControls < BaseComponent
   private def render_comment_actions(me : User) : Nil
     opts = {
       type:       "button",
-      class:      "action-button action-button-accent",
+      class:      "comment-action-button",
       hx_target:  Comments::Dialog.comment_form_target,
       hx_swap:    "outerHTML",
       hx_disable: "this",
       script:     Comments::Dialog.open_comment_dialog,
     }
 
-    div class: "flex max-w-full shrink-0 flex-wrap items-center justify-end gap-2" do
+    div class: "flex max-w-full flex-wrap items-center justify-end gap-1" do
       button(
-        r("common.reply").t,
         opts,
+        title: r("common.reply").t,
+        class: "comment-action-button comment-action-primary",
         hx_get: Htmx::Comments::New.with(id: comment.id, order_by: order_by).path
-      )
+      ) do
+        img(
+          src: asset("svgs/notifications/reply.svg"),
+          alt: r("common.reply").t,
+          class: "comment-action-icon"
+        )
+      end
 
       if me.id == comment.user_id || me.admin?
         button(
-          r("common.edit").t,
           opts,
+          title: r("common.edit").t,
           hx_get: Htmx::Comments::Edit.with(id: comment.id, order_by: order_by).path
-        )
+        ) do
+          img(
+            src: asset("svgs/notifications/edit.svg"),
+            alt: r("common.edit").t,
+            class: "comment-action-icon"
+          )
+        end
 
         mount(
           Comments::DeleteOrWithdraw,

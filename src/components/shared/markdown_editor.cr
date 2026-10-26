@@ -79,12 +79,6 @@ HEREDOC
       div class: "panel2 hidden p-4" do
         render_preview(editor_height)
       end
-
-      para(
-        r(".mention_limit").t(count: UserMarkdownParser::MAX_MENTIONS),
-        id: "#{html_id}_mention_help",
-        class: "m-0 border-t border-gray-100 px-4 py-2 text-xs text-gray-500"
-      )
     end
   end
 
@@ -96,8 +90,7 @@ HEREDOC
       rows:                        5,
       name:                        "content",
       data_draft_field:            "",
-      placeholder:                 r(".placeholder").t,
-      "aria-describedby":          "#{html_id}_mention_help",
+      placeholder:                 r(".placeholder").t(count: UserMarkdownParser::MAX_MENTIONS),
       required:                    "",
       data_users_autocomplete_url: Htmx::Users::Autocomplete.path,
       class:                       "#{editor_height} block w-full resize-y overflow-y-auto rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm leading-7 text-gray-900 shadow-inner transition outline-none placeholder:text-gray-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400",

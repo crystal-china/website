@@ -385,8 +385,7 @@ en:
       preview: Preview
       sign_in_to_comment: Sign in to comment
       markdown_supported: Markdown supported
-      mention_limit: Mention up to %{count} users. Additional mentions do not send notifications.
-      placeholder: Markdown supported; type @ and a login-name prefix for suggestions
+      placeholder: Markdown supported; type @name for suggestions. Mention up to %{count} users; extra mentions won't notify.
       preview_loading: Loading preview...
     o_auth:
       title: Sign in with a provider

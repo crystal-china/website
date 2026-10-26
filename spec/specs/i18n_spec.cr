@@ -175,6 +175,25 @@ describe "Internationalization" do
     end
   end
 
+  it "includes mention guidance in the editor placeholder without a separate footer" do
+    user = UserFactory.create
+    doc = DocContent.sync("/docs/editor-placeholder", "文档正文")
+    thread = CommentThreadQuery.new.doc_id(doc.id).first
+    comment = CreateComment.create!(user_id: user.id, comment_thread_id: thread.id, content: "root")
+
+    {"zh-CN" => "最多提及 5 人", "en" => "Mention up to 5 users"}.each do |locale, limit|
+      response = ApiClient.new.get("/htmx/comments/new?id=#{comment.id}&locale=#{locale}&backdoor_user_id=#{user.id}")
+      document = XML.parse_html(response.body)
+      editor = document.xpath_node("//textarea").not_nil!
+
+      response.status_code.should eq(200)
+      editor["placeholder"].should contain(limit)
+      editor["placeholder"].should contain("@")
+      editor["aria-describedby"]?.should be_nil
+      document.xpath_node("//*[@id='comment_mention_help']").should be_nil
+    end
+  end
+
   it "localizes email subjects and both body formats" do
     user = UserFactory.create
 

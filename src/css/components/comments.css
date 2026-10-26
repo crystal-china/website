@@ -1,4 +1,34 @@
 @layer components {
+  .comment-action-button {
+    @apply inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md border-0 bg-transparent p-0 transition-colors duration-150 hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .comment-action-primary {
+    @apply bg-gray-100 hover:bg-gray-200;
+  }
+
+  .comment-action-danger {
+    @apply ml-1 hover:bg-red-50;
+  }
+
+  .comment-action-icon {
+    @apply pointer-events-none h-4 w-4;
+    filter: grayscale(1);
+  }
+
+  .comment-action-danger:hover .comment-action-icon,
+  .comment-action-danger:focus-visible .comment-action-icon {
+    filter: none;
+  }
+
+  /* 触屏扩大点击区域，不改变图标大小。 */
+  @media (pointer: coarse) {
+    .comment-action-button {
+      min-width: 44px;
+      height: 44px;
+    }
+  }
+
   html {
     scroll-behavior: smooth;
   }

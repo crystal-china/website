@@ -381,8 +381,7 @@ zh-CN:
       preview: 预览
       sign_in_to_comment: 登录后添加评论
       markdown_supported: 支持 markdown 格式
-      mention_limit: 最多提及 %{count} 个用户，超出部分不发送通知。
-      placeholder: 支持 Markdown；输入 @用户名 前缀可自动补全
+      placeholder: 支持 Markdown；输入 @用户名 自动补全，最多提及 %{count} 人，超出部分不发送通知。
       preview_loading: 正在预览...
     o_auth:
       title: 快捷登录

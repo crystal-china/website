@@ -57,12 +57,14 @@ describe "Comment deletion and withdrawal" do
       response.body.should contain("此评论内容已撤回")
       response.body.should_not contain("private original body")
       restore_button = document.xpath_node("//div[@id='comment-#{child.id}-body']//button[@hx-post='/htmx/comments/#{child.id}/restore']").not_nil!
-      restore_button.content.should eq("恢复")
+      restore_button["title"].should eq("恢复")
+      restore_button.xpath_node("./img").not_nil!["alt"].should eq("恢复")
+      restore_button.content.strip.should be_empty
       restore_button["hx-swap"].should eq("outerHTML swap:1s")
       restore_button["hx-confirm"]?.should be_nil
       restore_button["hx-target"].should eq("#comment-#{child.id}-body")
       document.xpath_node("//article | //div[@id='comment-#{child.id}-replies-list']").should be_nil
-      document.xpath_node("//header | //footer | //time | //img | //button[@hx-patch]").should be_nil
+      document.xpath_node("//header | //footer | //time | //img[not(@class='comment-action-icon')] | //button[@hx-patch]").should be_nil
       {withdrawn.content, withdrawn.content_html}.should eq({child.content, child.content_html})
       withdrawn.withdrawn?.should be_true
       withdrawn.soft_deleted_at.should be_nil
@@ -209,6 +211,15 @@ describe "Comment deletion and withdrawal" do
     document.xpath_node("//div[@id='comment-#{root.id}-replies-toggle'][@class='hidden']").should_not be_nil
     document.xpath_node("//button[@hx-delete='/htmx/comments/#{root.id}']").not_nil!["hx-confirm"].should eq("删除后无法回复")
     document.xpath_node("//button[@hx-post='/htmx/comments/#{root.id}/withdraw']").should_not be_nil
+    controls = document.xpath_node("//div[@id='comment-#{root.id}-controls']").not_nil!
+    buttons = controls.xpath_nodes(".//button")
+
+    buttons.map { |button| button["title"] }.should eq(["回复", "编辑", "撤回", "删除"])
+    controls.content.strip.should be_empty
+
+    buttons.each do |button|
+      button.xpath_node("./img").not_nil!["alt"].should eq(button["title"])
+    end
 
     response = client.get("/htmx/comments/new?id=#{root.id}&backdoor_user_id=#{author.id}")
     XML.parse_html(response.body).xpath_node("//form[@hx-target='#comment-#{root.id}-replies']").should_not be_nil
