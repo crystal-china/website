@@ -13,10 +13,14 @@ class Htmx::Comments::Delete < CommentAction
 
       next status = 404 unless comment_available?(comment)
       next status = 403 unless comment.user_id == me.id || me.admin?
-      # 有可见回复时不能删除，管理员也不能绕过。
-      next status = 409 unless comment.deletable?
+      # 普通用户仍受回复数量限制；管理员删除时连同全部后代一起软删除。
+      next status = 409 unless me.admin? || comment.deletable?
 
-      DeleteComment.delete!(comment, actor_id: me.id)
+      DeleteComment.delete!(
+        comment,
+        actor_id: me.id,
+        delete_descendants: me.admin?
+      )
 
       deleted_comment = comment
     end

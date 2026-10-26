@@ -89,8 +89,9 @@ en:
   comments:
     card:
       locating_comment: Locating comment...
-    delete_or_withdraw:
+    delete_and_withdraw:
       confirm_delete: This cannot be undone.
+      confirm_delete_branch: Delete this comment and all its replies?
       withdraw: Withdraw
     card_content:
       edited_at: Edited %{time}

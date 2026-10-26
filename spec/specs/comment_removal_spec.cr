@@ -161,7 +161,7 @@ describe "Comment deletion and withdrawal" do
       CommentQuery.find(root.id).withdrawn?.should be_false
       client.post("/htmx/comments/#{root.id}/withdraw?backdoor_user_id=#{admin.id}").status_code.should eq(200)
       CommentQuery.find(root.id).withdrawn?.should be_true
-      client.delete("/htmx/comments/#{root.id}?backdoor_user_id=#{admin.id}").status_code.should eq(409)
+      client.delete("/htmx/comments/#{root.id}?backdoor_user_id=#{author.id}").status_code.should eq(409)
 
       # 管理员仍然可以撤回、恢复自己的评论，但不因此产生管理通知。
       client.post("/htmx/comments/#{reply.id}/withdraw?backdoor_user_id=#{admin.id}").status_code.should eq(200)

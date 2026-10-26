@@ -89,8 +89,9 @@ zh-CN:
   comments:
     card:
       locating_comment: 正在定位评论...
-    delete_or_withdraw:
+    delete_and_withdraw:
       confirm_delete: 删除后无法回复
+      confirm_delete_branch: 删除此评论及其全部回复？
       withdraw: 撤回
     card_content:
       edited_at: 已编辑于 %{time}

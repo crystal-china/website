@@ -251,7 +251,7 @@ describe "Soft deletion" do
     end
   end
 
-  it "allows deletion from leaves upward and prevents administrators from bypassing reply counters" do
+  it "allows ordinary authors to delete comments from leaves upward" do
     author = UserFactory.create
     other = UserFactory.create
     admin = UserFactory.create &.email("soft-delete-admin@example.com")
@@ -274,8 +274,7 @@ describe "Soft deletion" do
     Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
       client.delete("/htmx/comments/#{root.id}?backdoor_user_id=#{other.id}").status_code.should eq(403)
       client.delete("/htmx/comments/#{root.id}?backdoor_user_id=#{author.id}").status_code.should eq(409)
-      client.delete("/htmx/comments/#{root.id}?backdoor_user_id=#{admin.id}").status_code.should eq(409)
-      client.delete("/htmx/comments/#{child.id}?backdoor_user_id=#{admin.id}").status_code.should eq(409)
+      client.delete("/htmx/comments/#{child.id}?backdoor_user_id=#{other.id}").status_code.should eq(409)
       client.delete("/htmx/comments/#{grandchild.id}?backdoor_user_id=#{other.id}").status_code.should eq(200)
       CommentQuery.find(child.id).children_count.should eq(0)
       client.delete("/htmx/comments/#{root.id}?backdoor_user_id=#{author.id}").status_code.should eq(409)

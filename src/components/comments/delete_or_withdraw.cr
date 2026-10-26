@@ -1,4 +1,4 @@
-class Comments::DeleteOrWithdraw < BaseComponent
+class Comments::DeleteAndWithdraw < BaseComponent
   needs comment : Comment
 
   def render : Nil
@@ -7,7 +7,7 @@ class Comments::DeleteOrWithdraw < BaseComponent
     return if me.nil? || (me.id != comment.user_id && !me.admin?)
 
     span(
-      id: "comment-#{comment.id}-delete-or-withdraw",
+      id: "comment-#{comment.id}-delete-and-withdraw",
       class: "inline-flex flex-wrap items-center gap-1"
     ) do
       list_id = comment.root_id ? "comment-#{comment.root_id}-replies-list" : "comments"
@@ -35,14 +35,14 @@ class Comments::DeleteOrWithdraw < BaseComponent
         end
       end
 
-      if comment.deletable?
+      if me.admin? || comment.deletable?
         button(
           opts,
           title: r("common.delete").t,
           class: "icon-action-button icon-action-danger",
           hx_delete: Htmx::Comments::Delete.with(id: comment.id).path,
           hx_target: "##{delete_target_id}",
-          hx_confirm: r(".confirm_delete").t
+          hx_confirm: me.admin? ? r(".confirm_delete_branch").t : r(".confirm_delete").t
         ) do
           img(
             src: asset("svgs/notifications/delete.svg"),

@@ -38,9 +38,9 @@ class Comments::CardControls < BaseComponent
       )
     end
 
-    if comment.deletable?
+    if me.admin? || comment.deletable?
       mount(
-        Comments::DeleteOrWithdraw,
+        Comments::DeleteAndWithdraw,
         comment: comment,
       )
     end
@@ -84,7 +84,7 @@ class Comments::CardControls < BaseComponent
         end
 
         mount(
-          Comments::DeleteOrWithdraw,
+          Comments::DeleteAndWithdraw,
           comment: comment,
         )
       end
