@@ -1,3 +1,5 @@
+require "../fix/topic_counts"
+
 # This task resets development data. Do not run it against a database you need to keep.
 class Db::Seed::SampleData < LuckyTask::Task
   summary "Add sample database records helpful for development"
@@ -19,6 +21,9 @@ class Db::Seed::SampleData < LuckyTask::Task
     DocQuery.truncate(cascade: true)
     UserQuery.truncate(cascade: true)
     CommentQuery.truncate(cascade: true)
+
+    # TRUNCATE 不触发逐行删除计数；Space 和节点配置保留，重新计算为零。
+    Db::Fix::TopicCounts.new.call
 
     users = [
       {"admin@crystal-china.org", "社区管理员", "admin"},

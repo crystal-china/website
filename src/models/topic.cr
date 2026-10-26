@@ -2,6 +2,7 @@ class Topic < BaseModel
   include Avram::SoftDelete::Model
 
   table do
+    belongs_to space : Space
     belongs_to user : User
     belongs_to node : Node
     belongs_to last_reply_user : User?

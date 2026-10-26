@@ -614,7 +614,7 @@ describe "Notifications" do
 
     response = ApiClient.new.get("/forum/new?backdoor_user_id=#{author.id}")
     response.status_code.should eq(200)
-    response.body.should contain("最多提及 5 个用户，超出部分不发送通知。")
+    XML.parse_html(response.body).xpath_node("//textarea[@name='content']").not_nil!["placeholder"].should contain("最多提及 5 人，超出部分不发送通知。")
   end
 
   it "uses rendered links for notifications, skipping callouts, existing links and code" do

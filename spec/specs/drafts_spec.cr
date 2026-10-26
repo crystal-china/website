@@ -90,7 +90,7 @@ describe "Local editor drafts" do
 
     document.xpath_node("//main//h1").not_nil!.content.should eq("修改标题")
     document.xpath_node("//head/title").not_nil!.content.should contain("修改标题")
-    document.xpath_node("//main//article/header/p/a[@href='/forum?node=#{moved_node.slug}']").not_nil!.content.should eq(moved_node.name)
+    document.xpath_node("//main//article/header/div/p/a[@href='/forum?node=#{moved_node.slug}']").not_nil!.content.should eq(moved_node.name)
     response.body.should contain("修改正文")
     response.body.should_not contain("草稿正文")
     message = Rosetta.find("forum.update.topic_updated").t

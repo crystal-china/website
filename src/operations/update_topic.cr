@@ -12,6 +12,8 @@ class UpdateTopic < Topic::SaveOperation
   after_save do |topic|
     actor_id = self.actor_id.value || topic.user_id
 
+    update_node_topic_counts(topic) if node_id.changed?
+
     NotificationDelivery.mentions_updated(
       topic,
       actor_id,
@@ -19,5 +21,17 @@ class UpdateTopic < Topic::SaveOperation
     ) if content.changed?
     NotificationDelivery.edited_by_admin(topic, actor_id) if title.changed? || content.changed?
     NotificationDelivery.topic_moved_by_admin(topic, actor_id) if node_id.changed?
+  end
+
+  private def update_node_topic_counts(topic : Topic) : Nil
+    AppDatabase.exec(
+      <<-SQL,
+        UPDATE nodes
+        SET topics_count = topics_count + (CASE WHEN id = $1 THEN -1 ELSE 1 END)
+        WHERE id IN ($1, $2)
+        SQL
+      node_id.original_value.not_nil!,
+      topic.node_id
+    )
   end
 end

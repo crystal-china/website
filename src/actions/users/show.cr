@@ -14,7 +14,13 @@ class Users::Show < BrowserAction
       entries = comments.results
     else
       query = TopicQuery.new.user_id(user.id).created_at.desc_order.id.desc_order.preload_node
-      pages, topics = paginate(query, per_page: 20)
+      pages = Lucky::Paginator.new(
+        page: paginator_page,
+        per_page: 20,
+        item_count: user.topics_count,
+        full_path: context.request.resource
+      )
+      topics = query.limit(pages.per_page).offset(pages.offset)
       entries = topics.results
     end
 
