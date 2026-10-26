@@ -35,6 +35,14 @@ en:
         comment_id: 'Comment #%{id} · '
         no_topics: No deleted topics.
         deleted_at: Deleted %{time}
+        preview: Preview
+      preview_topic_page:
+        page_title: 'Preview: %{title}'
+        description: Read-only preview. Nothing is restored. Comments appear oldest first, including deleted comments.
+        back_to_trash: Back to trash
+        comments: Comments (including deleted)
+        no_comments: No comments on this topic.
+        reply_to: 'Reply to comment #%{id}'
     users:
       remove_password:
         no_password: This account has no local password to remove.

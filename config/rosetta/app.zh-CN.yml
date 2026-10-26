@@ -35,6 +35,14 @@ zh-CN:
         comment_id: '评论 #%{id} · '
         no_topics: 没有已删除的主题。
         deleted_at: 删除于 %{time}
+        preview: 预览
+      preview_topic_page:
+        page_title: 预览：%{title}
+        description: 只读预览，不会恢复主题或评论。评论按发表顺序显示，包含已删除的记录。
+        back_to_trash: 返回回收站
+        comments: 评论（含已删除）
+        no_comments: 此主题没有评论。
+        reply_to: '回复评论 #%{id}'
     users:
       remove_password:
         no_password: 此账号没有本站密码，无需移除。

@@ -72,8 +72,16 @@ class Admin::Trash::List < BaseComponent
               end
             end
 
-            form_for Admin::Trash::RestoreTopic.with(id: topic.id) do
-              submit r("common.restore").t, class: "form-secondary"
+            div class: "flex items-center gap-3" do
+              link(
+                r(".preview").t,
+                to: Admin::Trash::PreviewTopic.with(id: topic.id),
+                class: "form-secondary"
+              )
+
+              form_for Admin::Trash::RestoreTopic.with(id: topic.id) do
+                submit r("common.restore").t, class: "form-secondary"
+              end
             end
           end
         end
