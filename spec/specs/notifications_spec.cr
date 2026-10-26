@@ -279,7 +279,7 @@ describe "Mention notification preferences" do
     NotificationQuery.new.user_id(author.id).url("/comments/#{child.id}").first.kind.should eq(Notification::Kind::CommentReply)
 
     root = UpdateComment.update!(root, content: "@#{author.login_name} 编辑根评论", actor_id: responder.id)
-    DeleteComment.delete!(root, actor_id: responder.id)
+    DeleteComment.delete!(root, actor_id: responder.id, delete_descendants: true)
     notifications = NotificationQuery.new.user_id(author.id).url("/comments/#{root.id}").id.asc_order.results
     notifications.map(&.kind).should eq([Notification::Kind::CommentEdited, Notification::Kind::CommentDeleted])
     NotificationQuery.new.user_id(author.id).kind(Notification::Kind::Mention).any?.should be_false
@@ -714,7 +714,7 @@ describe "Notifications" do
     thread = CommentThreadQuery.new.topic_id(topic.id).first
     root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "私有根评论")
     child = CreateComment.create!(user_id: responder.id, parent_id: root.id, content: "隐藏正文不能泄露")
-    DeleteComment.delete!(root)
+    DeleteComment.delete!(root, delete_descendants: true)
 
     notification = NotificationQuery.new.url("/comments/#{child.id}").first
     response = ApiClient.new.get("/notifications?backdoor_user_id=#{author.id}")
@@ -735,6 +735,9 @@ describe "Notifications" do
     end
 
     CommentQuery.new.only_soft_deleted.id(root.id).first.restore
+    ApiClient.new.get(notification.url).status_code.should eq(404)
+    CommentQuery.new.only_soft_deleted.id(child.id).first.restore
+
     ApiClient.new.get(notification.url).status_code.should eq(303)
     DeleteTopic.delete!(topic)
     ApiClient.new.get(notification.url).status_code.should eq(404)

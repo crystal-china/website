@@ -8,8 +8,8 @@ module TopicActivity
     AppDatabase.transaction do
       # 恢复删除的评论会触发 callback, 因此要包含已经删除的记录.
       topic = TopicQuery.new.with_soft_deleted.id(topic_id).for_update.first
-      # 根评论删除后，整个分支不可见；删除中间的子评论不隐藏其后代。
-      comments = CommentQuery.new.comment_thread_id(thread.id).with_visible_root
+      # 级联删除会将后代一起软删除，直接统计尚未删除的评论即可。
+      comments = CommentQuery.new.comment_thread_id(thread.id)
       last_reply = comments.created_at.desc_order.id.desc_order.first?
 
       TopicQuery.new.with_soft_deleted.id(topic.id).update(

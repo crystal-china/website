@@ -15,6 +15,42 @@ describe "Administrator comment deletion" do
     end
   end
 
+  it "rejects non-cascading deletion using current counts rather than the caller's stale record" do
+    author = UserFactory.create
+    doc = DocContent.sync("/docs/delete-operation-guard", "正文")
+    thread = CommentThreadQuery.new.doc_id(doc.id).first
+    root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "root")
+    child = CreateComment.create!(user_id: author.id, parent_id: root.id, content: "child")
+    grandchild = CreateComment.create!(user_id: author.id, parent_id: child.id, content: "grandchild")
+    notifications_count = NotificationQuery.new.select_count
+
+    [root, child].each do |comment|
+      comment.children_count.should eq(0)
+
+      operation = DeleteComment.new(comment)
+
+      operation.delete.should be_false
+      operation.errors[:base].should_not be_empty
+      comment.reload.soft_deleted?.should be_false
+      comment.reload.updated_at.should eq(comment.updated_at)
+    end
+
+    CommentQuery.new.publicly_visible_comments.id.asc_order.map(&.id).should eq([root.id, child.id, grandchild.id])
+    root.reload.descendants_count.should eq(2)
+    thread.reload.root_comments_count.should eq(1)
+    NotificationQuery.new.select_count.should eq(notifications_count)
+  end
+
+  it "filters public comments without joining their root comments" do
+    sql = CommentQuery.new.publicly_visible_comments.to_sql.first.as(String)
+
+    sql.should_not match(/JOIN\s+"?comments"?\b/i)
+    sql.should contain("comment_threads")
+    sql.should contain("topics")
+    sql.should contain("docs")
+    sql.should contain("soft_deleted_at")
+  end
+
   {"root", "child"}.each do |target_kind|
     it "soft deletes a #{target_kind} and all its descendants without deleting sibling branches" do
       admin = UserFactory.create &.email("cascade-admin@example.com")
@@ -103,7 +139,8 @@ describe "Administrator comment deletion" do
     sibling = CreateComment.create!(user_id: author.id, parent_id: root.id, content: "sibling")
     earlier = Time.utc
 
-    Timecop.freeze(earlier) { DeleteComment.delete!(deleted_child) }
+    # 故意绕过删除校验，模拟旧数据，确认级联查询仍能穿过已删除的节点。
+    Timecop.freeze(earlier) { Comment::SaveOperation.update!(deleted_child, soft_deleted_at: Time.utc) }
 
     deleted_child = deleted_child.reload
 

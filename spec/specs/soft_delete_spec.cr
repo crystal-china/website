@@ -14,7 +14,7 @@ describe "Soft deletion" do
     end
   end
 
-  it "hides and restores comments without losing descendants or visible counts" do
+  it "cascades comment deletion and restores each comment without losing content or counts" do
     user = UserFactory.create
     admin = UserFactory.create &.email("soft-delete-admin@example.com")
     doc = SaveDoc.create!(path_index: "/docs/soft-delete-spec", content: "文档正文")
@@ -23,19 +23,19 @@ describe "Soft deletion" do
     child = CreateComment.create!(user_id: user.id, parent_id: root.id, content: "child")
     grandchild = CreateComment.create!(user_id: user.id, parent_id: child.id, content: "grandchild")
 
-    DeleteComment.delete!(child)
+    DeleteComment.delete!(child, actor_id: admin.id, delete_descendants: true)
 
     CommentQuery.new.id(child.id).first?.should be_nil
     CommentQuery.new.only_soft_deleted.id(child.id).first.id.should eq(child.id)
-    CommentQuery.new.id(grandchild.id).first?.should_not be_nil
-    CommentQuery.new.publicly_visible_comments.id.asc_order.map(&.id).should eq([root.id, grandchild.id])
-    CommentQuery.find(root.id).descendants_count.should eq(1)
-    CommentQuery.new.with_soft_deleted.id(child.id).first.children_count.should eq(1)
+    CommentQuery.new.id(grandchild.id).first?.should be_nil
+    CommentQuery.new.publicly_visible_comments.id.asc_order.map(&.id).should eq([root.id])
+    CommentQuery.find(root.id).descendants_count.should eq(0)
+    CommentQuery.new.with_soft_deleted.id(child.id).first.children_count.should eq(0)
     ApiClient.new.get("/admin/trash?backdoor_user_id=#{user.id}").status_code.should eq(404)
     {"en" => "Deleted", "zh-CN" => "删除于"}.each do |locale, label|
       response = ApiClient.new.get("/admin/trash?locale=#{locale}&backdoor_user_id=#{admin.id}")
       deleted_at = CommentQuery.new.only_soft_deleted.id(child.id).first.soft_deleted_at.not_nil!
-      time = XML.parse_html(response.body).xpath_node("//article//time").not_nil!
+      time = XML.parse_html(response.body).xpath_node("//article[.//form[contains(@action, '/comments/#{child.id}/restore')]]//time").not_nil!
 
       response.status_code.should eq(200)
       time.content.should eq("#{label} #{deleted_at.to_local.to_s("%Y-%m-%d %H:%M:%S %z")}")
@@ -44,22 +44,30 @@ describe "Soft deletion" do
 
     thread_response = ApiClient.new.get("/htmx/comments?root_id=#{root.id}")
     thread_response.status_code.should eq(200)
-    thread_response.body.should contain("回复已删除的评论")
+    thread_response.body.should_not contain("grandchild")
 
     CommentQuery.new.only_soft_deleted.id(child.id).first.restore
 
     CommentQuery.find(child.id).id.should eq(child.id)
+    CommentQuery.new.id(grandchild.id).any?.should be_false
+    CommentQuery.find(root.id).descendants_count.should eq(1)
+    CommentQuery.new.only_soft_deleted.id(grandchild.id).first.restore
+
     CommentQuery.find(root.id).descendants_count.should eq(2)
     CommentQuery.find(root.id).children_count.should eq(1)
 
-    DeleteComment.delete!(root)
+    DeleteComment.delete!(root, actor_id: admin.id, delete_descendants: true)
     CommentQuery.new.id(root.id).first?.should be_nil
-    CommentQuery.new.id(grandchild.id).first?.should_not be_nil
+    CommentQuery.new.id(grandchild.id).first?.should be_nil
     CommentQuery.new.publicly_visible_comments.any?.should be_false
     ApiClient.new.get("/htmx/comments?root_id=#{root.id}").status_code.should eq(404)
 
     CommentQuery.new.only_soft_deleted.id(root.id).first.restore
     CommentQuery.find(root.id).id.should eq(root.id)
+    CommentQuery.new.publicly_visible_comments.map(&.id).should eq([root.id])
+    CommentQuery.new.only_soft_deleted.id(child.id).first.restore
+    CommentQuery.new.only_soft_deleted.id(grandchild.id).first.restore
+
     CommentQuery.new.publicly_visible_comments.id.asc_order.map(&.id).should eq([root.id, child.id, grandchild.id])
   end
 
@@ -147,7 +155,8 @@ describe "Soft deletion" do
     grandchild = CreateComment.create!(user_id: admin.id, parent_id: child.id, content: "孙评论")
 
     DeleteComment.delete!(grandchild)
-    DeleteComment.delete!(root)
+    # 故意绕过删除入口，模拟旧数据：根已删除，但直接父评论仍存在。
+    Comment::SaveOperation.update!(root, soft_deleted_at: Time.utc)
 
     grandchild = grandchild.reload
 
@@ -386,7 +395,7 @@ describe "Soft deletion" do
       CommentQuery.find(child.id).vote_counts.👍.should eq(1)
       VoteQuery.new.comment_id(child.id).select_count.should eq(1)
 
-      DeleteComment.delete!(root)
+      DeleteComment.delete!(root, delete_descendants: true)
 
       deleted_root = root.reload
       response = client.post("/admin/trash/comments/#{root.id}/restore?backdoor_user_id=#{admin.id}&locale=zh-CN")
@@ -409,6 +418,8 @@ describe "Soft deletion" do
       thread.target_visible?.should be_true
       root.reload.soft_deleted?.should be_true
       client.post("/admin/trash/comments/#{root.id}/restore?backdoor_user_id=#{admin.id}").status_code.should eq(303)
+      client.post("/admin/trash/comments/#{child.id}/restore?backdoor_user_id=#{admin.id}").status_code.should eq(303)
+
       CommentQuery.new.publicly_visible_comments.select_count.should eq(2)
       client.get("/comments/#{child.id}").status_code.should eq(303)
       client.get("/htmx/comments?root_id=#{root.id}").status_code.should eq(200)
@@ -432,7 +443,7 @@ describe "Soft deletion" do
 
       [:root, :topic].each do |target|
         if target == :root
-          DeleteComment.delete!(root)
+          DeleteComment.delete!(root, delete_descendants: true)
         else
           DeleteTopic.delete!(topic)
         end
@@ -445,12 +456,13 @@ describe "Soft deletion" do
         client.delete("/htmx/comments/#{child.id}?#{auth}").status_code.should eq(404)
         client.patch("/htmx/vote?#{auth}", comment_id: child.id, vote_type: "👍").status_code.should eq(404)
         CommentQuery.new.with_soft_deleted.select_count.should eq(2)
-        CommentQuery.find(child.id).content.should eq(child.content)
-        CommentQuery.find(child.id).vote_counts.👍.should eq(1)
+        child.reload.content.should eq(child.content)
+        child.reload.vote_counts.👍.should eq(1)
         VoteQuery.new.comment_id(child.id).select_count.should eq(1)
 
         if target == :root
           root = CommentQuery.new.only_soft_deleted.id(root.id).first.restore
+          child = CommentQuery.new.only_soft_deleted.id(child.id).first.restore
         else
           topic = TopicQuery.new.only_soft_deleted.id(topic.id).first.restore
         end

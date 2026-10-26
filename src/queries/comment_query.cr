@@ -10,14 +10,12 @@ class CommentQuery < Comment::BaseQuery
   end
 
   def publicly_visible_comments : self
-    # 先检查，评论所属主题是否可见？（即：如果主题被软删除，那么它级联的记录全部不可访问）
-    query = join_comment_thread(CommentThreadQuery.new.publicly_visible)
-
-    # 除非它是一个子评论，此时进入下一轮判断。
-    # 如果是子评论，要判断它 root 评论是否可见。
-    query.with_visible_root
+    # 删除时不留下未删除的后代，恢复时要求父评论存在；无需再 JOIN 根评论。
+    # 当前评论由默认的 only_kept 过滤，所属主题／文档仍需单独检查。
+    join_comment_thread(CommentThreadQuery.new.publicly_visible)
   end
 
+  # 现在由级联删除和恢复顺序保证可见性，不再使用此 self JOIN 方案；保留代码供参考。
   # 这是另一个写法。
   # join_comment_thread(CommentThreadQuery.new.join_topic(TopicQuery.new)).where(<<-SQL)
   #     (comments.root_id IS NULL OR EXISTS (

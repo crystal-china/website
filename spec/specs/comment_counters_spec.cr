@@ -29,7 +29,7 @@ describe "Comment pagination counters" do
       # 物理删除已软删除的根评论不能再次递减。
       AppDatabase.exec("DELETE FROM comments WHERE id = $1", other_root.id)
       CommentThreadQuery.find(thread.id).root_comments_count.should eq(1)
-      DeleteComment.delete!(root)
+      DeleteComment.delete!(root, delete_descendants: true)
       CommentThreadQuery.find(thread.id).root_comments_count.should eq(0)
       CommentQuery.new.only_soft_deleted.id(root.id).first.restore
       CommentThreadQuery.find(thread.id).root_comments_count.should eq(1)

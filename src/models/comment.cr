@@ -2,7 +2,7 @@ class Comment < BaseModel
   include Avram::SoftDelete::Model
 
   def deletable? : Bool
-    # 根评论会隐藏整支，检查全部后代；子评论只隐藏本条，检查直接回复。
+    # 普通作者：根评论检查全部后代，子评论检查直接回复；管理员级联删除不受此限制。
     root_id ? children_count.zero? : descendants_count.zero?
   end
 

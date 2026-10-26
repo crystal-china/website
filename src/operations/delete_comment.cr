@@ -3,6 +3,13 @@ class DeleteComment < Comment::DeleteOperation
   # 只由服务端管理员删除入口开启，不读取客户端参数。
   attribute delete_descendants : Bool = false
 
+  before_delete do
+    # 内部 task 也不能单独删除有回复的评论；重新读取 trigger 更新后的计数。
+    unless delete_descendants.value || record.reload.deletable?
+      add_error :base, r("validations.comment_has_replies").t
+    end
+  end
+
   after_delete do |comment|
     soft_delete_descendants(comment) if delete_descendants.value
 

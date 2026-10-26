@@ -466,7 +466,7 @@ class Db::Seed::SampleData < LuckyTask::Task
       visible_root = CreateComment.create!(
         comment_thread_id: thread_id,
         user_id: author.id,
-        content: "撤回演示：#{source}子评论有直接回复时只能撤回。展开本分支，可以检查紧凑占位卡片、恢复原文、后代回复，以及管理员也不能绕过的删除限制。"
+        content: "撤回演示：#{source}子评论有直接回复时，普通作者只能撤回。展开本分支，可以检查紧凑占位卡片、恢复原文和后代回复；管理员则可以将整个分支一起删除。"
       )
       withdrawn_child = CreateComment.create!(
         parent_id: visible_root.id,
@@ -483,21 +483,19 @@ class Db::Seed::SampleData < LuckyTask::Task
       deleted_root = CreateComment.create!(
         comment_thread_id: thread_id,
         user_id: author.id,
-        content: "回收站演示：这条#{source}根评论的后代已从叶子开始依次删除，所以根评论也可以删除。"
+        content: "回收站演示：管理员将这条#{source}根评论及其全部后代一起软删除。恢复时必须先恢复根评论，再逐层恢复子评论。"
       )
       hidden_child = CreateComment.create!(
         parent_id: deleted_root.id,
         user_id: replier.id,
-        content: "请先单独恢复这条#{source}子评论。由于根评论还在回收站，恢复后仍不可见，后台应该显示相应提示。"
+        content: "先尝试单独恢复这条#{source}子评论：由于根评论还在回收站，应提示不可恢复。先恢复根评论，再恢复本条，即可重新访问。"
       )
       hidden_grandchild = CreateComment.create!(
         parent_id: hidden_child.id,
         user_id: reader.id,
-        content: "这条叶子评论先被软删除，随后父评论和根评论才可以删除。它们的原文和 HTML 都保留在回收站。"
+        content: "这条叶子评论随根评论一起被管理员软删除，原文和 HTML 仍保留。需要先恢复根评论和直接父评论，才能恢复本条。"
       )
-      DeleteComment.delete!(hidden_grandchild, actor_id: admin.id)
-      DeleteComment.delete!(hidden_child, actor_id: admin.id)
-      DeleteComment.delete!(deleted_root, actor_id: admin.id)
+      DeleteComment.delete!(deleted_root, actor_id: admin.id, delete_descendants: true)
 
       # 两种来源各补七条叶子评论，让评论回收站超过每页二十条。
       7.times do |index|
@@ -522,7 +520,7 @@ class Db::Seed::SampleData < LuckyTask::Task
       这篇主题由管理员软删除，用来验证主题与评论的恢复顺序。
 
       - 主题删除后，正文和整个评论区都不可访问。
-      - 先恢复子评论，应提示所属主题仍被删除。
+      - 先恢复子评论，应拒绝并提示不可恢复。
       - 恢复主题后，未单独删除的评论重新可见；单独删除的评论仍留在回收站。
 
       @#{reader.login_name} 可以从通知里测试已删除内容的友好提示页。

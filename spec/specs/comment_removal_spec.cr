@@ -314,7 +314,7 @@ describe "Comment deletion and withdrawal" do
     end
   end
 
-  it "checks all descendants for roots but only direct replies for child comments" do
+  it "allows deleting a child and then its root after its entire descendant branch is deleted" do
     author = UserFactory.create
     doc = DocContent.sync("/docs/removal-counters", "文档正文")
     thread = CommentThreadQuery.new.doc_id(doc.id).first
@@ -322,8 +322,9 @@ describe "Comment deletion and withdrawal" do
     child = CreateComment.create!(user_id: author.id, parent_id: root.id, content: "B")
     middle = CreateComment.create!(user_id: author.id, parent_id: child.id, content: "C")
     descendant = CreateComment.create!(user_id: author.id, parent_id: middle.id, content: "D")
-    # 仅用于验证不同统计范围；新的 HTTP 接口不会允许删除仍有回复的 C。
-    DeleteComment.delete!(middle)
+    child.reload.deletable?.should be_false
+    root.reload.deletable?.should be_false
+    DeleteComment.delete!(middle, delete_descendants: true)
 
     CommentQuery.find(child.id).deletable?.should be_true
     CommentQuery.find(root.id).deletable?.should be_false
@@ -331,9 +332,9 @@ describe "Comment deletion and withdrawal" do
       client = ApiClient.new
       client.delete("/htmx/comments/#{child.id}?backdoor_user_id=#{author.id}").status_code.should eq(200)
       CommentQuery.find(root.id).children_count.should eq(0)
-      CommentQuery.find(root.id).descendants_count.should eq(1)
-      client.get("/comments/#{descendant.id}").status_code.should eq(303)
-      client.delete("/htmx/comments/#{root.id}?backdoor_user_id=#{author.id}").status_code.should eq(409)
+      CommentQuery.find(root.id).descendants_count.should eq(0)
+      client.get("/comments/#{descendant.id}").status_code.should eq(404)
+      client.delete("/htmx/comments/#{root.id}?backdoor_user_id=#{author.id}").status_code.should eq(200)
     end
   end
 
