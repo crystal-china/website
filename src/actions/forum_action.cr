@@ -31,7 +31,7 @@ abstract class ForumAction < BrowserAction
     following = false
 
     if (me = current_user)
-      can_delete_topic = me.admin? || (me.id == topic.user_id && !comment_thread.comments_query.with_soft_deleted.any?)
+      can_delete_topic = me.admin? || (me.id == topic.user_id && topic.replies_count.zero?)
       following = TopicFollowQuery.new.topic_id(topic.id).follower_id(me.id).any? if me.id != topic.user_id
     end
 

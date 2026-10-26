@@ -5,11 +5,7 @@ class Forum::Delete < BrowserAction
 
     return head 403 unless me.admin? || topic.user_id == me.id
 
-    unless me.admin?
-      comment_thread = CommentThreadQuery.new.topic_id(topic.id).first
-
-      return head 409 if comment_thread.comments_query.with_soft_deleted.any?
-    end
+    return head 409 unless me.admin? || topic.replies_count.zero?
 
     DeleteTopic.delete!(topic, actor_id: me.id)
     flash.success = r(".topic_deleted").t

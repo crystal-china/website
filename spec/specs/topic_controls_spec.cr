@@ -34,6 +34,56 @@ describe "Topic controls after commenting" do
     end
   end
 
+  it "allows topic deletion after all replies are soft deleted and refreshes the author's controls" do
+    author = UserFactory.create
+    other = UserFactory.create
+    node = SaveNode.create!(name: "删除回复", slug: "deleted-topic-replies", summary: "测试", color: "#16a34a", position: 0)
+    topic = CreateTopic.create!(user_id: author.id, node_id: node.id, title: "回复全部删除后可删", content: "正文")
+    thread = CommentThreadQuery.new.topic_id(topic.id).first
+    root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "根评论")
+    child = CreateComment.create!(user_id: author.id, parent_id: root.id, content: "子评论")
+    last = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "最后一条")
+    client = ApiClient.new
+    partial_path = "//hx-partial[@hx-target='#topic-#{topic.id}-controls']"
+    delete_path = "//button[@hx-delete='/forum/#{topic.id}']"
+
+    Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
+      client.post("/htmx/comments/#{child.id}/withdraw?backdoor_user_id=#{author.id}").status_code.should eq(200)
+      client.delete("/forum/#{topic.id}?backdoor_user_id=#{author.id}").status_code.should eq(409)
+      client.delete("/htmx/comments/#{child.id}?backdoor_user_id=#{author.id}").status_code.should eq(200)
+
+      response = client.delete("/htmx/comments/#{root.id}?backdoor_user_id=#{author.id}")
+      document = XML.parse_html(response.body)
+
+      response.status_code.should eq(200)
+      document.xpath_node(partial_path).should_not be_nil
+      document.xpath_node("#{partial_path}#{delete_path}").should be_nil
+      client.delete("/forum/#{topic.id}?backdoor_user_id=#{author.id}").status_code.should eq(409)
+
+      response = client.delete("/htmx/comments/#{last.id}?backdoor_user_id=#{author.id}")
+
+      response.status_code.should eq(200)
+      XML.parse_html(response.body).xpath_node("#{partial_path}#{delete_path}").should_not be_nil
+      CommentQuery.new.comment_thread_id(thread.id).only_soft_deleted.select_count.should eq(3)
+
+      response = client.get("/forum/#{topic.id}?backdoor_user_id=#{author.id}")
+
+      response.status_code.should eq(200)
+      XML.parse_html(response.body).xpath_node(delete_path).should_not be_nil
+      client.delete("/forum/#{topic.id}?backdoor_user_id=#{other.id}").status_code.should eq(403)
+
+      CommentQuery.new.only_soft_deleted.id(root.id).first.restore
+
+      response = client.get("/forum/#{topic.id}?backdoor_user_id=#{author.id}")
+
+      XML.parse_html(response.body).xpath_node(delete_path).should be_nil
+      client.delete("/forum/#{topic.id}?backdoor_user_id=#{author.id}").status_code.should eq(409)
+      client.delete("/htmx/comments/#{root.id}?backdoor_user_id=#{author.id}").status_code.should eq(200)
+      client.delete("/forum/#{topic.id}?backdoor_user_id=#{author.id}").status_code.should eq(303)
+      TopicQuery.new.only_soft_deleted.id(topic.id).any?.should be_true
+    end
+  end
+
   it "keeps administrators' delete permission and does not update topic controls for document comments" do
     admin_emails = ENV["ADMIN_EMAILS"]?
     ENV["ADMIN_EMAILS"] = "topic-controls-admin@example.com"

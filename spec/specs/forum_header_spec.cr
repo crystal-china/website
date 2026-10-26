@@ -10,8 +10,8 @@ describe "Forum topic header" do
       response = ApiClient.new.get("/forum/#{topic.id}?backdoor_user_id=#{author.id}&locale=#{locale}")
       document = XML.parse_html(response.body)
       header = document.xpath_node("//article/header[h1]").not_nil!
-      edit = header.xpath_node("./div/div/a[@href='/forum/#{topic.id}/edit']").not_nil!
-      delete = header.xpath_node("./div/div/button[@hx-delete='/forum/#{topic.id}']").not_nil!
+      edit = header.xpath_node(".//div[@id='topic-#{topic.id}-controls']/a[@href='/forum/#{topic.id}/edit']").not_nil!
+      delete = header.xpath_node(".//div[@id='topic-#{topic.id}-controls']/button[@hx-delete='/forum/#{topic.id}']").not_nil!
 
       response.status_code.should eq(200)
       header.xpath_node("./h1").not_nil!.content.should eq(topic.title)
