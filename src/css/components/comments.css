@@ -56,6 +56,11 @@
     @apply flex flex-wrap items-center justify-between gap-3;
   }
 
+  /* 只去掉正文末尾的留白，让表情靠近正文，内部段落间距不变。 */
+  .comment-body .prose > :last-child {
+    margin-bottom: 0;
+  }
+
   /* 主体和回复区域保持独立 DOM，左侧留出分支线的位置。 */
   .comment-root {
     --comment-replies-line: #cbd5e1;
