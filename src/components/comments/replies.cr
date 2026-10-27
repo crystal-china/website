@@ -1,3 +1,4 @@
+# 某一条根评论下面的整个回复区域，不包含根评论自己的正文、投票和操作按钮。
 class Comments::Replies < BaseComponent
   needs formatter : Tartrazine::Formatter
   needs root_comment : Comment
@@ -17,8 +18,8 @@ class Comments::Replies < BaseComponent
         # 已有子分页：新增／删除子评论后，ChildCreated／Deleted 把 Action 准备好的子分页传到这里。
         # 例如给根评论 A 新增回复 B，直接显示更新后的回复列表和 toggle，不再发一次加载请求。
         # 删除最后一条回复也进入这个分支，只是 count 为 0，下面会输出空容器。
-        if pages[:count] > 0
-          render_replies_toggle(expanded: true)
+        if pages[:count] > 0 # 已有子分页：直接显示
+          render_replies_toolbar(expanded: true)
 
           mount(
             Comments::List,
@@ -26,18 +27,19 @@ class Comments::Replies < BaseComponent
             pagination: pages,
             html_id: "comment-#{root_comment.id}-replies-list",
             comment_id: comment_id,
+            show_toolbar: false
           )
         else
           # 删除最后一条回复后，保留空容器，toggle 自动隐藏。
-          render_replies_toggle(expanded: false)
+          render_replies_toolbar(expanded: false)
 
           div id: "comment-#{root_comment.id}-replies-list"
         end
-      elsif (focus_id = focused_comment_id)
+      elsif (focus_id = focused_comment_id) # 没有子分页，但需要定位：自动加载
         # 需要定位：通过通知或评论链接跳转到子评论时，外层已找到根评论，但尚未准备它的子分页。
         # 例如目标是 A 下面的评论 123，这里收到 focused_comment_id = 123，先显示加载提示。
         # 容器出现后，hx_trigger: "load" 自动请求 Htmx::Comments::Index，由它定位并返回 123 所在的分页。
-        render_replies_toggle(expanded: true)
+        render_replies_toolbar(expanded: true)
 
         div(
           id: "comment-#{root_comment.id}-replies-list",
@@ -51,20 +53,20 @@ class Comments::Replies < BaseComponent
         ) do
           mount Shared::Spinner, text: r("comments.card.locating_comment").t
         end
-      else
+      else # 没有数据，也没有定位要求：保持折叠
         # 其他情况：普通打开文档／主题评论区，或刷新主评论列表时，没有子分页，也没有子评论定位目标。
         # 例如 A 已有 20 条回复，先保持折叠，不查询这些回复；数量从 descendants_count 读取。
-        # 用户点击展开按钮后才发请求加载内部列表，不会重新渲染整个 Replies。
-        render_replies_toggle(expanded: false)
+        # 用户点击展开按钮后才发请求，更新子回复区的标题栏与列表，不替换根评论正文。
+        render_replies_toolbar(expanded: false)
 
         div id: "comment-#{root_comment.id}-replies-list"
       end
     end
   end
 
-  private def render_replies_toggle(*, expanded : Bool) : Nil
+  private def render_replies_toolbar(*, expanded : Bool) : Nil
     mount(
-      Comments::RepliesToggle,
+      Comments::RepliesToolbar,
       comment: root_comment,
       order_by: order_by,
       expanded: expanded,

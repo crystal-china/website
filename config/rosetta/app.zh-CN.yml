@@ -33,6 +33,13 @@ zh-CN:
         topic_id: '主题 #%{id}'
         doc_id: '文档 #%{id}'
         comment_id: '评论 #%{id} · '
+        parent_comment: '父评论 #%{id}'
+        view_deletion_batch: 查看同批删除
+        collapse_deletion_batch: 收起同批删除
+        other_batch_comments: 同批其他评论（%{count} 条）
+        deletion_batch: 同批删除的评论（%{count} 条）
+        restore_order: 请先恢复父评论，再恢复子评论。
+        all_deleted_comments: 查看全部已删除评论
         no_topics: 没有符合条件的已删除主题。
         deleted_at: 删除于 %{time}
         preview: 预览
@@ -102,9 +109,6 @@ zh-CN:
     load_more_button:
       load_more: 加载更多评论
       no_more: 没有更多评论了
-    replies_toggle:
-      expand: 加载子评论，共 %{count} 条
-      collapse: 折叠子评论
     toolbar:
       reply_count:
         other: "共 %{count} 条回复"

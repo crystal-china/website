@@ -33,6 +33,13 @@ en:
         topic_id: 'Topic #%{id}'
         doc_id: 'Document #%{id}'
         comment_id: 'Comment #%{id} · '
+        parent_comment: 'Parent #%{id}'
+        view_deletion_batch: View deletion batch
+        collapse_deletion_batch: Collapse deletion batch
+        other_batch_comments: 'Other comments in this batch (%{count})'
+        deletion_batch: 'Deletion batch (%{count} comments)'
+        restore_order: Restore parents before replies.
+        all_deleted_comments: All deleted comments
         no_topics: No matching deleted topics.
         deleted_at: Deleted %{time}
         preview: Preview
@@ -102,9 +109,6 @@ en:
     load_more_button:
       load_more: Load more comments
       no_more: No more comments
-    replies_toggle:
-      expand: Load replies (%{count})
-      collapse: Collapse replies
     toolbar:
       reply_count:
         one: "%{count} reply"
