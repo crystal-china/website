@@ -50,6 +50,12 @@ class Db::Seed::SampleData < LuckyTask::Task
       last_active_at: Time.utc - 2.hours,
       online_seconds: (8.hours + 36.minutes).total_seconds.to_i64
     )
+    UpdateUser.update!(
+      users[1],
+      tagline: "从 Ruby 出发，认真学一点 Crystal",
+      bio: "正在把配置检查脚本迁到 Crystal，喜欢能直接运行的小例子。前言和第一篇主题里都有我的讨论，可以测试个人主页的主题、回复和账户记录。"
+    )
+    UpdateUser.update!(users[3], mention_notifications_enabled: false, hide_online_status: true)
 
     nodes = {} of String => Node
     [
@@ -90,249 +96,172 @@ class Db::Seed::SampleData < LuckyTask::Task
       {"projects", "做一个文档导航 YAML 的一致性检查任务", "导航配置里的路径可能指向已经删除的 Markdown，反过来也可能有文档没有被放进侧边栏。", "任务应该强制所有文件都有导航入口，还是允许隐藏页面并只报告真正不存在的文件？"},
       {"learning", "用小型 Web 应用练习 Avram 关联查询", "我想用主题、作者和评论三张表练习 preload 与分页，观察 N+1 查询在日志中的表现。", "除了比较 SQL 次数，还有哪些指标能判断预加载是否值得？"},
       {"general", "如何组织一次线上数据库升级演练？", "开发环境已经验证迁移能跑，但线上有真实数据，升级扩展和 PostgreSQL 版本时更需要可恢复的步骤。", "演练时应先验证备份恢复、迁移耗时，还是应用在旧新结构之间的兼容窗口？"},
-      {"help", "上传图片成功但预览里没有显示，先查哪里？", "图片上传接口返回了链接，编辑框里也插入了 Markdown，但点击预览后没有出现图片。", "你会先检查表单提交的字段、Markdown 渲染结果，还是浏览器的资源请求？"},
     ]
 
+    now = Time.utc
     topics = topic_data.each_with_index.map do |data, index|
       slug, title, background, question = data
+      content = <<-MARKDOWN
+      ## 背景
+
+      #{background}
+
+      ## 想讨论的问题
+
+      #{question}
+
+      如果你遇到过类似情况，也欢迎附上具体代码、取舍理由或踩坑经过。
+      MARKDOWN
+
+      if index.zero?
+        content += <<-MARKDOWN
+
+
+        ## 一个可以一起完善的练习
+
+        我想从读取 JSON 配置、检查必填字段、输出 Markdown 报告开始。第一阶段不做 Web 界面，只要求每一步都有可以执行的命令和明确的错误提示。
+
+        ```json
+        {"title": "Crystal 配置检查", "output": "report.md"}
+        ```
+
+        - 正常输入：报告包含配置名称和检查结果。
+        - 错误输入：区分文件不存在、JSON 格式错误和字段类型错误。
+        - 后续练习：用 PGroonga 搜索中文报告，分别验证标题和正文命中。
+
+        > 不只是让代码通过编译，还要能说明失败时会发生什么。
+
+        ```info
+        示例中的路径均相对于当前工作目录。运行前请先创建配置文件，不需要连接外部服务。
+        ```
+        MARKDOWN
+      end
 
       CreateTopic.create!(
-        user_id: users[index % users.size].id,
+        user_id: index.zero? ? users[1].id : users[(index - 1) % users.size].id,
         node_id: nodes[slug].id,
         title: title,
-        content: <<-MARKDOWN
-        ## 背景
-
-        #{background}
-
-        ## 想讨论的问题
-
-        #{question}
-
-        如果你遇到过类似情况，也欢迎附上具体代码、取舍理由或踩坑经过。
-        MARKDOWN
+        created_at: now - 5.days + index.hours,
+        content: content
       )
     end.to_a
 
-    # 小明关注第一篇和第三篇主题；管理员关注小明的主题。
-    [{topics[0], users[1]}, {topics[2], users[1]}, {topics[1], users[0]}].each do |topic, follower|
+    # 小明关注第一篇和第二篇主题；管理员关注小明的第一篇主题。
+    [{topics[0], users[1]}, {topics[1], users[1]}, {topics[0], users[0]}].each do |topic, follower|
       SaveTopicFollow.create!(topic_id: topic.id, follower_id: follower.id)
     end
 
-    topics.each_with_index do |topic, index|
-      thread_id = CommentThreadQuery.new.topic_id(topic.id).first.id
+    markdown_path = MarkdownFile.resolve("index") || raise "Missing Markdown for /docs/index"
+    doc = DocContent.sync("/docs/index", File.read(markdown_path))
+    doc = SaveDoc.update!(doc, created_at: now - 8.days)
+    doc_thread = CommentThreadQuery.new.doc_id(doc.id).first
+    topic_thread = CommentThreadQuery.new.topic_id(topics.first.id).first
 
-      CreateComment.create!(
-        comment_thread_id: thread_id,
-        user_id: users[(index + 1) % users.size].id,
-        content: "我也遇到过类似场景。#{topic_data[index][2]} 我倾向于先写一个能复现问题的小例子，再决定是否抽象成通用方案。"
-      )
-      CreateComment.create!(
-        comment_thread_id: thread_id,
-        user_id: users[(index + 2) % users.size].id,
-        content: "这个问题值得继续讨论。#{topic_data[index][3]} 如果能补上实际的代码和运行环境，其他人更容易给出有针对性的建议。"
-      )
-    end
-
-    first_topic_thread_id = CommentThreadQuery.new.topic_id(topics.first.id).first.id
-    topic_root = CreateComment.create!(
-      comment_thread_id: first_topic_thread_id,
-      user_id: users[1].id,
-      content: "我会先选一个输入明确的小脚本来迁移，而不是一次搬整个项目。这样每处理一个 Nil 联合类型，都能马上运行对应示例验证行为。"
-    )
-
-    10.times do |index|
-      CreateComment.create!(
-        comment_thread_id: first_topic_thread_id,
-        user_id: users[(index + 2) % users.size].id,
-        content: "补充第 #{index + 1} 个迁移时遇到的细节：先把输入和输出类型写在方法边界，再逐个处理可能为 Nil 的值。这样报错位置更集中，也方便后来的人阅读。"
-      )
-    end
-
-    12.times do |index|
-      CreateComment.create!(
-        parent_id: topic_root.id,
-        user_id: users[(index + 2) % users.size].id,
-        content: "关于第 #{index + 1} 处类型处理，我会先为外部输入写一个明确的转换方法，再让内部代码使用更窄的类型。这样不用到处加 not_nil!，测试也更容易覆盖失败分支。"
-      )
-    end
-
-    ["/docs/index", "/docs/concurrency"].each do |path|
-      markdown_path = MarkdownFile.resolve(path.sub(%r{\A/docs/}, "")) || raise "Missing Markdown for #{path}"
-      DocContent.sync(path, File.read(markdown_path))
-    end
-
-    doc_thread_id = CommentThreadQuery.new.doc_id(DocQuery.new.path_index("/docs/index").first.id).first.id
-    doc_root = CreateComment.create!(
-      comment_thread_id: doc_thread_id,
-      user_id: users[2].id,
-      content: <<-MARKDOWN
-      前言里把 Crystal 与 Ruby 的关系讲得很清楚。我最关心的是从 Ruby 迁移现有脚本时，哪些动态写法值得保留，哪些应该趁机改成显式类型。
-
-      > 能否再加一个小型迁移示例？
-
-      我想先试一个只读配置文件并输出报告的脚本。
-
-      @#{users[0].login_name} 这个示例适合放在前言后面吗？
-      MARKDOWN
-    )
-
-    doc_child = CreateComment.create!(
-      parent_id: doc_root.id,
-      user_id: users[1].id,
-      content: <<-MARKDOWN
-      我赞成从读取配置文件开始。这个练习能同时覆盖文件路径、字符串处理和可能失败的输入，比一开始迁移完整 Web 项目更容易定位问题。
-
-      可以分三步实现：
-
-      1. 读取文件并输出原始内容。
-      2. 解析 JSON，再为配置定义明确的类型。
-      3. 为文件不存在、字段缺失和格式错误分别给出提示。
-
-      如果示例还介绍 PGroonga 中文搜索，后续就能把读取的内容存入数据库并验证检索结果。
-      MARKDOWN
-    )
-    doc_grandchild = CreateComment.create!(
-      parent_id: doc_child.id,
-      user_id: users[3].id,
-      content: <<-MARKDOWN
-      @#{users[1].login_name} 我按这个顺序试了一遍，确实容易理解。补充一个细节：外部输入可能为空，但转换后的内部配置可以保持非空，避免在每个方法里重复处理 Nil。
-
-      ```crystal
-      require "json"
-
-      config = JSON.parse(File.read("config.json"))
-      title = config["title"].as_s
-      puts title
-      ```
-
-      @#{users[2].login_name} 可以先运行这段最小示例，再补上异常处理。这条是对子评论的回复，页面应显示我回复的是小明，而不是根评论作者。
-      MARKDOWN
-    )
-
-    # Later floors put the root, child and grandchild on page 2 in descending order.
-    12.times do |index|
-      CreateComment.create!(
-        comment_thread_id: doc_thread_id,
-        user_id: users[(index + 1) % users.size].id,
-        content: "阅读前言后的第 #{index + 1} 个问题：我正在把一个 Ruby 小工具迁到 Crystal。最有帮助的是完整示例，包括依赖安装、运行命令和常见类型错误的解释。"
-      )
-      CreateComment.create!(
-        parent_id: doc_root.id,
-        user_id: users[(index + 2) % users.size].id,
-        content: "第 #{index + 1} 条补充：可以先把文件读取和内容解析拆开，再单独处理失败情况。这样同一段示例既能演示类型推断，也能说明错误消息从哪里来。"
-      )
-    end
-
-    concurrency_thread_id = CommentThreadQuery.new.doc_id(DocQuery.new.path_index("/docs/concurrency").first.id).first.id
+    doc_root = seed_comment_examples(users, doc_thread, "前言")
+    seed_comment_examples(users, topic_thread, "主题")
+    seed_notifications(users, nodes, topics.first, topics[1], doc_root)
     CreateComment.create!(
-      comment_thread_id: concurrency_thread_id,
-      user_id: users[3].id,
-      content: <<-MARKDOWN
-      并发章节对 Fiber、Channel 和并行的区分很有帮助。我之前误以为启动多个 Fiber 就能让 CPU 密集任务自动跑满多核。
-
-      > 并发描述的是如何组织任务，并行描述的是如何执行。
-
-      这个区别配合一个计时例子会更容易理解。
-      MARKDOWN
-    )
-
-    CreateTopic.create!(
+      comment_thread_id: topic_thread.id,
       user_id: users[1].id,
-      node_id: nodes["learning"].id,
-      title: "准备做一个 Crystal 入门练习，欢迎补充建议",
-      content: "我准备从读取配置文件、解析 JSON 和输出 Markdown 报告开始练习。这篇主题暂时没有回复，可以检查列表中的零回复状态，以及作者编辑和删除按钮。"
+      content: "【作者整理】感谢大家的补充。我会把配置读取、校验和报告输出拆成三个步骤，并保留文件缺失、格式错误与字段类型错误的示例。撤回的建议不再作为结论，但下面的纠正仍保留供读者参考；这条最新回复也方便检查主题置顶、最后回复人和活跃时间。"
     )
+    TopicActivity.refresh(topic_thread)
 
-    UpdateTopic.update!(
-      topics[2],
-      content: "#{topics[2].content}\n\n## 作者补充\n\n检查失败时应返回非零退出码，方便 CI 阻止继续发布。",
-      actor_id: topics[2].user_id
-    )
-    UpdateTopic.update!(
-      topics[1],
-      node_id: nodes["general"].id,
-      title: "Channel 消费者退出后，生产者应该如何收尾？（补充讨论范围）",
-      actor_id: users[0].id
-    )
-    UpdateComment.update!(
-      doc_child,
-      content: "#{doc_child.content}\n\n补充：每一步都保留可以直接运行的命令，方便读者验证结果。",
-      actor_id: doc_child.user_id
-    )
-    UpdateComment.update!(
-      doc_grandchild,
-      content: "#{doc_grandchild.content}\n\n管理员补充：示例中的配置文件需要先在当前目录创建。",
-      actor_id: users[0].id
-    )
+    SaveVote.create!(user_id: users[1].id, doc_id: doc.id, vote_type: "👍")
+    doc_vote_counts = doc.vote_counts
+    doc_vote_counts.👍 = 1
+    UpdateDocVoteCounts.update!(doc, vote_counts: doc_vote_counts)
 
-    seed_trash(
-      users,
-      nodes["general"],
-      concurrency_thread_id,
-      first_topic_thread_id
-    )
-
-    seed_notifications(users, nodes, concurrency_thread_id)
-
-    puts "Created #{TopicQuery.new.select_count} visible topics, #{users.size} users and comments on two searchable Markdown documents."
-    puts "Try /forum?page=2, /forum/#{topics.first.id}, /docs/index, and search for PGroonga."
-    puts "Foreword: 13 root comments and 14 replies in the first root's branch (10 per page)."
-    puts "Jump to page 2 in descending order:"
-    puts "  Root: /comments/#{doc_root.id}"
-    puts "  Child: /comments/#{doc_child.id}"
-    puts "  Grandchild: /comments/#{doc_grandchild.id}"
-    puts "Sign in as me@163.com to test all notification types and jumps; admin@crystal-china.org has an empty notification list."
-    puts "All sample accounts use password: temp1234."
-    puts "Try @xi to autocomplete xiaohong, xiaoli and xiaoming."
-    puts "Set ADMIN_EMAILS=admin@crystal-china.org before starting the app to enable the sample administrator."
-    puts "Trash: /admin/trash (#{CommentQuery.new.only_soft_deleted.select_count} comments, including page 2), /admin/trash?kind=topics."
-    puts "Xiaoming has 36 notifications across two pages; each page includes all 9 types, with 27 unread and 9 read notifications across three days."
-    puts "Account history: /me/events; admin and xiaoming have multiple pages, ruby_to_crystal has one event, concurrency has none."
-    puts "History includes nickname/login-name changes, password changes, password/OAuth logins, and administrator password removals."
+    puts "已创建 #{TopicQuery.new.select_count} 篇可见主题、#{users.size} 个用户。"
+    puts "主要测试入口：/docs/index 和 /forum/#{topics.first.id}，两者都有根评论与子评论分页。"
+    puts "其他主题大多无回复，用于测试零回复、作者删除、/forum?page=2 和仅关注过滤。"
+    puts "所有示例账号密码：temp1234；小明：me@163.com / xiaoming；管理员：admin@crystal-china.org / admin。"
+    puts "输入 @xi 可以补全 xiaohong、xiaoli、xiaoming；concurrency 关闭提及通知并隐身，但仍有普通回复通知。"
+    puts "启动应用前设置 ADMIN_EMAILS=admin@crystal-china.org，以启用示例管理员。"
+    puts "回收站：/admin/trash，共 #{CommentQuery.new.only_soft_deleted.select_count} 条评论，超过一页；主题回收站：/admin/trash?kind=topics。"
+    puts "小明有 36 条通知，两页均包含全部 9 种类型；27 条未读、9 条已读，日期分散在三天。"
+    puts "小明账户记录：#{UserAudits::Index.with(user_id: users[1].id).path}；全站账户记录：#{UserAudits::Index.path}。"
+    puts "管理员和小明的账户记录超过一页，ruby_to_crystal 有一条，concurrency 没有；可测试改名、密码与 OAuth 登录事件。"
+    puts "搜索可试 PGroonga、配置；完整场景说明见 docs/sample_data.md。"
   end
 
-  private def seed_notifications(users : Array(User), nodes : Hash(String, Node), doc_thread_id : Int64) : Nil
-    admin, user, replier = users.first(3)
+  private def seed_notifications(
+    users : Array(User),
+    nodes : Hash(String, Node),
+    topic : Topic,
+    followed_topic : Topic,
+    doc_root : Comment,
+  ) : Nil
+    admin, user, replier, reader = users.first(4)
+    topic_title = topic.title
+    topic_thread_id = CommentThreadQuery.new.topic_id(topic.id).first.id
+    followed_thread_id = CommentThreadQuery.new.topic_id(followed_topic.id).first.id
+    doc_first_reply = CommentQuery.new.parent_id(doc_root.id).id.asc_order.first
+    topic_first_reply = CommentQuery.new.comment_thread_id(topic_thread_id).parent_id.is_not_nil.id.asc_order.first
+    topic_reader_reply = CommentQuery.new
+      .comment_thread_id(topic_thread_id)
+      .user_id(reader.id)
+      .parent_id.is_not_nil
+      .id.asc_order.first
 
     # 清除前面准备主题和回收站时产生的通知，下面通过真实操作生成固定的演示场景。
-    NotificationQuery.truncate
+    # DELETE 才会触发逐行计数更新，TRUNCATE 会让用户上的通知计数保留旧值。
+    NotificationQuery.new.delete
 
     [
       "Channel 关闭后如何让生产者正常退出",
       "给 Markdown 链接检查工具补充 CI 测试",
       "为中文全文搜索设计可重复执行的同步任务",
       "在树莓派上演练 PostgreSQL 备份与恢复",
-    ].each do |title|
-      topic = CreateTopic.create!(
-        user_id: user.id,
-        node_id: nodes["general"].id,
-        title: title,
-        content: "## 讨论目标\n\n#{title}是我最近遇到的实际问题。我准备先写一个可复现的小例子，再比较实现复杂度和维护成本。欢迎补充具体代码、测试方法和失败时的处理步骤。"
-      )
-      thread_id = CommentThreadQuery.new.topic_id(topic.id).first.id
+    ].each_with_index do |title, index|
+      reply_content = "@#{reader.login_name} 迁移脚本时还可以练习「#{title}」。建议先列出正常、失败和重复执行三种情况，再逐项验证。你关闭了提及通知，但第一条是对你的直接回复，普通回复通知仍应保留；小明作为主题作者也会收到普通回复通知。"
+
+      if index.zero?
+        CreateComment.create!(
+          parent_id: topic_reader_reply.id,
+          user_id: replier.id,
+          content: reply_content
+        )
+      else
+        CreateComment.create!(
+          comment_thread_id: topic_thread_id,
+          user_id: replier.id,
+          content: reply_content
+        )
+      end
+
       CreateComment.create!(
-        comment_thread_id: thread_id,
+        parent_id: doc_root.id,
         user_id: replier.id,
-        content: "建议先为「#{title}」列出正常、失败和重复执行三种情况，再逐项验证。这样不仅能定位问题，也方便把解决过程整理成文档。"
+        content: "关于前言提到的练习，我补充「#{title}」这个方向。可以先覆盖资源释放和异常传播，再验证重复执行不会留下额外任务；这条通知应定位到前言讨论的子分页。"
       )
-      root = CreateComment.create!(
-        comment_thread_id: doc_thread_id,
-        user_id: user.id,
-        content: "我在研究「#{title}」，发现把任务的输入、输出和退出条件写清楚很有帮助。文档中的并发示例也可以增加一段失败后的收尾过程。"
+      if index < 2
+        reply = index.zero? ? doc_first_reply : topic_first_reply
+
+        UpdateComment.update!(
+          reply,
+          content: "#{reply.content}\n\n@#{user.login_name} 补充一下「#{title}」的复现步骤。这次编辑新增了提及，通知应跳到较早的子评论，自动加载根评论和子评论所在的第二页。",
+          actor_id: replier.id
+        )
+      else
+        mention = CreateComment.create!(
+          comment_thread_id: doc_root.comment_thread_id,
+          user_id: replier.id,
+          content: "@#{user.login_name} 关于「#{title}」，可以先给出一段最小可运行示例，再附上预期输出和实际结果，其他读者会更容易复现。"
+        )
+
+        Comment::SaveOperation.update!(mention, withdrawn: true) if index == 2
+      end
+      topic = UpdateTopic.update!(
+        topic,
+        title: "#{topic_title}（第 #{index + 1} 次补充）",
+        actor_id: admin.id
       )
-      CreateComment.create!(
-        parent_id: root.id,
-        user_id: replier.id,
-        content: "同意你的思路。我会先覆盖资源释放和异常传播，再验证重复执行不会留下额外任务。这条回复可以从通知跳转并展开文档的子评论。"
+      topic = UpdateTopic.update!(
+        topic,
+        node_id: nodes[index.even? ? "help" : "general"].id,
+        actor_id: admin.id
       )
-      CreateComment.create!(
-        comment_thread_id: doc_thread_id,
-        user_id: replier.id,
-        content: "@#{user.login_name} 关于「#{title}」，可以先给出一段最小可运行示例，再附上预期输出和实际结果，其他读者会更容易复现。"
-      )
-      topic = UpdateTopic.update!(topic, title: "#{title}（补充复现步骤）", actor_id: admin.id)
-      UpdateTopic.update!(topic, node_id: nodes["help"].id, actor_id: admin.id)
 
       deleted_topic = CreateTopic.create!(
         user_id: user.id,
@@ -340,32 +269,42 @@ class Db::Seed::SampleData < LuckyTask::Task
         title: "重复讨论：#{title}",
         content: "这篇主题与已有讨论重复，管理员将其移入回收站。通知保留当时的标题和正文摘要，点击后应显示内容已不可用的提示。"
       )
+
+      if index.zero?
+        deleted_thread_id = CommentThreadQuery.new.topic_id(deleted_topic.id).first.id
+        kept_root = CreateComment.create!(
+          comment_thread_id: deleted_thread_id,
+          user_id: user.id,
+          content: "主题删除后，这条评论只因所属主题不可见而隐藏，并没有被单独删除。管理员可以从主题回收站预览它；恢复主题后它会重新可见。"
+        )
+        deleted_child = CreateComment.create!(
+          parent_id: kept_root.id,
+          user_id: user.id,
+          content: "我先删除了这条重复回复，之后主题才被移入回收站。主题未恢复时不能恢复本条；只恢复主题，也不应把本条一起恢复。"
+        )
+        DeleteComment.delete!(deleted_child, actor_id: user.id)
+
+        puts "已删除主题预览：/admin/trash/topics/#{deleted_topic.id}/preview；主题恢复前不可恢复的评论：/admin/trash/comments/#{deleted_child.id}。"
+      end
+
       DeleteTopic.delete!(deleted_topic, actor_id: admin.id)
-      UpdateComment.update!(
-        root,
-        content: "#{root.content}\n\n管理员补充：请附上 Crystal 版本、执行命令和完整的错误信息，方便大家复现。",
+      doc_root = UpdateComment.update!(
+        doc_root,
+        content: "#{doc_root.content}\n\n管理员补充 #{index + 1}：讨论「#{title}」时，请附上 Crystal 版本、执行命令和预期结果。",
         actor_id: admin.id
       )
 
       deleted_comment = CreateComment.create!(
-        comment_thread_id: doc_thread_id,
+        parent_id: doc_root.id,
         user_id: user.id,
         content: "关于「#{title}」的重复留言，管理员会删除这条评论。可以检查删除通知的摘要，以及跳转到已删除评论时的提示。"
       )
       DeleteComment.delete!(deleted_comment, actor_id: admin.id)
 
-      followed_topic = CreateTopic.create!(
-        user_id: replier.id,
-        node_id: nodes["projects"].id,
-        title: "实践记录：#{title}",
-        content: "我会在这篇主题里持续记录「#{title}」的实现过程，包括可运行示例、测试结果和最终取舍。关注后即可收到新回复通知。"
-      )
-      SaveTopicFollow.create!(topic_id: followed_topic.id, follower_id: user.id)
-      followed_thread_id = CommentThreadQuery.new.topic_id(followed_topic.id).first.id
       CreateComment.create!(
         comment_thread_id: followed_thread_id,
-        user_id: admin.id,
-        content: "感谢分享实践记录。建议把验证步骤和失败后的恢复方法放在一起，后续读者可以按顺序执行；有新的测试结果也欢迎继续补充。"
+        user_id: replier.id,
+        content: "我在练习「#{title}」时，也遇到了 Channel 消费者退出后的收尾问题。小明关注了这个主题，但不是作者，也没有被直接回复或提及，因此应收到关注主题的新回复通知。"
       )
     end
 
@@ -381,7 +320,7 @@ class Db::Seed::SampleData < LuckyTask::Task
           notification,
           created_at: at,
           updated_at: at,
-          read_at: index % 4 == 0 ? at : nil
+          read_at: recipient.id == user.id && index % 4 == 0 ? at : nil
         )
       end
     end
@@ -449,7 +388,10 @@ class Db::Seed::SampleData < LuckyTask::Task
       end
     end
 
-    User::SaveOperation.update!(users[2], created_at: now - 2.days)
+    users.skip(2).each do |user|
+      User::SaveOperation.update!(user, created_at: now - 6.days)
+    end
+
     SaveUserAudit.create!(
       user_id: users[2].id,
       kind: :oauth_signed_in,
@@ -459,102 +401,258 @@ class Db::Seed::SampleData < LuckyTask::Task
     )
   end
 
-  private def seed_trash(users : Array(User), node : Node, doc_thread_id : Int64, topic_thread_id : Int64) : Nil
+  private def seed_comment_examples(users : Array(User), thread : CommentThread, source : String) : Comment
     admin, author, replier, reader = users.first(4)
-
-    [{"文档", doc_thread_id}, {"社区", topic_thread_id}].each do |source, thread_id|
-      visible_root = CreateComment.create!(
-        comment_thread_id: thread_id,
-        user_id: author.id,
-        content: "撤回演示：#{source}子评论有直接回复时，普通作者只能撤回。展开本分支，可以检查紧凑占位卡片、恢复原文和后代回复；管理员则可以将整个分支一起删除。"
-      )
-      withdrawn_child = CreateComment.create!(
-        parent_id: visible_root.id,
-        user_id: replier.id,
-        content: "这条#{source}子评论将由作者撤回，但原文和下面的一条回复仍然保留。点击恢复，应重新显示这段内容，而不是打开一个空编辑器。"
-      )
-      CreateComment.create!(
-        parent_id: withdrawn_child.id,
-        user_id: reader.id,
-        content: "我回复的是中间一层，而不是根评论。父评论撤回后，我的回复仍可见；删除我这条回复后，父评论除了恢复按钮，还应显示删除按钮。"
-      )
-      Comment::SaveOperation.update!(withdrawn_child, withdrawn: true)
-
-      deleted_root = CreateComment.create!(
-        comment_thread_id: thread_id,
-        user_id: author.id,
-        content: "回收站演示：管理员将这条#{source}根评论及其全部后代一起软删除。恢复时必须先恢复根评论，再逐层恢复子评论。"
-      )
-      hidden_child = CreateComment.create!(
-        parent_id: deleted_root.id,
-        user_id: replier.id,
-        content: "先尝试单独恢复这条#{source}子评论：由于根评论还在回收站，应提示不可恢复。先恢复根评论，再恢复本条，即可重新访问。"
-      )
-      hidden_grandchild = CreateComment.create!(
-        parent_id: hidden_child.id,
-        user_id: reader.id,
-        content: "这条叶子评论随根评论一起被管理员软删除，原文和 HTML 仍保留。需要先恢复根评论和直接父评论，才能恢复本条。"
-      )
-      DeleteComment.delete!(deleted_root, actor_id: admin.id, delete_descendants: true)
-
-      # 两种来源各补七条叶子评论，让评论回收站超过每页二十条。
-      7.times do |index|
-        leaf = CreateComment.create!(
-          parent_id: visible_root.id,
-          user_id: author.id,
-          content: "#{source}回收站分页示例 #{index + 1}：这条没有子回复的评论可以由作者删除。恢复后应重新出现在原来的楼层，而不是重新分配楼层号。"
-        )
-        DeleteComment.delete!(leaf, actor_id: index.even? ? author.id : admin.id)
-      end
-
-      puts "#{source} trash example: visible branch /comments/#{visible_root.id}; hidden descendant /comments/#{hidden_grandchild.id}."
-    end
-
-    topic = CreateTopic.create!(
-      user_id: author.id,
-      node_id: node.id,
-      title: "已删除主题：讨论如何验证备份恢复流程",
-      content: <<-MARKDOWN
-      ## 演练目标
-
-      这篇主题由管理员软删除，用来验证主题与评论的恢复顺序。
-
-      - 主题删除后，正文和整个评论区都不可访问。
-      - 先恢复子评论，应拒绝并提示不可恢复。
-      - 恢复主题后，未单独删除的评论重新可见；单独删除的评论仍留在回收站。
-
-      @#{reader.login_name} 可以从通知里测试已删除内容的友好提示页。
-      MARKDOWN
-    )
-    thread_id = CommentThreadQuery.new.topic_id(topic.id).first.id
+    at = Time.utc - 3.days
     root = CreateComment.create!(
-      comment_thread_id: thread_id,
-      user_id: replier.id,
-      content: "这条根评论没有被删除，只是所属主题被删除后暂时不可见。恢复主题时，不需要再单独恢复它。"
+      comment_thread_id: thread.id,
+      user_id: author.id,
+      created_at: at,
+      content: <<-MARKDOWN
+      ## #{source}讨论：从配置检查脚本开始迁移
+
+      我准备先把一个 Ruby 配置检查工具迁到 Crystal，而不是一次搬整个 Web 项目。这个工具读取 JSON，检查必填项，再生成 Markdown 报告，输入输出都很明确。
+
+      > 外部输入允许失败，内部数据尽量保持明确的类型。
+
+      计划先做这三件事：
+
+      1. 区分文件不存在、JSON 格式错误和配置字段缺失。
+      2. 把文件读取与数据校验分开，不在业务代码里反复使用 `not_nil!`。
+      3. 用 PGroonga 搜索生成的中文报告，验证标题和正文都能命中。
+
+      @#{replier.login_name}，你会怎样安排第一步？这条讨论保留较长正文、引用和列表，用来检查实际阅读效果。
+
+      ```info
+      示例配置里的 @admin 只是说明文字，不应生成提及链接或通知。
+      ```
+      MARKDOWN
     )
     child = CreateComment.create!(
       parent_id: root.id,
-      user_id: reader.id,
-      content: "这条评论在主题删除之前就已经单独删除。只恢复主题，不应该把它一起恢复。"
+      user_id: replier.id,
+      created_at: at + 10.minutes,
+      content: "我会先固定输入和输出，再逐步替换解析逻辑。比如明确哪些字段可以缺省、哪些字段缺失时必须报错，并为每种失败准备一个最小配置文件；这样以后修改类型时，也能判断行为是否发生变化。"
     )
     grandchild = CreateComment.create!(
       parent_id: child.id,
-      user_id: author.id,
-      content: "这条叶子回复在主题删除前单独删除，之后父评论才允许删除；恢复主题不会自动恢复它们。"
-    )
-    DeleteComment.delete!(grandchild, actor_id: admin.id)
-    DeleteComment.delete!(child, actor_id: admin.id)
-    DeleteTopic.delete!(topic, actor_id: admin.id)
-
-    empty_topic = CreateTopic.create!(
       user_id: reader.id,
-      node_id: node.id,
-      title: "已删除主题：作者撤回了尚无回复的练习计划",
-      content: "我原本打算发布一个配置文件解析练习，后来发现示例还需要补充。由于没有任何回复，作者可以自己删除；管理员可以从回收站恢复。"
-    )
-    DeleteTopic.delete!(empty_topic, actor_id: reader.id)
+      created_at: at + 20.minutes,
+      content: <<-MARKDOWN
+      @#{author.login_name}中文也可以紧跟提及。我按这个顺序试了一遍，先把配置转换成明确的对象，后面的报告生成就不必反复处理 Nil。
 
-    puts "Deleted topic: /forum/#{topic.id}; separately deleted comment: /comments/#{child.id}."
+      ```crystal
+      require "json"
+
+      config = JSON.parse(File.read("config.json"))
+      puts config["title"].as_s
+      ```
+
+      这条回复的直接父评论是 Ruby 转 Crystal，不是根评论作者，可以检查回复对象和跨页定位。
+      MARKDOWN
+    )
+    CreateComment.create!(
+      parent_id: grandchild.id,
+      user_id: admin.id,
+      created_at: at + 30.minutes,
+      content: "@#{reader.login_name} 我会再补一个字段类型错误的配置。你关闭了提及通知，但这也是对你的直接回复，因此普通回复通知仍应保留。这条是第四层评论，可以检查父评论名称和连续展开效果。"
+    )
+
+    [
+      "先把文件路径作为命令行参数，不在程序里写死工作目录，这样本地和 CI 才能使用同一条命令。",
+      "缺少 title 与 title 不是字符串应该给出不同提示，避免读者只看到一个笼统的转换异常。",
+      "解析失败时保留原始文件名和行号，输出报告时再统一整理，而不是在每个方法里打印日志。",
+      "如果报告用于 CI，检查失败就返回非零退出码；只有警告时仍可成功退出。",
+      "不要为了消除 Nil 一开始就给所有字段设空字符串，否则可能把真正的配置错误隐藏掉。",
+      "可以先比较一份有效配置和一份无效配置的输出，再决定是否引入更通用的校验对象。",
+      "PGroonga 搜索应分别试标题命中、正文命中和没有结果；中文词组与英文库名也应各试一次。",
+      "Markdown 报告中的文件名要注意转义；包含下划线、百分号或反斜杠时，不应改变原始路径。",
+      "最后把依赖版本和运行命令写进 README，让后来的人不必猜测示例需要什么环境。",
+    ].each_with_index do |advice, index|
+      CreateComment.create!(
+        parent_id: root.id,
+        user_id: users[(index + 2) % users.size].id,
+        created_at: at + (index + 1).hours,
+        content: "关于#{source}的配置练习，我补充一点：#{advice} 我会先用一个可以直接运行的小例子验证，再把结果整理进教程。"
+      )
+    end
+
+    seed_comment_votes(root, users)
+
+    leaf = CreateComment.create!(
+      comment_thread_id: thread.id,
+      user_id: author.id,
+      content: "【可以删除，也可以撤回】我准备把这份配置练习整理成一个独立目录，包含有效配置、错误配置和运行命令。这条还没有任何回复，小明应同时看到删除与撤回按钮；其他普通用户不应看到这些操作。"
+    )
+    withdrawn_root = CreateComment.create!(
+      comment_thread_id: thread.id,
+      user_id: author.id,
+      content: "【已撤回的根评论】我最初认为所有配置错误都应该自动填默认值，后来发现这会掩盖输入问题，所以先撤回这段建议。原文仍然保留，恢复后应重新出现，下面的讨论不能因此消失。"
+    )
+    CreateComment.create!(
+      parent_id: withdrawn_root.id,
+      user_id: replier.id,
+      content: "默认值适合确实可选的字段，不适合强行补齐必填字段。虽然根评论已撤回，我的这条回复仍应能展开、阅读和通过链接访问。"
+    )
+    Comment::SaveOperation.update!(withdrawn_root, withdrawn: true)
+
+    withdrawal_branch = CreateComment.create!(
+      comment_thread_id: thread.id,
+      user_id: author.id,
+      content: "【子评论撤回演示】这一支讨论异常处理的边界。可以先展开，再撤回或恢复中间的评论，检查回复列表是否保持展开，以及加减号、分支线和其他操作图标的位置。"
+    )
+    withdrawn_child = CreateComment.create!(
+      parent_id: withdrawal_branch.id,
+      user_id: author.id,
+      content: "我原先建议捕获所有异常后直接返回空报告，但这会让真正的程序错误也被忽略。先撤回这条建议，保留下面其他人的纠正；恢复时应保留原来的投票和楼层号。"
+    )
+    withdraw_child_reply = CreateComment.create!(
+      parent_id: withdrawn_child.id,
+      user_id: replier.id,
+      content: "我更倾向于只捕获预期的文件和解析错误，让意外错误继续暴露。小明可以撤回父评论，但有我这条直接回复时不能单独删除；删除我这条后，父评论应重新出现删除按钮。"
+    )
+    seed_comment_votes(withdrawn_child, users)
+    Comment::SaveOperation.update!(withdrawn_child, withdrawn: true)
+
+    delete_ready = CreateComment.create!(
+      comment_thread_id: thread.id,
+      user_id: author.id,
+      content: "【回复已删除，父评论可删除】我曾在这里询问示例的文件编码，唯一的直接回复后来由作者删除了。现在没有可见后代，所以我的删除按钮应该重新出现，而不是继续被历史记录阻止。"
+    )
+    removed_reply = CreateComment.create!(
+      parent_id: delete_ready.id,
+      user_id: replier.id,
+      content: "这条单独删除的回复曾建议使用本地默认编码，后来发现应明确使用 UTF-8，所以作者删除了它。它不属于任何级联删除批次，回收站不应显示查看同批删除。"
+    )
+    DeleteComment.delete!(removed_reply, actor_id: replier.id)
+
+    deleted_root = CreateComment.create!(
+      comment_thread_id: thread.id,
+      user_id: author.id,
+      content: "【整支级联删除】这一支重复讨论了已经修正的配置格式，管理员将根评论和后代一起删除。恢复时应先恢复根评论，再恢复子评论，不能越过父评论。"
+    )
+    deleted_child = CreateComment.create!(
+      parent_id: deleted_root.id,
+      user_id: replier.id,
+      content: "这是随根评论一起删除的第二层评论。同批列表中根评论应排在我前面，先恢复根评论再恢复我，不再额外显示父评论链接。"
+    )
+    deleted_grandchild = CreateComment.create!(
+      parent_id: deleted_child.id,
+      user_id: reader.id,
+      content: "这是随根评论一起删除的第三层评论。展开同批记录可找到祖先，不再额外显示父评论链接。父评论仍被删除时，点击恢复应被拒绝。"
+    )
+    earlier_deletion = CreateComment.create!(
+      parent_id: deleted_child.id,
+      user_id: replier.id,
+      content: "【更早单独删除】我在管理员删除整支之前就删除了这条重复回复。原删除时间不能被覆盖，也不应混入后来的同批删除列表。搜索 100% a_b C:\\temp 时，这些字符应按字面匹配。"
+    )
+    DeleteComment.delete!(earlier_deletion, actor_id: replier.id)
+    DeleteComment.delete!(deleted_root, actor_id: admin.id, delete_descendants: true)
+
+    branch_root = CreateComment.create!(
+      comment_thread_id: thread.id,
+      user_id: author.id,
+      content: "【只删除中间分支】这一支同时讨论输入校验和报告格式。管理员只移除了错误的输入校验分支，根评论与另一条讨论报告格式的回复仍然保留。"
+    )
+    deleted_branch = CreateComment.create!(
+      parent_id: branch_root.id,
+      user_id: replier.id,
+      content: "这条中间评论以及下面的回复被管理员级联删除。根评论没有删除，回收站不提供父评论或根评论链接。"
+    )
+    CreateComment.create!(
+      parent_id: deleted_branch.id,
+      user_id: reader.id,
+      content: "这条回复随中间评论一起删除；它与被删父评论属于同一批，但不能连带删除另一条兄弟分支。"
+    )
+    CreateComment.create!(
+      parent_id: branch_root.id,
+      user_id: reader.id,
+      content: "我是仍然保留的兄弟分支，讨论的是报告格式。其他分支被管理员删除后，我仍然可以阅读、回复和投票，根评论的数量与最后活跃信息也应正确。"
+    )
+    DeleteComment.delete!(deleted_branch, actor_id: admin.id, delete_descendants: true)
+
+    restored_root = CreateComment.create!(
+      comment_thread_id: thread.id,
+      user_id: author.id,
+      content: "【部分恢复】这一支曾经被整支删除，现在已经按顺序恢复了根评论和子评论，孙评论还在回收站。恢复操作不能重排楼层，也不能重新发送回复通知。"
+    )
+    restored_child = CreateComment.create!(
+      parent_id: restored_root.id,
+      user_id: author.id,
+      content: "我已经从回收站恢复，唯一的子评论仍被删除。因此我可以再次删除，也可以撤回；回收站剩下的那条记录不应再显示查看同批删除。"
+    )
+    remaining_deleted = CreateComment.create!(
+      parent_id: restored_child.id,
+      user_id: replier.id,
+      content: "【同批只剩一条】祖先已经恢复，我仍在回收站。不再显示父评论链接；现在可以恢复我，并保持原来的楼层。"
+    )
+    DeleteComment.delete!(restored_root, actor_id: admin.id, delete_descendants: true)
+    restored_root.reload.restore
+    restored_child.reload.restore
+
+    withdrawn_leaf = CreateComment.create!(
+      comment_thread_id: thread.id,
+      user_id: author.id,
+      content: "【撤回但没有回复】我先撤回这份尚未验证的优化建议。因为没有任何回复，作者仍可直接删除；也可以恢复正文，不需要先打开编辑框。"
+    )
+    Comment::SaveOperation.update!(withdrawn_leaf, withdrawn: true)
+    CreateComment.create!(
+      comment_thread_id: thread.id,
+      user_id: author.id,
+      content: <<-MARKDOWN
+      【提及与 Markdown】这份配置练习希望请 @#{admin.login_name}、@#{replier.login_name}、@#{reader.login_name}、@#{users[4].login_name}、@#{users[5].login_name} 一起检查。第六个不同用户 @#{author.login_name} 超过五人上限，应保留为普通文字。
+
+      行内代码 `@#{admin.login_name}`、[手写链接里的 @#{replier.login_name}](https://crystal-lang.org/) 和转义的 \\@#{users[4].login_name} 都不应额外识别为提及。
+
+      text <iframe>@#{admin.login_name}</iframe>：清洗后不应留下 iframe 或它的提及链接。
+      MARKDOWN
+    )
+    edited = CreateComment.create!(
+      comment_thread_id: thread.id,
+      user_id: author.id,
+      content: "【作者编辑】建议先分别测试有效配置、文件不存在、JSON 无效和字段类型错误，再决定是否抽取统一的错误对象。"
+    )
+    UpdateComment.update!(
+      edited,
+      content: "#{edited.content}\n\n作者补充：校验失败后也要保留原始输入，方便复现；这条应显示编辑时间，且缓存 HTML 必须与修改后的 Markdown 一致。",
+      actor_id: author.id
+    )
+    restored_leaf = CreateComment.create!(
+      comment_thread_id: thread.id,
+      user_id: author.id,
+      content: "【删除后已恢复】这条没有回复的评论曾由作者删除，现在已经恢复。正文、HTML 和楼层都应保留；普通作者现在仍可再次删除或撤回它。"
+    )
+    DeleteComment.delete!(restored_leaf, actor_id: author.id)
+    restored_leaf.reload.restore
+
+    2.times do |index|
+      removed = CreateComment.create!(
+        parent_id: delete_ready.id,
+        user_id: author.id,
+        content: "#{source}单独删除示例 #{index + 1}：补充说明已经合入教程，这条重复留言不再保留。它没有后代，不应被错误地归入前后的级联删除批次。"
+      )
+      DeleteComment.delete!(removed, actor_id: index.zero? ? author.id : admin.id)
+    end
+
+    puts "#{source}：根评论 /comments/#{root.id}；第二页子评论 /comments/#{child.id}；孙评论 /comments/#{grandchild.id}。"
+    puts "  删除／撤回均可用：/comments/#{leaf.id}；撤回根评论：/comments/#{withdrawn_root.id}；撤回中间评论：/comments/#{withdrawn_child.id}。"
+    puts "  删除这条回复后父评论可删除：/comments/#{withdraw_child_reply.id}；回复已删的父评论：/comments/#{delete_ready.id}。"
+    puts "  整支删除的孙评论：/admin/trash/comments/#{deleted_grandchild.id}；更早单独删除：/admin/trash/comments/#{earlier_deletion.id}。"
+    puts "  中间分支删除：/admin/trash/comments/#{deleted_branch.id}；同批只剩一条：/admin/trash/comments/#{remaining_deleted.id}。"
+
+    root
+  end
+
+  private def seed_comment_votes(comment : Comment, users : Array(User)) : Nil
+    counts = Hash(String, Int32).from_json(comment.vote_counts.to_json)
+
+    [{users[0], "👍"}, {users[2], "👍"}, {users[3], "😄"}, {users[4], "🎉"}, {users[0], "❤️"}].each do |user, vote_type|
+      SaveVote.create!(user_id: user.id, comment_id: comment.id, vote_type: vote_type)
+      counts[vote_type] += 1
+    end
+
+    # 与投票 Action 一样：先保存投票记录，再通过 Operation 同步 JSON 计数。
+    UpdateCommentVoteCounts.update!(comment, vote_counts: Comment::VoteCounts.from_json(counts.to_json))
   end
 
   def print_exit(reason) : NoReturn
