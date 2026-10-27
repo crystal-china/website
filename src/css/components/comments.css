@@ -61,9 +61,12 @@
     --comment-replies-line: #cbd5e1;
     --comment-replies-background: #fff;
     --comment-replies-icon-size: 1rem;
-    --comment-replies-gap: 0.75rem;
+    /* 正文留白与回复缩进分开，缩窄正文不影响按钮和分支线的层次。 */
+    --comment-replies-column-width: 0.75rem;
+    --comment-replies-gap: 0.5rem;
+    --comment-replies-indent: 1.75rem;
     display: grid;
-    grid-template-columns: 1.75rem minmax(0, 1fr);
+    grid-template-columns: var(--comment-replies-column-width) minmax(0, 1fr);
     column-gap: var(--comment-replies-gap);
   }
 
@@ -99,7 +102,10 @@
 
   /* 回复存在时，竖线从加减号中心向下延伸；折叠清空列表后自然消失。 */
   .comment-root > .comment-replies > [id$="-replies-list"]:not(:empty) {
-    margin-left: calc(var(--comment-replies-icon-size) / 2 - var(--comment-replies-gap));
+    margin-left: calc(
+      var(--comment-replies-indent) + var(--comment-replies-icon-size) / 2 -
+      var(--comment-replies-column-width) - var(--comment-replies-gap)
+    );
     padding-left: 1rem;
     border-left: 1px solid var(--comment-replies-line);
   }
@@ -111,7 +117,7 @@
     grid-row: 3;
     align-self: center;
     margin-top: 0.75rem;
-    padding-left: 1.75rem;
+    padding-left: var(--comment-replies-indent);
     z-index: 1;
   }
 
@@ -148,8 +154,9 @@
 
   .comment-replies:has(> .comment-replies-toggle)::before {
     content: "";
-    grid-column: 1;
+    grid-column: 1 / -1;
     grid-row: 1 / 4;
+    width: var(--comment-replies-indent);
     margin-top: 2rem;
     margin-bottom: 0.625rem;
     border-left: 1px solid var(--comment-replies-line);
