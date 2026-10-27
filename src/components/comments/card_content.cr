@@ -23,7 +23,7 @@ class Comments::CardContent < BaseComponent
     user = comment.user
     fade_comment_update_success_message_script = "init transition my opacity to 0% over 3 seconds"
 
-    header class: "flex flex-wrap items-start justify-between gap-3 sm:flex-nowrap" do
+    header class: "flex flex-wrap items-center justify-between gap-3 sm:flex-nowrap" do
       div class: "flex min-w-0 items-center gap-3" do
         mount(
           Shared::Avatar,
@@ -33,8 +33,7 @@ class Comments::CardContent < BaseComponent
         div class: "min-w-0 text-xs" do
           mount(
             Shared::UserName,
-            user: user,
-            stacked: true
+            user: user
           )
         end
       end

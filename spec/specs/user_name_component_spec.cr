@@ -49,4 +49,30 @@ describe Shared::UserName do
     button.xpath_node(".//span[@class='user-name-nickname']").not_nil!.content.should eq("小明")
     button.xpath_node(".//span[@class='user-name-login']").not_nil!.content.should eq("@xiaoming")
   end
+
+  it "uses inline names and vertically centered headers for root comments and replies" do
+    user = UserFactory.create &.nickname("小明").login_name("xiaoming")
+    doc = SaveDoc.create!(path_index: "/docs/comment-header", content: "正文")
+    thread = CommentThreadQuery.new.doc_id(doc.id).first
+    root = CreateComment.create!(user_id: user.id, comment_thread_id: thread.id, content: "root")
+    child = CreateComment.create!(user_id: user.id, parent_id: root.id, content: "child")
+
+    {
+      root  => "/htmx/comments?comment_thread_id=#{thread.id}",
+      child => "/htmx/comments?root_id=#{root.id}",
+    }.each do |comment, path|
+      response = ApiClient.new.get(path)
+      document = XML.parse_html(response.body)
+      header = document.xpath_node("//div[@id='comment-#{comment.id}-content']/header").not_nil!
+      name = header.xpath_node(".//a[@class='user-name']").not_nil!
+
+      response.status_code.should eq(200)
+      header["class"].split.should contain("items-center")
+      header["class"].split.should_not contain("items-start")
+      header.xpath_node(".//*[contains(@class, 'user-name-stacked')]").should be_nil
+      name.xpath_node("./span[@class='user-name-nickname']").not_nil!.content.should eq("小明")
+      name.xpath_node("./span[@class='user-name-login']").not_nil!.content.should eq("@xiaoming")
+      header.xpath_node(".//time").should_not be_nil
+    end
+  end
 end
