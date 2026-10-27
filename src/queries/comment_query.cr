@@ -15,6 +15,35 @@ class CommentQuery < Comment::BaseQuery
     join_comment_thread(CommentThreadQuery.new.publicly_visible)
   end
 
+  # 每个删除批次只返回最大 ID 的评论；搜索任意成员，都定位到同一个批次入口。
+  def deletion_batch_entries(keyword : String = "") : self
+    # Avram 的等价构造方式，保留学习笔记；实际仍使用下面的 SQL。
+    # batches = CommentQuery.new
+    #   .only_soft_deleted
+    #   .group(&.comment_thread_id)
+    #   .group(&.soft_deleted_at)
+    #
+    # .query 返回 Avram::QueryBuilder，平常的 .group、.where 等方法，最终也是修改内部这个构造器
+    # 这里直接访问它，是为了自定义 SELECT：
+    # 之后的 batches.query.statement 直接得到 SQL 字符串。
+    # batches.query.select_max(:id)
+    # batch_ids = batches.query.statement
+    batch_ids = <<-SQL
+      SELECT MAX(id) FROM comments
+      WHERE soft_deleted_at IS NOT NULL
+      GROUP BY comment_thread_id, soft_deleted_at
+      SQL
+
+    if keyword.empty?
+      only_soft_deleted.where("comments.id IN (#{batch_ids})")
+    else
+      only_soft_deleted.where(
+        "comments.id IN (#{batch_ids} HAVING BOOL_OR(content ILIKE ?))",
+        "%#{SqlLike.escape(keyword)}%"
+      )
+    end
+  end
+
   # 现在由级联删除和恢复顺序保证可见性，不再使用此 self JOIN 方案；保留代码供参考。
   # 这是另一个写法。
   # join_comment_thread(CommentThreadQuery.new.join_topic(TopicQuery.new)).where(<<-SQL)
