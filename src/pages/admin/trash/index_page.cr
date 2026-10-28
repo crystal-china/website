@@ -4,6 +4,8 @@ class Admin::Trash::IndexPage < AdminLayout
   needs comments : Array(Comment)
   needs topics : Array(Topic)
   needs pages : Lucky::Paginator
+  needs focused_comment : Comment? = nil
+  needs comment_ids_with_batch_peers : Set(Int64) = Set(Int64).new
 
   def page_title : String
     r("common.trash").t
@@ -55,7 +57,9 @@ class Admin::Trash::IndexPage < AdminLayout
       kind: kind,
       comments: comments,
       topics: topics,
-      pages: pages
+      pages: pages,
+      focused_comment: focused_comment,
+      comment_ids_with_batch_peers: comment_ids_with_batch_peers
     )
   end
 end
