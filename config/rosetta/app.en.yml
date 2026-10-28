@@ -52,7 +52,6 @@ en:
         reply_to: 'Reply to comment #%{id}'
     users:
       remove_password:
-        no_password: This account has no local password to remove.
         password_removed: Local password removed and old sessions invalidated. The user can sign in through OAuth or reset their password.
     index_page:
       page_title: Admin overview
@@ -423,7 +422,7 @@ en:
       password_placeholder: Leave blank to keep your password
       confirmation_placeholder: Enter the new password again
       last_password_change: 'Last password change:'
-      unknown_password_date: No password change recorded. Changes made before account history was enabled have no known date.
+      no_password_record: No password change recorded
       mention_notifications: Receive @mention notifications
       mention_notifications_help: When disabled, you will not receive @mention notifications. Reply and moderation notifications are unaffected; existing notifications are retained.
       hide_online_status_help: Hide your online presence, last activity and time online. Time online is still recorded.

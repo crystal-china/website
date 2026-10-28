@@ -52,7 +52,6 @@ zh-CN:
         reply_to: '回复评论 #%{id}'
     users:
       remove_password:
-        no_password: 此账号没有本站密码，无需移除。
         password_removed: 本站密码已移除，旧登录会话已失效。用户可通过第三方登录或重置密码重新登录。
     index_page:
       page_title: 后台概览
@@ -417,7 +416,7 @@ zh-CN:
       password_placeholder: 留空则不修改
       confirmation_placeholder: 再次输入新密码
       last_password_change: 上次修改密码：
-      unknown_password_date: 暂无密码修改记录；启用账户记录之前的修改时间未知。
+      no_password_record: 暂无密码修改记录
       mention_notifications: 接收 @提及通知
       mention_notifications_help: 关闭后，不接收任何人的 @提及通知；正常回复和管理通知不受影响，已有通知仍保留。
       hide_online_status_help: 不出现在在线人数和名单中，并隐藏活跃时间和累计在线时长。仅影响展示，后台仍会累计在线时长。

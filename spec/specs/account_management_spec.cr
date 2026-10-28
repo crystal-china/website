@@ -73,7 +73,8 @@ describe "Account management" do
     button = document.xpath_node("//button[@hx-delete='/admin/users/#{user.id}/remove_password']").not_nil!
 
     button["type"].should eq("button")
-    button["hx-target"].should eq("#page-flash")
+    button["hx-target"].should eq("#user-password-status")
+    button["hx-swap"].should eq("outerHTML")
     flash_container = document.xpath_node("//div[@id='page-flash']").not_nil!
 
     flash_container["role"].should eq("status")
@@ -330,15 +331,25 @@ describe "Account management" do
     client = account_sign_in(admin)
     old_client = account_sign_in(user)
     old_token = UserToken.generate(user)
+    original_page = client.get("/users/#{user.id}/edit")
+
+    XML.parse_html(original_page.body).xpath_node("//p[@id='user-password-status']").not_nil!.content.should contain("暂无密码修改记录")
 
     response = client.delete("/admin/users/#{user.id}/remove_password")
     removed = UserQuery.find(user.id)
     audit = UserAuditQuery.new.user_id(user.id).id.desc_order.first
     passwordless_token = UserToken.generate(removed)
+    document = XML.parse_html(response.body)
+    status = document.xpath_node("//p[@id='user-password-status']").not_nil!
+    flash = document.xpath_node("//hx-partial[@hx-target='#page-flash'][@hx-swap='innerHTML']").not_nil!
 
     response.status_code.should eq(200)
     response.headers["Location"]?.should be_nil
-    response.body.should contain(Rosetta.find("admin.users.remove_password.password_removed").t)
+    flash.content.should contain(Rosetta.find("admin.users.remove_password.password_removed").t)
+    status.xpath_node("./time").not_nil!["datetime"].should eq(audit.created_at.to_rfc3339)
+    status.content.should_not contain("暂无密码修改记录")
+    status.xpath_node("./button").should be_nil
+    document.xpath_node("//form | //input | //main").should be_nil
     removed.encrypted_password.should be_nil
     audit.kind.should eq(UserAudit::Kind::PasswordRemoved)
     audit.actor_id.should eq(admin.id)
@@ -351,7 +362,7 @@ describe "Account management" do
     response = client.delete("/admin/users/#{user.id}/remove_password")
 
     response.status_code.should eq(200)
-    response.body.should contain(Rosetta.find("admin.users.remove_password.no_password").t)
+    response.body.should contain(Rosetta.find("admin.users.remove_password.password_removed").t)
     UserQuery.find(user.id).session_version.should eq(version)
     UserAuditQuery.new.user_id(user.id).kind(UserAudit::Kind::PasswordRemoved).select_count.should eq(1)
 

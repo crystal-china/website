@@ -6,7 +6,6 @@ class Shared::UserProfileForm < BaseComponent
 
   def render : Nil
     login_name_editable = user.login_name_change_allowed? || current_user.not_nil!.admin?
-    remove_password_button_after_successful_request_script = htmx_success("remove me")
 
     section class: "app-panel mx-auto w-full max-w-3xl overflow-hidden" do
       header class: "panel-header flex flex-wrap items-center justify-between gap-4" do
@@ -102,31 +101,11 @@ class Shared::UserProfileForm < BaseComponent
               )
             end
 
-            para class: "m-0 text-xs text-gray-500" do
-              if (changed_at = password_changed_at)
-                text r(".last_password_change").t
-                local_time(
-                  changed_at,
-                  relative_time(changed_at)
-                )
-              else
-                text r(".unknown_password_date").t
-              end
-
-              if current_user.not_nil!.admin? && user.encrypted_password
-                button(
-                  r(".remove_password").t,
-                  type: "button",
-                  class: "ml-3 text-xs whitespace-nowrap text-red-700 hover:underline",
-                  hx_delete: Admin::Users::RemovePassword.with(id: user.id).path,
-                  hx_target: "#page-flash",
-                  hx_swap: "innerHTML",
-                  hx_confirm: r(".confirm_remove_password").t,
-                  hx_disable: "this",
-                  script: remove_password_button_after_successful_request_script
-                )
-              end
-            end
+            mount(
+              Shared::UserPasswordStatus,
+              user: user,
+              password_changed_at: password_changed_at
+            )
           end
 
           render_current_avatar
