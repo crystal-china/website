@@ -153,6 +153,10 @@ describe "Topic counters" do
     Space::BaseQuery.find(space.id).topics_count.should eq(1)
     migration.up(quiet: true)
     TopicQuery.new.with_soft_deleted.map(&.space_id).uniq!.should eq([Space::DEFAULT_ID])
+    AppDatabase.query_one(
+      "SELECT is_nullable, column_default FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'topics' AND column_name = 'space_id'",
+      as: {String, String?}
+    ).should eq({"NO", nil})
     Space::BaseQuery.find(space.id).name.should eq(space.name)
     Space::BaseQuery.find(space.id).updated_at.should eq(space.updated_at)
     topic_counter_values(user, node).should eq({1, 1, 1})
