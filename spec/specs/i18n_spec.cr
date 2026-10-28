@@ -157,6 +157,7 @@ describe "Internationalization" do
 
   it "localizes document dates and reading counts with the existing catalog" do
     doc = DocContent.sync("/docs/index", File.read("public/markdowns/index.md"))
+    ApiClient.new.get("/docs/index")
 
     {"en"    => {"Created:", "Last edited:", "1 view", "2 views"},
      "zh-CN" => {"创建于：", "最后编辑于：", "1次阅读", "2次阅读"}}.each do |locale, labels|

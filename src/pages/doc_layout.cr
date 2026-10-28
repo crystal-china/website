@@ -5,6 +5,7 @@ abstract class DocLayout < MainLayout
 
   needs formatter : Tartrazine::Formatter
   needs doc : Doc
+  needs view_count : Int32
   needs comment_thread : CommentThread
   needs markdown_path : String
   needs markdown_source : String
@@ -149,9 +150,9 @@ abstract class DocLayout < MainLayout
         )
       end
 
-      if doc.view_count > 0
+      if view_count > 0
         text " | "
-        text r("doc_layout.view_count").t(count: doc.view_count)
+        text r("doc_layout.view_count").t(count: view_count)
       end
     end
   end
