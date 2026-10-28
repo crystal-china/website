@@ -19,6 +19,8 @@ class Users::Update < BrowserAction
       else
         password_changed_at = UserAuditQuery.new.user_id(user.id).latest_password_change_at
 
+        context.response.headers["HX-Push-Url"] = "false"
+
         build_failed_flash(op)
 
         html(

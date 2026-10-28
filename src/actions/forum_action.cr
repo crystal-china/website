@@ -7,9 +7,6 @@ abstract class ForumAction < BrowserAction
 
   private def render_saved_topic(topic : Topic) : Lucky::Response
     path = Forum::Show.with(id: topic.id).path
-
-    return redirect to: path unless context.request.headers["HX-Request-Type"]?
-
     topic = TopicQuery.new.id(topic.id).preload_user.preload_node.first
 
     context.response.headers["X-Draft-Saved"] = "true"

@@ -8,6 +8,8 @@ class Admin::Nodes::Update < AdminAction
 
         redirect Admin::Nodes::Index
       else
+        context.response.headers["HX-Push-Url"] = "false"
+
         build_failed_flash(operation)
 
         html(

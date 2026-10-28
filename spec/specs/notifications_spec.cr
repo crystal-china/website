@@ -136,7 +136,7 @@ describe "Management notifications" do
       NotificationQuery.new.select_count.should eq(0)
 
       response = ApiClient.new.put("/forum/#{topic.id}?backdoor_user_id=#{admin.id}", topic: {title: "新标题", actor_id: outsider.id}, content: "新正文")
-      response.status_code.should eq(303)
+      response.status_code.should eq(200)
       response = ApiClient.new.post("/htmx/comments?backdoor_user_id=#{admin.id}", id: comment.id, op: "edit", content: "新评论", comment: {actor_id: outsider.id})
       response.status_code.should eq(200)
       ApiClient.new.delete("/htmx/comments/#{comment.id}?backdoor_user_id=#{admin.id}").status_code.should eq(200)

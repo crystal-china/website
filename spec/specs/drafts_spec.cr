@@ -42,7 +42,7 @@ describe "Local editor drafts" do
       fields.each(&.["id"].should_not(be_empty))
 
       if path == "/forum/new" || path == "/forum/#{topic.id}/edit"
-        containers.first["hx-push-url"].should eq("false")
+        containers.first["hx-push-url"]?.should be_nil
       end
     end
 
@@ -50,14 +50,16 @@ describe "Local editor drafts" do
     XML.parse_html(client.get("/users/#{user.id}/edit").body).xpath_nodes("//*[@data-draft-key]").should be_empty
   end
 
-  it "renders saved topics directly for HTMX submissions but keeps ordinary redirects" do
+  it "renders saved topics directly without redirects" do
     user = UserFactory.create
     node = SaveNode.create!(name: "提交节点", slug: "draft-save", summary: "提交测试", color: "#0284c7", position: 0)
     client = drafts_client(user)
     response = client.post("/forum", topic: {title: "普通提交", node_id: node.id}, content: "普通正文")
 
-    response.status_code.should eq(303)
-    response.headers["X-Draft-Saved"]?.should be_nil
+    response.status_code.should eq(200)
+    response.headers["X-Draft-Saved"].should eq("true")
+    response.headers["HX-Push-Url"].should eq("/forum/#{TopicQuery.new.title("普通提交").first.id}")
+    response.headers["Location"]?.should be_nil
 
     client.headers("HX-Request-Type": "full")
     response = client.post("/forum", topic: {title: "草稿提交", node_id: node.id}, content: "草稿正文")
@@ -104,6 +106,7 @@ describe "Local editor drafts" do
     cookies.add_request_headers(headers)
     refreshed = ApiClient.new.headers(Cookie: headers["Cookie"]).get("/forum/#{topic.id}")
     refreshed.status_code.should eq(200)
+    refreshed.headers["X-Draft-Saved"]?.should be_nil
     refreshed.body.should_not contain(message)
     XML.parse_html(refreshed.body).xpath_node("//main//h1").not_nil!.content.should eq("修改标题")
 
@@ -117,11 +120,11 @@ describe "Local editor drafts" do
     response.status_code.should eq(200)
     response.headers["X-Draft-Saved"]?.should be_nil
     response.headers["HX-Location"]?.should be_nil
-    response.headers["HX-Push-Url"]?.should be_nil
+    response.headers["HX-Push-Url"].should eq("false")
     response = client.put("/forum/#{topic.id}", topic: {title: "修改标题", node_id: moved_node.id}, content: "")
     response.status_code.should eq(200)
     response.headers["X-Draft-Saved"]?.should be_nil
-    response.headers["HX-Push-Url"]?.should be_nil
+    response.headers["HX-Push-Url"].should eq("false")
   end
 
   it "submits comments through forms while keeping preview and cancellation separate" do

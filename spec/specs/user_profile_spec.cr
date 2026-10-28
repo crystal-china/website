@@ -109,6 +109,7 @@ describe "User profiles" do
       document = XML.parse_html(response.body)
 
       response.status_code.should eq(200)
+      response.headers["HX-Push-Url"].should eq("false")
       document.xpath_node("//input[@name='user:tagline']").not_nil!["value"].should eq(tagline)
       document.xpath_node("//textarea[@name='user:bio']").not_nil!.content.should eq(bio)
       response.body.should contain("签名 长度不能超过")

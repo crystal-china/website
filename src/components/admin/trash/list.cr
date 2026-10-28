@@ -72,7 +72,12 @@ class Admin::Trash::List < BaseComponent
                 class: "form-secondary"
               )
 
-              form_for Admin::Trash::RestoreTopic.with(id: topic.id) do
+              form_for(
+                Admin::Trash::RestoreTopic.with(id: topic.id),
+                hx_target: "closest article",
+                hx_swap: "delete show:none",
+                hx_push_url: "false"
+              ) do
                 submit r("common.restore").t, class: "form-secondary"
               end
             end

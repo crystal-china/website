@@ -17,6 +17,8 @@ class Forum::Update < ForumAction
 
         render_saved_topic(topic)
       else
+        context.response.headers["HX-Push-Url"] = "false"
+
         build_failed_flash(operation)
 
         html(

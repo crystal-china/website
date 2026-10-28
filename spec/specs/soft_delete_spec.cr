@@ -242,7 +242,7 @@ describe "Soft deletion" do
       thread.reload.root_comments_count.should eq(1)
       root.reload.descendants_count.should eq(0)
       NotificationQuery.new.select_count.should eq(notifications_count)
-      client.post("/admin/trash/topics/#{topic.id}/restore?backdoor_user_id=#{admin.id}").status_code.should eq(303)
+      client.post("/admin/trash/topics/#{topic.id}/restore?backdoor_user_id=#{admin.id}").status_code.should eq(200)
 
       deleted_comments.each do |comment|
         client.post("/admin/trash/comments/#{comment.id}/restore?backdoor_user_id=#{admin.id}").status_code.should eq(200)

@@ -76,7 +76,14 @@ describe "Trash pagination" do
       document.xpath_node("//main | //header | //footer").should be_nil
       list.xpath_nodes(".//article").size.should eq(1)
       list.content.should contain("第 2 / 2 页")
-      list.xpath_node(".//form[@action='#{restore_path}']").should_not be_nil
+      restore_form = list.xpath_node(".//form[@action='#{restore_path}']").not_nil!
+
+      if kind == "topics"
+        restore_form["hx-target"].should eq("closest article")
+        restore_form["hx-swap"].should eq("delete show:none")
+        restore_form["hx-push-url"].should eq("false")
+      end
+
       previous_path = list.xpath_node("./div/nav/a").not_nil!["href"]
       URI.parse(previous_path).query_params["kind"].should eq(kind)
       URI.parse(previous_path).query_params["page"].should eq("1")
@@ -95,23 +102,24 @@ describe "Trash pagination" do
 
       Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
         response = ApiClient.new.post("#{restore_path}?backdoor_user_id=#{admin.id}")
+        document = XML.parse_html(response.body)
+
+        response.status_code.should eq(200)
+        response.headers["Location"]?.should be_nil
 
         if kind == "comments"
-          document = XML.parse_html(response.body)
-
-          response.status_code.should eq(200)
-          response.headers["Location"]?.should be_nil
           response.headers["HX-Retarget"]?.should be_nil
           JSON.parse(response.headers["HX-Trigger"])["trash:comment:restored"]["batch_empty"].as_bool.should be_true
           document.xpath_node("//hx-partial").should be_nil
           document.xpath_node("//*[contains(@class, 'flash-message--success')]").should_not be_nil
         else
-          redirect_path = response.headers["Location"]
+          partial = document.xpath_node("//hx-partial[@hx-target='#page-flash']").not_nil!
 
-          response.status_code.should eq(303)
-          URI.parse(redirect_path).path.should eq("/admin/trash")
-          URI.parse(redirect_path).query_params["page"]?.should be_nil
-          URI.parse(redirect_path).query_params["kind"]?.should eq("topics")
+          partial["hx-swap"].should eq("innerHTML")
+          partial.xpath_node(".//*[contains(@class, 'flash-message--success')]").should_not be_nil
+          document.xpath_nodes("//main | //article | //section[@id='trash-list']").should be_empty
+          response.headers["HX-Trigger"]?.should be_nil
+          TopicQuery.find(ids.first).soft_deleted?.should be_false
         end
 
         response = ApiClient.new.get("#{path}&backdoor_user_id=#{admin.id}")
