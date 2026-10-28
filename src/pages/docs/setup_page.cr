@@ -23,7 +23,7 @@ class Docs::SetupPage < MainLayout
         end
 
         if (me = current_user) && me.admin?
-          form_for Admin::Docs::Create do
+          form_for Admin::Docs::Setup do
             submit r(".generate").t, class: "form-submit"
           end
           para r(".never_overwrite").t
