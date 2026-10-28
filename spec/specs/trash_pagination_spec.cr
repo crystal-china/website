@@ -36,7 +36,7 @@ describe "Trash pagination" do
   end
 
   {"comments", "topics"}.each do |kind|
-    it "paginates #{kind} locally while keeping direct visits and restores as full pages" do
+    it "paginates #{kind} locally while keeping direct visits as full pages" do
       admin = UserFactory.create &.email("trash-pagination-admin@example.com")
       ids = seed_deleted_trash(admin, kind)
       path = Admin::Trash::Index.with(kind: kind, q: "回收站").path
@@ -95,17 +95,26 @@ describe "Trash pagination" do
 
       Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
         response = ApiClient.new.post("#{restore_path}?backdoor_user_id=#{admin.id}")
-        redirect_path = response.headers["Location"]
-        headers = HTTP::Headers.new
-        HTTP::Cookies.from_server_headers(response.headers).add_request_headers(headers)
 
-        response.status_code.should eq(303)
-        URI.parse(redirect_path).path.should eq("/admin/trash")
-        URI.parse(redirect_path).query_params["page"]?.should be_nil
-        URI.parse(redirect_path).query_params["kind"]?.should eq(kind == "topics" ? "topics" : nil)
+        if kind == "comments"
+          document = XML.parse_html(response.body)
 
-        separator = redirect_path.includes?('?') ? '&' : '?'
-        response = ApiClient.new.headers(Cookie: headers["Cookie"]).get("#{redirect_path}#{separator}backdoor_user_id=#{admin.id}")
+          response.status_code.should eq(200)
+          response.headers["Location"]?.should be_nil
+          response.headers["HX-Retarget"]?.should be_nil
+          JSON.parse(response.headers["HX-Trigger"])["trash:comment:restored"]["batch_empty"].as_bool.should be_true
+          document.xpath_node("//hx-partial").should be_nil
+          document.xpath_node("//*[contains(@class, 'flash-message--success')]").should_not be_nil
+        else
+          redirect_path = response.headers["Location"]
+
+          response.status_code.should eq(303)
+          URI.parse(redirect_path).path.should eq("/admin/trash")
+          URI.parse(redirect_path).query_params["page"]?.should be_nil
+          URI.parse(redirect_path).query_params["kind"]?.should eq("topics")
+        end
+
+        response = ApiClient.new.get("#{path}&backdoor_user_id=#{admin.id}")
         document = XML.parse_html(response.body)
         list = document.xpath_node("//main//section[@id='trash-list']").not_nil!
 
@@ -114,7 +123,6 @@ describe "Trash pagination" do
         list.xpath_nodes(".//article").size.should eq(20)
         list.xpath_node(".//form[@action='#{restore_path}']").should be_nil
         list.xpath_node(".//nav").should be_nil
-        document.xpath_node("//*[contains(@class, 'flash-message--success')]").should_not be_nil
       end
     end
   end

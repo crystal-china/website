@@ -35,7 +35,7 @@ describe "Soft deletion" do
     {"en" => "Deleted", "zh-CN" => "删除于"}.each do |locale, label|
       response = ApiClient.new.get("/admin/trash?locale=#{locale}&backdoor_user_id=#{admin.id}")
       deleted_at = CommentQuery.new.only_soft_deleted.id(child.id).first.soft_deleted_at.not_nil!
-      time = XML.parse_html(response.body).xpath_node("//article[.//form[contains(@action, '/comments/#{child.id}/restore')]]//time").not_nil!
+      time = XML.parse_html(response.body).xpath_node("//article[.//form[contains(@action, '/comments/#{grandchild.id}/restore')]]//time").not_nil!
 
       response.status_code.should eq(200)
       time.content.should eq("#{label} #{deleted_at.to_local.to_s("%Y-%m-%d %H:%M:%S %z")}")
@@ -100,14 +100,12 @@ describe "Soft deletion" do
         Avram::Events::QueryEvent.logged_events.clear
 
         response = client.post("/admin/trash/comments/#{child.id}/restore?backdoor_user_id=#{admin.id}&locale=#{locale}")
-        cookies = HTTP::Cookies.from_server_headers(response.headers)
-        session = Lucky::Session.from_cookie_jar(Lucky::CookieJar.from_request_cookies(cookies))
-        flash = JSON.parse(session.get(Lucky::FlashStore::SESSION_KEY))
+        document = XML.parse_html(response.body)
 
-        response.status_code.should eq(303)
-        URI.parse(response.headers["Location"]).path.should eq("/admin/trash")
-        flash["failure"].as_s.should eq(expected_message)
-        flash["success"]?.should be_nil
+        response.status_code.should eq(200)
+        response.headers["Location"]?.should be_nil
+        document.xpath_node("//div[contains(@class, 'flash-message--failure')]").not_nil!.content.should eq(expected_message)
+        document.xpath_node("//div[contains(@class, 'flash-message--success')]").should be_nil
         Avram::Events::QueryEvent.logged_events.none? { |event| event.query.includes?("FOR UPDATE") }.should be_true
         child.reload.soft_deleted_at.should eq(child.soft_deleted_at)
         child.reload.updated_at.should eq(child.updated_at)
@@ -120,19 +118,19 @@ describe "Soft deletion" do
 
       response.status_code.should eq(404)
       root.reload.soft_deleted?.should be_true
-      client.post("/admin/trash/comments/#{root.id}/restore?backdoor_user_id=#{admin.id}").status_code.should eq(303)
+      client.post("/admin/trash/comments/#{root.id}/restore?backdoor_user_id=#{admin.id}").status_code.should eq(200)
       root.reload.soft_deleted?.should be_false
       topic.reload.replies_count.should eq(1)
 
       # 根评论存在也不够：直接父评论仍被删除时，不能越过它恢复孙评论。
-      client.post("/admin/trash/comments/#{grandchild.id}/restore?backdoor_user_id=#{admin.id}").status_code.should eq(303)
+      client.post("/admin/trash/comments/#{grandchild.id}/restore?backdoor_user_id=#{admin.id}").status_code.should eq(200)
       grandchild.reload.soft_deleted_at.should eq(grandchild.soft_deleted_at)
       grandchild.reload.updated_at.should eq(grandchild.updated_at)
       topic.reload.replies_count.should eq(1)
       child.reload.children_count.should eq(0)
 
-      client.post("/admin/trash/comments/#{child.id}/restore?backdoor_user_id=#{admin.id}").status_code.should eq(303)
-      client.post("/admin/trash/comments/#{grandchild.id}/restore?backdoor_user_id=#{admin.id}").status_code.should eq(303)
+      client.post("/admin/trash/comments/#{child.id}/restore?backdoor_user_id=#{admin.id}").status_code.should eq(200)
+      client.post("/admin/trash/comments/#{grandchild.id}/restore?backdoor_user_id=#{admin.id}").status_code.should eq(200)
 
       CommentQuery.new.publicly_visible_comments.id.asc_order.map(&.id).should eq([root.id, child.id, grandchild.id])
       root.reload.children_count.should eq(1)
@@ -162,13 +160,11 @@ describe "Soft deletion" do
 
     Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
       response = ApiClient.new.post("/admin/trash/comments/#{grandchild.id}/restore?backdoor_user_id=#{admin.id}&locale=zh-CN")
-      cookies = HTTP::Cookies.from_server_headers(response.headers)
-      session = Lucky::Session.from_cookie_jar(Lucky::CookieJar.from_request_cookies(cookies))
-      flash = JSON.parse(session.get(Lucky::FlashStore::SESSION_KEY))
+      document = XML.parse_html(response.body)
 
-      response.status_code.should eq(303)
-      flash["failure"].as_s.should eq("不可恢复")
-      flash["success"]?.should be_nil
+      response.status_code.should eq(200)
+      document.xpath_node("//div[contains(@class, 'flash-message--failure')]").not_nil!.content.should eq("不可恢复")
+      document.xpath_node("//div[contains(@class, 'flash-message--success')]").should be_nil
       grandchild.reload.soft_deleted_at.should eq(grandchild.soft_deleted_at)
       grandchild.reload.updated_at.should eq(grandchild.updated_at)
       root.reload.soft_deleted?.should be_true
@@ -232,13 +228,11 @@ describe "Soft deletion" do
     Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
       deleted_comments.each do |comment|
         response = client.post("/admin/trash/comments/#{comment.id}/restore?backdoor_user_id=#{admin.id}&locale=zh-CN")
-        cookies = HTTP::Cookies.from_server_headers(response.headers)
-        session = Lucky::Session.from_cookie_jar(Lucky::CookieJar.from_request_cookies(cookies))
-        flash = JSON.parse(session.get(Lucky::FlashStore::SESSION_KEY))
+        document = XML.parse_html(response.body)
 
-        response.status_code.should eq(303)
-        flash["failure"].as_s.should eq("不可恢复")
-        flash["success"]?.should be_nil
+        response.status_code.should eq(200)
+        document.xpath_node("//div[contains(@class, 'flash-message--failure')]").not_nil!.content.should eq("不可恢复")
+        document.xpath_node("//div[contains(@class, 'flash-message--success')]").should be_nil
         comment.reload.soft_deleted_at.should eq(comment.soft_deleted_at)
         comment.reload.updated_at.should eq(comment.updated_at)
       end
@@ -251,7 +245,7 @@ describe "Soft deletion" do
       client.post("/admin/trash/topics/#{topic.id}/restore?backdoor_user_id=#{admin.id}").status_code.should eq(303)
 
       deleted_comments.each do |comment|
-        client.post("/admin/trash/comments/#{comment.id}/restore?backdoor_user_id=#{admin.id}").status_code.should eq(303)
+        client.post("/admin/trash/comments/#{comment.id}/restore?backdoor_user_id=#{admin.id}").status_code.should eq(200)
         comment.reload.soft_deleted?.should be_false
       end
 
@@ -399,13 +393,11 @@ describe "Soft deletion" do
 
       deleted_root = root.reload
       response = client.post("/admin/trash/comments/#{root.id}/restore?backdoor_user_id=#{admin.id}&locale=zh-CN")
-      cookies = HTTP::Cookies.from_server_headers(response.headers)
-      session = Lucky::Session.from_cookie_jar(Lucky::CookieJar.from_request_cookies(cookies))
-      flash = JSON.parse(session.get(Lucky::FlashStore::SESSION_KEY))
+      document = XML.parse_html(response.body)
 
-      response.status_code.should eq(303)
-      flash["failure"].as_s.should eq("不可恢复")
-      flash["success"]?.should be_nil
+      response.status_code.should eq(200)
+      document.xpath_node("//div[contains(@class, 'flash-message--failure')]").not_nil!.content.should eq("不可恢复")
+      document.xpath_node("//div[contains(@class, 'flash-message--success')]").should be_nil
       root.reload.soft_deleted_at.should eq(deleted_root.soft_deleted_at)
       root.reload.updated_at.should eq(deleted_root.updated_at)
       thread.reload.root_comments_count.should eq(0)
@@ -417,8 +409,8 @@ describe "Soft deletion" do
       restored.content.should eq("")
       thread.target_visible?.should be_true
       root.reload.soft_deleted?.should be_true
-      client.post("/admin/trash/comments/#{root.id}/restore?backdoor_user_id=#{admin.id}").status_code.should eq(303)
-      client.post("/admin/trash/comments/#{child.id}/restore?backdoor_user_id=#{admin.id}").status_code.should eq(303)
+      client.post("/admin/trash/comments/#{root.id}/restore?backdoor_user_id=#{admin.id}").status_code.should eq(200)
+      client.post("/admin/trash/comments/#{child.id}/restore?backdoor_user_id=#{admin.id}").status_code.should eq(200)
 
       CommentQuery.new.publicly_visible_comments.select_count.should eq(2)
       client.get("/comments/#{child.id}").status_code.should eq(303)
