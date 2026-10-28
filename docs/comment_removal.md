@@ -76,7 +76,7 @@
 2. `src/actions/htmx/comments/withdraw.cr`、`restore.cr`：权限、事务、切换状态与评论主体响应。
 3. `src/components/comments/list_more.cr`、`card.cr`、`replies.cr`：定位关系、回复展开与整个回复区域的渲染。
 4. `src/components/comments/card_body.cr`：正常主体和撤回后的紧凑主体。
-5. `src/components/comments/card_controls.cr`、`delete_or_withdraw.cr`：恢复、删除、撤回按钮。
+5. `src/components/comments/card_controls.cr`、`delete_and_withdraw.cr`：恢复、删除、撤回按钮。
 
 ## 分页计数与部署
 
