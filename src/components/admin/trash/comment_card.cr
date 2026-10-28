@@ -54,8 +54,12 @@ HYPER
       ) do
         render_content
 
+        # 恢复结果只更新提示，不替换整个页面。
         form_for(
           Admin::Trash::RestoreComment.with(id: comment.id),
+          hx_target: "#page-flash",
+          hx_swap: "innerHTML show:none",
+          hx_push_url: "false",
           script: remove_restored_comment_and_empty_batch_script
         ) do
           submit r("common.restore").t, class: "form-secondary"

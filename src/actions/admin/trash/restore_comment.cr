@@ -33,9 +33,23 @@ class Admin::Trash::RestoreComment < AdminAction
       deleted_comment.restore
     end
 
+    remaining_comments = CommentQuery.new
+      .only_soft_deleted
+      .comment_thread_id(deleted_comment.comment_thread_id)
+      .soft_deleted_at(deleted_comment.soft_deleted_at.not_nil!)
+
     flash.success = r(".comment_restored").t
 
-    redirect Admin::Trash::Index
+    # HX-Trigger 是让浏览器“触发事件”，HTMX 收到后会触发指定的浏览器事件。
+    # JSON 是“事件名称 + 携带的数据”，CommentCard 中的 hyperscript 接收这个事件
+    # batch_empty = false → 只移除当前评论卡片
+    # batch_empty = true  → 移除整个批次容器
+    # hyperscript 里面，会通过  on trash:comment:restored(batch_empty) 监听，并传递 batch_empty 值进入 on ... end
+    context.response.headers["HX-Trigger"] = {
+      "trash:comment:restored" => {batch_empty: remaining_comments.none?},
+    }.to_json
+
+    component Shared::FlashMessages, flash: flash
   end
 
   private def parent_deleted?(deleted_comment : Comment) : Bool
@@ -49,6 +63,6 @@ class Admin::Trash::RestoreComment < AdminAction
   private def cannot_restore_response : Lucky::Response
     flash.failure = r(".cannot_restore").t
 
-    redirect Admin::Trash::Index
+    component Shared::FlashMessages, flash: flash
   end
 end
