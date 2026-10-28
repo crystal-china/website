@@ -70,7 +70,7 @@ describe "Admin node saves" do
     rows.first.content.should contain("更新简介")
     rows.first.xpath_node(".//a[@href='/forum?node=updated-node']").should_not be_nil
     document.xpath_node("//link[@rel='canonical']").not_nil!["href"].should eq("#{Lucky::RouteHelper.settings.base_uri}/admin/nodes")
-    document.xpath_node("//div[@id='page-analytics']").not_nil!["data-page-path"].should eq("/admin/nodes")
+    document.xpath_node("//div[@id='page-analytics']").not_nil!["data-page-path"]?.should be_nil
     NodeQuery.find(created.id).name.should eq("更新后的节点")
 
     refreshed = client.get("/admin/nodes?backdoor_user_id=#{admin.id}&locale=zh-CN")
