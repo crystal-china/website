@@ -86,8 +86,14 @@ describe "Account management" do
     updated = UserQuery.find(user.id)
     audits = UserAuditQuery.new.user_id(user.id).results
 
-    response.status_code.should eq(303)
-    response.headers["Location"].should eq("/users/RenamedUser/profile")
+    document = XML.parse_html(response.body)
+
+    response.status_code.should eq(200)
+    response.headers["Location"]?.should be_nil
+    response.headers["HX-Push-Url"].should eq("false")
+    document.xpath_node("//input[@name='user:login_name']").not_nil!["value"].should eq("RenamedUser")
+    document.xpath_node("//main//section/header/a").not_nil!["href"].should eq("/users/RenamedUser/profile")
+    document.xpath_node("//nav[@id='nav-user-panel']/a[1]").not_nil!["href"].should eq(Users::Show.with(login_name: admin.login_name).path)
     account_client(response).get("/users/#{admin.id}/edit").status_code.should eq(200)
     updated.login_name.should eq("RenamedUser")
     updated.nickname.should eq("New nickname")
@@ -120,7 +126,7 @@ describe "Account management" do
     UserAuditQuery.new.user_id(user.id).any?.should be_false
   end
 
-  it "lets users edit their own profile and returns to their profile after saving" do
+  it "renders the updated editor and navbar directly after saving a profile" do
     user = UserFactory.create
     client = account_sign_in(user)
     profile = client.get(Users::Show.with(login_name: user.login_name).path)
@@ -131,12 +137,24 @@ describe "Account management" do
     response.status_code.should eq(200)
     document.xpath_node("//form[@action='/users/#{user.id}']").should_not be_nil
 
-    response = client.put("/users/#{user.id}", user: {nickname: "Updated nickname"})
+    response = client.put(
+      "/users/#{user.id}",
+      user: {nickname: "Updated nickname", avatar: "https://example.com/updated.png"}
+    )
+    document = XML.parse_html(response.body)
 
-    response.status_code.should eq(303)
-    response.headers["Location"].should eq(Users::Show.with(login_name: user.login_name).path)
+    response.status_code.should eq(200)
+    response.headers["Location"]?.should be_nil
+    response.headers["HX-Push-Url"].should eq("false")
+    document.xpath_node("//input[@name='user:nickname']").not_nil!["value"].should eq("Updated nickname")
+    document.xpath_node("//nav[@id='nav-user-panel']").not_nil!.content.should contain("Updated nickname")
+    document.xpath_node("//nav[@id='nav-user-panel']//img").not_nil!["src"].should eq("https://example.com/updated.png")
+    document.xpath_node("//figure//img").not_nil!["src"].should eq("https://example.com/updated.png")
+    response.body.should contain(Rosetta.find("users.update.profile_updated").t)
     UserQuery.find(user.id).nickname.should eq("Updated nickname")
     UserAuditQuery.new.user_id(user.id).kind(UserAudit::Kind::ProfileChanged).first.actor_id.should eq(user.id)
+
+    account_client(response).get("/users/#{user.id}/edit").body.should_not contain(Rosetta.find("users.update.profile_updated").t)
   end
 
   it "preserves the original return path across repeated validation failures" do
@@ -163,8 +181,11 @@ describe "Account management" do
 
     response = client.put("/users/#{user.id}", return_to: source, user: {nickname: "Updated nickname"})
 
-    response.status_code.should eq(303)
-    response.headers["Location"].should eq(Users::Show.with(login_name: user.login_name).path)
+    document = XML.parse_html(response.body)
+
+    response.status_code.should eq(200)
+    document.xpath_node("//input[@name='return_to']").not_nil!["value"].should eq(source)
+    document.xpath_node("//form//a").not_nil!["href"].should eq(source)
   end
 
   it "falls back to the target profile for missing or unsafe return paths" do
@@ -233,7 +254,13 @@ describe "Account management" do
     response = editor.put("/users/#{user.id}", user: {password: "new-password", password_confirmation: "new-password"})
     updated = UserQuery.find(user.id)
 
-    response.status_code.should eq(303)
+    document = XML.parse_html(response.body)
+    audit = UserAuditQuery.new.user_id(user.id).kind(UserAudit::Kind::PasswordChanged).first
+
+    response.status_code.should eq(200)
+    document.xpath_node("//input[@name='user:password']").not_nil!["value"]?.to_s.should be_empty
+    document.xpath_node("//input[@name='user:password_confirmation']").not_nil!["value"]?.to_s.should be_empty
+    document.xpath_node("//form//p/time").not_nil!["datetime"].should eq(audit.created_at.to_rfc3339)
     updated.session_version.should_not eq(user.session_version)
     account_client(response).get("/users/#{user.id}/edit").status_code.should eq(200)
     other.get("/users/#{user.id}/edit").headers["Location"].should contain("/sign_in")
@@ -248,7 +275,7 @@ describe "Account management" do
     client = account_sign_in(user)
 
     response = client.put("/users/#{user.id}", user: {nickname: "Updated", password: "", password_confirmation: ""})
-    response.status_code.should eq(303)
+    response.status_code.should eq(200)
     UserQuery.find(user.id).session_version.should eq(user.session_version)
     client.get("/users/#{user.id}/edit").status_code.should eq(200)
 
@@ -291,7 +318,7 @@ describe "Account management" do
     user_client = account_sign_in(user)
     response = admin_client.put("/users/#{user.id}", user: {password: "new-password", password_confirmation: "new-password"})
 
-    response.status_code.should eq(303)
+    response.status_code.should eq(200)
     user_client.get("/users/#{user.id}/edit").status_code.should eq(303)
     admin_client.get("/users/#{user.id}/edit").status_code.should eq(200)
     UserAuditQuery.new.user_id(user.id).kind(UserAudit::Kind::PasswordChanged).first.actor_id.should eq(admin.id)

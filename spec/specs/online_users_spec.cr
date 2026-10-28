@@ -143,7 +143,7 @@ describe "Online users" do
         user: {hide_online_status: "true"}
       )
 
-      response.status_code.should eq(303)
+      response.status_code.should eq(200)
       updated = UserQuery.find(user.id)
       updated.hide_online_status?.should be_true
       UserQuery.find(other.id).hide_online_status?.should be_false
@@ -157,7 +157,7 @@ describe "Online users" do
       checkbox["checked"]?.should_not be_nil
 
       response = client.put("/users/#{user.id}?backdoor_user_id=#{user.id}", user: {hide_online_status: "false"})
-      response.status_code.should eq(303)
+      response.status_code.should eq(200)
       UserQuery.find(user.id).hide_online_status?.should be_false
       client.patch("/htmx/online_users?backdoor_user_id=#{user.id}")
       ONLINE_PRESENCE.user_ids.should contain(user.id)

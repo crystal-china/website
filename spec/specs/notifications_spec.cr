@@ -223,7 +223,7 @@ describe "Mention notification preferences" do
 
     Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
       response = ApiClient.new.put("/users/#{user.id}?backdoor_user_id=#{user.id}", user: {mention_notifications_enabled: "false"})
-      response.status_code.should eq(303)
+      response.status_code.should eq(200)
       UserQuery.find(user.id).mention_notifications_enabled.should be_false
       UserQuery.find(other.id).mention_notifications_enabled.should be_true
       UserAuditQuery.new.user_id(user.id).any?.should be_false
@@ -235,7 +235,7 @@ describe "Mention notification preferences" do
       JSON.parse(response.body).as_a.map(&.["login_name"].as_s).should_not contain(user.login_name)
 
       response = ApiClient.new.put("/users/#{user.id}?backdoor_user_id=#{user.id}", user: {mention_notifications_enabled: "true"})
-      response.status_code.should eq(303)
+      response.status_code.should eq(200)
       UserQuery.find(user.id).mention_notifications_enabled.should be_true
 
       response = ApiClient.new.get("/htmx/users/autocomplete?q=#{URI.encode_path(user.login_name)}&backdoor_user_id=#{user.id}")

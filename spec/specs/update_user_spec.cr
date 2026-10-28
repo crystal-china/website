@@ -222,7 +222,7 @@ describe UpdateUser do
 
     Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
       response = ApiClient.new.put("/users/#{user.id}?backdoor_user_id=#{user.id}", user: {login_name_lower: "forged"})
-      response.status_code.should eq(303)
+      response.status_code.should eq(200)
     end
 
     user = UserQuery.find(user.id)

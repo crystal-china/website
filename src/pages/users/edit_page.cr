@@ -21,7 +21,7 @@ class Users::EditPage < MainLayout
 
   private def return_path : String
     # 原表单有隐藏字段 return_to, 浏览器提交表单时，它和用户名一起发送
-    # 验证失败，Action 直接渲染编辑页, 编辑页使用的 context，仍然是刚才这次 PUT 请求的 context
+    # 保存成功或验证失败，Action 都直接渲染编辑页，继续从本次 PUT 请求读取原始来源。
     source = context.params.get?(:return_to) || context.request.headers["Referer"]?
 
     ReturnPath.parse(source) || Users::Show.with(login_name: user.login_name).path
