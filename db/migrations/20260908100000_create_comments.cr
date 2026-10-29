@@ -15,6 +15,8 @@ class CreateComments::V20260908100000 < Avram::Migrator::Migration::V1
       add content : String
       # 只缓存正文；用户资料、投票和操作按钮仍动态渲染。
       add content_html : String?
+      # 撤回保留正文和楼层，恢复后仍可继续编辑。
+      add withdrawn : Bool, default: false
 
       # 只在评论正文确实被修改时写入；投票和计数器更新不会影响它。
       add edited_at : Time?
@@ -65,6 +67,16 @@ class CreateComments::V20260908100000 < Avram::Migrator::Migration::V1
       target_table: "comments",
       target_counter_column: "descendants_count",
       soft_delete_column: "soft_deleted_at"
+    )
+
+    # 只统计未软删除的根评论；撤回仍占据楼层，也仍参与分页。
+    add_counters_for(
+      source_table: "comments",
+      source_foreign_key: "comment_thread_id",
+      target_table: "comment_threads",
+      target_counter_column: "root_comments_count",
+      soft_delete_column: "soft_deleted_at",
+      when: "parent_id IS NULL"
     )
 
     create_function "assign_comment_floor", <<-SQL
@@ -121,6 +133,12 @@ class CreateComments::V20260908100000 < Avram::Migrator::Migration::V1
 
     drop_trigger table_for(Comment), "assign_comment_floor_before_insert"
     drop_function "assign_comment_floor"
+
+    remove_counters_for(
+      source_table: "comments",
+      target_table: "comment_threads",
+      target_counter_column: "root_comments_count"
+    )
 
     remove_counters_for(
       source_table: "comments",

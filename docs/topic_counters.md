@@ -9,8 +9,8 @@
 | `users.topics_count` | 个人主页创建的主题分页 |
 
 新建、软删除、恢复和物理删除自动增减；物理删除已软删除的主题不重复扣减。
-每个主题通过非空外键 `topics.space_id` 归属一个 Space。迁移创建默认 Space（`id = 1`，`slug = default`），
-并将已有主题归入它。新主题由 `CreateTopic` 指定默认 Space，不接受客户端提供的 Space。
+每个主题通过非空外键 `topics.space_id` 归属一个 Space。`db.seed.required_data` 在空库创建默认 Space（`id = 1`，`slug = default`），
+并创建默认社区节点；重复运行不会重复创建或覆盖已有配置。新主题由 `CreateTopic` 指定默认 Space，不接受客户端提供的 Space。
 当前仅使用一个默认 Space，尚未提供多 Space 管理、切换或迁移主题的功能；也未开放主题作者转移。
 
 三个计数均复用原有 `add_counters_for` / `rebuild_counter_for`，分别传入 `space_id`、`node_id`、`user_id`。
@@ -30,12 +30,18 @@ Counter 只替换总数统计，不改变排序、分页链接、每页数量和
 
 ## 部署
 
-停服后先执行 `bin/tasks db.migrate`，再启动新版本。
+增量 migration 已合并进对应的建表 migration，仅保证空数据库初始化；不再执行旧数据归属回填。
+Space 保留独立的建表 migration；主题关联、计数字段和 trigger 在建表时直接创建，计数默认从零开始。
 
-1. `20260908080000_create_spaces.cr`：独立创建 Space 表（包含 `topics_count`）、slug 唯一索引及默认 Space，保留为单独的 migration，顺序早于主题建表。
-2. `20261026120000_add_topic_counters.cr`：增加主题关联、节点和用户的计数字段，创建三个计数的 trigger 并自动回填，无须额外 task。
+新机器启动服务前依次运行：
 
-回滚第二个 migration 移除主题关联、节点和用户的计数字段及相关 trigger，保留 Space 表及其全部字段。
+```bash
+bin/tasks db.migrate
+bin/tasks db.seed.required_data
+```
+
+迁移只创建结构，不插入 Space 或节点记录。不要跳过 required seed，也不要在生产环境运行 sample seed。
+已完成压缩前全部迁移的数据库保留现有结构和迁移记录即可，不需要重新建表或重复运行历史迁移。
 
 如果手工操作导致计数不一致，停止写入后执行 `bin/tasks db.fix.topic_counts`，可重复运行。
 任务会重建三个计数，包括将没有主题的用户和节点归零，不修改正文或编辑时间，不发送通知。

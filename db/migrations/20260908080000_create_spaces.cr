@@ -7,10 +7,6 @@ class CreateSpaces::V20260908080000 < Avram::Migrator::Migration::V1
       add topics_count : Int32, default: 0
       add_timestamps
     end
-
-    execute <<-SQL
-      INSERT INTO spaces (name, slug) VALUES ('Crystal 中文社区', 'default')
-      SQL
   end
 
   def rollback : Nil

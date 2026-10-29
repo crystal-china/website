@@ -14,7 +14,7 @@ Doc 文档不保存 `content_html`，仍使用自己的 Markdown 缓存。
 
 ## 现有环境部署
 
-`content_html` 已合并进主题和评论的初始建表 migration。全新环境执行 `bin/tasks db.migrate` 即可，不需要对空表回填。
+`content_html` 已合并进主题和评论的初始建表 migration。全新环境先执行 `bin/tasks db.migrate`，再运行 `bin/tasks db.seed.required_data` 创建默认配置，不需要对空表回填 HTML。
 
 尚未升级的旧数据库须先使用压缩前版本完成字段迁移，参见[历史升级要求](用户名与提及.md#现有环境升级)。对于已有 `content_html` 字段、需要更新历史 HTML 的数据库，部署重新构建的应用和任务两个 binary，停止服务器，然后运行：
 

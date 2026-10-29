@@ -7,19 +7,16 @@ class CreateTopics::V20260908090000 < Avram::Migrator::Migration::V1
       add summary : String
       add color : String
       add position : Int32, default: 0
+      add topics_count : Int32, default: 0
       add_timestamps
     end
 
     create_index table_for(Node), :name, unique: true
     create_index table_for(Node), :slug, unique: true
 
-    execute <<-SQL
-      INSERT INTO nodes (name, slug, summary, color, position)
-      VALUES ('综合讨论', 'general', 'Crystal 语言及其生态相关的综合讨论。', '#16a34a', 100)
-      SQL
-
     create table_for(Topic) do
       primary_key id : Int64
+      add_belongs_to space : Space, on_delete: :restrict
       add_belongs_to user : User, on_delete: :cascade
       add_belongs_to node : Node, on_delete: :restrict
       add title : String
@@ -55,9 +52,51 @@ class CreateTopics::V20260908090000 < Avram::Migrator::Migration::V1
       ON topics USING pgroonga ((title || ' ' || content))
       WHERE soft_deleted_at IS NULL
       SQL
+
+    add_counters_for(
+      source_table: "topics",
+      source_foreign_key: "space_id",
+      target_table: "spaces",
+      target_counter_column: "topics_count",
+      soft_delete_column: "soft_deleted_at"
+    )
+
+    add_counters_for(
+      source_table: "topics",
+      source_foreign_key: "node_id",
+      target_table: "nodes",
+      target_counter_column: "topics_count",
+      soft_delete_column: "soft_deleted_at"
+    )
+
+    add_counters_for(
+      source_table: "topics",
+      source_foreign_key: "user_id",
+      target_table: "users",
+      target_counter_column: "topics_count",
+      soft_delete_column: "soft_deleted_at"
+    )
   end
 
   def rollback : Nil
+    remove_counters_for(
+      source_table: "topics",
+      target_table: "users",
+      target_counter_column: "topics_count"
+    )
+
+    remove_counters_for(
+      source_table: "topics",
+      target_table: "nodes",
+      target_counter_column: "topics_count"
+    )
+
+    remove_counters_for(
+      source_table: "topics",
+      target_table: "spaces",
+      target_counter_column: "topics_count"
+    )
+
     drop table_for(Topic)
     drop table_for(Node)
   end

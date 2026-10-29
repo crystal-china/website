@@ -10,7 +10,7 @@ describe Db::CounterHelpers do
       AppDatabase.exec "INSERT INTO recipients (id) VALUES (1), (2), (3)"
       AppDatabase.exec "INSERT INTO messages VALUES (1, 1, NULL), (2, 1, now()), (3, 2, now()), (4, NULL, NULL)"
       updated_at = AppDatabase.query_all("SELECT updated_at FROM recipients ORDER BY id", as: Time)
-      migration = AddRootCommentsCountToCommentThreads::V20261025120000.new
+      migration = CreateComments::V20260908100000.new
       migration.rebuild_counter_for(
         source_table: "messages",
         source_foreign_key: "recipient_id",
@@ -58,7 +58,7 @@ describe Db::CounterHelpers do
       AppDatabase.exec "CREATE TABLE recipients (id bigint PRIMARY KEY, unread_count integer NOT NULL DEFAULT 0)"
       AppDatabase.exec "CREATE TABLE messages (id bigint PRIMARY KEY, recipient_id bigint REFERENCES recipients(id), read_at timestamptz, category text)"
       # 只借用 migration 收集 SQL，不执行它原本的 migrate。
-      migration = AddRootCommentsCountToCommentThreads::V20261025120000.new
+      migration = CreateComments::V20260908100000.new
       migration.add_counters_for(
         source_table: "messages",
         source_foreign_key: "recipient_id",

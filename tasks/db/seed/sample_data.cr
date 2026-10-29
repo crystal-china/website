@@ -1,4 +1,5 @@
 require "../fix/topic_counts"
+require "./required_data"
 
 # This task resets development data. Do not run it against a database you need to keep.
 class Db::Seed::SampleData < LuckyTask::Task
@@ -21,6 +22,8 @@ class Db::Seed::SampleData < LuckyTask::Task
     DocQuery.truncate(cascade: true)
     UserQuery.truncate(cascade: true)
     CommentQuery.truncate(cascade: true)
+
+    Db::Seed::RequiredData.new.call
 
     # TRUNCATE 不触发逐行删除计数；Space 和节点配置保留，重新计算为零。
     Db::Fix::TopicCounts.new.call
@@ -57,22 +60,7 @@ class Db::Seed::SampleData < LuckyTask::Task
     )
     UpdateUser.update!(users[3], mention_notifications_enabled: false, hide_online_status: true)
 
-    nodes = {} of String => Node
-    [
-      {"general", "综合讨论", "Crystal 语言及其生态相关的综合讨论。", "#16a34a", 100},
-      {"help", "求助", "使用 Crystal 时遇到的问题与解决方案。", "#db2777", 90},
-      {"projects", "项目与工具", "分享使用 Crystal 构建的项目、库与开发工具。", "#64748b", 70},
-      {"learning", "学习资源", "教程、书籍及其他 Crystal 学习资料。", "#9333ea", 60},
-    ].each do |slug, name, summary, color, position|
-      nodes[slug] = NodeQuery.new.slug(slug).first? ||
-                    SaveNode.create!(
-                      name: name,
-                      slug: slug,
-                      summary: summary,
-                      color: color,
-                      position: position
-                    )
-    end
+    nodes = NodeQuery.new.results.to_h { |node| {node.slug, node} }
 
     topic_data = [
       {"general", "从 Ruby 迁移到 Crystal，第一周最容易踩的坑", "我把一个命令行脚本从 Ruby 迁到 Crystal，最费时间的是处理 Nil 联合类型和块的返回值。编译器给出的错误很精确，但我一开始总想照搬 Ruby 的写法。", "你们通常先把边界类型标清楚，还是先让代码能编译，再逐步收紧类型？"},

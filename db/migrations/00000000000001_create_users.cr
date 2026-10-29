@@ -23,6 +23,9 @@ class CreateUsers::V00000000000001 < Avram::Migrator::Migration::V1
       # Existing and new users receive mentions by default. Disabling this
       # affects only future mention notifications, not replies or history.
       add mention_notifications_enabled : Bool, default: true
+      add topics_count : Int32, default: 0
+      add notifications_count : Int32, default: 0
+      add unread_notifications_count : Int32, default: 0
       add_timestamps
     end
 

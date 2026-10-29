@@ -74,16 +74,12 @@ describe "Notification counters" do
     NotificationQuery.new.user_id(user.id).any?.should be_false
   end
 
-  it "backfills existing notifications and repairs all users without changing read state or audit history" do
+  it "repairs all users without changing read state or audit history" do
     user = UserFactory.create
     empty_user = UserFactory.create
     actor = UserFactory.create
     unread = counter_notification(user, actor)
     read = counter_notification(user, actor, read_at: Time.utc)
-    migration = AddNotificationCountersToUsers::V20261025130000.new
-
-    migration.down(quiet: true)
-    migration.up(quiet: true)
 
     expect_notification_counts(user, 2, 1)
     expect_notification_counts(empty_user, 0, 0)
@@ -97,8 +93,6 @@ describe "Notification counters" do
     NotificationQuery.find(unread.id).read_at.should be_nil
     NotificationQuery.find(read.id).read_at.should eq(read.read_at)
     UserAuditQuery.new.select_count.should eq(0)
-  ensure
-    migration.try(&.up(quiet: true)) if migration.try(&.pending?)
   end
 
   it "paginates all and unread notifications and renders the bell without COUNT or unread existence queries" do

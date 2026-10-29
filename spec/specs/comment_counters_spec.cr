@@ -43,7 +43,7 @@ describe "Comment pagination counters" do
     end
   end
 
-  it "backfills existing records during migration and repairs counters without changing timestamps or notifications" do
+  it "repairs counters without changing timestamps or notifications" do
     user = UserFactory.create
     doc = DocContent.sync("/docs/counter-backfill", "文档正文")
     thread = CommentThreadQuery.new.doc_id(doc.id).first
@@ -54,11 +54,6 @@ describe "Comment pagination counters" do
     Comment::SaveOperation.update!(withdrawn_root, withdrawn: true)
     DeleteComment.delete!(deleted_root)
     notifications_count = NotificationQuery.new.select_count
-    migration = AddRootCommentsCountToCommentThreads::V20261025120000.new
-
-    # 删除字段后再迁移，模拟已有评论的生产数据库首次添加计数字段。
-    migration.down(quiet: true)
-    migration.up(quiet: true)
 
     CommentThreadQuery.find(thread.id).root_comments_count.should eq(2)
     CommentThreadQuery.find(thread.id).updated_at.should eq(thread.updated_at)
@@ -74,8 +69,6 @@ describe "Comment pagination counters" do
     CommentQuery.find(child.id).edited_at.should be_nil
     CommentQuery.new.only_soft_deleted.id(deleted_root.id).first.children_count.should eq(0)
     NotificationQuery.new.select_count.should eq(notifications_count)
-  ensure
-    migration.try(&.up(quiet: true)) if migration.try(&.pending?)
   end
 
   it "uses stored counts for root and reply pagination without issuing COUNT queries" do

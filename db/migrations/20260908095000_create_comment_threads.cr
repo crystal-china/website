@@ -8,6 +8,8 @@ class CreateCommentThreads::V20260908095000 < Avram::Migrator::Migration::V1
       # 当前评论区已分配的最大顶级楼层。
       # 新增顶级评论时，assign_comment_floor trigger 原子自增它，并将新值写入 comments.floor。
       add floor_counter : Int32, default: 0
+      # 未软删除的根评论数量，用于主评论区分页；撤回仍参与计数。
+      add root_comments_count : Int32, default: 0
       add_timestamps
     end
 

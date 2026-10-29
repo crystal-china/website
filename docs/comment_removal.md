@@ -84,6 +84,6 @@
 
 通知定位仍需计算目标评论前面有多少条记录，以确定它所在的页码；这个 COUNT 不是总数统计，继续保留。
 
-部署时先执行 `lucky db.migrate`，再重启服务。`20261025120000_add_root_comments_count_to_comment_threads.cr` 会在同一次迁移中创建计数和 trigger，并自动回填已有记录，不需要另跑回填任务。
+撤回状态、根评论计数及相关 trigger 已合并进初始建表 migration。全新环境执行 `bin/tasks db.migrate` 后，再运行 `bin/tasks db.seed.required_data` 创建默认配置；空库无需回填。
 
 如果以后手工修改数据造成计数不一致，可运行 `bin/tasks db.fix.soft_delete_counts`，同时重建根评论数、直接回复数和后代数。这个 task 不改编辑时间、不发通知。

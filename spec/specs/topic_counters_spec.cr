@@ -138,7 +138,7 @@ describe "Topic counters" do
     topic_counter_values(user, node).should eq({1, 1, 1})
   end
 
-  it "backfills existing topics and repairs counters without changing timestamps or sending notifications" do
+  it "repairs counters without changing timestamps or sending notifications" do
     user = UserFactory.create
     empty_user = UserFactory.create
     node = counter_node("backfill-topic-counts")
@@ -146,12 +146,8 @@ describe "Topic counters" do
     topic = counter_topic(user, node)
     counter_topic(user, node, soft_deleted_at: Time.utc)
     notifications_count = NotificationQuery.new.select_count
-    migration = AddTopicCounters::V20261026120000.new
     space = Space::SaveOperation.update!(Space::BaseQuery.find(Space::DEFAULT_ID), name: "保留的空间名称")
 
-    migration.down(quiet: true)
-    Space::BaseQuery.find(space.id).topics_count.should eq(1)
-    migration.up(quiet: true)
     TopicQuery.new.with_soft_deleted.map(&.space_id).uniq!.should eq([Space::DEFAULT_ID])
     AppDatabase.query_one(
       "SELECT is_nullable, column_default FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'topics' AND column_name = 'space_id'",
@@ -175,8 +171,6 @@ describe "Topic counters" do
     empty_node.reload.updated_at.should eq(empty_node.updated_at)
     TopicQuery.find(topic.id).updated_at.should eq(topic.updated_at)
     NotificationQuery.new.select_count.should eq(notifications_count)
-  ensure
-    migration.try(&.up(quiet: true)) if migration.try(&.pending?)
   end
 
   it "paginates site, node and author topics without COUNT, while preserving followed-topic filtering" do

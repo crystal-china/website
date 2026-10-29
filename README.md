@@ -44,7 +44,7 @@ The application is deployed as a static binary with its frontend assets baked in
        └── sitemap.xml
    ```
 
-5. Run `bin/tasks db.migrate` and `bin/tasks db.sync_doc_content` to populate the PGroonga-backed document search index. The sync task is safe to rerun after Markdown changes.
+5. On a fresh database, run `bin/tasks db.migrate`, `bin/tasks db.seed.required_data`, then `bin/tasks db.sync_doc_content`. Required seeds create the default Space and community nodes; rerunning them preserves existing configuration. The sync task populates the PGroonga-backed document search index and is safe to rerun after Markdown changes.
 
 6. Add a systemd service to start the server. See [crystal_china.service](/nginx/crystal_china.service). [Procodile](https://github.com/crystal-china/procodile) can be used instead.
 
