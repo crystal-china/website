@@ -239,8 +239,30 @@ describe "User events" do
       document = XML.parse_html(response.body)
 
       response.status_code.should eq(200)
-      document.xpath_node("//main//ol/li/h2").not_nil!.content.should eq(expected)
+      document.xpath_node("//main//ol/li//h2").not_nil!.content.should eq(expected)
     end
+  end
+
+  it "shows accounts once and only adds an actor for actions on another account" do
+    admin = UserFactory.create &.email("audit-admin@example.com")
+    user = UserFactory.create
+    SaveUserAudit.create!(user_id: user.id, kind: :password_signed_in)
+    SaveUserAudit.create!(user_id: user.id, actor_id: admin.id, kind: :password_removed)
+    response = ApiClient.new.get("/user_audits?backdoor_user_id=#{admin.id}")
+    rows = XML.parse_html(response.body).xpath_nodes("//main//ol/li").to_a
+
+    rows.last.xpath_nodes(".//a").size.should eq(1)
+    rows.last.xpath_node(".//span[contains(@class, 'user-avatar')]").should_not be_nil
+    rows.last.content.should_not contain("操作人：")
+    rows.first.xpath_node(".//a[@href='/users/#{admin.login_name}/profile']").should_not be_nil
+    rows.last.xpath_node(".//time/../div//h2").not_nil!.content.should eq("密码登录")
+
+    response = ApiClient.new.get("/user_audits?backdoor_user_id=#{user.id}")
+    rows = XML.parse_html(response.body).xpath_nodes("//main//ol/li").to_a
+
+    rows.last.xpath_node(".//a | .//span[contains(@class, 'user-avatar')]").should be_nil
+    rows.first.content.should contain("操作人：")
+    rows.first.content.should contain(admin.login_name)
   end
 
   it "records each successful OAuth login to an existing account" do
@@ -311,7 +333,7 @@ describe "User events" do
     user = UserFactory.create
     other = UserFactory.create
     SaveUserAudit.create!(user_id: other.id, kind: UserAudit::Kind::OauthSignedIn, oauth_provider: "private-provider")
-    21.times do
+    11.times do
       SaveUserAudit.create!(user_id: user.id, kind: UserAudit::Kind::OauthSignedIn, oauth_provider: "github")
     end
 
@@ -319,7 +341,7 @@ describe "User events" do
     document = XML.parse_html(response.body)
 
     response.status_code.should eq(200)
-    document.xpath_nodes("//main//ol/li").size.should eq(20)
+    document.xpath_nodes("//main//ol/li").size.should eq(10)
     response.body.should contain("下一页")
     response.body.should_not contain("private-provider")
 
@@ -331,7 +353,7 @@ describe "User events" do
     user = UserFactory.create
     audit = SaveUserAudit.create!(user_id: user.id, kind: :oauth_signed_in, oauth_provider: "github", created_at: Time.utc - 2.hours)
     response = ApiClient.new.get("/user_audits?backdoor_user_id=#{user.id}")
-    time = XML.parse_html(response.body).xpath_node("//main//ol/li/time").not_nil!
+    time = XML.parse_html(response.body).xpath_node("//main//ol/li//time").not_nil!
 
     time.content.should eq(TimeInWords::Helpers(TimeInWords::I18n::ZH_CN).from(time: audit.created_at))
     time["datetime"].should eq(audit.created_at.to_rfc3339)
@@ -353,7 +375,7 @@ describe "User events" do
     user = UserFactory.create
     admin = UserFactory.create &.email("audit-admin@example.com")
     SaveUserAudit.create!(user_id: admin.id, kind: UserAudit::Kind::OauthSignedIn, oauth_provider: "admin-private")
-    21.times do
+    11.times do
       SaveUserAudit.create!(user_id: user.id, kind: UserAudit::Kind::OauthSignedIn, oauth_provider: "target-provider")
     end
 
@@ -362,8 +384,8 @@ describe "User events" do
     next_path = document.xpath_node("//main//nav/a[.='下一页']").not_nil!["href"]
 
     response.status_code.should eq(200)
-    document.xpath_nodes("//main//ol/li").size.should eq(20)
-    document.xpath_node("//main//h1").not_nil!.content.should eq("账户记录")
+    document.xpath_nodes("//main//ol/li").size.should eq(10)
+    document.xpath_node("//main//h1").should be_nil
     document.xpath_node("//main//header//a").not_nil!["href"].should eq(Users::Show.with(login_name: user.login_name).path)
     document.xpath_node("//main//aside").should be_nil
     document.xpath_node("//nav[@id='nav-user-panel']/a[@href='/admin']").not_nil!["class"].should_not contain("is-active")
@@ -406,7 +428,7 @@ describe "User events" do
   it "paginates all accounts' events newest first and links to the page from the admin area" do
     admin = UserFactory.create &.email("audit-admin@example.com")
     users = [UserFactory.create, UserFactory.create, admin]
-    21.times do |index|
+    11.times do |index|
       SaveUserAudit.create!(
         user_id: users[index % users.size].id,
         actor_id: admin.id,
@@ -422,15 +444,16 @@ describe "User events" do
     next_path = document.xpath_node("//main//nav/a[.='下一页']").not_nil!["href"]
 
     response.status_code.should eq(200)
-    rows.size.should eq(20)
-    rows.first.content.should contain("Old nickname 20 → New nickname 20")
+    rows.size.should eq(10)
+    rows.first.content.should contain("Old nickname 10 → New nickname 10")
     rows.last.content.should contain("Old nickname 1 → New nickname 1")
-    rows.first.xpath_node("./p[last()]").not_nil!.content.should contain(admin.login_name)
+    rows[2].content.should_not contain("操作人：")
+    rows[1].xpath_node(".//a[@href='/users/#{admin.login_name}/profile']").should_not be_nil
     users.each do |user|
-      document.xpath_node("//main//ol/li/p[1]//a[@href='/users/#{user.login_name}/profile']").should_not be_nil
+      document.xpath_node("//main//ol/li//a[@href='/users/#{user.login_name}/profile']").should_not be_nil
     end
     document.xpath_node("//main//aside//a[@href='/user_audits']").not_nil!["class"].should contain("bg-gray-900")
-    document.xpath_node("//main//h1").not_nil!.content.should eq("账户记录")
+    document.xpath_node("//main//h1").should be_nil
     document.xpath_node("//main//header//a").should be_nil
     document.xpath_node("//nav[@id='nav-user-panel']/a[@href='/admin']").not_nil!["class"].should_not contain("is-active")
     URI.parse(next_path).path.should eq("/user_audits")
@@ -444,7 +467,7 @@ describe "User events" do
 
     response = ApiClient.new.get("/admin?backdoor_user_id=#{admin.id}")
     XML.parse_html(response.body).xpath_node("//aside//a[@href='/user_audits']").should_not be_nil
-    UserAuditQuery.new.select_count.should eq(21)
+    UserAuditQuery.new.select_count.should eq(11)
   end
 
   it "renders all event kinds in both languages and escapes profile values in the admin history" do
@@ -462,13 +485,13 @@ describe "User events" do
       )
     end
 
-    {"zh-CN" => ["修改昵称", "修改密码", "第三方登录", "移除本站密码", "密码登录"],
-     "en"    => ["Changed Nickname", "Password changed", "OAuth sign-in", "Local password removed", "Password sign-in"]}.each do |locale, headings|
+    {"zh-CN" => ["修改昵称", "修改密码", "通过 github 登录。", "移除本站密码", "密码登录"],
+     "en"    => ["Changed Nickname", "Password changed", "Signed in through github.", "Local password removed", "Password sign-in"]}.each do |locale, headings|
       response = ApiClient.new.get("/user_audits?locale=#{locale}&backdoor_user_id=#{admin.id}")
       document = XML.parse_html(response.body)
 
       response.status_code.should eq(200)
-      document.xpath_nodes("//main//ol/li/h2").map(&.content).should eq(headings.reverse)
+      document.xpath_nodes("//main//ol/li//h2").map(&.content).should eq(headings.reverse)
       document.xpath_node("//main//ol//script").should be_nil
       document.xpath_node("//main//ol").not_nil!.content.should contain("<script>alert(1)</script> → New nickname")
       response.body.should contain("github")
@@ -493,9 +516,11 @@ describe "User events" do
 
       response.status_code.should eq(200)
       document.xpath_nodes("//main//ol/li").size.should eq(1)
-      document.xpath_node("//main//ol/li/p[1]").not_nil!.content.should contain(label)
-      document.xpath_node("//main//ol/li/p[last()]").not_nil!.content.should contain(label)
-      document.xpath_node("//main//ol/li/p[last()]//a").should be_nil
+      row = document.xpath_node("//main//ol/li").not_nil!
+
+      row.content.should contain(label)
+      row.content.should_not contain(Rosetta.find("user_audits.list.actor").t)
+      row.xpath_node(".//a").should be_nil
     end
   end
 
@@ -514,8 +539,10 @@ describe "User events" do
         document = XML.parse_html(response.body)
 
         response.status_code.should eq(200)
-        document.xpath_node("//main//ol/li/p[last()]").not_nil!.content.should contain(label)
-        document.xpath_node("//main//ol/li/p[last()]//a").should be_nil
+        row = document.xpath_node("//main//ol/li").not_nil!
+
+        row.content.should contain(label)
+        row.xpath_node(".//a[@href='/users/#{actor.login_name}/profile']").should be_nil
         response.body.should contain(user.login_name)
       end
     end
@@ -539,7 +566,7 @@ describe "User events" do
       document = XML.parse_html(response.body)
 
       response.status_code.should eq(200)
-      document.xpath_node("//main//ol/li/p[last()]").not_nil!.content.should contain(label)
+      document.xpath_node("//main//ol/li").not_nil!.content.should contain(label)
       UserAuditQuery.find(audit.id).actor_id.should be_nil
     end
   end

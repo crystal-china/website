@@ -10,13 +10,10 @@ zh-CN:
         slug_placeholder: 例如：help
       edit_page:
         page_title: 编辑节点
-        description: 修改 %{name} 的名称、地址、简介和显示顺序。
       index_page:
-        description: 节点决定社区主题的分类和显示顺序。
         order: 排序
         actions: 操作
       new_page:
-        description: 新增后即可在社区发布和筛选该节点下的主题。
         create: 创建节点
     trash:
       restore_comment:
@@ -25,7 +22,6 @@ zh-CN:
       restore_topic:
         topic_restored: 主题已恢复
       index_page:
-        description: 删除的内容保留在数据库中，可由管理员恢复。
         categories: 回收站分类
         no_comments: 没有符合条件的已删除评论。
         keyword: 关键词
@@ -55,7 +51,6 @@ zh-CN:
         password_removed: 本站密码已移除，旧登录会话已失效。用户可通过第三方登录或重置密码重新登录。
     index_page:
       page_title: 后台概览
-      description: 查看站点当前的数据规模和最近内容。
       statistics: 站点统计
       recent_topics: 最近主题
       view_all: 查看全部
@@ -71,7 +66,6 @@ zh-CN:
   admin_layout:
     page_title: 后台管理
     description: 管理 Crystal 中文社区。
-    introduction: 管理社区内容和配置。
 
   api:
     auth:
@@ -485,12 +479,10 @@ zh-CN:
       actor: 操作人：
       profile_changed: 修改%{field}
       password_changed: 修改密码
-      password_privacy: 仅记录修改时间，不保存密码或密码哈希。
       password_signed_in: 密码登录
       oauth_signed_in: 第三方登录
       oauth_provider: 通过 %{provider} 登录。
       password_removed: 移除本站密码
-      password_removed_description: 密码登录已禁用，已有登录会话已失效。
 
   users:
     topics:

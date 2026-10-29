@@ -10,13 +10,10 @@ en:
         slug_placeholder: 'For example: help'
       edit_page:
         page_title: Edit node
-        description: Update the name, slug, summary and display order of %{name}.
       index_page:
-        description: Nodes determine how community topics are categorized and displayed.
         order: Order
         actions: Actions
       new_page:
-        description: Create a node to publish and filter community topics in that category.
         create: Create node
     trash:
       restore_comment:
@@ -25,7 +22,6 @@ en:
       restore_topic:
         topic_restored: Topic restored
       index_page:
-        description: Deleted content is retained in the database and can be restored by an administrator.
         categories: Trash categories
         no_comments: No matching deleted comments.
         keyword: Keyword
@@ -55,7 +51,6 @@ en:
         password_removed: Local password removed and old sessions invalidated. The user can sign in through OAuth or reset their password.
     index_page:
       page_title: Admin overview
-      description: Review site totals and recent content.
       statistics: Site statistics
       recent_topics: Recent topics
       view_all: View all
@@ -71,7 +66,6 @@ en:
   admin_layout:
     page_title: Administration
     description: Manage the Crystal China Community.
-    introduction: Manage community content and settings.
 
   api:
     auth:
@@ -491,12 +485,10 @@ en:
       actor: 'Performed by:'
       profile_changed: Changed %{field}
       password_changed: Password changed
-      password_privacy: Only the change time is recorded, never the password or its hash.
       password_signed_in: Password sign-in
       oauth_signed_in: OAuth sign-in
       oauth_provider: Signed in through %{provider}.
       password_removed: Local password removed
-      password_removed_description: Password sign-in is disabled and old sessions have been invalidated.
 
   users:
     topics:

@@ -148,11 +148,11 @@ describe "Internationalization" do
     document = XML.parse_html(response.body)
 
     response.status_code.should eq(200)
-    document.xpath_node("//main//ol/li/time").not_nil!.content.should eq("about 2 hours ago")
+    document.xpath_node("//main//ol/li//time").not_nil!.content.should eq("about 2 hours ago")
     document.xpath_node("//main//ol/li").not_nil!.content.should contain("Signed in through github.")
 
     response = ApiClient.new.get("/user_audits?locale=zh-CN&backdoor_user_id=#{user.id}")
-    XML.parse_html(response.body).xpath_node("//main//ol/li/time").not_nil!.content.should eq("大约两小时前")
+    XML.parse_html(response.body).xpath_node("//main//ol/li//time").not_nil!.content.should eq("大约两小时前")
   end
 
   it "localizes document dates and reading counts with the existing catalog" do
