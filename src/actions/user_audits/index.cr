@@ -32,7 +32,7 @@ class UserAudits::Index < BrowserAction
       query = query.kind(selected_kind) if selected_kind
     end
 
-    pages, audits = paginate(query, per_page: 20)
+    pages, audits = paginate(query, per_page: 10)
 
     if context.request.headers["HX-Request-Type"]? == "partial"
       return component(
