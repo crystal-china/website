@@ -11,7 +11,6 @@ class Forum::Follows::Delete < BrowserAction
       Forum::FollowButton,
       topic: topic,
       following: false,
-      current_user: me
     )
   end
 end

@@ -10,12 +10,18 @@ class SignUps::Oauth::Callback < BrowserAction
 
     redirect_uri = "#{Lucky::RouteHelper.settings.base_uri}/multi_auth/#{provider}/callback"
     auth_user = MultiAuth.make(provider, redirect_uri).user(request.query_params)
+    email = auth_user.email.to_s.strip
+
+    if email.empty?
+      flash.failure = r(".email_unavailable").t
+
+      return redirect(to: SignIns::New)
+    end
 
     # GitHub 的 nickname 是 login；Google 不提供时，由昵称生成本站唯一标识。
     nickname = (auth_user.name.presence || auth_user.nickname).to_s
     login_name = auth_user.nickname.to_s
     avatar = auth_user.image
-    email = auth_user.email.not_nil!
 
     if (user = UserQuery.new.email(email).first?).nil?
       user = OAuthUser.create!(

@@ -5,6 +5,7 @@ abstract class DocLayout < MainLayout
 
   needs formatter : Tartrazine::Formatter
   needs doc : Doc
+  needs view_count : Int32
   needs comment_thread : CommentThread
   needs markdown_path : String
   needs markdown_source : String
@@ -46,7 +47,7 @@ abstract class DocLayout < MainLayout
     main class: "#{page_frame_classes} flex flex-col items-stretch lg:flex-row lg:items-start" do
       aside class: "w-full border-b border-gray-300 bg-[#F2F4F6] lg:w-80 lg:shrink-0 lg:self-stretch lg:border-r lg:border-b-0" do
         header id: "sidebar", class: "desktop-sidebar #{page_gutter_classes} py-2 lg:w-80" do
-          mount Docs::Sidebar, current_user: current_user
+          mount Docs::Sidebar
         end
       end
 
@@ -60,7 +61,6 @@ abstract class DocLayout < MainLayout
     mount(
       Search::Dialog,
       scope: search_scope,
-      current_user: current_user
     ) if current_user
   end
 
@@ -105,7 +105,6 @@ abstract class DocLayout < MainLayout
           # 只是一个占位符，会被 htmx 请求覆盖
           mount(
             ::Comments::Form,
-            current_user: current_user,
             comment_thread_id: comment_thread.id
           )
 
@@ -113,7 +112,7 @@ abstract class DocLayout < MainLayout
         end
       end
 
-      mount Footer, current_user: current_user
+      mount Footer
     end
   end
 
@@ -151,9 +150,9 @@ abstract class DocLayout < MainLayout
         )
       end
 
-      if doc.view_count > 0
+      if view_count > 0
         text " | "
-        text r("doc_layout.view_count").t(count: doc.view_count)
+        text r("doc_layout.view_count").t(count: view_count)
       end
     end
   end
@@ -172,7 +171,6 @@ abstract class DocLayout < MainLayout
         Shared::VoteButton,
         vote_counts: Hash(String, Int32).from_json(doc.vote_counts.to_json),
         doc_id: doc.id,
-        current_user: me,
         voted_types: voted_types
       )
     end

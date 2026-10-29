@@ -10,37 +10,47 @@ zh-CN:
         slug_placeholder: 例如：help
       edit_page:
         page_title: 编辑节点
-        description: 修改 %{name} 的名称、地址、简介和显示顺序。
       index_page:
-        description: 节点决定社区主题的分类和显示顺序。
         order: 排序
         actions: 操作
       new_page:
-        description: 新增后即可在社区发布和筛选该节点下的主题。
         create: 创建节点
     trash:
       restore_comment:
         comment_restored: 评论已恢复
-        topic_still_deleted: 评论已恢复，但所属主题仍被删除，暂时不可见
-        root_still_deleted: 评论已恢复，但根评论仍被删除，暂时不可见
+        cannot_restore: 不可恢复
       restore_topic:
         topic_restored: 主题已恢复
       index_page:
-        description: 删除的内容保留在数据库中，可由管理员恢复。
         categories: 回收站分类
-        no_comments: 没有已删除的评论。
+        no_comments: 没有符合条件的已删除评论。
+        keyword: 关键词
+        keyword_placeholder: 输入关键词
         topic_id: '主题 #%{id}'
         doc_id: '文档 #%{id}'
         comment_id: '评论 #%{id} · '
-        no_topics: 没有已删除的主题。
+        parent_comment: '父评论 #%{id}'
+        view_deletion_batch: 查看同批删除
+        collapse_deletion_batch: 收起同批删除
+        other_batch_comments: 同批其他评论（%{count} 条）
+        deletion_batch: 同批删除的评论（%{count} 条）
+        restore_order: 请先恢复父评论，再恢复子评论。
+        all_deleted_comments: 查看全部已删除评论
+        no_topics: 没有符合条件的已删除主题。
         deleted_at: 删除于 %{time}
+        preview: 预览
+      preview_topic_page:
+        page_title: 预览：%{title}
+        description: 只读预览，不会恢复主题或评论。评论按发表顺序显示，包含已删除的记录。
+        back_to_trash: 返回回收站
+        comments: 评论（含已删除）
+        no_comments: 此主题没有评论。
+        reply_to: '回复评论 #%{id}'
     users:
       remove_password:
-        no_password: 此账号没有本站密码，无需移除。
         password_removed: 本站密码已移除，旧登录会话已失效。用户可通过第三方登录或重置密码重新登录。
     index_page:
       page_title: 后台概览
-      description: 查看站点当前的数据规模和最近内容。
       statistics: 站点统计
       recent_topics: 最近主题
       view_all: 查看全部
@@ -56,7 +66,6 @@ zh-CN:
   admin_layout:
     page_title: 后台管理
     description: 管理 Crystal 中文社区。
-    introduction: 管理社区内容和配置。
 
   api:
     auth:
@@ -80,9 +89,10 @@ zh-CN:
   comments:
     card:
       locating_comment: 正在定位评论...
-    card_action:
-      confirm_delete_branch: 删除后，子回复也将不可见。确定继续？
-      confirm_delete: 删除这条回复？
+    delete_and_withdraw:
+      confirm_delete: 删除后无法回复
+      confirm_delete_branch: 删除此评论及其全部回复？
+      withdraw: 撤回
     card_content:
       edited_at: 已编辑于 %{time}
       floor: "%{floor} 楼"
@@ -92,9 +102,6 @@ zh-CN:
     load_more_button:
       load_more: 加载更多评论
       no_more: 没有更多评论了
-    thread_toggle:
-      expand: 加载子评论，共 %{count} 条
-      collapse: 折叠子评论
     toolbar:
       reply_count:
         other: "共 %{count} 条回复"
@@ -102,6 +109,7 @@ zh-CN:
       newest: 最新
 
   common:
+    comment_withdrawn: 此评论内容已撤回
     unknown: "未知"
     discard_changes: "内容尚未保存，确定放弃修改吗？"
     comment: 评论
@@ -254,7 +262,7 @@ zh-CN:
 
   home:
     index_page:
-      heading: The Crystal programming language 中文站
+      heading: Crystal 编程语言中文站
       loading_release: 获取最新版本...
       links: 常用站点链接
       latest_release: 最新版本：
@@ -379,8 +387,7 @@ zh-CN:
       preview: 预览
       sign_in_to_comment: 登录后添加评论
       markdown_supported: 支持 markdown 格式
-      mention_limit: 最多提及 %{count} 个用户，超出部分不发送通知。
-      placeholder: 支持 Markdown；输入 @用户名 前缀可自动补全
+      placeholder: 支持 Markdown；输入 @用户名 自动补全，最多提及 %{count} 人，超出部分不发送通知。
       preview_loading: 正在预览...
     o_auth:
       title: 快捷登录
@@ -403,7 +410,7 @@ zh-CN:
       password_placeholder: 留空则不修改
       confirmation_placeholder: 再次输入新密码
       last_password_change: 上次修改密码：
-      unknown_password_date: 暂无密码修改记录；启用账户记录之前的修改时间未知。
+      no_password_record: 暂无密码修改记录
       mention_notifications: 接收 @提及通知
       mention_notifications_help: 关闭后，不接收任何人的 @提及通知；正常回复和管理通知不受影响，已有通知仍保留。
       hide_online_status_help: 不出现在在线人数和名单中，并隐藏活跃时间和累计在线时长。仅影响展示，后台仍会累计在线时长。
@@ -426,6 +433,7 @@ zh-CN:
       signed_up: 注册成功
     oauth:
       callback:
+        email_unavailable: 第三方未提供邮箱，无法完成登录。请检查邮箱授权，或使用本站账号登录。
         password_warning: 此账号已设置本站密码。如果不是你本人设置，请前往个人设置修改密码。
         signed_in: 登录成功
     new_page:
@@ -471,12 +479,10 @@ zh-CN:
       actor: 操作人：
       profile_changed: 修改%{field}
       password_changed: 修改密码
-      password_privacy: 仅记录修改时间，不保存密码或密码哈希。
       password_signed_in: 密码登录
       oauth_signed_in: 第三方登录
       oauth_provider: 通过 %{provider} 登录。
       password_removed: 移除本站密码
-      password_removed_description: 密码登录已禁用，已有登录会话已失效。
 
   users:
     topics:

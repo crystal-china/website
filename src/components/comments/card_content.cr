@@ -10,15 +10,20 @@ class Comments::CardContent < BaseComponent
       hr class: "my-2 border-0 border-t border-gray-300"
 
       div class: "prose-neutral max-w-none prose text-base leading-7" do
-        raw(comment.content_html || user_markdown(comment.content))
+        if comment.withdrawn?
+          para r("common.comment_withdrawn").t, class: "text-sm text-gray-500"
+        else
+          raw(comment.content_html || user_markdown(comment.content))
+        end
       end
     end
   end
 
   private def render_avatar_name_and_time : Nil
     user = comment.user
+    fade_comment_update_success_message_script = "init transition my opacity to 0% over 3 seconds"
 
-    header class: "flex flex-wrap items-start justify-between gap-3 sm:flex-nowrap" do
+    header class: "flex flex-wrap items-center justify-between gap-3 sm:flex-nowrap" do
       div class: "flex min-w-0 items-center gap-3" do
         mount(
           Shared::Avatar,
@@ -28,8 +33,7 @@ class Comments::CardContent < BaseComponent
         div class: "min-w-0 text-xs" do
           mount(
             Shared::UserName,
-            user: user,
-            stacked: true
+            user: user
           )
         end
       end
@@ -63,7 +67,7 @@ class Comments::CardContent < BaseComponent
         if show_update_success?
           output(
             class: "text-xs font-medium text-green-600",
-            script: "init transition my opacity to 0% over 3 seconds"
+            script: fade_comment_update_success_message_script
           ) do
             text r(".updated").t
           end

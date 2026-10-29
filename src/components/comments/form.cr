@@ -11,7 +11,7 @@ class Comments::Form < BaseComponent
     text = r("common.reply").t
     order_by_input_id = "#{html_id}_order_by"
 
-    after_submit = htmx_success <<-HEREDOC
+    reset_comment_editor_and_close_dialog_after_save_script = htmx_success <<-HEREDOC
 set textarea to ##{html_id}_text_area
 set input_tab to ##{html_id}1
 
@@ -25,6 +25,7 @@ end
 
 close the closest <dialog/>
 HEREDOC
+    request_confirmation_before_closing_comment_dialog_script = "on click send closeRequested to the closest <dialog/>"
 
     opts = {
       hx_target:   "#comments",
@@ -32,7 +33,7 @@ HEREDOC
       hx_swap:     "outerHTML",
       hx_push_url: "false",
       hx_disable:  "find button[type=submit]",
-      script:      after_submit,
+      script:      reset_comment_editor_and_close_dialog_after_save_script,
     }
 
     opts = opts.merge(hx_include: "#comments-order-by") unless order_by
@@ -52,7 +53,7 @@ HEREDOC
           target_id = target_comment_id || comment_id
           opts = opts.merge(
             hx_vals: %({"id": #{comment_id}, "op": "new"}),
-            hx_target: "#comment-#{target_id}-comments"
+            hx_target: "#comment-#{target_id}-replies"
           )
         else
           opts = opts.merge(
@@ -97,14 +98,13 @@ HEREDOC
       mount(
         Shared::MarkdownEditor,
         content: content,
-        current_user: me,
         html_id: html_id
       ) do
         if !comment_id.nil? && !me.nil?
           button(
             r("common.cancel").t,
             type: "button",
-            script: "on click send closeRequested to the closest <dialog/>",
+            script: request_confirmation_before_closing_comment_dialog_script,
             class: "form-secondary px-4 py-2"
           )
         end

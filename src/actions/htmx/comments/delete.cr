@@ -9,13 +9,19 @@ class Htmx::Comments::Delete < CommentAction
     deleted_comment : Comment? = nil
 
     AppDatabase.transaction do
-      comment = CommentQuery.new.id(id).for_update.first
+      comment = lock_comment(CommentQuery.find(id))
+
       next status = 404 unless comment_available?(comment)
       next status = 403 unless comment.user_id == me.id || me.admin?
-      # 软删除不会移除子评论记录；作者只要有直接回复，就不能删除。
-      next status = 409 if !me.admin? && CommentQuery.new.with_soft_deleted.parent_id(comment.id).any?
+      # 普通用户仍受回复数量限制；管理员删除时连同全部后代一起软删除。
+      next status = 409 unless me.admin? || comment.deletable?
 
-      DeleteComment.delete!(comment, actor_id: me.id)
+      DeleteComment.delete!(
+        comment,
+        actor_id: me.id,
+        delete_descendants: me.admin?
+      )
+
       deleted_comment = comment
     end
 
@@ -25,12 +31,18 @@ class Htmx::Comments::Delete < CommentAction
 
     # 删除后原来的分页位置可能移动，单纯从页面移除卡片会造成下一页漏项。
     root_comment : Comment? = nil
+    topic : Topic? = nil
 
     if (root_id = comment.root_id)
       pagination = comments_pagination(root_id: root_id, order_by: order_by)
       root_comment = CommentQuery.find(root_id)
     else
       pagination = comments_pagination(comment_thread_id: comment.comment_thread_id, order_by: order_by)
+      thread = CommentThreadQuery.find(comment.comment_thread_id)
+
+      if (topic_id = thread.topic_id)
+        topic = TopicQuery.find(topic_id)
+      end
     end
 
     component(
@@ -38,7 +50,7 @@ class Htmx::Comments::Delete < CommentAction
       formatter: formatter,
       pagination: pagination,
       root_comment: root_comment,
-      current_user: me
+      topic: topic,
     )
   end
 end

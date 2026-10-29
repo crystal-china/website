@@ -102,6 +102,30 @@ describe "Internationalization" do
     ApiClient.new.get("/sign_in").status_code.should eq(200)
   end
 
+  it "localizes the home heading and both initial and loaded release labels" do
+    environment = ENV["LUCKY_ENV"]
+    ENV["LUCKY_ENV"] = "development"
+
+    {
+      "zh-CN" => {"Crystal 编程语言中文站", "最新版本："},
+      "en"    => {"The Crystal programming language - Chinese community", "Latest release:"},
+    }.each do |locale, (heading, label)|
+      response = ApiClient.new.get("/?locale=#{locale}")
+      document = XML.parse_html(response.body)
+
+      response.status_code.should eq(200)
+      document.xpath_node("//main//h1").not_nil!.content.should eq(heading)
+      document.xpath_node("//div[@class='latest-release-info']").not_nil!.content.should contain(label)
+
+      response = ApiClient.new.get("/htmx/crystal_latest_release?locale=#{locale}")
+
+      response.status_code.should eq(200)
+      XML.parse_html(response.body).xpath_node("//a").not_nil!.content.should eq("#{label} unknown")
+    end
+  ensure
+    ENV["LUCKY_ENV"] = environment if environment
+  end
+
   it "uses the same localized validation message in the field and the failure flash" do
     user = UserFactory.create
 
@@ -124,15 +148,16 @@ describe "Internationalization" do
     document = XML.parse_html(response.body)
 
     response.status_code.should eq(200)
-    document.xpath_node("//main//ol/li/time").not_nil!.content.should eq("about 2 hours ago")
+    document.xpath_node("//main//ol/li//time").not_nil!.content.should eq("about 2 hours ago")
     document.xpath_node("//main//ol/li").not_nil!.content.should contain("Signed in through github.")
 
     response = ApiClient.new.get("/user_audits?locale=zh-CN&backdoor_user_id=#{user.id}")
-    XML.parse_html(response.body).xpath_node("//main//ol/li/time").not_nil!.content.should eq("大约两小时前")
+    XML.parse_html(response.body).xpath_node("//main//ol/li//time").not_nil!.content.should eq("大约两小时前")
   end
 
   it "localizes document dates and reading counts with the existing catalog" do
     doc = DocContent.sync("/docs/index", File.read("public/markdowns/index.md"))
+    ApiClient.new.get("/docs/index")
 
     {"en"    => {"Created:", "Last edited:", "1 view", "2 views"},
      "zh-CN" => {"创建于：", "最后编辑于：", "1次阅读", "2次阅读"}}.each do |locale, labels|
@@ -148,6 +173,25 @@ describe "Internationalization" do
         metadata.content.should contain(labels[1])
         metadata.content.should contain(labels[count + 1])
       end
+    end
+  end
+
+  it "includes mention guidance in the editor placeholder without a separate footer" do
+    user = UserFactory.create
+    doc = DocContent.sync("/docs/editor-placeholder", "文档正文")
+    thread = CommentThreadQuery.new.doc_id(doc.id).first
+    comment = CreateComment.create!(user_id: user.id, comment_thread_id: thread.id, content: "root")
+
+    {"zh-CN" => "最多提及 5 人", "en" => "Mention up to 5 users"}.each do |locale, limit|
+      response = ApiClient.new.get("/htmx/comments/new?id=#{comment.id}&locale=#{locale}&backdoor_user_id=#{user.id}")
+      document = XML.parse_html(response.body)
+      editor = document.xpath_node("//textarea").not_nil!
+
+      response.status_code.should eq(200)
+      editor["placeholder"].should contain(limit)
+      editor["placeholder"].should contain("@")
+      editor["aria-describedby"]?.should be_nil
+      document.xpath_node("//*[@id='comment_mention_help']").should be_nil
     end
   end
 

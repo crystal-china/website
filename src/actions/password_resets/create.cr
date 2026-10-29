@@ -10,6 +10,8 @@ class PasswordResets::Create < BrowserAction
         flash.success = r(".password_reset").t
         redirect to: Home::Index
       else
+        context.response.headers["HX-Push-Url"] = "false"
+
         html(
           NewPage,
           operation: operation,

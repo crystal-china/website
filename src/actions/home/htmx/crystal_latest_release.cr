@@ -8,7 +8,7 @@ class Home::Htmx::CrystalLatestRelease < BrowserAction
     version = LATEST_RELEASE_CACHE.read(LATEST_RELEASE_CACHE_KEY) || latest_release_version
     plain_text <<-HTML
       <div class="latest-release-info">
-        <a href="https://crystal-lang.org/">Latest release: <strong>#{version}</strong></a>
+        <a href="https://crystal-lang.org/">#{HTML.escape(r("home.index_page.latest_release").t)} <strong>#{HTML.escape(version)}</strong></a>
       </div>
     HTML
   end

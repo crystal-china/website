@@ -47,7 +47,7 @@ describe "User profile topics" do
     root = user_topics_reply(first, other, at)
     middle = CreateComment.create!(user_id: other.id, parent_id: root.id, content: "中间评论", created_at: at)
     nested = CreateComment.create!(user_id: user.id, parent_id: middle.id, content: "本人深层回复", created_at: at + 1.day)
-    DeleteComment.delete!(middle)
+    Comment::SaveOperation.update!(middle, withdrawn: true)
     earlier = user_topics_reply(second, user, at)
     second_thread = CommentThreadQuery.new.topic_id(second.id).first
     latest = CreateComment.create!(user_id: user.id, comment_thread_id: second_thread.id, content: "<script>alert('test')</script> 这是最后一条回复", created_at: at + 2.days)
@@ -87,14 +87,17 @@ describe "User profile topics" do
     newest = user_topics_reply(topic, user, at + 2.days)
     DeleteComment.delete!(newest)
 
-    visible_replies = -> { CommentQuery.new.user_id(user.id).visible_topic_replies.created_at.desc_order.id.desc_order.map(&.id) }
+    visible_replies = -> { CommentQuery.new.user_id(user.id).publicly_visible_topic_comments.created_at.desc_order.id.desc_order.map(&.id) }
 
     visible_replies.call.should eq([child.id, earlier.id])
-    DeleteComment.delete!(root)
+    DeleteComment.delete!(root, delete_descendants: true)
     visible_replies.call.should eq([earlier.id])
     DeleteComment.delete!(earlier)
     visible_replies.call.should be_empty
     CommentQuery.new.only_soft_deleted.id(root.id).first.restore
+    visible_replies.call.should be_empty
+    CommentQuery.new.only_soft_deleted.id(child.id).first.restore
+
     visible_replies.call.should eq([child.id])
     DeleteTopic.delete!(topic)
     visible_replies.call.should be_empty

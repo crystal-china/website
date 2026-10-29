@@ -14,15 +14,10 @@ abstract class AdminLayout < MainLayout
   def content : Nil
     section class: "#{page_container_classes} page-content" do
       div class: "flex flex-col items-start gap-8 lg:flex-row" do
-        mount Admin::Sidebar, current_user: current_user
+        mount Admin::Sidebar
 
-        # 标题挪到右侧内容列，让它和侧栏顶部对齐。
+        # 右侧直接展示当前页面内容，与侧栏顶部对齐。
         div class: "w-full min-w-0 flex-1" do
-          header class: "mb-8" do
-            h1 r("admin_layout.page_title").t, class: "m-0 text-3xl font-semibold tracking-tight text-gray-900"
-            para r("admin_layout.introduction").t, class: "mt-2 mb-0 text-sm text-gray-600"
-          end
-
           admin_content
         end
       end

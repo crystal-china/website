@@ -24,6 +24,9 @@ describe "Account history filters" do
       input = form.xpath_node(".//input[@type='search'][@name='login_name']").not_nil!
 
       response.status_code.should eq(200)
+      form.parent.not_nil!.name.should eq("header")
+      form.parent.not_nil!.xpath_node(".//p").should be_nil
+      form.parent.not_nil!.parent.not_nil!["class"].should eq("app-panel w-full")
       form["action"].should eq("/user_audits")
       input["value"].should eq("")
       input["data-users-autocomplete-url"].should eq(Htmx::Users::Autocomplete.path)
@@ -67,7 +70,7 @@ describe "Account history filters" do
     labels = {
       UserAudit::Kind::ProfileChanged   => "修改昵称",
       UserAudit::Kind::PasswordChanged  => "修改密码",
-      UserAudit::Kind::OauthSignedIn    => "第三方登录",
+      UserAudit::Kind::OauthSignedIn    => "通过 github 登录。",
       UserAudit::Kind::PasswordRemoved  => "移除本站密码",
       UserAudit::Kind::PasswordSignedIn => "密码登录",
     }
@@ -89,7 +92,7 @@ describe "Account history filters" do
 
       response.status_code.should eq(200)
       document.xpath_nodes("//main//ol/li").size.should eq(1)
-      document.xpath_node("//main//ol/li/h2").not_nil!.content.should eq(label)
+      document.xpath_node("//main//ol/li//h2").not_nil!.content.should eq(label)
       document.xpath_node("//select[@name='kind']/option[@selected]").not_nil!["value"].should eq(value)
     end
 
@@ -101,7 +104,7 @@ describe "Account history filters" do
   it "combines both filters and retains them on pagination without adding page to the form" do
     admin = UserFactory.create &.email("audit-filter-admin@example.com")
     user = UserFactory.create &.login_name("TargetUser")
-    21.times do
+    11.times do
       SaveUserAudit.create!(user_id: user.id, kind: :password_signed_in)
     end
     SaveUserAudit.create!(user_id: user.id, kind: :oauth_signed_in, oauth_provider: "excluded-provider")
@@ -112,7 +115,7 @@ describe "Account history filters" do
     query_params = URI.parse(next_path).query_params
 
     response.status_code.should eq(200)
-    document.xpath_nodes("//main//ol/li").size.should eq(20)
+    document.xpath_nodes("//main//ol/li").size.should eq(10)
     response.body.should_not contain("excluded-provider")
     query_params["login_name"].should eq("targetuser")
     query_params["kind"].should eq("password_signed_in")
@@ -136,9 +139,10 @@ describe "Account history filters" do
     response.body.should_not contain("<!DOCTYPE")
     document.xpath_node("//header | //footer | //form").should be_nil
     list.xpath_nodes("./ol/li").size.should eq(1)
+    list.xpath_node(".//*[@id='user-audits-scroll']").should be_nil
     list.content.should contain(user.nickname)
     pagination_container["hx-target:inherited"].should eq("#user-audits-list")
-    pagination_container["hx-swap:inherited"].should eq("outerHTML show:none scroll:top scrollTarget:#user-audits-scroll")
+    pagination_container["hx-swap:inherited"].should eq("outerHTML show:top showTarget:body")
     pagination_container["hx-sync:inherited"].should eq("#user-audits-list:replace")
     list["hx-target:inherited"]?.should be_nil
     previous_path = pagination_container.xpath_node("./nav/a").not_nil!["href"]
@@ -161,7 +165,7 @@ describe "Account history filters" do
       response.status_code.should eq(200)
       response.body.should contain("<!DOCTYPE")
       document.xpath_node("//main//section[@id='user-audits-list']").should_not be_nil
-      document.xpath_node("//*[@id='user-audits-scroll']").should_not be_nil
+      document.xpath_node("//*[@id='user-audits-scroll']").should be_nil
     end
   end
 

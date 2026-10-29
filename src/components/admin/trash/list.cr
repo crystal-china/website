@@ -4,6 +4,8 @@ class Admin::Trash::List < BaseComponent
   needs comments : Array(Comment)
   needs topics : Array(Topic)
   needs pages : Lucky::Paginator
+  needs focused_comment : Comment? = nil
+  needs comment_ids_with_batch_peers : Set(Int64) = Set(Int64).new
 
   def render : Nil
     section id: "trash-list" do
@@ -30,26 +32,17 @@ class Admin::Trash::List < BaseComponent
     else
       div class: "app-panel divide-y divide-gray-200 overflow-hidden" do
         comments.each do |comment|
-          article class: "flex flex-wrap items-start justify-between gap-4 px-6 py-4" do
-            div class: "min-w-0 flex-1" do
-              thread = comment.comment_thread
-              source = thread.topic_id ? r(".topic_id").t(id: thread.topic_id.to_s) : r(".doc_id").t(id: thread.doc_id.to_s)
+          focus = focused_comment
+          focused_id = if focus && focus.comment_thread_id == comment.comment_thread_id && focus.soft_deleted_at == comment.soft_deleted_at
+                         focus.id
+                       end
 
-              para class: "m-0 text-xs text-gray-500" do
-                text r(".comment_id").t(id: comment.id.to_s)
-                mount Shared::UserName, user: comment.user
-                text " · #{source}"
-              end
-              para comment.content[0, 160], class: "mt-1 mb-0 whitespace-pre-wrap break-words text-sm text-gray-800"
-              span class: "mt-2 block text-xs text-gray-500" do
-                render_deleted_at(comment.soft_deleted_at.not_nil!)
-              end
-            end
-
-            form_for Admin::Trash::RestoreComment.with(id: comment.id) do
-              submit r("common.restore").t, class: "form-secondary"
-            end
-          end
+          mount(
+            Admin::Trash::CommentCard,
+            comment: comment,
+            has_batch_peers: comment_ids_with_batch_peers.includes?(comment.id),
+            focused_comment_id: focused_id
+          )
         end
       end
     end
@@ -72,8 +65,21 @@ class Admin::Trash::List < BaseComponent
               end
             end
 
-            form_for Admin::Trash::RestoreTopic.with(id: topic.id) do
-              submit r("common.restore").t, class: "form-secondary"
+            div class: "flex items-center gap-3" do
+              link(
+                r(".preview").t,
+                to: Admin::Trash::PreviewTopic.with(id: topic.id),
+                class: "form-secondary"
+              )
+
+              form_for(
+                Admin::Trash::RestoreTopic.with(id: topic.id),
+                hx_target: "closest article",
+                hx_swap: "delete show:none",
+                hx_push_url: "false"
+              ) do
+                submit r("common.restore").t, class: "form-secondary"
+              end
             end
           end
         end

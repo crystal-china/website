@@ -10,37 +10,47 @@ en:
         slug_placeholder: 'For example: help'
       edit_page:
         page_title: Edit node
-        description: Update the name, slug, summary and display order of %{name}.
       index_page:
-        description: Nodes determine how community topics are categorized and displayed.
         order: Order
         actions: Actions
       new_page:
-        description: Create a node to publish and filter community topics in that category.
         create: Create node
     trash:
       restore_comment:
         comment_restored: Comment restored
-        topic_still_deleted: Comment restored, but its topic is still deleted and the comment remains hidden
-        root_still_deleted: Comment restored, but its root comment is still deleted and the comment remains hidden
+        cannot_restore: Cannot restore this comment.
       restore_topic:
         topic_restored: Topic restored
       index_page:
-        description: Deleted content is retained in the database and can be restored by an administrator.
         categories: Trash categories
-        no_comments: No deleted comments.
+        no_comments: No matching deleted comments.
+        keyword: Keyword
+        keyword_placeholder: Enter a keyword
         topic_id: 'Topic #%{id}'
         doc_id: 'Document #%{id}'
         comment_id: 'Comment #%{id} · '
-        no_topics: No deleted topics.
+        parent_comment: 'Parent #%{id}'
+        view_deletion_batch: View deletion batch
+        collapse_deletion_batch: Collapse deletion batch
+        other_batch_comments: 'Other comments in this batch (%{count})'
+        deletion_batch: 'Deletion batch (%{count} comments)'
+        restore_order: Restore parents before replies.
+        all_deleted_comments: All deleted comments
+        no_topics: No matching deleted topics.
         deleted_at: Deleted %{time}
+        preview: Preview
+      preview_topic_page:
+        page_title: 'Preview: %{title}'
+        description: Read-only preview. Nothing is restored. Comments appear oldest first, including deleted comments.
+        back_to_trash: Back to trash
+        comments: Comments (including deleted)
+        no_comments: No comments on this topic.
+        reply_to: 'Reply to comment #%{id}'
     users:
       remove_password:
-        no_password: This account has no local password to remove.
         password_removed: Local password removed and old sessions invalidated. The user can sign in through OAuth or reset their password.
     index_page:
       page_title: Admin overview
-      description: Review site totals and recent content.
       statistics: Site statistics
       recent_topics: Recent topics
       view_all: View all
@@ -56,7 +66,6 @@ en:
   admin_layout:
     page_title: Administration
     description: Manage the Crystal China Community.
-    introduction: Manage community content and settings.
 
   api:
     auth:
@@ -80,9 +89,10 @@ en:
   comments:
     card:
       locating_comment: Locating comment...
-    card_action:
-      confirm_delete_branch: Deleting this comment also hides its replies. Continue?
-      confirm_delete: Delete this reply?
+    delete_and_withdraw:
+      confirm_delete: This cannot be undone.
+      confirm_delete_branch: Delete this comment and all its replies?
+      withdraw: Withdraw
     card_content:
       edited_at: Edited %{time}
       floor: "#%{floor}"
@@ -92,9 +102,6 @@ en:
     load_more_button:
       load_more: Load more comments
       no_more: No more comments
-    thread_toggle:
-      expand: Load replies (%{count})
-      collapse: Collapse replies
     toolbar:
       reply_count:
         one: "%{count} reply"
@@ -103,6 +110,7 @@ en:
       newest: Newest
 
   common:
+    comment_withdrawn: This comment has been withdrawn
     unknown: "unknown"
     discard_changes: "You have unsaved changes. Discard them?"
     comment: Comment
@@ -383,8 +391,7 @@ en:
       preview: Preview
       sign_in_to_comment: Sign in to comment
       markdown_supported: Markdown supported
-      mention_limit: Mention up to %{count} users. Additional mentions do not send notifications.
-      placeholder: Markdown supported; type @ and a login-name prefix for suggestions
+      placeholder: Markdown supported; type @name for suggestions. Mention up to %{count} users; extra mentions won't notify.
       preview_loading: Loading preview...
     o_auth:
       title: Sign in with a provider
@@ -409,7 +416,7 @@ en:
       password_placeholder: Leave blank to keep your password
       confirmation_placeholder: Enter the new password again
       last_password_change: 'Last password change:'
-      unknown_password_date: No password change recorded. Changes made before account history was enabled have no known date.
+      no_password_record: No password change recorded
       mention_notifications: Receive @mention notifications
       mention_notifications_help: When disabled, you will not receive @mention notifications. Reply and moderation notifications are unaffected; existing notifications are retained.
       hide_online_status_help: Hide your online presence, last activity and time online. Time online is still recorded.
@@ -432,6 +439,7 @@ en:
       signed_up: Signed up successfully
     oauth:
       callback:
+        email_unavailable: The provider did not return an email address. Check email permissions or sign in with a local account.
         password_warning: This account already has a local password. If you did not set it, change it in your account settings.
         signed_in: Signed in successfully
     new_page:
@@ -477,12 +485,10 @@ en:
       actor: 'Performed by:'
       profile_changed: Changed %{field}
       password_changed: Password changed
-      password_privacy: Only the change time is recorded, never the password or its hash.
       password_signed_in: Password sign-in
       oauth_signed_in: OAuth sign-in
       oauth_provider: Signed in through %{provider}.
       password_removed: Local password removed
-      password_removed_description: Password sign-in is disabled and old sessions have been invalidated.
 
   users:
     topics:

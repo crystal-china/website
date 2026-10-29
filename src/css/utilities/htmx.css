@@ -1,5 +1,9 @@
 @layer utilities {
-  [role="feed"].htmx-swapping > article[id^="comment-"]:has(button.htmx-request) {
+  [role="feed"].htmx-swapping > article[id^="comment-"]:has(button.htmx-request),
+  .comment-replies.htmx-swapping > [role="feed"] > article[id^="comment-"]:has(button.htmx-request),
+  /* 根评论主体是 display: contents，需要淡出它的子元素，而不是没有盒子的主体自身。 */
+  .comment-body.htmx-swapping > *,
+  .comment-withdrawn.htmx-swapping > * {
     opacity: 0;
     transition: opacity 1s ease-out;
   }

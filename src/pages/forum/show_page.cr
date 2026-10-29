@@ -17,62 +17,48 @@ class Forum::ShowPage < ForumLayout
   def forum_content : Nil
     article class: "mx-auto w-full max-w-[90ch]" do
       header class: "border-b border-gray-200 pb-5" do
-        div class: "flex items-start gap-4" do
-          h1 topic.title, class: "m-0 min-w-0 flex-1 text-3xl font-semibold tracking-tight text-gray-900"
+        h1 topic.title, class: "m-0 break-words text-3xl font-semibold tracking-tight text-gray-900"
+
+        div class: "mt-3 flex flex-wrap items-center justify-between gap-x-4 gap-y-3" do
+          para class: "m-0 min-w-0 flex-1 basis-full text-sm leading-7 text-gray-500 sm:basis-0" do
+            link(
+              topic.node.name,
+              to: Forum::Index.with(node: topic.node.slug, following: followed_topics? ? true : nil),
+              class: "font-medium text-[#145591] no-underline hover:text-[#0f477b] hover:underline"
+            )
+            text " · "
+            mount Shared::UserName, user: topic.user
+            text " · "
+            local_time(
+              topic.created_at,
+              r(".posted_at").t(time: relative_time(topic.created_at))
+            )
+
+            if (edited_at = topic.edited_at)
+              text " · "
+              local_time(
+                edited_at,
+                r(".edited_at").t(time: relative_time(edited_at))
+              )
+            end
+          end
 
           if (me = current_user)
-            div class: "flex shrink-0 items-center gap-2" do
+            div class: "ml-auto flex shrink-0 items-center gap-1" do
               if me.id != topic.user_id
                 mount(
                   Forum::FollowButton,
                   topic: topic,
                   following: following?,
-                  current_user: me
                 )
               end
 
-              if me.id == topic.user_id || me.admin?
-                link(
-                  r("common.edit").t,
-                  to: Forum::Edit.with(id: topic.id),
-                  class: "action-button action-button-neutral h-8"
-                )
-              end
-
-              if can_delete_topic?
-                button(
-                  r("common.delete").t,
-                  type: "button",
-                  class: "action-button action-button-danger h-8",
-                  hx_delete: Forum::Delete.with(id: topic.id).path,
-                  hx_confirm: r(".confirm_delete").t,
-                  hx_disable: "this"
-                )
-              end
+              mount(
+                Forum::TopicControls,
+                topic: topic,
+                can_delete_topic: can_delete_topic?
+              )
             end
-          end
-        end
-
-        para class: "mt-3 mb-0 text-sm text-gray-500" do
-          link(
-            topic.node.name,
-            to: Forum::Index.with(node: topic.node.slug, following: followed_topics? ? true : nil),
-            class: "font-medium text-[#145591] no-underline hover:text-[#0f477b] hover:underline"
-          )
-          text " · "
-          mount Shared::UserName, user: topic.user
-          text " · "
-          local_time(
-            topic.created_at,
-            r(".posted_at").t(time: relative_time(topic.created_at))
-          )
-
-          if (edited_at = topic.edited_at)
-            text " · "
-            local_time(
-              edited_at,
-              r(".edited_at").t(time: relative_time(edited_at))
-            )
           end
         end
       end
@@ -86,7 +72,6 @@ class Forum::ShowPage < ForumLayout
 
         mount(
           Comments::Form,
-          current_user: current_user,
           comment_thread_id: comment_thread.id
         )
       end
@@ -107,7 +92,6 @@ class Forum::ShowPage < ForumLayout
     mount(
       Forum::AuthorCard,
       user: topic.user,
-      current_user: current_user
     )
   end
 end

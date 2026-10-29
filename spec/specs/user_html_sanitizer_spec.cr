@@ -71,6 +71,27 @@ describe UserHtmlSanitizer do
     content.should eq(original)
   end
 
+  it "does not collect mentions removed by sanitization" do
+    rendered = UserMarkdown.render("text <iframe>@zw963</iframe>")
+
+    rendered[:html].should_not contain("/users/zw963/profile")
+    rendered[:mentions].should be_empty
+  end
+
+  it "does not count removed mentions toward the five-person limit" do
+    hidden = (1..5).map { |index| "@hidden#{index}" }.join(" ")
+    visible = (1..5).map { |index| "visible#{index}" }
+    source = "text <iframe>#{hidden}</iframe> #{visible.map { |name| "@#{name}" }.join(" ")} @overflow"
+    rendered = UserMarkdown.render(source)
+    links = XML.parse_html(rendered[:html]).xpath_nodes("//a")
+
+    rendered[:mentions].should eq(visible)
+    links.map(&.["href"]).should eq(visible.map { |name| "/users/#{name}/profile" })
+    links.each(&.["rel"].should(eq("nofollow")))
+    rendered[:html].should contain("@overflow")
+    rendered[:html].should_not contain("USERMENTION")
+  end
+
   it "preserves formatting and punctuation around mentions" do
     html = renderer.user_markdown("**@zw963** _@a_b_c_ @some.user. @zw963 @zw963")
 

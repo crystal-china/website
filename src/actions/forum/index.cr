@@ -20,7 +20,20 @@ class Forum::Index < ForumAction
     end
 
     query = query.last_active_at.desc_order.id.desc_order.preload_user.preload_node.preload_last_reply_user
-    pages, topics = paginate(query, per_page: 20)
+
+    if following
+      # 关注可与节点组合，不能使用站点/节点的总数。
+      pages, topics = paginate(query, per_page: 20)
+    else
+      item_count = current_node ? current_node.topics_count : Space::BaseQuery.find(Space::DEFAULT_ID).topics_count
+      pages = Lucky::Paginator.new(
+        page: paginator_page,
+        per_page: 20,
+        item_count: item_count,
+        full_path: context.request.resource
+      )
+      topics = query.limit(pages.per_page).offset(pages.offset)
+    end
 
     if context.request.headers["HX-Request-Type"]? == "partial"
       return component(
@@ -28,7 +41,6 @@ class Forum::Index < ForumAction
         topics: topics,
         pages: pages,
         followed_topics: following,
-        current_user: current_user
       )
     end
 

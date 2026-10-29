@@ -11,11 +11,6 @@ class Admin::IndexPage < AdminLayout
   end
 
   def admin_content : Nil
-    header class: "mb-6" do
-      h2 r("common.dashboard").t, class: "m-0 text-2xl font-semibold tracking-tight text-gray-900"
-      para r(".description").t, class: "mt-1.5 mb-0 text-sm text-gray-600"
-    end
-
     section class: "grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5", "aria-label": r(".statistics").t do
       render_stat r("common.users").t, users_count
       render_stat r("common.docs").t, docs_count

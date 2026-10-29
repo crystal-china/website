@@ -1,4 +1,4 @@
-class Admin::Docs::Create < AdminAction
+class Admin::Docs::Setup < AdminAction
   post "/admin/docs" do
     created_files = DocSetup.create_missing_files
 

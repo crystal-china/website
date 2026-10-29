@@ -16,17 +16,20 @@ class Htmx::Comments::CreateOrUpdate < CommentAction
     return head 400 if id.nil? && comment_thread_id.nil?
 
     root_comment : Comment? = nil
+    topic : Topic? = nil
 
     if !id.nil?
       comment = CommentQuery.find(id.not_nil!)
-      return head 404 unless comment_available?(comment)
 
       case op
       when "edit"
+        return head 404 unless comment_available?(comment)
+
         # 编辑一条已有评论。这里 comment 可能是：
         # - CommentThread 的顶级评论
         # - 针对 comment 的子评论
         return head 403 unless comment.user_id == me.id || me.admin?
+        return head 409 if comment.withdrawn?
 
         UpdateComment.update!(
           comment,
@@ -43,19 +46,28 @@ class Htmx::Comments::CreateOrUpdate < CommentAction
           formatter: formatter,
           comment: q.first,
           show_update_success: true,
-          current_user: me
         )
       when "new"
         # 为一条已有评论新建子评论。这里的 comment 是“被回复的那条旧评论”。
         # 回复顶级评论时，它自己就是线程根；回复子评论时，继承该子评论所属的线程根。
         root_id = comment.root_id || comment.id
-        comment = CreateComment.create!(
-          user_id: me.id,
-          parent_id: comment.id,
-          content: content
-        )
+        reply : Comment? = nil
+        AppDatabase.transaction do
+          parent = lock_comment(comment)
+
+          next unless comment_available?(parent)
+
+          reply = CreateComment.create!(
+            user_id: me.id,
+            parent_id: parent.id,
+            content: content
+          )
+        end
+
+        return head 404 if reply.nil?
+
+        comment = reply.not_nil!
         pagination = comments_pagination(root_id: root_id, order_by: order_by)
-        html_id = "comment-#{root_id}-comments"
         root_comment = CommentQuery.find(root_id)
       else
         return head 400
@@ -63,14 +75,20 @@ class Htmx::Comments::CreateOrUpdate < CommentAction
     else
       # 给 CommentThread 新建顶级评论
       comment_thread_id = self.comment_thread_id.not_nil!
-      return head 404 unless CommentThreadQuery.find(comment_thread_id).target_visible?
+      thread = CommentThreadQuery.find(comment_thread_id)
+
+      return head 404 unless thread.target_visible?
+
       comment = CreateComment.create!(
         user_id: me.id,
         comment_thread_id: comment_thread_id,
         content: content
       )
       pagination = comments_pagination(comment_thread_id: comment_thread_id, order_by: order_by)
-      html_id = "comments"
+
+      if (topic_id = thread.topic_id)
+        topic = TopicQuery.find(topic_id)
+      end
     end
 
     context.response.headers["X-Draft-Saved"] = "true"
@@ -80,18 +98,16 @@ class Htmx::Comments::CreateOrUpdate < CommentAction
         ::Comments::ChildCreated,
         formatter: formatter,
         pagination: pagination,
-        current_user: me,
         comment_id: comment.id,
         root_comment: root_comment
       )
     else
       component(
-        ::Comments::List,
+        ::Comments::Created,
         formatter: formatter,
         pagination: pagination,
-        current_user: me,
         comment_id: comment.id,
-        html_id: html_id.to_s
+        topic: topic
       )
     end
   end

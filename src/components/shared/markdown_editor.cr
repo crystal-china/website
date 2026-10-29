@@ -7,7 +7,7 @@ class Shared::MarkdownEditor < BaseComponent
     me = current_user
     id_input = "#{html_id}1"
     id_preview = "#{html_id}2"
-    preview_script = <<-HEREDOC
+    match_markdown_preview_height_and_update_cursor_script = <<-HEREDOC
   on click
     set textarea to ##{html_id}_text_area
     set preview to ##{html_id}_preview
@@ -22,6 +22,7 @@ class Shared::MarkdownEditor < BaseComponent
     end
   end
 HEREDOC
+    disable_markdown_preview_when_editor_is_empty_script = "bind @disabled to (the value of ##{html_id}_text_area is empty)"
 
     div class: "app-panel" do
       input(
@@ -41,7 +42,7 @@ HEREDOC
         hx_target: "next div.markdown-preview",
         hx_include: "##{html_id}_text_area",
         hx_indicator: "next img.htmx-indicator",
-        script: "bind @disabled to (the value of ##{html_id}_text_area is empty)",
+        script: disable_markdown_preview_when_editor_is_empty_script,
       )
 
       div class: "panel-toolbar markdown-editor-toolbar grid gap-4 p-4 md:grid-cols-[auto_1fr_auto] md:items-center" do
@@ -58,7 +59,7 @@ HEREDOC
             for: id_preview,
             flow_id: "#{html_id}-preview_comment",
             class: "segmented-option label2 cursor-pointer",
-            script: preview_script
+            script: match_markdown_preview_height_and_update_cursor_script
           )
         end
 
@@ -78,12 +79,6 @@ HEREDOC
       div class: "panel2 hidden p-4" do
         render_preview(editor_height)
       end
-
-      para(
-        r(".mention_limit").t(count: UserMarkdownParser::MAX_MENTIONS),
-        id: "#{html_id}_mention_help",
-        class: "m-0 border-t border-gray-100 px-4 py-2 text-xs text-gray-500"
-      )
     end
   end
 
@@ -95,8 +90,7 @@ HEREDOC
       rows:                        5,
       name:                        "content",
       data_draft_field:            "",
-      placeholder:                 r(".placeholder").t,
-      "aria-describedby":          "#{html_id}_mention_help",
+      placeholder:                 r(".placeholder").t(count: UserMarkdownParser::MAX_MENTIONS),
       required:                    "",
       data_users_autocomplete_url: Htmx::Users::Autocomplete.path,
       class:                       "#{editor_height} block w-full resize-y overflow-y-auto rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm leading-7 text-gray-900 shadow-inner transition outline-none placeholder:text-gray-400 focus:border-sky-400 focus:ring-2 focus:ring-sky-100 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400",

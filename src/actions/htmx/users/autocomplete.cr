@@ -3,7 +3,6 @@ class Htmx::Users::Autocomplete < BrowserAction
 
   get "/htmx/users/autocomplete" do
     prefix = q.strip
-    context.response.headers["Cache-Control"] = "no-store"
 
     return json([] of String) if prefix.size < 2 || prefix.bytesize > 100
 

@@ -16,7 +16,7 @@ HYPER
   end
 
   def render : Nil
-    dialog_script = <<-HYPER
+    confirm_unsaved_comment_before_closing_dialog_script = <<-HYPER
 on closeRequested
   set textarea to the first <textarea/> in me
   if textarea and textarea.value is not textarea.defaultValue
@@ -41,7 +41,7 @@ HYPER
     dialog(
       id: DIALOG_ID,
       class: "mx-auto mt-[8vh] max-h-[calc(100vh_-_2rem)] w-[calc(100%_-_2rem)] pb-0 sm:mt-[16vh] sm:w-[50em] sm:max-w-full",
-      script: dialog_script
+      script: confirm_unsaved_comment_before_closing_dialog_script
     ) do
       form id: FORM_ID do
       end

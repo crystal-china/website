@@ -4,6 +4,7 @@ class Comments::List < BaseComponent
   needs html_id : String
   needs comment_id : Int64?
   needs focused_comment : Comment? = nil
+  needs show_toolbar : Bool = true #  顶级评论 true, 子评论 false,  因为后者使用外面的 RepliesToolbar
 
   def render : Nil
     div role: "feed", id: html_id do
@@ -14,18 +15,19 @@ class Comments::List < BaseComponent
         value: pagination[:order_by]
       )
 
-      mount(
-        ::Comments::Toolbar,
-        pagination: pagination,
-        html_id: html_id
-      )
+      if show_toolbar?
+        mount(
+          ::Comments::Toolbar,
+          pagination: pagination,
+          html_id: html_id
+        )
+      end
 
       mount(
         ::Comments::ListMore,
         formatter: formatter,
         pagination: pagination,
         page_number: pagination[:page].try(&.page) || 1,
-        current_user: current_user,
         comment_id: comment_id,
         focused_comment: focused_comment
       )

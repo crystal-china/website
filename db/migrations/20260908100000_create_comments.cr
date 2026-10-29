@@ -51,18 +51,20 @@ class CreateComments::V20260908100000 < Avram::Migrator::Migration::V1
 
     create_index table_for(Comment), [:root_id, :floor], unique: true
 
-    add_soft_delete_counters_for(
+    add_counters_for(
       source_table: "comments",
+      source_foreign_key: "parent_id",
       target_table: "comments",
-      target_column: "children_count",
-      target_id_column: "parent_id",
+      target_counter_column: "children_count",
+      soft_delete_column: "soft_deleted_at"
     )
 
-    add_soft_delete_counters_for(
+    add_counters_for(
       source_table: "comments",
+      source_foreign_key: "root_id",
       target_table: "comments",
-      target_column: "descendants_count",
-      target_id_column: "root_id",
+      target_counter_column: "descendants_count",
+      soft_delete_column: "soft_deleted_at"
     )
 
     create_function "assign_comment_floor", <<-SQL
@@ -120,16 +122,16 @@ class CreateComments::V20260908100000 < Avram::Migrator::Migration::V1
     drop_trigger table_for(Comment), "assign_comment_floor_before_insert"
     drop_function "assign_comment_floor"
 
-    remove_soft_delete_counters_for(
+    remove_counters_for(
       source_table: "comments",
       target_table: "comments",
-      target_column: "descendants_count",
+      target_counter_column: "descendants_count",
     )
 
-    remove_soft_delete_counters_for(
+    remove_counters_for(
       source_table: "comments",
       target_table: "comments",
-      target_column: "children_count",
+      target_counter_column: "children_count",
     )
 
     drop table_for(Comment)

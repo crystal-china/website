@@ -136,7 +136,7 @@ describe "Management notifications" do
       NotificationQuery.new.select_count.should eq(0)
 
       response = ApiClient.new.put("/forum/#{topic.id}?backdoor_user_id=#{admin.id}", topic: {title: "新标题", actor_id: outsider.id}, content: "新正文")
-      response.status_code.should eq(303)
+      response.status_code.should eq(200)
       response = ApiClient.new.post("/htmx/comments?backdoor_user_id=#{admin.id}", id: comment.id, op: "edit", content: "新评论", comment: {actor_id: outsider.id})
       response.status_code.should eq(200)
       ApiClient.new.delete("/htmx/comments/#{comment.id}?backdoor_user_id=#{admin.id}").status_code.should eq(200)
@@ -172,6 +172,43 @@ describe "Management notifications" do
     TopicQuery.find(topic.id).content.should eq(topic.content)
     NotificationQuery.new.select_count.should eq(1)
   end
+
+  it "uses one duplicate query for multiple recipients and none for management notifications" do
+    author = UserFactory.create
+    replier = UserFactory.create
+    admin = UserFactory.create &.email("notification-admin@example.com")
+    followers = Array.new(5) { UserFactory.create }
+    topic = notification_topic(author)
+    thread = CommentThreadQuery.new.topic_id(topic.id).first
+    followers.each { |follower| SaveTopicFollow.create!(topic_id: topic.id, follower_id: follower.id) }
+    comment = CreateComment.create!(user_id: replier.id, comment_thread_id: thread.id, content: "新回复")
+    first_notification = NotificationQuery.new.user_id(followers.first.id).first
+    SaveNotification.update!(first_notification, read_at: Time.utc)
+    NotificationQuery.new.user_id(followers.last.id).delete
+    test_mode = Pulsar.test_mode_enabled?
+    Pulsar.test_mode_enabled = true
+    Avram::Events::QueryEvent.logged_events.clear
+
+    NotificationDelivery.comment_created(comment, [] of String)
+    queries = Avram::Events::QueryEvent.logged_events.map(&.query)
+
+    queries.count { |sql| sql.starts_with?("SELECT") && sql.includes?("FROM notifications") }.should eq(1)
+    NotificationQuery.new.url("/comments/#{comment.id}").select_count.should eq(6)
+    NotificationQuery.new.user_id(followers.last.id).first.kind.should eq(Notification::Kind::FollowedTopicReply)
+    NotificationQuery.find(first_notification.id).read_at.should_not be_nil
+    Avram::Events::QueryEvent.logged_events.clear
+
+    2.times do |index|
+      comment = UpdateComment.update!(comment, content: "管理员补充 #{index}", actor_id: admin.id)
+    end
+    queries = Avram::Events::QueryEvent.logged_events.map(&.query)
+
+    queries.count { |sql| sql.starts_with?("SELECT") && sql.includes?("FROM notifications") }.should eq(0)
+    NotificationQuery.new.user_id(replier.id).kind(Notification::Kind::CommentEdited).select_count.should eq(2)
+  ensure
+    Pulsar.test_mode_enabled = test_mode if test_mode.is_a?(Bool)
+    Avram::Events::QueryEvent.logged_events.clear
+  end
 end
 
 describe "Mention notification preferences" do
@@ -186,7 +223,7 @@ describe "Mention notification preferences" do
 
     Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
       response = ApiClient.new.put("/users/#{user.id}?backdoor_user_id=#{user.id}", user: {mention_notifications_enabled: "false"})
-      response.status_code.should eq(303)
+      response.status_code.should eq(200)
       UserQuery.find(user.id).mention_notifications_enabled.should be_false
       UserQuery.find(other.id).mention_notifications_enabled.should be_true
       UserAuditQuery.new.user_id(user.id).any?.should be_false
@@ -198,7 +235,7 @@ describe "Mention notification preferences" do
       JSON.parse(response.body).as_a.map(&.["login_name"].as_s).should_not contain(user.login_name)
 
       response = ApiClient.new.put("/users/#{user.id}?backdoor_user_id=#{user.id}", user: {mention_notifications_enabled: "true"})
-      response.status_code.should eq(303)
+      response.status_code.should eq(200)
       UserQuery.find(user.id).mention_notifications_enabled.should be_true
 
       response = ApiClient.new.get("/htmx/users/autocomplete?q=#{URI.encode_path(user.login_name)}&backdoor_user_id=#{user.id}")
@@ -242,7 +279,7 @@ describe "Mention notification preferences" do
     NotificationQuery.new.user_id(author.id).url("/comments/#{child.id}").first.kind.should eq(Notification::Kind::CommentReply)
 
     root = UpdateComment.update!(root, content: "@#{author.login_name} 编辑根评论", actor_id: responder.id)
-    DeleteComment.delete!(root, actor_id: responder.id)
+    DeleteComment.delete!(root, actor_id: responder.id, delete_descendants: true)
     notifications = NotificationQuery.new.user_id(author.id).url("/comments/#{root.id}").id.asc_order.results
     notifications.map(&.kind).should eq([Notification::Kind::CommentEdited, Notification::Kind::CommentDeleted])
     NotificationQuery.new.user_id(author.id).kind(Notification::Kind::Mention).any?.should be_false
@@ -434,7 +471,7 @@ describe "Notifications" do
     header = document.xpath_node("//dialog[@id='notifications-dialog']//header").not_nil!
     header.xpath_node(".//button[@script='on click close the closest <dialog/>']").should_not be_nil
     header.xpath_node(".//button[@id='notifications-read-all'][@disabled]").should_not be_nil
-    header.xpath_node("./div[@id='notifications-controls']//a[@href='/notifications?unread=true']").should_not be_nil
+    header.xpath_node("./div[@id='notifications-controls']//a[@href='/notifications?only_show_unread=true']").should_not be_nil
     document.xpath_node("//dialog[@id='notifications-dialog']/div[@id='notifications-content'][contains(@class, 'overflow-y-auto')]").should_not be_nil
     response.body.should_not contain("nav-icon-link is-active")
   end
@@ -577,7 +614,7 @@ describe "Notifications" do
 
     response = ApiClient.new.get("/forum/new?backdoor_user_id=#{author.id}")
     response.status_code.should eq(200)
-    response.body.should contain("最多提及 5 个用户，超出部分不发送通知。")
+    XML.parse_html(response.body).xpath_node("//textarea[@name='content']").not_nil!["placeholder"].should contain("最多提及 5 人，超出部分不发送通知。")
   end
 
   it "uses rendered links for notifications, skipping callouts, existing links and code" do
@@ -590,6 +627,7 @@ describe "Notifications" do
     `@#{ignored.login_name}`
     <a href="https://example.com">@#{ignored.login_name}</a>
     <code>@#{ignored.login_name}</code>
+    text <iframe>@#{ignored.login_name}</iframe>
 
     ```info
     谢谢 @#{ignored.login_name}中文。
@@ -676,7 +714,7 @@ describe "Notifications" do
     thread = CommentThreadQuery.new.topic_id(topic.id).first
     root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "私有根评论")
     child = CreateComment.create!(user_id: responder.id, parent_id: root.id, content: "隐藏正文不能泄露")
-    DeleteComment.delete!(root)
+    DeleteComment.delete!(root, delete_descendants: true)
 
     notification = NotificationQuery.new.url("/comments/#{child.id}").first
     response = ApiClient.new.get("/notifications?backdoor_user_id=#{author.id}")
@@ -697,6 +735,9 @@ describe "Notifications" do
     end
 
     CommentQuery.new.only_soft_deleted.id(root.id).first.restore
+    ApiClient.new.get(notification.url).status_code.should eq(404)
+    CommentQuery.new.only_soft_deleted.id(child.id).first.restore
+
     ApiClient.new.get(notification.url).status_code.should eq(303)
     DeleteTopic.delete!(topic)
     ApiClient.new.get(notification.url).status_code.should eq(404)

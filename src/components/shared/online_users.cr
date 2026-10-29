@@ -3,6 +3,8 @@ class Shared::OnlineUsers < BaseComponent
   needs guest_count : Int32
 
   def render : Nil
+    open_online_users_dialog_on_click_script = "on click open #online-users-dialog"
+
     if current_user
       button(
         r(".users").t(count: user_count),
@@ -13,7 +15,7 @@ class Shared::OnlineUsers < BaseComponent
         hx_get: ::OnlineUsers::Index.path,
         hx_target: "#online-users-content",
         hx_swap: "innerHTML",
-        script: "on click open #online-users-dialog"
+        script: open_online_users_dialog_on_click_script
       )
     else
       text r(".users").t(count: user_count)
@@ -28,7 +30,7 @@ class Shared::OnlineUsers < BaseComponent
       hx_target: "#notification-status",
       hx_swap: "outerHTML"
     ) do
-      mount Navbar::NotificationButton, current_user: current_user
+      mount Navbar::NotificationButton
     end
   end
 end

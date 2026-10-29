@@ -50,8 +50,8 @@ class Navbar < BaseComponent
             me = current_user
             if me
               li class: "ml-1 flex items-center gap-2 border-l border-gray-300/70 pl-3" do
-                mount Navbar::NotificationButton, current_user: me
-                mount Navbar::UserMenu, current_user: me
+                mount Navbar::NotificationButton
+                mount Navbar::UserMenu
               end
             else
               li do
@@ -76,11 +76,13 @@ class Navbar < BaseComponent
   end
 
   private def render_search_button : Nil
+    open_search_dialog_on_click_script = "on click call #search_dialog.showModal()"
+
     button(
       r("common.search").t,
       type: "button",
       class: nav_item_class(active: true),
-      script: "on click call #search_dialog.showModal()"
+      script: open_search_dialog_on_click_script
     )
   end
 

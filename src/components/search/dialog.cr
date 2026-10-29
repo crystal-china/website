@@ -2,10 +2,13 @@ class Search::Dialog < BaseComponent
   needs scope : String
 
   def render : Nil
+    close_search_dialog_on_outside_click_script = dialog_outside_click("close me")
+    close_search_dialog_on_button_click_script = "on click close the closest <dialog/>"
+
     dialog(
       id: "search_dialog",
       class: "mx-auto mt-[8vh] max-h-[calc(100vh_-_2rem)] w-[calc(100%_-_2rem)] max-w-xl rounded-xl border border-gray-300 bg-white p-0 shadow-xl sm:mt-[16vh]",
-      script: dialog_outside_click("close me")
+      script: close_search_dialog_on_outside_click_script
     ) do
       div class: "border-b border-gray-200 p-4" do
         div class: "flex items-center justify-between gap-3" do
@@ -18,7 +21,7 @@ class Search::Dialog < BaseComponent
             r("common.close").t,
             type: "button",
             class: "cursor-pointer text-sm text-gray-500 hover:text-gray-900",
-            script: "on click close the closest <dialog/>"
+            script: close_search_dialog_on_button_click_script
           )
         end
 

@@ -96,3 +96,4 @@ zh-CN:
     email_not_registered: 不是合法的已注册邮箱地址
     credentials_incorrect: 不正确，请检查邮箱、用户名或密码
     comment_target_conflict: 不能同时指定评论区和父评论
+    comment_has_replies: 有回复的评论不能单独删除

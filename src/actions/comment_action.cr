@@ -6,18 +6,24 @@ abstract class CommentAction < BrowserAction
   include MarkdownFormatter
 
   def comment_available?(comment : Comment) : Bool
-    # 先检查，评论所属主题是否可见？（即：如果主题被软删除，那么它级联的记录全部不可访问）
-    return false unless CommentThreadQuery.find(comment.comment_thread_id).target_visible?
-
-    # 如果上一条没问题，那么它的顶级评论默认可见。
-    # 除非它是一个子评论，此时进入下一轮判断。
-    return true unless (root_id = comment.root_id)
-
-    # 如果是子评论，要判断它 root 评论是否可见。
-    CommentQuery.new.id(root_id).any?
+    CommentQuery.new.id(comment.id).publicly_visible_comments.any?
   end
 
-  def comments_pagination(comment_thread_id : Int64? = nil, root_id : Int64? = nil, order_by : String = "desc") : NamedTuple(
+  # 删除或回复子评论时，先锁根评论，再锁这条子评论。
+  # 删除或回复根评论时，只锁这条根评论。
+  private def lock_comment(comment : Comment) : Comment
+    root = CommentQuery.new.id(comment.root_id || comment.id).for_update.first
+
+    return root if comment.root_id.nil?
+
+    CommentQuery.new.id(comment.id).for_update.first
+  end
+
+  def comments_pagination(
+    comment_thread_id : Int64? = nil,
+    root_id : Int64? = nil,
+    order_by : String = "desc",
+  ) : NamedTuple(
     count: Int32 | Int64,
     comments: Avram::Queryable(Comment),
     page: Lucky::Paginator?,
@@ -31,10 +37,12 @@ abstract class CommentAction < BrowserAction
     if comment_thread_id
       q = CommentQuery.new.comment_thread_id(comment_thread_id).parent_id.is_nil
       url = "/htmx/comments?comment_thread_id=#{comment_thread_id}"
+      item_count = CommentThreadQuery.find(comment_thread_id).root_comments_count
     else
       root_id = root_id.not_nil!
       q = CommentQuery.new.root_id(root_id)
       url = "/htmx/comments?root_id=#{root_id}"
+      item_count = CommentQuery.find(root_id).descendants_count
     end
 
     q = order_by == "desc" ? q.floor.desc_order : q.floor.asc_order
@@ -45,7 +53,14 @@ abstract class CommentAction < BrowserAction
       q = q.preload_votes &.user_id(me.id)
     end
 
-    page, comments = paginate(q, per_page: PER_PAGE)
+    # Avram 的 paginate 总会执行 COUNT；这里复用数据库 trigger 维护的计数。
+    page = Lucky::Paginator.new(
+      page: paginator_page,
+      per_page: PER_PAGE,
+      item_count: item_count,
+      full_path: context.request.resource
+    )
+    comments = q.limit(page.per_page).offset(page.offset)
 
     {
       count:    page.item_count,

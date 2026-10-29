@@ -8,13 +8,19 @@ class Users::Show < BrowserAction
     user = UserQuery.new.with_login_name(login_name).first
 
     if show_replies
-      query = CommentQuery.new.user_id(user.id).visible_topic_replies.created_at.desc_order.id.desc_order
+      query = CommentQuery.new.user_id(user.id).publicly_visible_topic_comments.created_at.desc_order.id.desc_order
       query = query.preload_comment_thread(&.preload_topic(&.preload_node))
       pages, comments = paginate(query, per_page: 20)
       entries = comments.results
     else
       query = TopicQuery.new.user_id(user.id).created_at.desc_order.id.desc_order.preload_node
-      pages, topics = paginate(query, per_page: 20)
+      pages = Lucky::Paginator.new(
+        page: paginator_page,
+        per_page: 20,
+        item_count: user.topics_count,
+        full_path: context.request.resource
+      )
+      topics = query.limit(pages.per_page).offset(pages.offset)
       entries = topics.results
     end
 
@@ -25,7 +31,6 @@ class Users::Show < BrowserAction
         entries: entries,
         pages: pages,
         show_replies: show_replies,
-        current_user: current_user
       )
     end
 

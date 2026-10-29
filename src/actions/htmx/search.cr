@@ -13,7 +13,6 @@ class Htmx::Search < BrowserAction
         matches: [] of NamedTuple(title: String, url: String, snippet: String),
         query: query,
         too_short: !query.empty?,
-        current_user: current_user
       )
     end
 
@@ -27,7 +26,6 @@ class Htmx::Search < BrowserAction
       ::Search::Results,
       matches: matches,
       query: query,
-      current_user: current_user
     )
   end
 

@@ -1,4 +1,35 @@
 @layer components {
+  /* 主题和评论共用的纯图标操作。 */
+  .icon-action-button {
+    @apply inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md border-0 bg-transparent p-0 transition-colors duration-150 hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .icon-action-primary {
+    @apply bg-gray-100 hover:bg-gray-200;
+  }
+
+  .icon-action-danger {
+    @apply ml-1 hover:bg-red-50;
+  }
+
+  .icon-action-image {
+    @apply pointer-events-none h-4 w-4;
+    filter: grayscale(1);
+  }
+
+  .icon-action-danger:hover .icon-action-image,
+  .icon-action-danger:focus-visible .icon-action-image {
+    filter: none;
+  }
+
+  /* 触屏扩大点击区域，不改变图标大小。 */
+  @media (pointer: coarse) {
+    .icon-action-button {
+      min-width: 44px;
+      height: 44px;
+    }
+  }
+
   .action-button {
     @apply inline-flex h-7 shrink-0 items-center justify-center gap-1.5 rounded-lg border px-3 text-sm leading-none font-medium whitespace-nowrap shadow-[0_1px_2px_rgb(15_23_42/0.06)] transition-[color,background-color,border-color,box-shadow,transform] duration-150 active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50;
   }
@@ -16,7 +47,7 @@
   }
 
   .vote-button {
-    @apply inline-flex h-7 min-w-11 items-center justify-center gap-1 rounded-full border bg-transparent px-2.5 text-sm leading-none whitespace-nowrap transition-[color,background-color,border-color,transform] duration-150 hover:border-gray-300 hover:bg-white/70 active:translate-y-px;
+    @apply inline-flex h-7 min-w-9 items-center justify-center gap-0.5 rounded-full border bg-transparent px-2 text-sm leading-none whitespace-nowrap transition-[color,background-color,border-color,transform] duration-150 hover:border-gray-300 hover:bg-white/70 active:translate-y-px;
   }
 
   .segmented-control {

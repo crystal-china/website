@@ -152,7 +152,7 @@ describe "Followed topics list" do
     sidebar_links.each do |link|
       URI.parse(link["href"]).query_params["following"].should eq("true")
     end
-    metadata_node_path = document.xpath_node("//main//article/header/p/a").not_nil!["href"]
+    metadata_node_path = document.xpath_node("//main//article/header/div/p/a").not_nil!["href"]
     URI.parse(metadata_node_path).query_params["following"].should eq("true")
     response = ApiClient.new.get("#{node_path}&backdoor_user_id=#{user.id}")
     document = XML.parse_html(response.body)

@@ -59,7 +59,6 @@ class TableScheduler < BaseComponent
                   hour: record.hour,
                   available: record.available,
                   comment: record.comment,
-                  current_user: current_user
                 )
               end
             end

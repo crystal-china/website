@@ -17,7 +17,7 @@ class UserAudits::IndexPage < MainLayout
     div class: "#{page_container_classes} page-content" do
       if user.nil?
         div class: "flex flex-col items-start gap-8 lg:flex-row" do
-          mount Admin::Sidebar, current_user: current_user
+          mount Admin::Sidebar
 
           div class: "w-full min-w-0 flex-1" do
             render_events_panel
@@ -31,40 +31,29 @@ class UserAudits::IndexPage < MainLayout
 
   private def render_events_panel : Nil
     user = self.user
+    panel_classes = user ? "app-panel mx-auto w-full max-w-3xl" : "app-panel w-full"
 
-    section class: "app-panel mx-auto flex max-h-[70dvh] w-full max-w-3xl flex-col overflow-hidden" do
-      header class: "panel-header flex shrink-0 flex-wrap items-center justify-between gap-4" do
-        div do
-          h1 page_title, id: "user-audits-title", class: "panel-title"
-          mount Shared::UserName, user: user if user
-          para page_description, class: "panel-description"
-        end
-
+    section class: panel_classes do
+      header class: "panel-header flex flex-wrap items-center justify-between gap-3 rounded-t-2xl px-5 py-3 sm:px-6" do
         if user
+          mount Shared::UserName, user: user
+
           link(
             r("common.back_to_profile").t,
             to: Users::Show.with(login_name: user.login_name),
             class: "form-secondary"
           )
+        else
+          render_filters
         end
       end
 
-      div(
-        id: "user-audits-scroll",
-        class: "min-h-0 overflow-y-auto overscroll-contain",
-        role: "region",
-        "aria-labelledby": "user-audits-title",
-        tabindex: "0"
-      ) do
-        render_filters if user.nil?
-
-        mount(
-          UserAudits::List,
-          audits: audits,
-          pages: pages,
-          show_account: user.nil?
-        )
-      end
+      mount(
+        UserAudits::List,
+        audits: audits,
+        pages: pages,
+        show_account: user.nil?
+      )
     end
   end
 
@@ -72,35 +61,34 @@ class UserAudits::IndexPage < MainLayout
     form(
       action: UserAudits::Index.path,
       method: "get",
-      class: "grid gap-3 border-b border-gray-200 px-6 py-4 sm:grid-cols-[minmax(0,1fr)_12rem_auto]"
+      class: "grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-2 sm:w-auto sm:min-w-0 sm:flex-1 sm:grid-cols-[minmax(0,1fr)_9rem_auto]"
     ) do
-      div class: "form-field" do
+      div class: "relative col-span-2 min-w-0 sm:col-span-1" do
         label(
           r("fields.login_name").t,
           for: "audits-login-name",
-          class: "form-label"
+          class: "sr-only"
         )
-        div class: "relative" do
-          input(
-            type: "search",
-            id: "audits-login-name",
-            name: "login_name",
-            value: login_name,
-            placeholder: r(".login_name_placeholder").t,
-            autocomplete: "off",
-            data_users_autocomplete_url: Htmx::Users::Autocomplete.path,
-            class: "form-input"
-          )
-          div(
-            hidden: true,
-            class: "user-autocomplete-options absolute inset-x-0 top-full z-20 mt-1 max-h-56 overflow-y-auto rounded-xl border border-gray-200 bg-white py-1 shadow-lg"
-          ) do
-          end
+        input(
+          type: "search",
+          id: "audits-login-name",
+          name: "login_name",
+          value: login_name,
+          placeholder: r("fields.login_name").t,
+          title: r(".login_name_placeholder").t,
+          autocomplete: "off",
+          data_users_autocomplete_url: Htmx::Users::Autocomplete.path,
+          class: "form-input"
+        )
+        div(
+          hidden: true,
+          class: "user-autocomplete-options absolute inset-x-0 top-full z-20 mt-1 max-h-56 overflow-y-auto rounded-xl border border-gray-200 bg-white py-1 shadow-lg"
+        ) do
         end
       end
 
-      div class: "form-field" do
-        label r(".event_kind").t, for: "audits-kind", class: "form-label"
+      div class: "min-w-0" do
+        label r(".event_kind").t, for: "audits-kind", class: "sr-only"
         select_tag(
           id: "audits-kind",
           name: "kind",
@@ -118,9 +106,7 @@ class UserAudits::IndexPage < MainLayout
         end
       end
 
-      div class: "flex items-end" do
-        button r("common.search").t, type: "submit", class: "form-submit w-full"
-      end
+      button r("common.search").t, type: "submit", class: "form-submit w-full"
     end
   end
 

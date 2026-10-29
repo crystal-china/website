@@ -21,16 +21,14 @@ class Htmx::Vote < BrowserAction
 
     transaction_committed = AppDatabase.transaction do
       comment = CommentQuery.new.id(comment_id).for_update.first
-      unless CommentThreadQuery.find(comment.comment_thread_id).target_visible?
+      unless CommentQuery.new.id(comment.id).publicly_visible_comments.any?
         status = 404
         AppDatabase.rollback
       end
 
-      if (root_id = comment.root_id)
-        if CommentQuery.new.id(root_id).none?
-          status = 404
-          AppDatabase.rollback
-        end
+      if comment.withdrawn?
+        status = 409
+        AppDatabase.rollback
       end
 
       vote_counts = Hash(String, Int32).from_json(comment.vote_counts.to_json)
@@ -68,7 +66,6 @@ class Htmx::Vote < BrowserAction
       Shared::VoteButton,
       vote_counts: vote_counts,
       comment_id: comment_id,
-      current_user: current_user,
       voted_types: user_voted_types
     )
   end
@@ -78,7 +75,7 @@ class Htmx::Vote < BrowserAction
     user_voted_types = [] of String
 
     transaction_committed = AppDatabase.transaction do
-      doc = DocQuery.new.id(doc_id).for_update.first
+      doc = DocQuery.new.id(doc_id).content.is_not_nil.for_update.first
       vote_counts = Hash(String, Int32).from_json(doc.vote_counts.to_json)
 
       AppDatabase.rollback unless vote_counts.has_key?(vote_type)
@@ -114,7 +111,6 @@ class Htmx::Vote < BrowserAction
       Shared::VoteButton,
       vote_counts: vote_counts,
       doc_id: doc_id,
-      current_user: current_user,
       voted_types: user_voted_types
     )
   end

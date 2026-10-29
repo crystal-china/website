@@ -21,28 +21,34 @@ class Docs::Markdowns < DocAction
     doc = DocContent.sync(current_path, markdown_source)
     comment_thread = CommentThreadQuery.new.doc_id(doc.id).first
 
-    record_view(doc)
+    view_count = record_view(doc)
 
     html(
       Docs::MarkdownsPage,
       doc: doc,
+      view_count: view_count,
       comment_thread: comment_thread,
       markdown_path: markdown_path,
       markdown_source: markdown_source
     )
   end
 
-  private def record_view(doc : Doc) : Nil
+  private def record_view(doc : Doc) : Int32
     remote_ip = context.request.remote_ip || "0.0.0.0"
+    view_count = doc.view_count
 
     VIEW_COUNT_MUTEX.synchronize do
       VIEW_COUNT_CACHE.fetch("#{remote_ip}-#{current_path}") do
-        AppDatabase.exec(
-          "UPDATE docs SET view_count = view_count + 1 WHERE id = $1",
-          doc.id
+        view_count = AppDatabase.query_one(
+          "UPDATE docs SET view_count = view_count + 1 WHERE id = $1 RETURNING view_count",
+          doc.id,
+          as: Int32
         )
+
         true
       end
     end
+
+    view_count
   end
 end

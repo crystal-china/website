@@ -7,6 +7,6 @@ class Admin::Trash::RestoreTopic < AdminAction
 
     flash.success = r(".topic_restored").t
 
-    redirect Admin::Trash::Index.with(kind: "topics")
+    component Admin::Trash::TopicRestored, flash: flash
   end
 end

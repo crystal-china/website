@@ -89,7 +89,7 @@ describe "Page positioning" do
     end
   end
 
-  it "reserves a fixed admin navigation column beside the page heading" do
+  it "keeps admin navigation beside the content and reserves page headings for node forms" do
     previous_emails = ENV["ADMIN_EMAILS"]?
     ENV["ADMIN_EMAILS"] = "layout-admin@example.com"
     admin = UserFactory.create &.email("layout-admin@example.com")
@@ -101,9 +101,42 @@ describe "Page positioning" do
     sidebar["class"].should contain("desktop-sidebar")
     sidebar.xpath_node("ancestor::section[contains(@class, 'page-content')]").should_not be_nil
     sidebar.parent.not_nil!["class"].should contain("lg:w-56")
-    document.xpath_node("//main/section/div/div/header/h1").not_nil!.content.should eq("后台管理")
+
     {"/admin", "/admin/nodes", "/user_audits", "/admin/trash"}.each do |path|
       sidebar.xpath_node(".//a[@href='#{path}']").should_not be_nil
+    end
+
+    node = SaveNode.create!(
+      name: "布局节点",
+      slug: "admin-layout",
+      summary: "布局测试",
+      color: "#16a34a",
+      position: 0
+    )
+
+    paths = {"/admin", "/admin/nodes", "/admin/trash", "/user_audits"}
+
+    paths.each do |path|
+      response = ApiClient.new.get("#{path}?backdoor_user_id=#{admin.id}")
+      document = XML.parse_html(response.body)
+
+      response.status_code.should eq(200)
+      document.xpath_nodes("//main//h1 | //main//h2").should be_empty
+      document.xpath_node("//main//aside/nav").should_not be_nil
+    end
+
+    {
+      "/admin/nodes/new"             => "新增节点",
+      "/admin/nodes/#{node.id}/edit" => "编辑节点",
+    }.each do |path, title|
+      response = ApiClient.new.get("#{path}?locale=zh-CN&backdoor_user_id=#{admin.id}")
+      document = XML.parse_html(response.body)
+      header = document.xpath_node("//main//section/header").not_nil!
+
+      response.status_code.should eq(200)
+      header.xpath_node("./h2").not_nil!.content.should eq(title)
+      header.xpath_node("./p").should be_nil
+      document.xpath_node("//main//aside/nav").should_not be_nil
     end
   ensure
     if previous_emails
@@ -113,23 +146,25 @@ describe "Page positioning" do
     end
   end
 
-  it "keeps the account-history header outside its keyboard-accessible scrolling list" do
+  it "keeps account history in normal page flow with a compact header" do
     user = UserFactory.create
     response = ApiClient.new.get("/user_audits?backdoor_user_id=#{user.id}")
     document = XML.parse_html(response.body)
     header = document.xpath_node("//main//section/header").not_nil!
 
     response.status_code.should eq(200)
-    header["class"].should contain("shrink-0")
+    header["class"].should contain("py-3")
     header["class"].should_not contain("sticky")
+    header.xpath_node(".//h1").should be_nil
     header.xpath_node(".//a[@href='#{Users::Show.with(login_name: user.login_name).path}']").should_not be_nil
     panel = header.parent.not_nil!
-    region = panel.xpath_node("./div[@role='region']").not_nil!
 
-    panel["class"].should contain("max-h-[70dvh]")
-    panel["class"].should contain("overflow-hidden")
-    region["class"].should contain("overflow-y-auto")
-    region["tabindex"].should eq("0")
-    region["aria-labelledby"].should eq(header.xpath_node(".//h1").not_nil!["id"])
+    panel["class"].should contain("mx-auto")
+    panel["class"].should contain("max-w-3xl")
+    panel["class"].should_not contain("max-h-")
+    panel["class"].should_not contain("overflow-")
+    panel.xpath_node("./section[@id='user-audits-list']").should_not be_nil
+    header.xpath_node(".//p").should be_nil
+    panel.xpath_node(".//*[@id='user-audits-scroll']").should be_nil
   end
 end

@@ -42,7 +42,7 @@ describe "Local editor drafts" do
       fields.each(&.["id"].should_not(be_empty))
 
       if path == "/forum/new" || path == "/forum/#{topic.id}/edit"
-        containers.first["hx-push-url"].should eq("false")
+        containers.first["hx-push-url"]?.should be_nil
       end
     end
 
@@ -50,14 +50,16 @@ describe "Local editor drafts" do
     XML.parse_html(client.get("/users/#{user.id}/edit").body).xpath_nodes("//*[@data-draft-key]").should be_empty
   end
 
-  it "renders saved topics directly for HTMX submissions but keeps ordinary redirects" do
+  it "renders saved topics directly without redirects" do
     user = UserFactory.create
     node = SaveNode.create!(name: "提交节点", slug: "draft-save", summary: "提交测试", color: "#0284c7", position: 0)
     client = drafts_client(user)
     response = client.post("/forum", topic: {title: "普通提交", node_id: node.id}, content: "普通正文")
 
-    response.status_code.should eq(303)
-    response.headers["X-Draft-Saved"]?.should be_nil
+    response.status_code.should eq(200)
+    response.headers["X-Draft-Saved"].should eq("true")
+    response.headers["HX-Push-Url"].should eq("/forum/#{TopicQuery.new.title("普通提交").first.id}")
+    response.headers["Location"]?.should be_nil
 
     client.headers("HX-Request-Type": "full")
     response = client.post("/forum", topic: {title: "草稿提交", node_id: node.id}, content: "草稿正文")
@@ -90,7 +92,7 @@ describe "Local editor drafts" do
 
     document.xpath_node("//main//h1").not_nil!.content.should eq("修改标题")
     document.xpath_node("//head/title").not_nil!.content.should contain("修改标题")
-    document.xpath_node("//main//article/header/p/a[@href='/forum?node=#{moved_node.slug}']").not_nil!.content.should eq(moved_node.name)
+    document.xpath_node("//main//article/header/div/p/a[@href='/forum?node=#{moved_node.slug}']").not_nil!.content.should eq(moved_node.name)
     response.body.should contain("修改正文")
     response.body.should_not contain("草稿正文")
     message = Rosetta.find("forum.update.topic_updated").t
@@ -104,6 +106,7 @@ describe "Local editor drafts" do
     cookies.add_request_headers(headers)
     refreshed = ApiClient.new.headers(Cookie: headers["Cookie"]).get("/forum/#{topic.id}")
     refreshed.status_code.should eq(200)
+    refreshed.headers["X-Draft-Saved"]?.should be_nil
     refreshed.body.should_not contain(message)
     XML.parse_html(refreshed.body).xpath_node("//main//h1").not_nil!.content.should eq("修改标题")
 
@@ -117,11 +120,11 @@ describe "Local editor drafts" do
     response.status_code.should eq(200)
     response.headers["X-Draft-Saved"]?.should be_nil
     response.headers["HX-Location"]?.should be_nil
-    response.headers["HX-Push-Url"]?.should be_nil
+    response.headers["HX-Push-Url"].should eq("false")
     response = client.put("/forum/#{topic.id}", topic: {title: "修改标题", node_id: moved_node.id}, content: "")
     response.status_code.should eq(200)
     response.headers["X-Draft-Saved"]?.should be_nil
-    response.headers["HX-Push-Url"]?.should be_nil
+    response.headers["HX-Push-Url"].should eq("false")
   end
 
   it "submits comments through forms while keeping preview and cancellation separate" do
@@ -135,7 +138,7 @@ describe "Local editor drafts" do
 
     {
       "/forum/#{topic.id}"                             => {"tab", "#comments", {comment_thread_id: thread.id}.to_json},
-      "/htmx/comments/new?id=#{child.id}&order_by=asc" => {"comment", "#comment-#{root.id}-comments", {id: child.id, op: "new"}.to_json},
+      "/htmx/comments/new?id=#{child.id}&order_by=asc" => {"comment", "#comment-#{root.id}-replies", {id: child.id, op: "new"}.to_json},
       "/htmx/comments/edit/#{root.id}?order_by=desc"   => {"comment", "#comment-#{root.id}-content", {id: root.id, op: "edit"}.to_json},
     }.each do |path, (html_id, target, values)|
       document = XML.parse_html(client.get(path).body)
@@ -178,7 +181,7 @@ describe "Local editor drafts" do
 
   it "confirms root replies, child replies and comment edits but not rejected or preview requests" do
     user = UserFactory.create
-    doc = SaveDoc.create!(path_index: "/docs/draft-test")
+    doc = SaveDoc.create!(path_index: "/docs/draft-test", content: "文档正文")
     thread = CommentThreadQuery.new.doc_id(doc.id).first
     client = drafts_client(user)
     response = client.post("/htmx/comments", comment_thread_id: thread.id, content: "顶级评论")

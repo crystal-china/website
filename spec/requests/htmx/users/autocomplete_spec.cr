@@ -50,7 +50,6 @@ describe Htmx::Users::Autocomplete do
     users = JSON.parse(response.body).as_a
 
     response.status_code.should eq(200)
-    response.headers["Cache-Control"].should eq("no-store")
     users.map(&.["login_name"].as_s).should eq(["MingHidden", "MingPublic"])
     users.first["nickname"].as_s.should eq("小明")
     users.each do |user|

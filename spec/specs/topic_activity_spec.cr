@@ -35,15 +35,18 @@ describe "Topic activity" do
     activity.call.should eq({2, replier.id, child_at})
     CommentQuery.new.only_soft_deleted.id(grandchild.id).first.restore
     activity.call.should eq({3, author.id, grandchild_at})
-    DeleteComment.delete!(child)
-    activity.call.should eq({2, author.id, grandchild_at})
+    DeleteComment.delete!(child, delete_descendants: true)
+    activity.call.should eq({1, author.id, root_at})
 
     DeleteComment.delete!(root)
     activity.call.should eq({0, nil, topic.created_at})
     TopicQuery.new.last_active_at.desc_order.id.desc_order.first.id.should eq(newer_topic.id)
     CommentQuery.new.only_soft_deleted.id(root.id).first.restore
-    activity.call.should eq({2, author.id, grandchild_at})
+    activity.call.should eq({1, author.id, root_at})
     CommentQuery.new.only_soft_deleted.id(child.id).first.restore
+    activity.call.should eq({2, replier.id, child_at})
+    CommentQuery.new.only_soft_deleted.id(grandchild.id).first.restore
+
     activity.call.should eq({3, author.id, grandchild_at})
 
     DeleteTopic.delete!(topic)

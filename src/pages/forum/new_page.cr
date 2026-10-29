@@ -14,14 +14,12 @@ class Forum::NewPage < ForumLayout
       form_for(
         Forum::Create,
         class: "panel-body space-y-6",
-        hx_push_url: "false",
         data_draft_key: "#{current_user.not_nil!.id}:topic:new"
       ) do
         mount(
           Forum::TopicFields,
           operation: operation,
           nodes: nodes,
-          current_user: current_user
         ) do
           link(
             r("common.cancel").t,

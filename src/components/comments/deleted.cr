@@ -1,38 +1,57 @@
 class Comments::Deleted < BaseComponent
   needs formatter : Tartrazine::Formatter
   needs pagination : Comments::Pagination
-  needs root_comment : Comment?
+  needs root_comment : Comment? # 被删除评论的根评论是否存在
+  needs topic : Topic? = nil
 
   def render : Nil
     root = root_comment
-    html_id = root ? "comment-#{root.id}-comments" : "comments"
 
-    if root.nil? || pagination[:count] > 0
+    if root
+      mount(
+        Comments::Replies,
+        formatter: formatter,
+        root_comment: root,
+        order_by: pagination[:order_by],
+        pagination: pagination,
+      )
+    else
       mount(
         Comments::List,
         formatter: formatter,
         pagination: pagination,
-        current_user: current_user,
         comment_id: nil,
-        html_id: html_id
+        html_id: "comments"
       )
-    else
-      div id: html_id
     end
 
     if root
       tag(
         "hx-partial",
-        hx_target: "#comment-#{root.id}-actions",
+        hx_target: "#comment-#{root.id}-controls",
         hx_swap: "outerHTML swap:1s"
       ) do
         mount(
-          Comments::CardAction,
+          Comments::CardControls,
           comment: root,
           order_by: pagination[:order_by],
-          thread_expanded: pagination[:count] > 0,
-          current_user: current_user
         )
+      end
+    end
+
+    if (topic = self.topic) && (me = current_user)
+      if me.id == topic.user_id || me.admin?
+        tag(
+          "hx-partial",
+          hx_target: "#topic-#{topic.id}-controls",
+          hx_swap: "outerHTML"
+        ) do
+          mount(
+            Forum::TopicControls,
+            topic: topic,
+            can_delete_topic: me.admin? || topic.replies_count.zero?
+          )
+        end
       end
     end
   end

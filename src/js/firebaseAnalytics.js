@@ -23,7 +23,7 @@ function trackPageView(root) {
     }
 
     logEvent(analytics, "page_view", {
-        page_path: element.dataset.pagePath,
+        page_path: window.location.pathname,
         page_title: element.dataset.pageTitle,
     });
 }

@@ -8,6 +8,8 @@ class PasswordResetRequests::Create < BrowserAction
         flash.success = r(".check_email").t
         redirect SignIns::New
       else
+        context.response.headers["HX-Push-Url"] = "false"
+
         html NewPage, operation: operation
       end
     end
