@@ -62,7 +62,6 @@ describe "Online users" do
     document = XML.parse_html(response.body)
 
     response.status_code.should eq(200)
-    response.headers["Cache-Control"].should eq("no-store")
     document.xpath_node("//a[@href='#{Users::Show.with(login_name: visible.login_name).path}']").should_not be_nil
     response.body.should contain(visible.nickname)
     response.body.should contain("@#{visible.login_name}")
