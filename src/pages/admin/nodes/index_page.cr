@@ -6,12 +6,7 @@ class Admin::Nodes::IndexPage < AdminLayout
   end
 
   def admin_content : Nil
-    header class: "mb-6 flex flex-wrap items-center justify-between gap-4" do
-      div do
-        h2 r("common.nodes").t, class: "m-0 text-2xl font-semibold tracking-tight text-gray-900"
-        para r(".description").t, class: "mt-1.5 mb-0 text-sm text-gray-600"
-      end
-
+    div class: "mb-4 flex justify-end" do
       link(
         r("common.new_node").t,
         to: Admin::Nodes::New,

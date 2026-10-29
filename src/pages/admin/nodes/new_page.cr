@@ -8,8 +8,7 @@ class Admin::Nodes::NewPage < AdminLayout
   def admin_content : Nil
     section class: "app-panel w-full max-w-3xl overflow-hidden" do
       header class: "panel-header" do
-        h2 r("common.new_node").t, class: "panel-title"
-        para r(".description").t, class: "panel-description"
+        h2 page_title, class: "panel-title"
       end
 
       form_for Admin::Nodes::Create, class: "panel-body space-y-6" do

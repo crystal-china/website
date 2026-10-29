@@ -9,8 +9,7 @@ class Admin::Nodes::EditPage < AdminLayout
   def admin_content : Nil
     section class: "app-panel w-full max-w-3xl overflow-hidden" do
       header class: "panel-header" do
-        h2 r(".page_title").t, class: "panel-title"
-        para r(".description").t(name: node.name), class: "panel-description"
+        h2 page_title, class: "panel-title"
       end
 
       form_for Admin::Nodes::Update.with(id: node.id), class: "panel-body space-y-6" do

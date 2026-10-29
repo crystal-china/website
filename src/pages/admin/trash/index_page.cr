@@ -12,11 +12,6 @@ class Admin::Trash::IndexPage < AdminLayout
   end
 
   def admin_content : Nil
-    header class: "mb-6" do
-      h2 r("common.trash").t, class: "m-0 text-2xl font-semibold tracking-tight text-gray-900"
-      para r(".description").t, class: "mt-1.5 mb-0 text-sm text-gray-600"
-    end
-
     nav class: "mb-5 flex gap-3", "aria-label": r(".categories").t do
       link(
         r("common.comment").t,
