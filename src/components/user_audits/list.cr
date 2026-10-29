@@ -33,7 +33,7 @@ class UserAudits::List < BaseComponent
               mount(
                 Shared::Avatar,
                 user: user,
-                classes: "h-8 w-8 rounded-full text-sm"
+                classes: "mt-0.5 h-4 w-4 rounded-full text-[10px]"
               )
             end
 

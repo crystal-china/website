@@ -442,9 +442,12 @@ describe "User events" do
     document = XML.parse_html(response.body)
     rows = document.xpath_nodes("//main//ol/li").to_a
     next_path = document.xpath_node("//main//nav/a[.='下一页']").not_nil!["href"]
+    avatar_classes = rows.first.xpath_node("./span[contains(@class, 'user-avatar')]").not_nil!["class"].split
 
     response.status_code.should eq(200)
     rows.size.should eq(10)
+    avatar_classes.should contain("h-4")
+    avatar_classes.should contain("w-4")
     rows.first.content.should contain("Old nickname 10 → New nickname 10")
     rows.last.content.should contain("Old nickname 1 → New nickname 1")
     rows[2].content.should_not contain("操作人：")
