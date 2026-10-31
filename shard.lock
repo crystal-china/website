@@ -5,9 +5,9 @@ shards:
     git: https://github.com/luckyframework/authentic.git
     version: 1.0.2
 
-  avram:
+  avram: # Overridden
     git: https://github.com/luckyframework/avram.git
-    version: 1.5.0
+    version: 1.5.0+git.commit.6347e54c3f3630eb7735265cf038c014e49837b2
 
   backtracer:
     git: https://github.com/sija/backtracer.cr.git
@@ -71,7 +71,7 @@ shards:
 
   db:
     git: https://github.com/crystal-lang/crystal-db.git
-    version: 0.13.1
+    version: 0.15.0
 
   dexter:
     git: https://github.com/luckyframework/dexter.git
@@ -103,7 +103,7 @@ shards:
 
   html5:
     git: https://github.com/naqvis/crystal-html5.git
-    version: 0.4.0
+    version: 0.5.1
 
   jwt:
     git: https://github.com/crystal-community/jwt.git
@@ -123,7 +123,7 @@ shards:
 
   lucky_flow:
     git: https://github.com/luckyframework/lucky_flow.git
-    version: 0.7.3+git.commit.abd6e4991c74b9355d9b116911b063833c7c40cd
+    version: 0.10.2
 
   lucky_router:
     git: https://github.com/luckyframework/lucky_router.git
@@ -151,7 +151,7 @@ shards:
 
   pg:
     git: https://github.com/will/crystal-pg.git
-    version: 0.29.0
+    version: 0.31.0
 
   pulsar:
     git: https://github.com/luckyframework/pulsar.git
@@ -166,8 +166,8 @@ shards:
     version: 0.1.0+git.commit.c17d933fed22c6d3d615cca91a895166414389af
 
   selenium:
-    git: https://github.com/matthewmcgarvey/selenium.cr.git
-    version: 0.9.1
+    git: https://github.com/crystal-loot/selenium.cr.git
+    version: 0.12.1
 
   shell-table:
     git: https://github.com/luckyframework/shell-table.cr.git
@@ -198,12 +198,12 @@ shards:
     version: 0.6.0
 
   webdrivers:
-    git: https://github.com/matthewmcgarvey/webdrivers.cr.git
+    git: https://github.com/crystal-loot/webdrivers.cr.git
     version: 0.4.5
 
   webless:
-    git: https://github.com/matthewmcgarvey/webless.git
-    version: 0.1.0
+    git: https://github.com/crystal-loot/webless.git
+    version: 0.2.0
 
   wordsmith:
     git: https://github.com/luckyframework/wordsmith.git

@@ -56,7 +56,6 @@ dependencies:
 development_dependencies:
   lucky_flow:
     github: luckyframework/lucky_flow
-    branch: master
   timecop:
     github: crystal-community/timecop.cr
 
