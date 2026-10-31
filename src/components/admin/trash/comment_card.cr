@@ -79,7 +79,19 @@ HYPER
         text " · #{source}"
       end
 
-      para comment.content[0, 160], class: "mt-1 mb-0 text-sm break-words whitespace-pre-wrap text-gray-800"
+      render_deleted_comment_body = -> do
+        para(
+          comment.content,
+          class: "mt-1 mb-0 text-sm break-words whitespace-pre-wrap text-gray-800"
+        )
+      end
+
+      mount(
+        Shared::CommentPreview,
+        content: comment.content,
+        preview_length: 80,
+        render_body: render_deleted_comment_body
+      )
 
       span class: "mt-2 block text-xs text-gray-500" do
         local_time(

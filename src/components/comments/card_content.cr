@@ -5,25 +5,31 @@ class Comments::CardContent < BaseComponent
 
   def render : Nil
     div id: "comment-#{comment.id}-content" do
-      render_avatar_name_and_time
-
-      hr class: "my-2 border-0 border-t border-gray-300"
-
-      div class: "prose-neutral max-w-none prose text-base leading-7" do
-        if comment.withdrawn?
-          para r("common.comment_withdrawn").t, class: "text-sm text-gray-500"
-        else
-          raw(comment.content_html || user_markdown(comment.content))
+      render_comment_header = ->(show_expand : Bool) { render_avatar_name_and_time(show_expand) }
+      render_full_comment_body = -> do
+        div class: "prose-neutral max-w-none prose text-base leading-7" do
+          if comment.withdrawn?
+            para r("common.comment_withdrawn").t, class: "text-sm text-gray-500"
+          else
+            raw(comment.content_html || user_markdown(comment.content))
+          end
         end
       end
+
+      mount(
+        Shared::CommentPreview,
+        content: comment.withdrawn? ? r("common.comment_withdrawn").t : comment.content,
+        render_header: render_comment_header,
+        render_body: render_full_comment_body
+      )
     end
   end
 
-  private def render_avatar_name_and_time : Nil
+  private def render_avatar_name_and_time(show_expand : Bool) : Nil
     user = comment.user
     fade_comment_update_success_message_script = "init transition my opacity to 0% over 3 seconds"
 
-    header class: "flex flex-wrap items-center justify-between gap-3 sm:flex-nowrap" do
+    header class: "mb-2 flex flex-wrap items-center justify-between gap-3 sm:flex-nowrap" do
       div class: "flex min-w-0 items-center gap-3" do
         mount(
           Shared::Avatar,
@@ -38,9 +44,18 @@ class Comments::CardContent < BaseComponent
         end
       end
 
-      render_parent_comment_hint
+      div class: "flex min-w-fit flex-1 flex-wrap items-center justify-center gap-2" do
+        if show_expand
+          span(
+            r("shared.comment_preview.expand_content").t,
+            class: "comment-preview-expand-label text-sm font-medium whitespace-nowrap text-sky-700"
+          )
+        end
 
-      div class: "flex shrink-0 items-center gap-2 text-xs leading-none" do
+        render_parent_comment_hint
+      end
+
+      div class: "ml-auto flex shrink-0 items-center gap-2 text-xs leading-none" do
         a(
           href: "#comment-#{comment.id}",
           class: "inline-flex items-center text-sky-700 underline decoration-dotted underline-offset-2"
@@ -84,7 +99,7 @@ class Comments::CardContent < BaseComponent
 
     parent_comment = comment.parent
 
-    div class: "order-3 min-w-0 basis-full self-center px-2 text-center text-xs font-medium text-green-700 sm:order-none sm:flex-1 sm:basis-auto" do
+    div class: "min-w-0 text-center text-xs font-medium text-green-700" do
       if parent_comment && !parent_comment.soft_deleted?
         a(
           r(".reply_to").t(floor: parent_comment.floor.to_s, login_name: parent_comment.user.login_name),

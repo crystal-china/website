@@ -61,6 +61,30 @@
     margin-bottom: 0;
   }
 
+  .comment-preview:not([open]) > summary {
+    cursor: pointer;
+  }
+
+  .comment-preview-excerpt {
+    display: block;
+  }
+
+  /* 展开后只保留资料栏和正文；回收站没有资料栏，隐藏整个 summary。 */
+  .comment-preview[open]:not(.comment-preview-with-header) > summary,
+  .comment-preview[open] > summary > .comment-preview-excerpt,
+  .comment-preview[open] .comment-preview-expand-label {
+    display: none;
+  }
+
+  /* 已展开的资料栏不再用于折叠，但用户名和时间链接仍可点击。 */
+  .comment-preview-with-header[open] > summary {
+    pointer-events: none;
+  }
+
+  .comment-preview-with-header[open] > summary a {
+    pointer-events: auto;
+  }
+
   /* 主体和回复区域保持独立 DOM，左侧留出分支线的位置。 */
   .comment-root {
     --comment-replies-line: #cbd5e1;

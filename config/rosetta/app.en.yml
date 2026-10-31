@@ -386,6 +386,8 @@ en:
       no_matches: No matching content found.
 
   shared:
+    comment_preview:
+      expand_content: Read more
     markdown_editor:
       write: Write
       preview: Preview

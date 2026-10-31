@@ -147,6 +147,7 @@ class Db::Seed::SampleData < LuckyTask::Task
 
     doc_root = seed_comment_examples(users, doc_thread, "前言")
     seed_comment_examples(users, topic_thread, "主题")
+    seed_long_comment_examples(topic_thread, users[1])
     seed_notifications(users, nodes, topics.first, topics[1], doc_root)
     CreateComment.create!(
       comment_thread_id: topic_thread.id,
@@ -629,6 +630,58 @@ class Db::Seed::SampleData < LuckyTask::Task
     puts "  中间分支删除：/admin/trash/comments/#{deleted_branch.id}；同批只剩一条：/admin/trash/comments/#{remaining_deleted.id}。"
 
     root
+  end
+
+  private def seed_long_comment_examples(thread : CommentThread, author : User) : Nil
+    content = <<-MARKDOWN
+    我把配置检查脚本拆成了几个独立步骤，先保证每一步的输入输出明确，再考虑增加功能。
+
+    文件读取只负责返回原始文本，不在这里替调用方填默认值。文件不存在、没有读取权限和内容为空，需要给出可以区分的错误。
+
+    ```crystal
+    require "json"
+
+    source = File.read("config.json")
+    config = JSON.parse(source)
+    title = config["title"].as_s
+    puts "正在检查：\#{title}"
+    ```
+
+    - 缺少必填字段时，保留字段名称。
+    - 类型不正确时，说明预期类型和实际输入。
+    - 可选字段采用默认值，但不能掩盖必填字段错误。
+
+    > 校验失败也是正常的业务结果，不应该让读者只能看到一段调用堆栈。
+
+    报告应包含输入文件、检查结果和需要修改的字段。终端输出与 Markdown 文件可以复用相同的数据，但各自负责自己的格式与转义。
+
+    | 输入 | 预期结果 |
+    | --- | --- |
+    | 有效 JSON | 生成完整报告 |
+    | 文件不存在 | 提示路径错误 |
+    | 字段类型错误 | 标明具体字段 |
+
+    同一份配置连续执行两次，不应留下重复文件或额外任务。失败后再次运行，也不应该依赖上一次留下的临时状态。
+
+    最后记录依赖版本、运行命令和一份最小配置。这样后来的人可以从一个能运行的例子开始，而不是先猜测环境。
+
+    我会先验证文件读取与字段校验，再补报告输出和文档，不急着引入更通用的框架。
+    MARKDOWN
+
+    comment = CreateComment.create!(
+      comment_thread_id: thread.id,
+      user_id: author.id,
+      content: content
+    )
+    deleted_comment = CreateComment.create!(
+      comment_thread_id: thread.id,
+      user_id: author.id,
+      content: content
+    )
+
+    DeleteComment.delete!(deleted_comment, actor_id: author.id)
+
+    puts "长评论展开：/comments/#{comment.id}；回收站原文：/admin/trash/comments/#{deleted_comment.id}。"
   end
 
   private def seed_comment_votes(comment : Comment, users : Array(User)) : Nil

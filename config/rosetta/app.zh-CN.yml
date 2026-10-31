@@ -382,6 +382,8 @@ zh-CN:
       no_matches: 没有找到匹配的内容。
 
   shared:
+    comment_preview:
+      expand_content: 展开全文
     markdown_editor:
       write: 输入
       preview: 预览
