@@ -45,11 +45,12 @@ class CreateComments::V20260908100000 < Avram::Migrator::Migration::V1
 
     require_nullability_relation(:both_null_or_both_non_null, "comments", "parent_id", "root_id")
 
-    execute <<-SQL
-      CREATE UNIQUE INDEX comments_comment_thread_id_floor_index
-      ON comments (comment_thread_id, floor)
-      WHERE parent_id IS NULL
-      SQL
+    create_index(
+      table_for(Comment),
+      [:comment_thread_id, :floor],
+      unique: true,
+      where_raw: "parent_id IS NULL"
+    )
 
     create_index table_for(Comment), [:root_id, :floor], unique: true
 

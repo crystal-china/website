@@ -22,7 +22,11 @@ class CreateNotifications::V20261004120000 < Avram::Migrator::Migration::V1
     # 加速代码中的回复/提及去重查询，不限制管理操作的重复通知。
     create_index table_for(Notification), [:user_id, :url, :kind]
     create_index table_for(Notification), [:user_id, :id]
-    execute "CREATE INDEX notifications_unread_user_index ON notifications (user_id) WHERE read_at IS NULL"
+    create_index(
+      table_for(Notification),
+      :user_id,
+      where_raw: "read_at IS NULL"
+    )
 
     # 通知创建后收件人不变；总数随新增/物理删除增减。
     add_counters_for(
