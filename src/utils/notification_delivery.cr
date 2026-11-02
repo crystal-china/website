@@ -1,14 +1,24 @@
 module NotificationDelivery
   include Rosetta::Translatable
 
+  def self.topic_created(topic : Topic, login_names : Array(String)) : Nil
+    recipients = user_follow_recipients(topic.user_id, :followed_user_topic)
+
+    mentioned_user_ids(login_names).each do |user_id|
+      recipients[user_id] = :mention
+    end
+
+    deliver(topic, recipients, topic.user_id)
+  end
+
   def self.comment_created(comment : Comment, login_names : Array(String)) : Nil
     # 接收通知的 user_id => 通知类型
-    recipients = {} of Int64 => Notification::Kind
+    recipients = user_follow_recipients(comment.user_id, :followed_user_reply)
     thread = comment.comment_thread!
 
     # 这里使用哈希合并，为针对同一个人针对同一个 target 的通知去重。
     if (topic_id = thread.topic_id)
-      # 先放入关注者；作者、直接回复和明确提及依次覆盖较低优先级的通知。
+      # 关注用户 < 关注主题 < 主题作者 < 直接回复 < 明确提及，依次覆盖。
       TopicFollowQuery.new.topic_id(topic_id).each do |follow|
         # （1） 类型为针对主题的关注
         recipients[follow.follower_id] = :followed_topic_reply
@@ -146,7 +156,7 @@ module NotificationDelivery
     # 管理相关的类型，可以反复发生，不去重。
     recipients = recipients.select do |_, kind|
       case kind
-      when .topic_reply?, .comment_reply?, .mention?, .followed_topic_reply?
+      when .topic_reply?, .comment_reply?, .mention?, .followed_topic_reply?, .followed_user_topic?, .followed_user_reply?
         true
       else
         false
@@ -162,6 +172,16 @@ module NotificationDelivery
     end
 
     existing
+  end
+
+  private def self.user_follow_recipients(user_id : Int64, kind : Notification::Kind) : Hash(Int64, Notification::Kind)
+    recipients = {} of Int64 => Notification::Kind
+
+    UserFollowQuery.new.followed_user_id(user_id).each do |follow|
+      recipients[follow.follower_id] = kind
+    end
+
+    recipients
   end
 
   private def self.mentioned_user_ids(login_names : Array(String)) : Array(Int64)

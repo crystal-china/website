@@ -32,6 +32,7 @@ abstract class BrowserAction < Lucky::Action
   # access actions that inherit from 'BrowserAction' or you can
   # 'include Auth::AllowGuests' in individual actions to skip sign in.
   include Auth::RequireSignIn
+  include FollowHelpers
 
   # `expose` means that `current_user` will be passed to pages automatically.
   #

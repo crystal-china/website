@@ -34,12 +34,19 @@ class Users::Show < BrowserAction
       )
     end
 
+    followed = false
+
+    if (me = current_user) && me.id != user.id
+      followed = user_follow_query(user.id).any?
+    end
+
     html(
       Users::ShowPage,
       user: user,
       entries: entries,
       pages: pages,
-      show_replies: show_replies
+      show_replies: show_replies,
+      followed: followed
     )
   end
 end

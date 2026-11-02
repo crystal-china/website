@@ -4,7 +4,8 @@ class Forum::ShowPage < ForumLayout
   needs topic : Topic
   needs comment_thread : CommentThread
   needs can_delete_topic : Bool
-  needs following : Bool
+  needs topic_followed : Bool
+  needs author_followed : Bool
 
   def page_title : String
     topic.title
@@ -49,7 +50,7 @@ class Forum::ShowPage < ForumLayout
                 mount(
                   Forum::FollowButton,
                   topic: topic,
-                  following: following?,
+                  followed: topic_followed?,
                 )
               end
 
@@ -92,6 +93,7 @@ class Forum::ShowPage < ForumLayout
     mount(
       Forum::AuthorCard,
       user: topic.user,
+      followed: author_followed?
     )
   end
 end

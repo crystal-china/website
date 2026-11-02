@@ -3,6 +3,7 @@ class Users::ShowPage < MainLayout
   needs entries : Array(Topic) | Array(Comment)
   needs pages : Lucky::Paginator
   needs show_replies : Bool
+  needs followed : Bool
 
   def page_title : String
     "#{user.nickname} (@#{user.login_name})"
@@ -45,18 +46,26 @@ class Users::ShowPage < MainLayout
               end
             end
 
-            if (me = current_user) && (me.id == user.id || me.admin?)
+            if (me = current_user)
               div class: "flex flex-wrap gap-3" do
-                link(
-                  r("common.edit_profile").t,
-                  to: Users::Edit.with(id: user.id),
-                  class: "form-secondary"
+                mount(
+                  Users::FollowButton,
+                  user: user,
+                  followed: followed?
                 )
-                link(
-                  r("common.events").t,
-                  to: UserAudits::Index.with(user_id: user.id),
-                  class: "form-secondary"
-                )
+
+                if me.id == user.id || me.admin?
+                  link(
+                    r("common.edit_profile").t,
+                    to: Users::Edit.with(id: user.id),
+                    class: "form-secondary"
+                  )
+                  link(
+                    r("common.events").t,
+                    to: UserAudits::Index.with(user_id: user.id),
+                    class: "form-secondary"
+                  )
+                end
               end
             end
           end

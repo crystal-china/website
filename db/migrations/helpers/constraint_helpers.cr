@@ -57,6 +57,31 @@ module Db::ConstraintHelpers
       DROP CONSTRAINT IF EXISTS "#{table_name}_#{left_column}_#{right_column}_check"
       SQL
   end
+
+  # 两列非空时不能相等：例如 (3, 4) 允许，(3, 3) 拒绝。
+  # 不限制 NULL；要求非空时，仍需在字段上定义 NOT NULL。
+  def require_different_values(
+    table_name : String,
+    left_column : String,
+    right_column : String,
+  ) : Nil
+    execute <<-SQL
+      ALTER TABLE #{table_name}
+      ADD CONSTRAINT "#{table_name}_#{left_column}_#{right_column}_different_check"
+      CHECK ("#{left_column}" <> "#{right_column}")
+      SQL
+  end
+
+  def drop_different_values(
+    table_name : String,
+    left_column : String,
+    right_column : String,
+  ) : Nil
+    execute <<-SQL
+      ALTER TABLE #{table_name}
+      DROP CONSTRAINT IF EXISTS "#{table_name}_#{left_column}_#{right_column}_different_check"
+      SQL
+  end
 end
 
 class Avram::Migrator::Migration::V1

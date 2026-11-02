@@ -89,6 +89,7 @@ en:
     validate_url_format: must be a valid URL beginning with %{scheme}
 
   validations:
+    cannot_follow_self: cannot follow yourself
     admin_required: requires administrator privileges
     login_name_change_expired: can only be changed within 7 days of registration
     login_name_format: must start with an English letter, number or underscore, end with a letter or number, and use only letters, numbers or non-adjacent separators (_, - and .)
