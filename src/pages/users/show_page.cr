@@ -1,8 +1,9 @@
 class Users::ShowPage < MainLayout
   needs user : User
-  needs entries : Array(Topic) | Array(Comment)
+  needs entries : Array(Topic) | Array(Comment) | Array(User)
   needs pages : Lucky::Paginator
-  needs show_replies : Bool
+  needs tab : Users::ProfileTab::Kind
+  needs viewer_followed_user_ids : Array(Int64)
   needs followed : Bool
 
   def page_title : String
@@ -115,11 +116,12 @@ class Users::ShowPage < MainLayout
 
       div class: "mx-auto mt-6 max-w-2xl" do
         mount(
-          Users::Topics,
+          Users::ProfileTab,
           user: user,
           entries: entries,
           pages: pages,
-          show_replies: show_replies?
+          tab: tab,
+          viewer_followed_user_ids: viewer_followed_user_ids
         )
       end
     end

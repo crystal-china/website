@@ -32,8 +32,8 @@ abstract class ForumAction < BrowserAction
       can_delete_topic = me.admin? || (me.id == topic.user_id && topic.replies_count.zero?)
 
       if me.id != topic.user_id
-        topic_followed = topic_follow_query(topic.id).any?
-        author_followed = user_follow_query(topic.user_id).any?
+        topic_followed = my_followed_topic_query(topic.id).any?
+        author_followed = my_followed_user_query(topic.user_id).any?
       end
     end
 

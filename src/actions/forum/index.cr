@@ -11,7 +11,7 @@ class Forum::Index < ForumAction
     query = TopicQuery.new
 
     if following && (me = current_user)
-      query = query.join_topic_follows(TopicFollowQuery.new.follower_id(me.id))
+      query = query.join_topic_follows(followed_topic_query(me.id))
     end
 
     if (node_slug = node)

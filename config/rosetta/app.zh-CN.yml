@@ -494,11 +494,15 @@ zh-CN:
       unfollow: 取消关注
       follow_help: 接收此用户的新主题和评论通知
       unfollow_help: 不再接收此用户的关注通知，直接回复和提及仍会通知
-    topics:
+    profile_tab:
       created: 创建的主题
       replied: 最近回复
+      followed_users: 关注
+      followers: 关注者
       no_topics: 还没有创建主题。
       no_replies: 还没有回复。
+      no_followed_users: 还没有关注用户。
+      no_followers: 还没有关注者。
       created_at: "发布于 %{time}"
       replied_at: "回复于 %{time}"
     update:

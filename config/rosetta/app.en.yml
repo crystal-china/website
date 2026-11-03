@@ -500,11 +500,15 @@ en:
       unfollow: Unfollow
       follow_help: Get notified of new topics and comments from this user
       unfollow_help: Stop following this user; direct replies and mentions still notify you
-    topics:
+    profile_tab:
       created: Created topics
       replied: Recent replies
+      followed_users: Following
+      followers: Followers
       no_topics: No topics created yet.
       no_replies: No replies yet.
+      no_followed_users: Not following anyone yet.
+      no_followers: No followers yet.
       created_at: "Posted %{time}"
       replied_at: "Replied %{time}"
     update:

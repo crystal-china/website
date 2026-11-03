@@ -138,6 +138,157 @@ describe "User follows" do
     end
   end
 
+  it "publicly lists followed users by newest follow and uses the viewer's follow state" do
+    owner = UserFactory.create
+    first = UserFactory.create
+    second = UserFactory.create
+    viewer = UserFactory.create
+    unrelated = UserFactory.create
+    second = UpdateUser.update!(second, tagline: "<b>Crystal</b>")
+    SaveUserFollow.create!(followed_user_id: first.id, follower_id: owner.id)
+    SaveUserFollow.create!(followed_user_id: second.id, follower_id: owner.id)
+    SaveUserFollow.create!(followed_user_id: first.id, follower_id: viewer.id)
+    SaveUserFollow.create!(followed_user_id: unrelated.id, follower_id: viewer.id)
+    path = Users::Show.with(login_name: owner.login_name, show_followed_users: true).path
+    client = ApiClient.new
+    response = client.get(path)
+    document = XML.parse_html(response.body)
+    list = document.xpath_node("//section[@id='user-topics']").not_nil!
+
+    response.status_code.should eq(200)
+    list.xpath_nodes(".//article//a[contains(@class, 'user-name')]").map(&.["href"]).should eq([
+      Users::Show.with(login_name: second.login_name).path,
+      Users::Show.with(login_name: first.login_name).path,
+    ])
+    list.xpath_nodes(".//button").should be_empty
+    list.xpath_node(".//article//b").should be_nil
+    list.content.should contain("<b>Crystal</b>")
+    list.xpath_node(".//a[contains(@class, 'segmented-option-active')]").not_nil!.content.should eq("关注")
+
+    response = client.get("#{path}&backdoor_user_id=#{owner.id}")
+    document = XML.parse_html(response.body)
+
+    document.xpath_nodes("//section[@id='user-topics']//button[@hx-delete]").size.should eq(2)
+
+    response = client.get("#{path}&backdoor_user_id=#{viewer.id}")
+    document = XML.parse_html(response.body)
+
+    document.xpath_node("//button[@hx-delete='/users/#{first.id}/follow']").should_not be_nil
+    document.xpath_node("//button[@hx-post='/users/#{second.id}/follow']").should_not be_nil
+
+    client.delete("/users/#{first.id}/follow?backdoor_user_id=#{viewer.id}")
+    UserFollowQuery.new.follower_id(owner.id).followed_user_id(first.id).any?.should be_true
+    response = client.get("#{path}&backdoor_user_id=#{first.id}")
+    document = XML.parse_html(response.body)
+
+    document.xpath_node("//button[@hx-post='/users/#{first.id}/follow'] | //button[@hx-delete='/users/#{first.id}/follow']").should be_nil
+  end
+
+  it "lists followers separately and allows following back without changing the incoming follow" do
+    owner = UserFactory.create
+    first = UserFactory.create
+    second = UserFactory.create
+    unrelated = UserFactory.create
+    SaveUserFollow.create!(followed_user_id: owner.id, follower_id: first.id)
+    SaveUserFollow.create!(followed_user_id: owner.id, follower_id: second.id)
+    SaveUserFollow.create!(followed_user_id: first.id, follower_id: owner.id)
+    SaveUserFollow.create!(followed_user_id: unrelated.id, follower_id: owner.id)
+    path = Users::Show.with(login_name: owner.login_name, show_followers: true).path
+    client = ApiClient.new
+    response = client.get(path)
+    document = XML.parse_html(response.body)
+    list = document.xpath_node("//section[@id='user-topics']").not_nil!
+
+    response.status_code.should eq(200)
+    list.xpath_nodes(".//article//a[contains(@class, 'user-name')]").map(&.["href"]).should eq([
+      Users::Show.with(login_name: second.login_name).path,
+      Users::Show.with(login_name: first.login_name).path,
+    ])
+    list.xpath_nodes(".//button").should be_empty
+    list.xpath_node(".//a[contains(@class, 'segmented-option-active')]").not_nil!.content.should eq("关注者")
+
+    response = client.get("#{path}&backdoor_user_id=#{owner.id}")
+    document = XML.parse_html(response.body)
+
+    document.xpath_node("//button[@hx-delete='/users/#{first.id}/follow']").should_not be_nil
+    document.xpath_node("//button[@hx-post='/users/#{second.id}/follow']").should_not be_nil
+
+    response = client.post("/users/#{second.id}/follow?backdoor_user_id=#{owner.id}")
+
+    response.body.should contain(%(hx-delete="/users/#{second.id}/follow"))
+    client.delete("/users/#{second.id}/follow?backdoor_user_id=#{owner.id}")
+    UserFollowQuery.new.follower_id(second.id).followed_user_id(owner.id).any?.should be_true
+
+    response = client.get("#{path}&backdoor_user_id=#{first.id}")
+    document = XML.parse_html(response.body)
+
+    document.xpath_node("//button[@hx-post='/users/#{first.id}/follow'] | //button[@hx-delete='/users/#{first.id}/follow']").should be_nil
+    document.xpath_node("//button[@hx-post='/users/#{second.id}/follow']").should_not be_nil
+  end
+
+  it "paginates both user lists locally, resets the page on tab changes and restores full pages" do
+    owner = UserFactory.create
+    users = Array.new(21) do
+      user = UserFactory.create
+      SaveUserFollow.create!(followed_user_id: user.id, follower_id: owner.id)
+      SaveUserFollow.create!(followed_user_id: owner.id, follower_id: user.id)
+
+      user
+    end
+    [false, true].each do |show_followers|
+      path = Users::Show.with(
+        login_name: owner.login_name,
+        show_followed_users: show_followers ? nil : true,
+        show_followers: show_followers ? true : nil
+      ).path
+      client = ApiClient.new
+      response = client.get(path)
+      document = XML.parse_html(response.body)
+      next_path = document.xpath_node("//section[@id='user-topics']//nav/a").not_nil!["href"]
+
+      document.xpath_nodes("//section[@id='user-topics']//article//a[contains(@class, 'user-name')]").map(&.["href"]).should eq(
+        users.reverse.first(20).map { |user| Users::Show.with(login_name: user.login_name).path }
+      )
+      URI.parse(next_path).query_params[show_followers ? "show_followers" : "show_followed_users"].should eq("true")
+      URI.parse(next_path).query_params["page"].should eq("2")
+      response = client.headers("HX-Request-Type": "partial").get(next_path)
+      document = XML.parse_html(response.body)
+
+      response.status_code.should eq(200)
+      document.xpath_node("//main | //footer").should be_nil
+      document.xpath_nodes("//article//a[contains(@class, 'user-name')]").map(&.["href"]).should eq([
+        Users::Show.with(login_name: users.first.login_name).path,
+      ])
+      document.content.should contain("第 2 / 2 页")
+      document.xpath_nodes("//div[@class='segmented-control']/a").each do |link|
+        URI.parse(link["href"]).query_params["page"]?.should be_nil
+      end
+
+      response = ApiClient.new.headers("HX-Request-Type": "full", "HX-History-Restore-Request": "true").get(next_path)
+      XML.parse_html(response.body).xpath_node("//main//h1").not_nil!.content.should contain(owner.nickname)
+    end
+  end
+
+  it "translates both empty user lists" do
+    user = UserFactory.create
+    profile = Users::Show.with(login_name: user.login_name).path
+    messages_by_tab = {
+      "show_followed_users" => {"zh-CN" => "还没有关注用户。", "en" => "Not following anyone yet."},
+      "show_followers"      => {"zh-CN" => "还没有关注者。", "en" => "No followers yet."},
+    }
+
+    messages_by_tab.each do |tab, messages|
+      messages.each do |locale, message|
+        response = ApiClient.new.headers("HX-Request-Type": "partial").get("#{profile}?#{tab}=true&locale=#{locale}")
+        document = XML.parse_html(response.body)
+
+        response.status_code.should eq(200)
+        document.content.should contain(message)
+        document.xpath_node("//nav").should be_nil
+      end
+    end
+  end
+
   it "shows the author follow state in the topic sidebar and hides the button for guests and the author" do
     author = UserFactory.create
     reader = UserFactory.create

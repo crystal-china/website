@@ -6,7 +6,7 @@ class Users::Follows::Delete < BrowserAction
 
     user = UserQuery.find(user_id)
 
-    user_follow_query(user.id).delete
+    my_followed_user_query(user.id).delete
 
     component(
       Users::FollowButton,
