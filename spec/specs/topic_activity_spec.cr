@@ -68,5 +68,16 @@ describe "Topic activity" do
       FROM comments WHERE id = $1
       SQL
     activity.call.should eq({3, author.id, root_at})
+
+    # 重算、删除和恢复也按 ID 选择最后回复，与新增时的 trigger 保持一致。
+    last_reply = CommentQuery.new.comment_thread_id(thread.id).id.desc_order.first
+
+    TopicActivity.refresh(thread)
+    activity.call.should eq({3, author.id, root_at})
+
+    DeleteComment.delete!(last_reply)
+    activity.call.should eq({2, replier.id, child_at})
+    CommentQuery.new.only_soft_deleted.id(last_reply.id).first.restore
+    activity.call.should eq({3, author.id, root_at})
   end
 end

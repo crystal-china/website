@@ -10,7 +10,8 @@ module TopicActivity
       topic = TopicQuery.new.with_soft_deleted.id(topic_id).for_update.first
       # 级联删除会将后代一起软删除，直接统计尚未删除的评论即可。
       comments = CommentQuery.new.comment_thread_id(thread.id)
-      last_reply = comments.created_at.desc_order.id.desc_order.first?
+      # 最后回复统一按 ID 选择，与新增回复的 trigger 保持一致。
+      last_reply = comments.id.desc_order.first?
 
       TopicQuery.new.with_soft_deleted.id(topic.id).update(
         replies_count: comments.select_count.to_i,
