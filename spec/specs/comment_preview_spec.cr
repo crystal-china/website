@@ -74,5 +74,12 @@ describe Shared::CommentPreview do
     summary.xpath_node("./header").should_not be_nil
     summary.xpath_nodes("./header//span[contains(@class, 'comment-preview-expand-label')]").size.should eq(1)
     summary.xpath_node("./span[contains(@class, 'comment-preview-expand-label')]").should be_nil
+
+    author_info = summary.xpath_node("./header/div[contains(@class, 'comment-author')]").not_nil!
+
+    author_info.xpath_node(".//a[contains(@class, 'user-name-stacked')]").should_not be_nil
+    author_info.xpath_node(".//span[@class='user-name-nickname']").not_nil!.content.should eq(author.nickname)
+    author_info.xpath_node(".//span[@class='user-name-login']").not_nil!.content.should eq("@#{author.login_name}")
+    author_info.xpath_node(".//time").should be_nil
   end
 end

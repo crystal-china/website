@@ -56,6 +56,23 @@
     @apply flex flex-wrap items-center justify-between gap-3;
   }
 
+  /* 评论作者保持紧凑两行；其他位置仍使用原来的账号徽章。 */
+  .comment-author .user-name {
+    @apply gap-0;
+  }
+
+  .comment-author .user-name-nickname {
+    @apply max-w-full truncate;
+    font-size: 14px;
+    line-height: 18px;
+  }
+
+  .comment-author .user-name-login {
+    @apply truncate rounded-none border-0 bg-transparent p-0 font-normal text-gray-500;
+    font-size: 12px;
+    line-height: 14px;
+  }
+
   /* 只去掉正文末尾的留白，让表情靠近正文，内部段落间距不变。 */
   .comment-body .prose > :last-child {
     margin-bottom: 0;

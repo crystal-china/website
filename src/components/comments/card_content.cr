@@ -30,16 +30,17 @@ class Comments::CardContent < BaseComponent
     fade_comment_update_success_message_script = "init transition my opacity to 0% over 3 seconds"
 
     header class: "mb-2 flex flex-wrap items-center justify-between gap-3 sm:flex-nowrap" do
-      div class: "flex min-w-0 items-center gap-3" do
+      div class: "comment-author flex min-w-0 items-center gap-[8px]" do
         mount(
           Shared::Avatar,
           user: user,
-          classes: "h-6 w-6 rounded-md border border-gray-300 text-xs"
+          classes: "h-[32px] w-[32px] rounded-md border border-gray-300 text-sm"
         )
         div class: "min-w-0 text-xs" do
           mount(
             Shared::UserName,
-            user: user
+            user: user,
+            stacked: true
           )
         end
       end
@@ -55,7 +56,7 @@ class Comments::CardContent < BaseComponent
         render_parent_comment_hint
       end
 
-      div class: "ml-auto flex shrink-0 items-center gap-2 text-xs leading-none" do
+      div class: "ml-auto flex max-w-full flex-wrap items-center justify-end gap-2 text-xs leading-none" do
         a(
           href: "#comment-#{comment.id}",
           class: "inline-flex items-center text-sky-700 underline decoration-dotted underline-offset-2"
