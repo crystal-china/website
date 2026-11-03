@@ -193,7 +193,7 @@ describe "Management notifications" do
     queries = Avram::Events::QueryEvent.logged_events.map(&.query)
 
     queries.count { |sql| sql.starts_with?("SELECT") && sql.includes?("FROM notifications") }.should eq(1)
-    NotificationQuery.new.url("/comments/#{comment.id}").select_count.should eq(6)
+    NotificationQuery.new.for_target(comment).select_count.should eq(6)
     NotificationQuery.new.user_id(followers.last.id).first.kind.should eq(Notification::Kind::FollowedTopicReply)
     NotificationQuery.find(first_notification.id).read_at.should_not be_nil
     Avram::Events::QueryEvent.logged_events.clear
@@ -262,7 +262,7 @@ describe "Mention notification preferences" do
 
     UpdateUser.update!(mentioned, mention_notifications_enabled: true)
     UpdateTopic.update!(topic, content: "@#{mentioned.login_name} 重新接收提及", actor_id: author.id)
-    NotificationQuery.new.user_id(mentioned.id).url("/forum/#{topic.id}").first.kind.should eq(Notification::Kind::Mention)
+    NotificationQuery.new.user_id(mentioned.id).for_target(topic).first.kind.should eq(Notification::Kind::Mention)
   end
 
   it "does not suppress ordinary replies or management events when mention notifications are disabled" do
@@ -275,12 +275,12 @@ describe "Mention notification preferences" do
 
     top = CreateComment.create!(user_id: responder.id, comment_thread_id: thread.id, content: "@#{author.login_name} 普通主题回复")
     child = CreateComment.create!(user_id: responder.id, parent_id: root.id, content: "@#{author.login_name} 直接回复")
-    NotificationQuery.new.user_id(author.id).url("/comments/#{top.id}").first.kind.should eq(Notification::Kind::TopicReply)
-    NotificationQuery.new.user_id(author.id).url("/comments/#{child.id}").first.kind.should eq(Notification::Kind::CommentReply)
+    NotificationQuery.new.user_id(author.id).for_target(top).first.kind.should eq(Notification::Kind::TopicReply)
+    NotificationQuery.new.user_id(author.id).for_target(child).first.kind.should eq(Notification::Kind::CommentReply)
 
     root = UpdateComment.update!(root, content: "@#{author.login_name} 编辑根评论", actor_id: responder.id)
     DeleteComment.delete!(root, actor_id: responder.id, delete_descendants: true)
-    notifications = NotificationQuery.new.user_id(author.id).url("/comments/#{root.id}").id.asc_order.results
+    notifications = NotificationQuery.new.user_id(author.id).for_target(root).id.asc_order.results
     notifications.map(&.kind).should eq([Notification::Kind::CommentEdited, Notification::Kind::CommentDeleted])
     NotificationQuery.new.user_id(author.id).kind(Notification::Kind::Mention).any?.should be_false
   end
@@ -296,7 +296,7 @@ describe "Notifications" do
         user_id: user.id,
         actor_id: actor.id,
         kind: :mention,
-        url: "/docs/index",
+        comment_id: 1_i64,
         source_title: "Grouped notification",
         excerpt: "Excerpt",
         created_at: at
@@ -329,7 +329,7 @@ describe "Notifications" do
         user_id: user.id,
         actor_id: actor.id,
         kind: kind,
-        url: "/docs/index",
+        comment_id: 1_i64,
         source_title: kind.to_s,
         excerpt: "Excerpt",
         read_at: kind.value.even? ? Time.utc : nil
@@ -363,10 +363,10 @@ describe "Notifications" do
 
     21.times do |index|
       SaveNotification.create!(user_id: user.id, actor_id: other.id, kind: :mention,
-        url: "/docs/index", source_title: "弹窗通知#{index}", excerpt: "通知摘要")
+        comment_id: 1_i64, source_title: "弹窗通知#{index}", excerpt: "通知摘要")
     end
     foreign_notification = SaveNotification.create!(user_id: other.id, actor_id: user.id, kind: :mention,
-      url: "/docs/index", source_title: "其他用户的通知", excerpt: "不应显示")
+      comment_id: 1_i64, source_title: "其他用户的通知", excerpt: "不应显示")
     client = ApiClient.new.headers("HX-Request-Type": "partial")
     response = ApiClient.new.get("/notifications?backdoor_user_id=#{user.id}")
     response.status_code.should eq(200)
@@ -481,7 +481,7 @@ describe "Notifications" do
     actor = UserFactory.create
     100.times do
       SaveNotification.create!(user_id: user.id, actor_id: actor.id, kind: :mention,
-        url: "/docs/index", source_title: "通知", excerpt: "摘要")
+        comment_id: 1_i64, source_title: "通知", excerpt: "摘要")
     end
 
     response = ApiClient.new.get("/notifications?backdoor_user_id=#{user.id}")
@@ -498,17 +498,17 @@ describe "Notifications" do
     NotificationQuery.new.select_count.should eq(0)
 
     child = CreateComment.create!(user_id: responder.id, parent_id: root.id, content: "回复作者")
-    notifications = NotificationQuery.new.url("/comments/#{child.id}").results
+    notifications = NotificationQuery.new.for_target(child).results
     notifications.size.should eq(1)
     notifications.first.user_id.should eq(author.id)
     notifications.first.kind.should eq(Notification::Kind::CommentReply)
 
     grandchild = CreateComment.create!(user_id: author.id, parent_id: child.id, content: "再次回复")
-    NotificationQuery.new.url("/comments/#{grandchild.id}").first.user_id.should eq(responder.id)
+    NotificationQuery.new.for_target(grandchild).first.user_id.should eq(responder.id)
 
     mentioned_reply = CreateComment.create!(user_id: responder.id, parent_id: root.id, content: "@#{author.login_name} 明确提及")
-    NotificationQuery.new.url("/comments/#{mentioned_reply.id}").select_count.should eq(1)
-    NotificationQuery.new.url("/comments/#{mentioned_reply.id}").first.kind.should eq(Notification::Kind::Mention)
+    NotificationQuery.new.for_target(mentioned_reply).select_count.should eq(1)
+    NotificationQuery.new.for_target(mentioned_reply).first.kind.should eq(Notification::Kind::Mention)
   end
 
   it "allows explicit self-mentions but does not notify ordinary self-replies" do
@@ -520,16 +520,16 @@ describe "Notifications" do
     NotificationQuery.new.select_count.should eq(0)
 
     child = CreateComment.create!(user_id: author.id, parent_id: root.id, content: "@xiaoming 明确提及自己")
-    notification = NotificationQuery.new.url("/comments/#{child.id}").first
+    notification = NotificationQuery.new.for_target(child).first
     notification.user_id.should eq(author.id)
     notification.kind.should eq(Notification::Kind::Mention)
 
     UpdateComment.update!(root, content: "@xiaoming 编辑时提及自己")
-    NotificationQuery.new.url("/comments/#{root.id}").first.user_id.should eq(author.id)
+    NotificationQuery.new.for_target(root).first.user_id.should eq(author.id)
     UpdateTopic.update!(topic, content: "@xiaoming 主题里提及自己")
-    NotificationQuery.new.url("/forum/#{topic.id}").first.user_id.should eq(author.id)
+    NotificationQuery.new.for_target(topic).first.user_id.should eq(author.id)
     new_topic = CreateTopic.create!(user_id: author.id, node_id: topic.node_id, title: "自我提及", content: "@xiaoming")
-    NotificationQuery.new.url("/forum/#{new_topic.id}").first.user_id.should eq(author.id)
+    NotificationQuery.new.for_target(new_topic).first.user_id.should eq(author.id)
   end
 
   it "notifies the topic author and a different parent author, and supports document replies" do
@@ -539,14 +539,14 @@ describe "Notifications" do
     thread = CommentThreadQuery.new.topic_id(notification_topic(author).id).first
     root = CreateComment.create!(user_id: parent_author.id, comment_thread_id: thread.id, content: "根评论")
     child = CreateComment.create!(user_id: responder.id, parent_id: root.id, content: "子评论")
-    NotificationQuery.new.url("/comments/#{child.id}").results.map(&.user_id).sort!.should eq([author.id, parent_author.id].sort)
+    NotificationQuery.new.for_target(child).results.map(&.user_id).sort!.should eq([author.id, parent_author.id].sort)
 
     doc = SaveDoc.create!(path_index: "/docs/notifications", content: "文档正文")
     doc_thread = CommentThreadQuery.new.doc_id(doc.id).first
     doc_root = CreateComment.create!(user_id: parent_author.id, comment_thread_id: doc_thread.id, content: "文档评论")
-    NotificationQuery.new.url("/comments/#{doc_root.id}").any?.should be_false
+    NotificationQuery.new.for_target(doc_root).any?.should be_false
     doc_child = CreateComment.create!(user_id: responder.id, parent_id: doc_root.id, content: "文档子评论")
-    notification = NotificationQuery.new.url("/comments/#{doc_child.id}").first
+    notification = NotificationQuery.new.for_target(doc_child).first
     notification.user_id.should eq(parent_author.id)
     notification.source_title.should eq("/docs/notifications")
     notification.excerpt.should eq("文档子评论")
@@ -573,13 +573,13 @@ describe "Notifications" do
       email@example_user
       MARKDOWN
 
-    NotificationQuery.new.url("/comments/#{comment.id}").results.map(&.user_id).should eq([mentioned.id])
+    NotificationQuery.new.for_target(comment).results.map(&.user_id).should eq([mentioned.id])
     NotificationQuery.new.user_id(code_user.id).any?.should be_false
     NotificationQuery.new.user_id(mentioned.id).update(read_at: Time.utc)
 
     comment = UpdateComment.update!(comment, content: "@xiaoming @new_friend @new_friend")
     UpdateComment.update!(comment, content: "@xiaoming @new_friend 再次编辑")
-    NotificationQuery.new.url("/comments/#{comment.id}").select_count.should eq(2)
+    NotificationQuery.new.for_target(comment).select_count.should eq(2)
     NotificationQuery.new.user_id(mentioned.id).first.read_at.should_not be_nil
     NotificationQuery.new.user_id(added.id).first.kind.should eq(Notification::Kind::Mention)
   end
@@ -589,12 +589,12 @@ describe "Notifications" do
     users = Array.new(7) { |index| UserFactory.create &.nickname("被提及#{index}") }
     topic = notification_topic(author)
     topic = UpdateTopic.update!(topic, content: users.map { |user| "@#{user.login_name}" }.join(" "))
-    NotificationQuery.new.url("/forum/#{topic.id}").select_count.should eq(5)
+    NotificationQuery.new.for_target(topic).select_count.should eq(5)
     UpdateTopic.update!(topic, content: "#{topic.content} 再次编辑")
-    NotificationQuery.new.url("/forum/#{topic.id}").select_count.should eq(5)
+    NotificationQuery.new.for_target(topic).select_count.should eq(5)
 
     new_topic = CreateTopic.create!(user_id: author.id, node_id: topic.node_id, title: "提及", content: "@#{users.last.login_name}")
-    notification = NotificationQuery.new.url("/forum/#{new_topic.id}").first
+    notification = NotificationQuery.new.for_target(new_topic).first
     notification.user_id.should eq(users.last.id)
     notification.actor_id.should eq(author.id)
     notification.source_title.should eq(new_topic.title)
@@ -609,7 +609,7 @@ describe "Notifications" do
 
     UpdateTopic.update!(topic, content: content)
 
-    recipients = NotificationQuery.new.url("/forum/#{topic.id}").results.map(&.user_id)
+    recipients = NotificationQuery.new.for_target(topic).results.map(&.user_id)
     recipients.to_set.should eq(users.first(5).map(&.id).to_set)
 
     response = ApiClient.new.get("/forum/new?backdoor_user_id=#{author.id}")
@@ -637,7 +637,7 @@ describe "Notifications" do
     MARKDOWN
     topic = UpdateTopic.update!(topic, content: content)
 
-    notifications = NotificationQuery.new.url("/forum/#{topic.id}").results
+    notifications = NotificationQuery.new.for_target(topic).results
     notifications.map(&.user_id).should eq([mentioned.id])
     notifications.first.kind.should eq(Notification::Kind::Mention)
     topic.content_html.not_nil!.should contain(%(href="/users/#{mentioned.login_name}/profile"))
@@ -688,11 +688,8 @@ describe "Notifications" do
       comment = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: source)
       new_topic = CreateTopic.create!(user_id: author.id, node_id: topic.node_id, title: "转义提及测试", content: source)
 
-      [Comments::Show.with(id: comment.id).path, Forum::Show.with(id: new_topic.id).path].each do |url|
-        notified = NotificationQuery.new.user_id(mentioned.id).url(url).kind(Notification::Kind::Mention).any?
-
-        notified.should eq(count.even?)
-      end
+      NotificationQuery.new.user_id(mentioned.id).for_target(comment).kind(Notification::Kind::Mention).any?.should eq(count.even?)
+      NotificationQuery.new.user_id(mentioned.id).for_target(new_topic).kind(Notification::Kind::Mention).any?.should eq(count.even?)
 
       comment.content.should eq(source)
       new_topic.content.should eq(source)
@@ -716,7 +713,7 @@ describe "Notifications" do
     child = CreateComment.create!(user_id: responder.id, parent_id: root.id, content: "隐藏正文不能泄露")
     DeleteComment.delete!(root, delete_descendants: true)
 
-    notification = NotificationQuery.new.url("/comments/#{child.id}").first
+    notification = NotificationQuery.new.for_target(child).first
     response = ApiClient.new.get("/notifications?backdoor_user_id=#{author.id}")
     response.status_code.should eq(200)
     response.body.should contain(topic.title)
@@ -752,7 +749,7 @@ describe "Notifications" do
     topic = notification_topic(author)
     thread = CommentThreadQuery.new.topic_id(topic.id).first
     comment = CreateComment.create!(user_id: responder.id, comment_thread_id: thread.id, content: "历史通知摘要")
-    notification = NotificationQuery.new.url("/comments/#{comment.id}").first
+    notification = NotificationQuery.new.for_target(comment).first
 
     CommentQuery.new.id(comment.id).delete
 
@@ -762,7 +759,7 @@ describe "Notifications" do
     response.body.should contain("评论已删除或暂不可见")
 
     topic = UpdateTopic.update!(topic, content: "@#{responder.login_name}")
-    notification = NotificationQuery.new.url("/forum/#{topic.id}").first
+    notification = NotificationQuery.new.for_target(topic).first
 
     TopicQuery.new.id(topic.id).delete
 
@@ -779,7 +776,7 @@ describe "Notifications" do
     thread = CommentThreadQuery.new.topic_id(topic.id).first
     content = %(<script>alert("snapshot")</script>) + "中文摘要" * 40
     comment = CreateComment.create!(user_id: responder.id, comment_thread_id: thread.id, content: content)
-    notification = NotificationQuery.new.url("/comments/#{comment.id}").first
+    notification = NotificationQuery.new.for_target(comment).first
 
     notification.actor_id.should eq(responder.id)
     notification.source_title.should eq(topic.title)
@@ -813,7 +810,7 @@ describe "Notifications" do
     responder = UserFactory.create
     thread = CommentThreadQuery.new.topic_id(notification_topic(author).id).first
     comment = CreateComment.create!(user_id: responder.id, comment_thread_id: thread.id, content: "回复")
-    notification = NotificationQuery.new.url("/comments/#{comment.id}").first
+    notification = NotificationQuery.new.for_target(comment).first
     ApiClient.new.get("/notifications?backdoor_user_id=#{author.id}").status_code.should eq(200)
     NotificationQuery.find(notification.id).read_at.should be_nil
 
@@ -829,7 +826,8 @@ describe "Notifications" do
         user_id: responder.id,
         actor_id: author.id,
         kind: Notification::Kind::Mention,
-        url: notification.url,
+        topic_id: notification.topic_id,
+        comment_id: notification.comment_id,
         source_title: notification.source_title,
         excerpt: comment.content[0, 120]
       )

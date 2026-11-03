@@ -167,7 +167,7 @@ describe "Topic follows" do
       Notification::Kind::Mention,
       Notification::Kind::FollowedTopicReply,
     ])
-    NotificationQuery.new.user_id(author.id).url("/comments/#{reply.id}").first.kind.should eq(Notification::Kind::TopicReply)
+    NotificationQuery.new.user_id(author.id).for_target(reply).first.kind.should eq(Notification::Kind::TopicReply)
   end
 
   it "preserves old notifications on unfollow and does not replay past replies on refollow" do

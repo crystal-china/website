@@ -6,7 +6,7 @@ private def counter_notification(user : User, actor : User, *, read_at : Time? =
     user_id: user.id,
     actor_id: actor.id,
     kind: :mention,
-    url: "/docs/index",
+    comment_id: 1_i64,
     source_title: "通知计数测试",
     excerpt: "测试摘要",
     read_at: read_at

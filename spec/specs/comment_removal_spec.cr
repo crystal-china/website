@@ -272,7 +272,7 @@ describe "Comment deletion and withdrawal" do
       user_id: author.id,
       actor_id: author.id,
       kind: :mention,
-      url: "/comments/#{child.id}",
+      comment_id: child.id,
       source_title: "Before withdrawal",
       excerpt: "Historical excerpt"
     )

@@ -118,14 +118,17 @@ module NotificationDelivery
   ) : Nil
     return if recipients.empty?
 
-    url = record.is_a?(Comment) ? Comments::Show.with(id: record.id).path : Forum::Show.with(id: record.id).path
-    source_title = if record.is_a?(Topic)
-                     # 主题被编辑、移动节点、删除，或者正文里包含 @用户
-                     record.title
-                   else
-                     thread = record.comment_thread!
+    if record.is_a?(Topic)
+      topic_id = record.id
+      comment_id = nil
+      # 主题被编辑、移动节点、删除，或者正文里包含 @用户
+      source_title = record.title
+    else
+      thread = record.comment_thread!
+      topic_id = thread.topic_id
+      comment_id = record.id
 
-                     if (topic_id = thread.topic_id)
+      source_title = if topic_id
                        # 回复、编辑、删除主题的评论，也使用主题标题。
                        TopicQuery.find(topic_id).title
                      else
@@ -133,9 +136,9 @@ module NotificationDelivery
                        doc = thread.doc!.not_nil!
                        DocNavigation.pages_by_path[doc.path_index]?.try(&.title) || doc.path_index
                      end
-                   end
+    end
 
-    existing = existing_notifications(url, recipients)
+    existing = existing_notifications(record, recipients)
 
     recipients.each do |user_id, kind|
       # 编辑主题或评论时，避免重复通知已经被 @过的人
@@ -145,7 +148,8 @@ module NotificationDelivery
         user_id: user_id,
         actor_id: actor_id,
         kind: kind,
-        url: url,
+        topic_id: topic_id,
+        comment_id: comment_id,
         source_title: source_title,
         excerpt: excerpt
       )
@@ -153,7 +157,7 @@ module NotificationDelivery
   end
 
   private def self.existing_notifications(
-    url : String,
+    record : Topic | Comment,
     recipients : Hash(Int64, Notification::Kind),
   ) : Set(Tuple(Int64, Notification::Kind))
     # 管理相关的类型，可以反复发生，不去重。
@@ -169,7 +173,7 @@ module NotificationDelivery
 
     return existing if recipients.empty?
 
-    query = NotificationQuery.new.url(url).user_id.in(recipients.keys).kind.in(recipients.values.uniq!)
+    query = NotificationQuery.new.for_target(record).user_id.in(recipients.keys).kind.in(recipients.values.uniq!)
     query.each do |notification|
       existing << {notification.user_id, notification.kind}
     end

@@ -34,20 +34,26 @@ module Db::ConstraintHelpers
   # NULL         | 有值
 
   # 例如 reply_id 和 root_reply_id：顶级评论两者都为空，子评论则必须同时记录父评论和根评论。
+
+  # :at_least_one_non_null 要求至少一个字段非空，也允许两者都有值。
+  # 例如通知：主题通知只有 topic_id，文档评论只有 comment_id，主题评论两者都有。
   def require_nullability_relation(relation : Symbol, table_name : String, left_column : String, right_column : String) : Nil
     operator = case relation
                when :exactly_one_non_null
                  "<>"
                when :both_null_or_both_non_null
                  "="
+               when :at_least_one_non_null
+                 "OR"
                else
                  raise ArgumentError.new("Unsupported nullability relation: #{relation}")
                end
+    null_check = relation == :at_least_one_non_null ? "IS NOT NULL" : "IS NULL"
 
     execute <<-SQL
       ALTER TABLE #{table_name}
       ADD CONSTRAINT "#{table_name}_#{left_column}_#{right_column}_check"
-      CHECK ((#{left_column} IS NULL) #{operator} (#{right_column} IS NULL))
+      CHECK ((#{left_column} #{null_check}) #{operator} (#{right_column} #{null_check}))
       SQL
   end
 

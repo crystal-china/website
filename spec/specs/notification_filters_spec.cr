@@ -9,7 +9,7 @@ describe "Notification filters" do
         user_id: user.id,
         actor_id: actor.id,
         kind: :mention,
-        url: "/docs/index",
+        comment_id: 1_i64,
         source_title: "通知#{index}",
         excerpt: "通知摘要",
         read_at: index < 21 ? nil : Time.utc
@@ -19,7 +19,7 @@ describe "Notification filters" do
       user_id: actor.id,
       actor_id: user.id,
       kind: :mention,
-      url: "/docs/index",
+      comment_id: 1_i64,
       source_title: "其他用户的通知",
       excerpt: "不可见"
     )
@@ -70,7 +70,7 @@ describe "Notification filters" do
       user_id: user.id,
       actor_id: actor.id,
       kind: :mention,
-      url: "/docs/index",
+      comment_id: 1_i64,
       source_title: "自己的通知",
       excerpt: "通知摘要"
     )
@@ -78,7 +78,7 @@ describe "Notification filters" do
       user_id: actor.id,
       actor_id: user.id,
       kind: :mention,
-      url: "/docs/index",
+      comment_id: 1_i64,
       source_title: "其他用户的通知",
       excerpt: "不可见"
     )
@@ -121,7 +121,7 @@ describe "Notification filters" do
       user_id: user.id,
       actor_id: actor.id,
       kind: :mention,
-      url: "/docs/index",
+      comment_id: 1_i64,
       source_title: "未读通知",
       excerpt: "通知摘要"
     )

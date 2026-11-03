@@ -334,7 +334,7 @@ describe "User follows" do
     end
 
     topic = user_follow_topic(author, "@#{mentioned.login_name} @#{opted_out.login_name} @#{author.login_name} 新主题")
-    notifications = NotificationQuery.new.url("/forum/#{topic.id}").results.to_h { |notification| {notification.user_id, notification} }
+    notifications = NotificationQuery.new.for_target(topic).results.to_h { |notification| {notification.user_id, notification} }
     notifications.size.should eq(4)
     notifications[follower.id].kind.should eq(Notification::Kind::FollowedUserTopic)
     notifications[mentioned.id].kind.should eq(Notification::Kind::Mention)
@@ -343,7 +343,7 @@ describe "User follows" do
     notifications[follower.id].actor_id.should eq(author.id)
     notifications[follower.id].source_title.should eq(topic.title)
     NotificationDelivery.topic_created(topic, [mentioned.login_name, opted_out.login_name, author.login_name])
-    NotificationQuery.new.url("/forum/#{topic.id}").select_count.should eq(4)
+    NotificationQuery.new.for_target(topic).select_count.should eq(4)
     UpdateTopic.update!(topic, content: "@#{follower.login_name} 编辑补充", actor_id: author.id)
     NotificationQuery.new.user_id(follower.id).id.asc_order.map(&.kind).should eq([
       Notification::Kind::FollowedUserTopic,
@@ -371,7 +371,7 @@ describe "User follows" do
     SaveTopicFollow.create!(topic_id: topic.id, follower_id: topic_follower.id)
     SaveTopicFollow.create!(topic_id: topic.id, follower_id: author.id)
     child = CreateComment.create!(user_id: author.id, parent_id: root.id, content: "@#{mentioned.login_name} 新回复")
-    recipients = NotificationQuery.new.url("/comments/#{child.id}").results.to_h { |notification| {notification.user_id, notification.kind} }
+    recipients = NotificationQuery.new.for_target(child).results.to_h { |notification| {notification.user_id, notification.kind} }
 
     recipients.should eq({
       owner.id          => Notification::Kind::TopicReply,
@@ -381,13 +381,13 @@ describe "User follows" do
       mentioned.id      => Notification::Kind::Mention,
     })
     NotificationDelivery.comment_created(child, [mentioned.login_name])
-    NotificationQuery.new.url("/comments/#{child.id}").select_count.should eq(5)
+    NotificationQuery.new.for_target(child).select_count.should eq(5)
     grandchild = CreateComment.create!(user_id: author.id, parent_id: child.id, content: "更深回复")
-    NotificationQuery.new.user_id(user_follower.id).url("/comments/#{grandchild.id}").first.kind.should eq(Notification::Kind::FollowedUserReply)
+    NotificationQuery.new.user_id(user_follower.id).for_target(grandchild).first.kind.should eq(Notification::Kind::FollowedUserReply)
     doc = SaveDoc.create!(path_index: "/docs/user-follows", content: "文档")
     doc_thread = CommentThreadQuery.new.doc_id(doc.id).first
     doc_comment = CreateComment.create!(user_id: author.id, comment_thread_id: doc_thread.id, content: "文档评论")
-    NotificationQuery.new.user_id(user_follower.id).url("/comments/#{doc_comment.id}").first.source_title.should eq(doc.path_index)
+    NotificationQuery.new.user_id(user_follower.id).for_target(doc_comment).first.source_title.should eq(doc.path_index)
     NotificationQuery.new.user_id(author.id).any?.should be_false
     ApiClient.new.get("/notifications?backdoor_user_id=#{user_follower.id}").body.should contain("发表了评论")
   end
