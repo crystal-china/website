@@ -20,20 +20,22 @@ class Users::ShowPage < MainLayout
     div class: "#{page_container_classes} page-content" do
       article class: "app-panel mx-auto max-w-2xl overflow-hidden" do
         div(
-          class: "h-16 border-b border-sky-100 bg-gradient-to-r from-sky-100 via-slate-100 to-amber-50 sm:h-20",
+          class: "h-12 border-b border-sky-100 bg-gradient-to-r from-sky-100 via-slate-100 to-amber-50",
           "aria-hidden": "true"
         )
 
         div class: "px-6 pb-8 sm:px-10" do
-          mount(
-            Shared::Avatar,
-            user: user,
-            classes: "-mt-10 h-20 w-20 rounded-2xl text-3xl ring-4 ring-white"
-          )
+          header class: "flex flex-wrap items-end justify-between gap-4" do
+            mount(
+              Shared::Avatar,
+              user: user,
+              classes: "-mt-10 h-20 w-20 rounded-2xl text-3xl ring-4 ring-white"
+            )
 
-          header class: "mt-5 flex flex-wrap items-start justify-between gap-4" do
-            div class: "min-w-0" do
-              h1 class: "m-0 text-2xl font-semibold tracking-tight text-gray-900" do
+            div class: "min-w-0 flex-1" do
+              h1(
+                class: "m-0 text-2xl font-semibold tracking-tight text-gray-900 [&_.user-name-login]:rounded-none [&_.user-name-login]:border-0 [&_.user-name-login]:bg-transparent [&_.user-name-login]:p-0 [&_.user-name-login]:font-normal [&_.user-name-login]:text-gray-500"
+              ) do
                 mount(
                   Shared::UserName,
                   user: user,
@@ -48,7 +50,7 @@ class Users::ShowPage < MainLayout
             end
 
             if (me = current_user)
-              div class: "flex flex-wrap gap-3" do
+              div class: "ml-auto flex flex-wrap justify-end gap-3" do
                 mount(
                   Users::FollowButton,
                   user: user,
