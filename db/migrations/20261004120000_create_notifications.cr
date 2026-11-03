@@ -5,9 +5,10 @@ class CreateNotifications::V20261004120000 < Avram::Migrator::Migration::V1
       # 收件人和触发通知的用户；不能使用客户端提供的收件人列表。
       add_belongs_to user : User, on_delete: :cascade, index: false # 这条通知属于谁；下方复合索引已覆盖 user_id。
       add_belongs_to actor : User, on_delete: :cascade              # 执行动作的人，动作包括，回复、提及、点赞、关注等
-      # 站内目标地址；评论使用 /comments/:id，点击时再计算所在分页。
-      # 不关联目标记录，目标被删除后仍保留这条历史通知。
-      add url : String
+      # 保存历史目标 ID，不设目标级联外键；目标删除后通知仍保留。
+      # 主题评论同时记录 topic_id，按主题查询通知时无须反查评论。
+      add topic_id : Int64?
+      add comment_id : Int64?
       # 存储 Notification::Kind 的固定整数值；以后新增类型不要改变已有值。
       add kind : Int32
       # 创建时的标题快照，不随标题编辑或目标软删除而改变。
@@ -19,8 +20,21 @@ class CreateNotifications::V20261004120000 < Avram::Migrator::Migration::V1
       add_timestamps
     end
 
+    require_nullability_relation(
+      :at_least_one_non_null,
+      "notifications",
+      "topic_id",
+      "comment_id"
+    )
+
     # 加速代码中的回复/提及去重查询，不限制管理操作的重复通知。
-    create_index table_for(Notification), [:user_id, :url, :kind]
+    # user_id、topic_id 前缀也供主题已读同步使用；comment_id 划定回复阅读范围。
+    create_index table_for(Notification), [:user_id, :topic_id, :comment_id, :kind]
+    create_index(
+      table_for(Notification),
+      [:user_id, :comment_id, :kind],
+      where_raw: "comment_id IS NOT NULL"
+    )
     create_index table_for(Notification), [:user_id, :id]
     create_index(
       table_for(Notification),
