@@ -10,9 +10,8 @@ class CreateTopic < Topic::SaveOperation
   end
 
   after_save do |topic|
-    NotificationDelivery.mentions_updated(
+    NotificationDelivery.topic_created(
       topic,
-      topic.user_id,
       mentioned_login_names
     ) if new_record? && content.changed?
   end

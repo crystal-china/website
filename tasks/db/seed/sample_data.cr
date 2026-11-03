@@ -168,7 +168,8 @@ class Db::Seed::SampleData < LuckyTask::Task
     puts "输入 @xi 可以补全 xiaohong、xiaoli、xiaoming；concurrency 关闭提及通知并隐身，但仍有普通回复通知。"
     puts "启动应用前设置 ADMIN_EMAILS=admin@crystal-china.org，以启用示例管理员。"
     puts "回收站：/admin/trash，共 #{CommentQuery.new.only_soft_deleted.select_count} 条评论，超过一页；主题回收站：/admin/trash?kind=topics。"
-    puts "小明有 36 条通知，两页均包含全部 9 种类型；27 条未读、9 条已读，日期分散在三天。"
+    puts "小明关注了 ruby_to_crystal，可进入其个人主页测试取消关注。"
+    puts "小明有 33 条通知，两页均包含全部 11 种类型；24 条未读、9 条已读，日期分散在三天。"
     puts "小明账户记录：#{UserAudits::Index.with(user_id: users[1].id).path}；全站账户记录：#{UserAudits::Index.path}。"
     puts "管理员和小明的账户记录超过一页，ruby_to_crystal 有一条，concurrency 没有；可测试改名、密码与 OAuth 登录事件。"
     puts "搜索可试 PGroonga、配置；完整场景说明见 docs/sample_data.md。"
@@ -196,12 +197,12 @@ class Db::Seed::SampleData < LuckyTask::Task
     # 清除前面准备主题和回收站时产生的通知，下面通过真实操作生成固定的演示场景。
     # DELETE 才会触发逐行计数更新，TRUNCATE 会让用户上的通知计数保留旧值。
     NotificationQuery.new.delete
+    SaveUserFollow.upsert!(followed_user_id: replier.id, follower_id: user.id)
 
     [
       "Channel 关闭后如何让生产者正常退出",
       "给 Markdown 链接检查工具补充 CI 测试",
       "为中文全文搜索设计可重复执行的同步任务",
-      "在树莓派上演练 PostgreSQL 备份与恢复",
     ].each_with_index do |title, index|
       reply_content = "@#{reader.login_name} 迁移脚本时还可以练习「#{title}」。建议先列出正常、失败和重复执行三种情况，再逐项验证。你关闭了提及通知，但第一条是对你的直接回复，普通回复通知仍应保留；小明作为主题作者也会收到普通回复通知。"
 
@@ -295,13 +296,24 @@ class Db::Seed::SampleData < LuckyTask::Task
         user_id: replier.id,
         content: "我在练习「#{title}」时，也遇到了 Channel 消费者退出后的收尾问题。小明关注了这个主题，但不是作者，也没有被直接回复或提及，因此应收到关注主题的新回复通知。"
       )
+      CreateTopic.create!(
+        user_id: replier.id,
+        node_id: nodes["projects"].id,
+        title: "实践记录：#{title}",
+        content: "我会在这篇主题里持续记录「#{title}」的实现过程，包括可运行示例、测试结果和最终取舍。小明关注了我，因此应收到关注用户发表主题的通知。"
+      )
+      CreateComment.create!(
+        comment_thread_id: doc_root.comment_thread_id,
+        user_id: replier.id,
+        content: "我把「#{title}」的实践经验补充到了文档讨论中。这不是直接回复或提及，关注我的用户仍能收到这条动态通知。"
+      )
     end
 
     now = Time.local
     users.each do |recipient|
       notifications = NotificationQuery.new.user_id(recipient.id).id.asc_order.results
 
-      # 每轮依次生成九种通知，保证两页都有全部类型；日期和已读状态只用于演示。
+      # 每轮生成十一种通知，三轮共两页，每页都有全部类型；日期和已读状态只用于演示。
       notifications.each_with_index do |notification, index|
         at = now - (2 - index * 3 // notifications.size).days
 

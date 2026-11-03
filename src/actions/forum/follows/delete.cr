@@ -5,12 +5,12 @@ class Forum::Follows::Delete < BrowserAction
 
     return head 403 if topic.user_id == me.id
 
-    TopicFollowQuery.new.topic_id(topic.id).follower_id(me.id).delete
+    my_followed_topic_query(topic.id).delete
 
     component(
       Forum::FollowButton,
       topic: topic,
-      following: false,
+      followed: false,
     )
   end
 end

@@ -10,7 +10,7 @@ class Forum::Follows::Create < BrowserAction
     component(
       Forum::FollowButton,
       topic: topic,
-      following: true,
+      followed: true,
     )
   end
 end

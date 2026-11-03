@@ -1,14 +1,16 @@
 class Notification < BaseModel
   enum Kind
-    TopicReply         = 1
-    CommentReply       = 2
-    Mention            = 3
-    TopicEdited        = 4
-    TopicMoved         = 5
-    TopicDeleted       = 6
-    CommentEdited      = 7
-    CommentDeleted     = 8
-    FollowedTopicReply = 9
+    TopicReply         =  1
+    CommentReply       =  2
+    Mention            =  3
+    TopicEdited        =  4
+    TopicMoved         =  5
+    TopicDeleted       =  6
+    CommentEdited      =  7
+    CommentDeleted     =  8
+    FollowedTopicReply =  9
+    FollowedUserTopic  = 10
+    FollowedUserReply  = 11
   end
 
   table do

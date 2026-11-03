@@ -25,11 +25,16 @@ abstract class ForumAction < BrowserAction
   ) : Lucky::Response
     comment_thread = CommentThreadQuery.new.topic_id(topic.id).first
     can_delete_topic = false
-    following = false
+    topic_followed = false
+    author_followed = false
 
     if (me = current_user)
       can_delete_topic = me.admin? || (me.id == topic.user_id && topic.replies_count.zero?)
-      following = TopicFollowQuery.new.topic_id(topic.id).follower_id(me.id).any? if me.id != topic.user_id
+
+      if me.id != topic.user_id
+        topic_followed = my_followed_topic_query(topic.id).any?
+        author_followed = my_followed_user_query(topic.user_id).any?
+      end
     end
 
     html(
@@ -37,7 +42,8 @@ abstract class ForumAction < BrowserAction
       topic: topic,
       comment_thread: comment_thread,
       can_delete_topic: can_delete_topic,
-      following: following,
+      topic_followed: topic_followed,
+      author_followed: author_followed,
       followed_topics: followed_topics
     )
   end

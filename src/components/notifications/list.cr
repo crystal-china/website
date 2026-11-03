@@ -66,6 +66,8 @@ class Notifications::List < BaseComponent
                   in .topic_reply?          then r(".topic_reply").t
                   in .comment_reply?        then r(".comment_reply").t
                   in .followed_topic_reply? then r(".followed_topic_reply").t
+                  in .followed_user_topic?  then r(".followed_user_topic").t
+                  in .followed_user_reply?  then r(".followed_user_reply").t
                   in .mention?              then r(".mention").t
                   in .topic_edited?         then r(".topic_edited").t
                   in .topic_moved?          then r(".topic_moved").t
@@ -115,7 +117,7 @@ class Notifications::List < BaseComponent
 
   private def render_event_icon(kind : Notification::Kind) : Nil
     src, background = case kind
-                      in .topic_reply?, .comment_reply?, .followed_topic_reply?
+                      in .topic_reply?, .comment_reply?, .followed_topic_reply?, .followed_user_topic?, .followed_user_reply?
                         {asset("svgs/notifications/reply.svg"), "bg-sky-100"}
                       in .mention?
                         {asset("svgs/notifications/mention.svg"), "bg-amber-100"}

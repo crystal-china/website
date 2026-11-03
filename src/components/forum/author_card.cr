@@ -1,5 +1,6 @@
 class Forum::AuthorCard < BaseComponent
   needs user : User
+  needs followed : Bool = false
 
   def render : Nil
     section class: "app-panel p-4" do
@@ -38,6 +39,16 @@ class Forum::AuthorCard < BaseComponent
           local_time(
             last_active_at,
             relative_time(last_active_at)
+          )
+        end
+      end
+
+      if (me = current_user) && me.id != user.id
+        div class: "mt-4 flex justify-center [&>button]:h-8 [&>button]:rounded-lg [&>button]:px-3 [&>button]:py-0" do
+          mount(
+            Users::FollowButton,
+            user: user,
+            followed: followed?
           )
         end
       end
