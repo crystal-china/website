@@ -17,6 +17,7 @@ describe "Topic activity" do
     end
 
     activity.call.should eq({0, nil, topic.last_active_at})
+    topic.last_reply_id.should be_nil
     TopicQuery.new.last_active_at.desc_order.id.desc_order.first.id.should eq(newer_topic.id)
 
     root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "根评论", created_at: root_at)
@@ -24,6 +25,7 @@ describe "Topic activity" do
     grandchild = CreateComment.create!(user_id: author.id, parent_id: child.id, content: "后代评论", created_at: grandchild_at)
 
     activity.call.should eq({3, author.id, grandchild_at})
+    topic.reload.last_reply_id.should eq(grandchild.id)
     TopicQuery.new.last_active_at.desc_order.id.desc_order.first.id.should eq(topic.id)
     TopicQuery.new.id(topic.id).preload_last_reply_user.first.last_reply_user.not_nil!.id.should eq(author.id)
 
@@ -33,13 +35,17 @@ describe "Topic activity" do
 
     DeleteComment.delete!(grandchild)
     activity.call.should eq({2, replier.id, child_at})
+    topic.reload.last_reply_id.should eq(child.id)
     CommentQuery.new.only_soft_deleted.id(grandchild.id).first.restore
     activity.call.should eq({3, author.id, grandchild_at})
+    topic.reload.last_reply_id.should eq(grandchild.id)
     DeleteComment.delete!(child, delete_descendants: true)
     activity.call.should eq({1, author.id, root_at})
+    topic.reload.last_reply_id.should eq(root.id)
 
     DeleteComment.delete!(root)
     activity.call.should eq({0, nil, topic.created_at})
+    topic.reload.last_reply_id.should be_nil
     TopicQuery.new.last_active_at.desc_order.id.desc_order.first.id.should eq(newer_topic.id)
     CommentQuery.new.only_soft_deleted.id(root.id).first.restore
     activity.call.should eq({1, author.id, root_at})
@@ -74,10 +80,13 @@ describe "Topic activity" do
 
     TopicActivity.refresh(thread)
     activity.call.should eq({3, author.id, root_at})
+    topic.reload.last_reply_id.should eq(last_reply.id)
 
     DeleteComment.delete!(last_reply)
     activity.call.should eq({2, replier.id, child_at})
+    topic.reload.last_reply_id.should eq(child.id)
     CommentQuery.new.only_soft_deleted.id(last_reply.id).first.restore
     activity.call.should eq({3, author.id, root_at})
+    topic.reload.last_reply_id.should eq(last_reply.id)
   end
 end
