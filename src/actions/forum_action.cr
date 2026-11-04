@@ -37,6 +37,28 @@ abstract class ForumAction < BrowserAction
       end
     end
 
+    if me
+      AppDatabase.transaction do
+        # 浏览主题才同步通知；新增主题／评论的 callback 只记录阅读位置。
+        if me.unread_notifications_count > 0
+          notifications = NotificationQuery.new.user_id(me.id).unread_in_topic(
+            topic.id,
+            through_reply_id: topic.last_reply_id
+          )
+          read_count = notifications.update(read_at: Time.utc)
+
+          # trigger 已更新计数，页面和铃铛必须使用新对象。
+          current_user = me.reload if read_count > 0
+        end
+
+        TopicReading.mark_as_read(
+          topic_id: topic.id,
+          user_id: me.id,
+          last_reply_id: topic.last_reply_id
+        )
+      end
+    end
+
     html(
       Forum::ShowPage,
       topic: topic,
