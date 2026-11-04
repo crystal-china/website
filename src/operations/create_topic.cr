@@ -14,6 +14,14 @@ class CreateTopic < Topic::SaveOperation
       topic,
       mentioned_login_names
     ) if new_record? && content.changed?
+
+    if new_record?
+      TopicReading.mark_as_read(
+        topic_id: topic.id,
+        user_id: topic.user_id,
+        last_reply_id: topic.last_reply_id
+      )
+    end
   end
 
   private def create_comment_thread(topic : Topic) : Nil
