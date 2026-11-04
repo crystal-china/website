@@ -4,15 +4,19 @@ class Forum::Index < ForumAction
 
   param node : String?
   param following : Bool = false
+  param only_show_unread : Bool = false
 
-  before require_sign_in_for_following
+  before require_sign_in_for_filters
 
   get "/forum" do
     query = TopicQuery.new
+    me = current_user
 
-    if following && (me = current_user)
+    if following && me
       query = query.join_topic_follows(followed_topic_query(me.id))
     end
+
+    query = query.unread_by(me.id) if only_show_unread && me
 
     if (node_slug = node)
       current_node = NodeQuery.new.slug(node_slug).first?
@@ -21,8 +25,8 @@ class Forum::Index < ForumAction
 
     query = query.last_active_at.desc_order.id.desc_order.preload_user.preload_node.preload_last_reply_user
 
-    if following
-      # 关注可与节点组合，不能使用站点/节点的总数。
+    if following || only_show_unread
+      # 关注可以按照节点过滤，未读会受七天窗口影响，所以，不使用 counter
       pages, topics = paginate(query, per_page: 20)
     else
       item_count = current_node ? current_node.topics_count : Space::BaseQuery.find(Space::DEFAULT_ID).topics_count
@@ -35,12 +39,29 @@ class Forum::Index < ForumAction
       topics = query.limit(pages.per_page).offset(pages.offset)
     end
 
+    topic_ids = topics.results.map(&.id)
+    unread_topic_ids = Set(Int64).new
+
+    if me && !topic_ids.empty?
+      # 只检查本页主题，一次查询取得未读标记，不逐条查询阅读记录或评论。
+      unread_topic_ids = if only_show_unread
+                           topic_ids.to_set
+                         else
+                           TopicReading.unread_ids(
+                             user_id: me.id,
+                             topic_ids: topic_ids
+                           )
+                         end
+    end
+
     if context.request.headers["HX-Request-Type"]? == "partial"
       return component(
         Forum::List,
         topics: topics,
         pages: pages,
         followed_topics: following,
+        only_show_unread: only_show_unread,
+        unread_topic_ids: unread_topic_ids
       )
     end
 
@@ -49,12 +70,14 @@ class Forum::Index < ForumAction
       topics: topics,
       pages: pages,
       node: current_node,
-      followed_topics: following
+      followed_topics: following,
+      only_show_unread: only_show_unread,
+      unread_topic_ids: unread_topic_ids
     )
   end
 
-  private def require_sign_in_for_following : Lucky::Response | Lucky::ActionPipes::Continue
-    return continue unless following
+  private def require_sign_in_for_filters : Lucky::Response | Lucky::ActionPipes::Continue
+    return continue unless following || only_show_unread
 
     require_sign_in
   end

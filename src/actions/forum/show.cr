@@ -2,6 +2,7 @@ class Forum::Show < ForumAction
   include Auth::AllowGuests
 
   param following : Bool = false
+  param only_show_unread : Bool = false
 
   get "/forum/:id" do
     topic = TopicQuery.new.id(id).preload_user.preload_node.first?
@@ -14,6 +15,10 @@ class Forum::Show < ForumAction
       )
     end
 
-    render_topic(topic, followed_topics: following)
+    render_topic(
+      topic,
+      followed_topics: following,
+      only_show_unread: only_show_unread
+    )
   end
 end

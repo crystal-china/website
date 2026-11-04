@@ -21,6 +21,7 @@ abstract class ForumAction < BrowserAction
     topic : Topic,
     *,
     followed_topics : Bool = false,
+    only_show_unread : Bool = false,
     current_user : User? = self.current_user,
   ) : Lucky::Response
     comment_thread = CommentThreadQuery.new.topic_id(topic.id).first
@@ -66,7 +67,8 @@ abstract class ForumAction < BrowserAction
       can_delete_topic: can_delete_topic,
       topic_followed: topic_followed,
       author_followed: author_followed,
-      followed_topics: followed_topics
+      followed_topics: followed_topics,
+      only_show_unread: only_show_unread
     )
   end
 end
