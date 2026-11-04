@@ -2,10 +2,10 @@ require "../spec_helper"
 
 describe Shared::Pagination do
   it "hides pagination for zero or one page, including disabled controls" do
-    {0, 1, 20}.each do |count|
+    {0, 1, App::DEFAULT_PER_PAGE}.each do |count|
       pages = Lucky::Paginator.new(
         page: 1,
-        per_page: 20,
+        per_page: App::DEFAULT_PER_PAGE,
         item_count: count,
         full_path: "/forum"
       )
@@ -21,8 +21,8 @@ describe Shared::Pagination do
     {1, 2}.each do |page|
       pages = Lucky::Paginator.new(
         page: page,
-        per_page: 20,
-        item_count: 21,
+        per_page: App::DEFAULT_PER_PAGE,
+        item_count: App::DEFAULT_PER_PAGE + 1,
         full_path: "/forum?node=help"
       )
       html = Shared::Pagination.new(
@@ -46,8 +46,8 @@ describe Shared::Pagination do
   it "keeps custom styles and translated labels without prescribing HTMX behavior" do
     pages = Lucky::Paginator.new(
       page: 1,
-      per_page: 20,
-      item_count: 21,
+      per_page: App::DEFAULT_PER_PAGE,
+      item_count: App::DEFAULT_PER_PAGE + 1,
       full_path: "/notifications?locale=en"
     )
     html = Rosetta.with_locale("en") do
@@ -84,7 +84,7 @@ describe Shared::Pagination do
       XML.parse_html(response.body).xpath_node("//main//nav[span]").should be_nil
     end
 
-    topics = Array.new(21) do |index|
+    topics = Array.new(App::DEFAULT_PER_PAGE + 1) do |index|
       CreateTopic.create!(user_id: admin.id, node_id: node.id, title: "分页测试 #{index}", content: "分页正文")
     end
     response = client.get("/forum?node=#{node.slug}")

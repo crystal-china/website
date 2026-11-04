@@ -842,7 +842,7 @@ describe "Notifications" do
     thread = CommentThreadQuery.new.topic_id(notification_topic(author).id).first
     root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "要定位的根评论")
     child = CreateComment.create!(user_id: responder.id, parent_id: root.id, content: "要定位的子评论")
-    (CommentAction::PER_PAGE + 1).times do |index|
+    (App::SMALL_PER_PAGE + 1).times do |index|
       CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "较新根评论#{index}")
       CreateComment.create!(user_id: author.id, parent_id: root.id, content: "较新子评论#{index}")
     end
@@ -852,7 +852,7 @@ describe "Notifications" do
         response = ApiClient.new.get("/htmx/comments?#{target}&order_by=#{order}")
 
         response.status_code.should eq(200)
-        XML.parse_html(response.body).xpath_nodes("//article[starts-with(@id, 'comment-')]").size.should eq(CommentAction::PER_PAGE)
+        XML.parse_html(response.body).xpath_nodes("//article[starts-with(@id, 'comment-')]").size.should eq(App::SMALL_PER_PAGE)
       end
     end
 

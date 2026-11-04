@@ -29,12 +29,12 @@ class Forum::Index < ForumAction
 
     if following || only_show_unread
       # 关注可以按照节点过滤，未读会受七天窗口影响，所以，不使用 counter
-      pages, topics = paginate(query, per_page: 20)
+      pages, topics = paginate(query, per_page: App::DEFAULT_PER_PAGE)
     else
       item_count = current_node ? current_node.topics_count : Space::BaseQuery.find(Space::DEFAULT_ID).topics_count
       pages = Lucky::Paginator.new(
         page: paginator_page,
-        per_page: 20,
+        per_page: App::DEFAULT_PER_PAGE,
         item_count: item_count,
         full_path: context.request.resource
       )

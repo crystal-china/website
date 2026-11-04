@@ -1,8 +1,6 @@
 class Admin::Trash::Index < AdminAction
   include Lucky::Paginator::BackendHelpers
 
-  PER_PAGE = 20
-
   param kind : String = "comments"
   param q : String = ""
   param comment_id : Int64?
@@ -23,7 +21,7 @@ class Admin::Trash::Index < AdminAction
         .preload_comment_thread
         .preload_parent
 
-      pages, comments_query = paginate(comments_query, per_page: PER_PAGE)
+      pages, comments_query = paginate(comments_query, per_page: App::DEFAULT_PER_PAGE)
       comments = comments_query.results
       topics = [] of Topic
     else
@@ -41,7 +39,7 @@ class Admin::Trash::Index < AdminAction
         )
       end
 
-      pages, topics_query = paginate(topics_query, per_page: PER_PAGE)
+      pages, topics_query = paginate(topics_query, per_page: App::DEFAULT_PER_PAGE)
       comments = [] of Comment
       topics = topics_query.results
     end

@@ -17,7 +17,7 @@ class Admin::Trash::PreviewTopic < AdminAction
       .preload_user
 
     query.preload_parent(&.preload_user)
-    pages, comments = paginate(query, per_page: 20)
+    pages, comments = paginate(query, per_page: App::DEFAULT_PER_PAGE)
 
     html(
       Admin::Trash::PreviewTopicPage,

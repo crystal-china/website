@@ -22,7 +22,7 @@ class Admin::Trash::ShowComment < AdminAction
       deleted_at,
       anchor.id
     )
-    page = (preceding.select_count // Admin::Trash::Index::PER_PAGE + 1).to_i
+    page = (preceding.select_count // App::DEFAULT_PER_PAGE + 1).to_i
 
     # 不沿用关键词或批次筛选，确保关联评论一定能在目标分页中找到。
     redirect Admin::Trash::Index.with(page: page, comment_id: comment.id)

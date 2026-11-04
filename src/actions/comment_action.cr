@@ -1,6 +1,4 @@
 abstract class CommentAction < BrowserAction
-  PER_PAGE = 10
-
   include Lucky::Paginator::BackendHelpers
   include Auth::AllowGuests
   include MarkdownFormatter
@@ -56,7 +54,7 @@ abstract class CommentAction < BrowserAction
     # Avram 的 paginate 总会执行 COUNT；这里复用数据库 trigger 维护的计数。
     page = Lucky::Paginator.new(
       page: paginator_page,
-      per_page: PER_PAGE,
+      per_page: App::SMALL_PER_PAGE,
       item_count: item_count,
       full_path: context.request.resource
     )

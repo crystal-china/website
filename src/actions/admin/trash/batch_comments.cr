@@ -22,10 +22,10 @@ class Admin::Trash::BatchComments < AdminAction
     if (focus_id = comment_id) && params.get?(:page).nil?
       focused_comment = query.id(focus_id).first
       preceding = query.id.gt(focused_comment.id)
-      @focused_page = (preceding.select_count // Admin::Trash::Index::PER_PAGE + 1).to_i
+      @focused_page = (preceding.select_count // App::DEFAULT_PER_PAGE + 1).to_i
     end
 
-    pages, query = paginate(query, per_page: Admin::Trash::Index::PER_PAGE)
+    pages, query = paginate(query, per_page: App::DEFAULT_PER_PAGE)
 
     component(
       Admin::Trash::CommentBatch,

@@ -11,7 +11,7 @@ module NotificationHelpers
 
     pages = Lucky::Paginator.new(
       page: paginator_page,
-      per_page: 20,
+      per_page: App::DEFAULT_PER_PAGE,
       item_count: item_count,
       # GET 和 POST 都返回列表，分页始终请求读取列表的 GET 路由。
       # 如果使用 paginate 方法，会使用当前请求地址 full_path: context.request.resource

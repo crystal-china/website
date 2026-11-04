@@ -22,7 +22,7 @@ class Users::Show < BrowserAction
 
   private def render_followed_users(user : User) : Lucky::Response
     query = followed_user_query(user.id).id.desc_order.preload_followed_user
-    pages, follows = paginate(query, per_page: 20)
+    pages, follows = paginate(query, per_page: App::DEFAULT_PER_PAGE)
     users = follows.results.map(&.followed_user)
 
     render_profile(
@@ -36,7 +36,7 @@ class Users::Show < BrowserAction
 
   private def render_followers(user : User) : Lucky::Response
     query = user_follower_query(user.id).id.desc_order.preload_follower
-    pages, follows = paginate(query, per_page: 20)
+    pages, follows = paginate(query, per_page: App::DEFAULT_PER_PAGE)
     users = follows.results.map(&.follower)
 
     render_profile(
@@ -56,7 +56,7 @@ class Users::Show < BrowserAction
       .id.desc_order
       .preload_comment_thread(&.preload_topic(&.preload_node))
 
-    pages, comments = paginate(query, per_page: 20)
+    pages, comments = paginate(query, per_page: App::DEFAULT_PER_PAGE)
 
     render_profile(
       user,
@@ -70,7 +70,7 @@ class Users::Show < BrowserAction
     query = TopicQuery.new.user_id(user.id).created_at.desc_order.id.desc_order.preload_node
     pages = Lucky::Paginator.new(
       page: paginator_page,
-      per_page: 20,
+      per_page: App::DEFAULT_PER_PAGE,
       item_count: user.topics_count,
       full_path: context.request.resource
     )
