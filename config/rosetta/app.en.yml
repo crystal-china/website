@@ -149,7 +149,7 @@ en:
     trash: Trash
     restore: Restore
     save: Save
-    events: Account history
+    account_history: Account history
     unset: Not set
     reset_password: Reset password
     last_active: Last active

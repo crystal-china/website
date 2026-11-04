@@ -11,9 +11,9 @@
 
 1. First, install Crystal. You can check out the instructions here: https://crystal-lang.org/install/
 
-3. Run `crystal run script/setup.cr`, Just make sure you’ve got `pg` and `bun` installed before running this.
+2. Run `crystal run script/setup.cr`, Just make sure you’ve got `pg` and `bun` installed before running this.
 
-4. Finally, run `lucky dev`, and you're all set!
+3. Finally, run `lucky dev`, and you're all set!
 
 ## Deployment
 
@@ -44,7 +44,7 @@ The application is deployed as a static binary with its frontend assets baked in
        └── sitemap.xml
    ```
 
-5. On a fresh database, run `bin/tasks db.migrate`, `bin/tasks db.seed.required_data`, then `bin/tasks db.sync_doc_content`. Required seeds create the default Space and community nodes; rerunning them preserves existing configuration. The sync task populates the PGroonga-backed document search index and is safe to rerun after Markdown changes.
+5. On a fresh database, run `bin/tasks db.migrate` and `bin/tasks db.seed.required_data`. Required seeds create the default Space and community nodes; rerunning them preserves existing configuration. Once `public/markdowns/` contains `navigation.yml` and at least one Markdown file, run `bin/tasks db.sync_doc_content` to populate the PGroonga-backed document search index. If these files are missing, start the application and use the setup page from step 3 before syncing. The sync task can be rerun after Markdown changes; files removed from the synchronized directory have their stored content cleared, making their comments unavailable too.
 
 6. Add a systemd service to start the server. See [crystal_china.service](/nginx/crystal_china.service). [Procodile](https://github.com/crystal-china/procodile) can be used instead.
 
@@ -57,6 +57,20 @@ The application is deployed as a static binary with its frontend assets baked in
 3. Run `bin/tasks db.sync_doc_content` on the server to update searchable content, then refresh the document page. Recompiling or restarting the application is not required.
 
 A Markdown file omitted from `navigation.yml` remains directly accessible and searchable, but it will not appear in the Sidebar or Pager. Visiting a document also syncs its content into the search index.
+
+## Project Notes
+
+- [开发示例数据](docs/sample_data.md)
+- [主题未读](docs/topic_unread.md)
+- [通知与关注](docs/通知.md)
+- [分页计数与公共条数](docs/topic_counters.md)
+- [评论删除、撤回与长正文预览](docs/comment_removal.md)
+- [用户事件与账户设置](docs/user_events.md)
+- [国际化与时区](docs/i18n.md)
+- [组件的 current_user](docs/component_context.md)
+- [主题草稿](docs/主题草稿.md)
+- [正文 HTML](docs/正文HTML.md)
+- [用户名与提及](docs/用户名与提及.md)
 
 ## Contributing
 

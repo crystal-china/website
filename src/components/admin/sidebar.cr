@@ -24,7 +24,7 @@ class Admin::Sidebar < BaseComponent
 
           li do
             link(
-              r("common.events").t,
+              r("common.account_history").t,
               to: UserAudits::Index,
               class: admin_nav_link_classes(active: current_path == UserAudits::Index.path)
             )

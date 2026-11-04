@@ -6,7 +6,7 @@ class UserAudits::IndexPage < MainLayout
   needs kind : UserAudit::Kind?
 
   def page_title : String
-    r("common.events").t
+    r("common.account_history").t
   end
 
   def page_description : String

@@ -148,7 +148,7 @@ zh-CN:
     trash: 回收站
     restore: 恢复
     save: 保存
-    events: 账户记录
+    account_history: 账户记录
     unset: 未设置
     reset_password: 重置密码
     last_active: 最后活跃于

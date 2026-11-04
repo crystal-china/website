@@ -6,8 +6,16 @@
 
 ```crystal
 mount Navbar::UserMenu
-mount Shared::Avatar, user: profile_user
-component Shared::OnlineUsers, user_count: user_count, guest_count: guest_count
+mount(
+  Shared::Avatar,
+  user: profile_user,
+  classes: "h-8 w-8 rounded-md"
+)
+component(
+  Shared::OnlineUsers,
+  user_count: user_count,
+  guest_count: guest_count
+)
 ```
 
 嵌套组件继续继承同一个用户。上例中的 `profile_user` 只是头像所属用户，不会改变访问者身份。
@@ -28,6 +36,14 @@ mount Navbar::UserMenu, current_user: nil
 直接使用 `.new(...)` 没有调用方可供继承，需要用户信息时仍应显式传参。
 例如 Markdown 排班表通过 `TableScheduler.new` 生成 HTML，其 `current_user` 参数继续保留。
 第三方直接继承 `Lucky::BaseComponent` 的组件不受影响。
+
+## 整页渲染与铃铛更新
+
+Action 的 `html` 使用 Lucky 原有的 `expose current_user`，不是上面的组件包装。宏展开时会补上 `current_user: current_user`；调用位置有同名局部变量或方法参数时，传入的就是该值。
+
+例如打开主题后，通知 trigger 已把数据库中的未读数从 3 改成 1，内存里的旧用户仍是 3。`ForumAction#render_topic` 用 `current_user = me.reload` 取得新对象，再调用 `html`。页面、Navbar 和铃铛逐层使用这个新对象，生成显示 1 的 HTML；整页替换时铃铛一起更新，不需要额外的 `hx-partial`。
+
+这不是给变量赋值就自动修改浏览器，也不会把其他请求的登录用户一起修改。必须将新对象用于后续渲染，浏览器收到并替换 HTML 后才能看到变化。
 
 ## 实现与验证
 
