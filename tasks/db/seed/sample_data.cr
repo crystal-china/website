@@ -125,11 +125,14 @@ class Db::Seed::SampleData < LuckyTask::Task
         MARKDOWN
       end
 
+      created_at = now - 5.days + index.hours
+
       CreateTopic.create!(
         user_id: index.zero? ? users[1].id : users[(index - 1) % users.size].id,
         node_id: nodes[slug].id,
         title: title,
-        created_at: now - 5.days + index.hours,
+        created_at: created_at,
+        last_active_at: created_at,
         content: content
       )
     end.to_a
@@ -148,6 +151,7 @@ class Db::Seed::SampleData < LuckyTask::Task
     doc_root = seed_comment_examples(users, doc_thread, "前言")
     seed_comment_examples(users, topic_thread, "主题")
     seed_long_comment_examples(topic_thread, users[1])
+    seed_topic_read_examples(users, topics)
     seed_notifications(users, nodes, topics.first, topics[1], doc_root)
     CreateComment.create!(
       comment_thread_id: topic_thread.id,
@@ -161,18 +165,71 @@ class Db::Seed::SampleData < LuckyTask::Task
     doc_vote_counts.👍 = 1
     UpdateDocVoteCounts.update!(doc, vote_counts: doc_vote_counts)
 
+    # 准备关注列表、关注者列表和互相关注的对照数据。
+    # 在内容和通知样本生成后添加，保留小明原有的 33 条通知。
+    [
+      {users[4], users[1]},
+      {users[1], users[4]},
+      {users[1], users[5]},
+    ].each do |followed_user, follower|
+      SaveUserFollow.upsert!(
+        followed_user_id: followed_user.id,
+        follower_id: follower.id
+      )
+    end
+
     puts "已创建 #{TopicQuery.new.select_count} 篇可见主题、#{users.size} 个用户。"
     puts "主要测试入口：/docs/index 和 /forum/#{topics.first.id}，两者都有根评论与子评论分页。"
     puts "其他主题大多无回复，用于测试零回复、作者删除、/forum?page=2 和仅关注过滤。"
     puts "所有示例账号密码：temp1234；小明：me@163.com / xiaoming；管理员：admin@crystal-china.org / admin。"
     puts "输入 @xi 可以补全 xiaohong、xiaoli、xiaoming；concurrency 关闭提及通知并隐身，但仍有普通回复通知。"
     puts "启动应用前设置 ADMIN_EMAILS=admin@crystal-china.org，以启用示例管理员。"
-    puts "回收站：/admin/trash，共 #{CommentQuery.new.only_soft_deleted.select_count} 条评论，超过一页；主题回收站：/admin/trash?kind=topics。"
-    puts "小明关注了 ruby_to_crystal，可进入其个人主页测试取消关注。"
+    puts "回收站：/admin/trash，共 #{CommentQuery.new.deletion_batch_entries.select_count} 个入口、#{CommentQuery.new.only_soft_deleted.select_count} 条删除评论；主题回收站：/admin/trash?kind=topics。"
+    puts "小明关注 ruby_to_crystal 和 xiaohong；xiaohong、xiaoli 关注小明，其中与小红互相关注。"
     puts "小明有 33 条通知，两页均包含全部 11 种类型；24 条未读、9 条已读，日期分散在三天。"
     puts "小明账户记录：#{UserAudits::Index.with(user_id: users[1].id).path}；全站账户记录：#{UserAudits::Index.path}。"
     puts "管理员和小明的账户记录超过一页，ruby_to_crystal 有一条，concurrency 没有；可测试改名、密码与 OAuth 登录事件。"
     puts "搜索可试 PGroonga、配置；完整场景说明见 docs/sample_data.md。"
+  end
+
+  # 用现有主题展示旧主题蓝点、近期未读筛选，以及读过后新增回复的区别。
+  private def seed_topic_read_examples(users : Array(User), topics : Array(Topic)) : Nil
+    reader = users[1]
+    now = Time.utc
+    examples = [
+      {topics[3], 10.days, "十天前未读", false},
+      {topics[4], 10.days, "十天前已读", true},
+      {topics[5], 2.days, "近期未读", false},
+      {topics[6], 10.days, "已读后有新回复", true},
+    ]
+
+    examples.each do |topic, age, label, read|
+      at = now - age
+      topic = Topic::SaveOperation.update!(
+        topic,
+        title: "【#{label}】#{topic.title}",
+        created_at: at,
+        last_active_at: at
+      )
+
+      if read
+        TopicReading.mark_as_read(
+          topic_id: topic.id,
+          user_id: reader.id,
+          last_reply_id: topic.last_reply_id
+        )
+      end
+
+      puts "小明阅读状态：#{label} /forum/#{topic.id}。"
+    end
+
+    thread = CommentThreadQuery.new.topic_id(topics[6].id).first
+
+    CreateComment.create!(
+      comment_thread_id: thread.id,
+      user_id: users.first.id,
+      content: "【已读后有新回复】小明已经打开过这个主题，之后我补充了这条回复。它应重新显示未读蓝点，也进入近七天未读列表；原主题虽然十天前创建，但最后活跃时间由这条新回复更新。"
+    )
   end
 
   private def seed_notifications(
@@ -626,7 +683,7 @@ class Db::Seed::SampleData < LuckyTask::Task
     DeleteComment.delete!(restored_leaf, actor_id: author.id)
     restored_leaf.reload.restore
 
-    2.times do |index|
+    3.times do |index|
       removed = CreateComment.create!(
         parent_id: delete_ready.id,
         user_id: author.id,
