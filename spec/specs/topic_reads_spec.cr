@@ -169,14 +169,14 @@ describe "Topic reads" do
     new_notice = topic_read_notification(reader, author, topic_id: topic.id, comment_id: child.id)
 
     NotificationQuery.new.user_id(reader.id)
-      .unread_in_topic(topic.id, through_reply_id: nil)
+      .unread_in_topic(topic.id, last_read_reply_id: nil)
       .update(read_at: Time.utc).should eq(1)
     topic_notice.reload.read_at.should_not be_nil
     old_notice.reload.read_at.should be_nil
     new_notice.reload.read_at.should be_nil
 
     NotificationQuery.new.user_id(reader.id)
-      .unread_in_topic(topic.id, through_reply_id: root.id)
+      .unread_in_topic(topic.id, last_read_reply_id: root.id)
       .update(read_at: Time.utc).should eq(1)
     old_notice.reload.read_at.should_not be_nil
     new_notice.reload.read_at.should be_nil

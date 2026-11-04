@@ -43,7 +43,7 @@ abstract class ForumAction < BrowserAction
         if me.unread_notifications_count > 0
           notifications = NotificationQuery.new.user_id(me.id).unread_in_topic(
             topic.id,
-            through_reply_id: topic.last_reply_id
+            last_read_reply_id: topic.last_reply_id
           )
           read_count = notifications.update(read_at: Time.utc)
 
