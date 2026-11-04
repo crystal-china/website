@@ -240,6 +240,10 @@ zh-CN:
       description: 讨论 Crystal 语言及其生态。
       all: 全部
       following: 仅关注
+      all_read_states: 全部状态
+      only_unread: 近七天未读
+      unread: 未读
+      no_unread_topics: 没有符合条件的未读主题。这里只显示最近七天有活动的主题，打开主题即标记已读。
       no_followed_topics: 没有符合条件的关注主题。可在主题详情页点击“关注”。
       node_label: 节点：%{name}
       posted_at: " 发布于 %{time}"

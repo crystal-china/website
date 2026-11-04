@@ -140,7 +140,7 @@ describe "Notification counters" do
     Avram::Events::QueryEvent.logged_events.clear
   end
 
-  it "refreshes the bell after an HTMX topic save creates a self mention" do
+  it "marks self mentions read and refreshes the bell when an HTMX topic save displays the topic" do
     user = UserFactory.create
     node = SaveNode.create!(name: "通知计数", slug: "notification-counts", summary: "测试", color: "#16a34a", position: 0)
     client = ApiClient.new.headers("HX-Request-Type": "full")
@@ -153,8 +153,8 @@ describe "Notification counters" do
       )
 
       response.status_code.should eq(200)
-      response.body.should contain("1 条未读通知")
-      expect_notification_counts(user, 1, 1)
+      XML.parse_html(response.body).xpath_node("//*[@id='notification-status']//span[@aria-hidden='true']").should be_nil
+      expect_notification_counts(user, 1, 0)
       topic = TopicQuery.new.user_id(user.id).first
       NotificationQuery.new.user_id(user.id).delete
       expect_notification_counts(user, 0, 0)
@@ -166,8 +166,8 @@ describe "Notification counters" do
       )
 
       response.status_code.should eq(200)
-      response.body.should contain("1 条未读通知")
-      expect_notification_counts(user, 1, 1)
+      XML.parse_html(response.body).xpath_node("//*[@id='notification-status']//span[@aria-hidden='true']").should be_nil
+      expect_notification_counts(user, 1, 0)
     end
   end
 end

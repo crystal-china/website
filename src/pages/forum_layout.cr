@@ -2,7 +2,10 @@ require "./main_layout"
 
 abstract class ForumLayout < MainLayout
   needs nodes : Array(Node)
+
+  # 左侧节点导航，需要知道当前筛选状态
   needs followed_topics : Bool = false
+  needs only_show_unread : Bool = false
 
   abstract def forum_content : Nil
 
@@ -12,7 +15,7 @@ abstract class ForumLayout < MainLayout
         div class: "flex flex-col items-start gap-8 lg:flex-row" do
           render_node_navigation(current_node)
 
-          div class: "min-w-0 w-full flex-1" do
+          div class: "w-full min-w-0 flex-1" do
             forum_content
           end
 
@@ -33,7 +36,7 @@ abstract class ForumLayout < MainLayout
     active_classes = "bg-gray-900 text-white"
     inactive_classes = "text-gray-700 hover:bg-gray-100 hover:text-gray-950"
 
-    aside class: "min-w-0 w-full shrink-0 lg:w-56" do
+    aside class: "w-full min-w-0 shrink-0 lg:w-56" do
       nav(
         class: "desktop-sidebar app-panel p-3 lg:w-56",
         "aria-label": r("forum_layout.nodes").t
@@ -42,7 +45,10 @@ abstract class ForumLayout < MainLayout
           li class: "shrink-0" do
             link(
               r("forum_layout.all_topics").t,
-              to: Forum::Index.with(following: followed_topics? ? true : nil),
+              to: Forum::Index.with(
+                following: followed_topics? ? true : nil,
+                only_show_unread: only_show_unread? ? true : nil
+              ),
               class: "#{link_classes} #{current_node.nil? ? active_classes : inactive_classes}"
             )
           end
@@ -50,7 +56,11 @@ abstract class ForumLayout < MainLayout
           nodes.each do |listed_node|
             li class: "shrink-0" do
               link(
-                to: Forum::Index.with(node: listed_node.slug, following: followed_topics? ? true : nil),
+                to: Forum::Index.with(
+                  node: listed_node.slug,
+                  following: followed_topics? ? true : nil,
+                  only_show_unread: only_show_unread? ? true : nil
+                ),
                 class: "#{link_classes} #{current_node.try(&.id) == listed_node.id ? active_classes : inactive_classes}"
               ) do
                 span class: "h-2.5 w-2.5 shrink-0 rounded-sm", style: "background-color: #{listed_node.color}"

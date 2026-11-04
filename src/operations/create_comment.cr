@@ -37,6 +37,17 @@ class CreateComment < Comment::SaveOperation
 
   # 新增才发送回复通知。
   after_save do |comment|
-    NotificationDelivery.comment_created(comment, mentioned_login_names) if new_record?
+    if new_record?
+      NotificationDelivery.comment_created(comment, mentioned_login_names)
+
+      # 作者自己的新回复直接标为已读；文档评论不写主题阅读记录。
+      if (topic_id = comment.comment_thread!.topic_id)
+        TopicReading.mark_as_read(
+          topic_id: topic_id,
+          user_id: comment.user_id,
+          last_reply_id: comment.id
+        )
+      end
+    end
   end
 end

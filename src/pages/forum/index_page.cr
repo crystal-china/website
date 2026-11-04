@@ -2,6 +2,7 @@ class Forum::IndexPage < ForumLayout
   needs topics : TopicQuery
   needs pages : Lucky::Paginator
   needs node : Node? = nil
+  needs unread_topic_ids : Set(Int64) = Set(Int64).new
 
   def page_title : String
     node.try { |current_node| r(".node_title").t(name: current_node.name) } || r("common.community").t
@@ -22,6 +23,7 @@ class Forum::IndexPage < ForumLayout
       if current_user
         div class: "flex flex-wrap items-center gap-3" do
           render_follow_filter
+          render_unread_filter
 
           link(
             r("common.new_topic").t,
@@ -36,7 +38,9 @@ class Forum::IndexPage < ForumLayout
       Forum::List,
       topics: topics,
       pages: pages,
-      followed_topics: followed_topics?
+      followed_topics: followed_topics?,
+      only_show_unread: only_show_unread?,
+      unread_topic_ids: unread_topic_ids
     )
   end
 
@@ -45,13 +49,38 @@ class Forum::IndexPage < ForumLayout
   end
 
   private def render_follow_filter : Nil
-    all_path = Forum::Index.with(node: node.try(&.slug)).path
-    following_path = Forum::Index.with(node: node.try(&.slug), following: true).path
+    all_path = Forum::Index.with(
+      node: node.try(&.slug),
+      only_show_unread: only_show_unread? ? true : nil
+    ).path
+    following_path = Forum::Index.with(
+      node: node.try(&.slug),
+      following: true,
+      only_show_unread: only_show_unread? ? true : nil
+    ).path
 
     mount(
       Shared::Toggle,
       options: [{r(".all").t, all_path}, {r(".following").t, following_path}],
       selected: followed_topics? ? following_path : all_path
+    )
+  end
+
+  private def render_unread_filter : Nil
+    all_path = Forum::Index.with(
+      node: node.try(&.slug),
+      following: followed_topics? ? true : nil
+    ).path
+    unread_path = Forum::Index.with(
+      node: node.try(&.slug),
+      following: followed_topics? ? true : nil,
+      only_show_unread: true
+    ).path
+
+    mount(
+      Shared::Toggle,
+      options: [{r(".all_read_states").t, all_path}, {r(".only_unread").t, unread_path}],
+      selected: only_show_unread? ? unread_path : all_path
     )
   end
 end

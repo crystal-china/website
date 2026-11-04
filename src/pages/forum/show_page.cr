@@ -24,7 +24,11 @@ class Forum::ShowPage < ForumLayout
           para class: "m-0 min-w-0 flex-1 basis-full text-sm leading-7 text-gray-500 sm:basis-0" do
             link(
               topic.node.name,
-              to: Forum::Index.with(node: topic.node.slug, following: followed_topics? ? true : nil),
+              to: Forum::Index.with(
+                node: topic.node.slug,
+                following: followed_topics? ? true : nil,
+                only_show_unread: only_show_unread? ? true : nil
+              ),
               class: "font-medium text-[#145591] no-underline hover:text-[#0f477b] hover:underline"
             )
             text " · "

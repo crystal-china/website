@@ -15,6 +15,7 @@ module TopicActivity
 
       TopicQuery.new.with_soft_deleted.id(topic.id).update(
         replies_count: comments.select_count.to_i,
+        last_reply_id: last_reply.try(&.id),
         last_reply_user_id: last_reply.try(&.user_id),
         last_active_at: last_reply.try(&.created_at) || topic.created_at,
         updated_at: topic.updated_at
