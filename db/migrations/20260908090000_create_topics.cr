@@ -32,6 +32,9 @@ class CreateTopics::V20260908090000 < Avram::Migrator::Migration::V1
       # record_topic_reply AFTER INSERT trigger 在新增时递增；软删除和恢复由 callback 重算。
       add replies_count : Int32, default: 0
 
+      # 最后一条可见回复的 ID，供未读查询比较阅读位置；没有回复时为空。
+      add last_reply_id : Int64?
+
       # 最后一条可见回复的作者；没有可见回复时为空，不复制可能变更的用户名。
       add_belongs_to last_reply_user : User?, on_delete: :nullify
 

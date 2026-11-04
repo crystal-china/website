@@ -110,6 +110,7 @@ class CreateComments::V20260908100000 < Avram::Migrator::Migration::V1
         -- 原子递增，并直接记录本次新增回复的作者和时间；不修改主题 updated_at。
         UPDATE topics AS topic
         SET replies_count = topic.replies_count + 1,
+            last_reply_id = NEW.id,
             last_reply_user_id = NEW.user_id,
             last_active_at = NEW.created_at
         FROM comment_threads AS thread
