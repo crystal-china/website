@@ -16,7 +16,9 @@ class Forum::Index < ForumAction
       query = query.join_topic_follows(followed_topic_query(me.id))
     end
 
-    query = query.unread_by(me.id) if only_show_unread && me
+    if only_show_unread && me
+      query = query.unread_by(me.id).last_active_at.gte(Time.utc - TopicReading::UNREAD_PERIOD)
+    end
 
     if (node_slug = node)
       current_node = NodeQuery.new.slug(node_slug).first?

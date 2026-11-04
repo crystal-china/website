@@ -62,7 +62,7 @@ describe "Topic reads" do
     end
   end
 
-  it "uses an inclusive rolling seven-day activity window rather than topic creation time" do
+  it "limits the unread filter to seven days of activity but keeps unread markers on older topics" do
     author = UserFactory.create
     reader = UserFactory.create
     node = topic_read_node
@@ -77,11 +77,34 @@ describe "Topic reads" do
     TopicQuery.new.id(expired.id).update(last_active_at: cutoff - 1.microsecond)
 
     Timecop.freeze(now) do
-      TopicQuery.new.unread_by(reader.id).id.asc_order.map(&.id).should eq([recent.id, boundary.id])
+      topic_ids = [recent.id, boundary.id, expired.id]
+
+      TopicQuery.new.unread_by(reader.id).id.asc_order.map(&.id).should eq(topic_ids)
+      TopicReading.unread_ids(user_id: reader.id, topic_ids: topic_ids).should eq(topic_ids.to_set)
+
+      response = ApiClient.new.get("/forum?only_show_unread=true&backdoor_user_id=#{reader.id}")
+      document = XML.parse_html(response.body)
+
+      response.status_code.should eq(200)
+      document.xpath_nodes("//section[@id='forum-topics']//h2/a").map(&.content).should eq([recent.title, boundary.title])
     end
 
     Timecop.freeze(now + 1.microsecond) do
-      TopicQuery.new.unread_by(reader.id).map(&.id).should eq([recent.id])
+      response = ApiClient.new.get("/forum?only_show_unread=true&backdoor_user_id=#{reader.id}")
+      document = XML.parse_html(response.body)
+
+      response.status_code.should eq(200)
+      document.xpath_nodes("//section[@id='forum-topics']//h2/a").map(&.content).should eq([recent.title])
+
+      response = ApiClient.new.get("/forum?backdoor_user_id=#{reader.id}")
+      document = XML.parse_html(response.body)
+
+      response.status_code.should eq(200)
+      document.xpath_nodes("//section[@id='forum-topics']//h2/span[@title='未读']").size.should eq(3)
+
+      TopicReading.mark_as_read(topic_id: expired.id, user_id: reader.id, last_reply_id: nil)
+
+      TopicReading.unread_ids(user_id: reader.id, topic_ids: [expired.id]).should be_empty
     end
   end
 
