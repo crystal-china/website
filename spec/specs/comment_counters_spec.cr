@@ -16,8 +16,8 @@ describe "Comment pagination counters" do
       thread.root_comments_count.should eq(0)
       root = CreateComment.create!(user_id: user.id, comment_thread_id: thread.id, content: "root")
       other_root = CreateComment.create!(user_id: user.id, comment_thread_id: thread.id, content: "other root")
-      child = CreateComment.create!(user_id: user.id, parent_id: root.id, content: "child")
-      CreateComment.create!(user_id: user.id, parent_id: child.id, content: "grandchild")
+      child = ReplyToComment.create!(user_id: user.id, parent_id: root.id, content: "child")
+      ReplyToComment.create!(user_id: user.id, parent_id: child.id, content: "grandchild")
 
       CommentThreadQuery.find(thread.id).root_comments_count.should eq(2)
       CommentQuery.find(root.id).descendants_count.should eq(2)
@@ -50,7 +50,7 @@ describe "Comment pagination counters" do
     root = CreateComment.create!(user_id: user.id, comment_thread_id: thread.id, content: "kept root")
     withdrawn_root = CreateComment.create!(user_id: user.id, comment_thread_id: thread.id, content: "withdrawn root")
     deleted_root = CreateComment.create!(user_id: user.id, comment_thread_id: thread.id, content: "deleted root")
-    child = CreateComment.create!(user_id: user.id, parent_id: root.id, content: "child")
+    child = ReplyToComment.create!(user_id: user.id, parent_id: root.id, content: "child")
     Comment::SaveOperation.update!(withdrawn_root, withdrawn: true)
     DeleteComment.delete!(deleted_root)
     notifications_count = NotificationQuery.new.select_count
@@ -80,7 +80,7 @@ describe "Comment pagination counters" do
     end
 
     12.times do |index|
-      CreateComment.create!(user_id: user.id, parent_id: roots.first.id, content: "reply #{index}")
+      ReplyToComment.create!(user_id: user.id, parent_id: roots.first.id, content: "reply #{index}")
     end
 
     test_mode = Pulsar.test_mode_enabled?

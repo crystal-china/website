@@ -20,8 +20,8 @@ describe "Soft deletion" do
     doc = SaveDoc.create!(path_index: "/docs/soft-delete-spec", content: "文档正文")
     thread = CommentThreadQuery.new.doc_id(doc.id).first
     root = CreateComment.create!(user_id: user.id, comment_thread_id: thread.id, content: "root")
-    child = CreateComment.create!(user_id: user.id, parent_id: root.id, content: "child")
-    grandchild = CreateComment.create!(user_id: user.id, parent_id: child.id, content: "grandchild")
+    child = ReplyToComment.create!(user_id: user.id, parent_id: root.id, content: "child")
+    grandchild = ReplyToComment.create!(user_id: user.id, parent_id: child.id, content: "grandchild")
 
     DeleteComment.delete!(child, actor_id: admin.id, delete_descendants: true)
 
@@ -78,8 +78,8 @@ describe "Soft deletion" do
     topic = CreateTopic.create!(user_id: author.id, node_id: node.id, title: "恢复顺序", content: "正文")
     thread = CommentThreadQuery.new.topic_id(topic.id).first
     root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "根评论")
-    child = CreateComment.create!(user_id: author.id, parent_id: root.id, content: "子评论")
-    grandchild = CreateComment.create!(user_id: author.id, parent_id: child.id, content: "孙评论")
+    child = ReplyToComment.create!(user_id: author.id, parent_id: root.id, content: "子评论")
+    grandchild = ReplyToComment.create!(user_id: author.id, parent_id: child.id, content: "孙评论")
 
     [grandchild, child, root].each do |comment|
       DeleteComment.delete!(comment)
@@ -149,8 +149,8 @@ describe "Soft deletion" do
     doc = SaveDoc.create!(path_index: "/docs/restore-deleted-root", content: "正文")
     thread = CommentThreadQuery.new.doc_id(doc.id).first
     root = CreateComment.create!(user_id: admin.id, comment_thread_id: thread.id, content: "根评论")
-    child = CreateComment.create!(user_id: admin.id, parent_id: root.id, content: "子评论")
-    grandchild = CreateComment.create!(user_id: admin.id, parent_id: child.id, content: "孙评论")
+    child = ReplyToComment.create!(user_id: admin.id, parent_id: root.id, content: "子评论")
+    grandchild = ReplyToComment.create!(user_id: admin.id, parent_id: child.id, content: "孙评论")
 
     DeleteComment.delete!(grandchild)
     # 故意绕过删除入口，模拟旧数据：根已删除，但直接父评论仍存在。
@@ -214,7 +214,7 @@ describe "Soft deletion" do
     topic = CreateTopic.create!(user_id: author.id, node_id: node.id, title: "先恢复主题", content: "正文")
     thread = CommentThreadQuery.new.topic_id(topic.id).first
     root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "存在的根评论")
-    child = CreateComment.create!(user_id: author.id, parent_id: root.id, content: "删除的子评论")
+    child = ReplyToComment.create!(user_id: author.id, parent_id: root.id, content: "删除的子评论")
     other_root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "删除的根评论")
 
     DeleteComment.delete!(child)
@@ -261,8 +261,8 @@ describe "Soft deletion" do
     doc = SaveDoc.create!(path_index: "/docs/delete-child-counts", content: "文档正文")
     thread = CommentThreadQuery.new.doc_id(doc.id).first
     root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "root")
-    child = CreateComment.create!(user_id: other.id, parent_id: root.id, content: "child")
-    grandchild = CreateComment.create!(user_id: other.id, parent_id: child.id, content: "grandchild")
+    child = ReplyToComment.create!(user_id: other.id, parent_id: root.id, content: "child")
+    grandchild = ReplyToComment.create!(user_id: other.id, parent_id: child.id, content: "grandchild")
     leaf = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "leaf")
     client = ApiClient.new
     response = client.get("/htmx/comments?comment_thread_id=#{thread.id}&backdoor_user_id=#{author.id}")
@@ -363,7 +363,7 @@ describe "Soft deletion" do
     doc = DocContent.sync("/docs/missing-document", "文档正文")
     thread = CommentThreadQuery.new.doc_id(doc.id).first
     root = CreateComment.create!(user_id: user.id, comment_thread_id: thread.id, content: "根评论")
-    child = CreateComment.create!(user_id: user.id, parent_id: root.id, content: "保留的子评论")
+    child = ReplyToComment.create!(user_id: user.id, parent_id: root.id, content: "保留的子评论")
     auth = "backdoor_user_id=#{user.id}"
     client = ApiClient.new
 
@@ -426,7 +426,7 @@ describe "Soft deletion" do
     topic = CreateTopic.create!(user_id: user.id, node_id: node.id, title: "评论可见性", content: "内容")
     thread = CommentThreadQuery.new.topic_id(topic.id).first
     root = CreateComment.create!(user_id: user.id, comment_thread_id: thread.id, content: "根评论")
-    child = CreateComment.create!(user_id: user.id, parent_id: root.id, content: "子评论")
+    child = ReplyToComment.create!(user_id: user.id, parent_id: root.id, content: "子评论")
     auth = "backdoor_user_id=#{user.id}"
     client = ApiClient.new
 

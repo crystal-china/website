@@ -45,8 +45,8 @@ describe "User profile topics" do
     first = CreateTopic.create!(user_id: other.id, node_id: node.id, title: "先回复的主题", content: "正文")
     second = CreateTopic.create!(user_id: user.id, node_id: node.id, title: "自己的主题", content: "正文")
     root = user_topics_reply(first, other, at)
-    middle = CreateComment.create!(user_id: other.id, parent_id: root.id, content: "中间评论", created_at: at)
-    nested = CreateComment.create!(user_id: user.id, parent_id: middle.id, content: "本人深层回复", created_at: at + 1.day)
+    middle = ReplyToComment.create!(user_id: other.id, parent_id: root.id, content: "中间评论", created_at: at)
+    nested = ReplyToComment.create!(user_id: user.id, parent_id: middle.id, content: "本人深层回复", created_at: at + 1.day)
     Comment::SaveOperation.update!(middle, withdrawn: true)
     earlier = user_topics_reply(second, user, at)
     second_thread = CommentThreadQuery.new.topic_id(second.id).first
@@ -83,7 +83,7 @@ describe "User profile topics" do
     topic = CreateTopic.create!(user_id: author.id, node_id: node.id, title: "可见性测试", content: "正文")
     earlier = user_topics_reply(topic, user, at)
     root = user_topics_reply(topic, author, at)
-    child = CreateComment.create!(user_id: user.id, parent_id: root.id, content: "较新子回复", created_at: at + 1.day)
+    child = ReplyToComment.create!(user_id: user.id, parent_id: root.id, content: "较新子回复", created_at: at + 1.day)
     newest = user_topics_reply(topic, user, at + 2.days)
     DeleteComment.delete!(newest)
 

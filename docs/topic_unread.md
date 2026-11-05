@@ -68,7 +68,7 @@ Doc 评论仍有回复、提及和关注用户动态的通知，但不使用 `to
 
 1. Topic 和 Comment 建表 migration、`CreateTopicReads`、`TopicRead`、`TopicReadQuery`：先看数据结构和缓存维护。
 2. `TopicReading`、`TopicQuery.unread_by`：再看写入和判定。
-3. `CreateTopic`、`CreateComment`、`ForumAction.render_topic`：看什么时候标记已读。
+3. `CreateTopic`、`CreateComment`、`ReplyToComment`、`CommentCreation`、`ForumAction.render_topic`：看什么时候标记已读。
 4. `Forum::Index`、`Forum::List`、`Forum::IndexPage`、`ForumLayout`、`Forum::ShowPage`：看筛选、标记和参数传递。
 5. `topic_reads_spec.cr`：覆盖迁移、时间边界、账号隔离、新回复、删除恢复、筛选组合和分页。
 

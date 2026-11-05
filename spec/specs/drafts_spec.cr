@@ -133,7 +133,7 @@ describe "Local editor drafts" do
     topic = CreateTopic.create!(user_id: user.id, node_id: node.id, title: "评论表单", content: "主题正文")
     thread = CommentThreadQuery.new.topic_id(topic.id).first
     root = CreateComment.create!(user_id: user.id, comment_thread_id: thread.id, content: "根评论")
-    child = CreateComment.create!(user_id: user.id, parent_id: root.id, content: "子评论")
+    child = ReplyToComment.create!(user_id: user.id, parent_id: root.id, content: "子评论")
     client = drafts_client(user)
 
     {

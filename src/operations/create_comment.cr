@@ -1,11 +1,25 @@
 class CreateComment < Comment::SaveOperation
-  permit_columns user_id, comment_thread_id, parent_id, content
+  include CommentCreation
+
+  permit_columns comment_thread_id, content
+
+  before_save do
+    prepare_new_comment if !id.value # 新建的时候
+
+    validate_required user_id, content, comment_thread_id
+  end
+
+  after_save notify_comment_created, if: :new_record?
+end
+
+class ReplyToComment < Comment::SaveOperation
+  include CommentCreation
+
+  permit_columns parent_id, content
 
   before_save do
     if !id.value # 新建的时候
-      if parent_id.value && comment_thread_id.value
-        add_error :comment_thread_id_or_parent_id, r("validations.comment_target_conflict").t
-      end
+      prepare_new_comment
 
       parent_id.value.try do |parent_id|
         parent_comment = CommentQuery.find(parent_id)
@@ -18,36 +32,10 @@ class CreateComment < Comment::SaveOperation
         thread_root_id = parent_comment.root_id || parent_comment.id
         root_id.value = thread_root_id
       end
-
-      vote_counts.value = Comment::VoteCounts.from_json(
-        {
-          👍:  0,
-          👎:  0,
-          😄:  0,
-          ❤️: 0,
-          🎉:  0,
-          😕:  0,
-          👀️: 0,
-        }.to_json
-      )
     end
 
-    validate_required user_id, content, comment_thread_id
+    validate_required user_id, content, parent_id, comment_thread_id
   end
 
-  # 新增才发送回复通知。
-  after_save do |comment|
-    if new_record?
-      NotificationDelivery.comment_created(comment, mentioned_login_names)
-
-      # 作者自己的新回复直接标为已读；文档评论不写主题阅读记录。
-      if (topic_id = comment.comment_thread!.topic_id)
-        TopicReading.mark_as_read(
-          topic_id: topic_id,
-          user_id: comment.user_id,
-          last_reply_id: comment.id
-        )
-      end
-    end
-  end
+  after_save notify_comment_created, if: :new_record?
 end

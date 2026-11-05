@@ -131,8 +131,8 @@ describe "Topic follows" do
     SaveTopicFollow.create!(topic_id: topic.id, follower_id: follower.id)
     SaveTopicFollow.create!(topic_id: topic.id, follower_id: replier.id)
     root = CreateComment.create!(user_id: replier.id, comment_thread_id: thread.id, content: "根回复")
-    child = CreateComment.create!(user_id: replier.id, parent_id: root.id, content: "子回复")
-    grandchild = CreateComment.create!(user_id: replier.id, parent_id: child.id, content: "更深一层回复")
+    child = ReplyToComment.create!(user_id: replier.id, parent_id: root.id, content: "子回复")
+    grandchild = ReplyToComment.create!(user_id: replier.id, parent_id: child.id, content: "更深一层回复")
 
     notifications = NotificationQuery.new.user_id(follower.id).id.asc_order.results
     notifications.map(&.url).should eq([root, child, grandchild].map { |comment| "/comments/#{comment.id}" })
@@ -155,8 +155,8 @@ describe "Topic follows" do
     thread = CommentThreadQuery.new.topic_id(topic.id).first
     SaveTopicFollow.create!(topic_id: topic.id, follower_id: follower.id)
     root = CreateComment.create!(user_id: follower.id, comment_thread_id: thread.id, content: "我的回复")
-    reply = CreateComment.create!(user_id: replier.id, parent_id: root.id, content: "直接回复")
-    mentioned = CreateComment.create!(user_id: replier.id, parent_id: root.id, content: "@#{follower.login_name} 请看这里")
+    reply = ReplyToComment.create!(user_id: replier.id, parent_id: root.id, content: "直接回复")
+    mentioned = ReplyToComment.create!(user_id: replier.id, parent_id: root.id, content: "@#{follower.login_name} 请看这里")
     follower = UpdateUser.update!(follower, mention_notifications_enabled: false)
     opted_out = CreateComment.create!(user_id: replier.id, comment_thread_id: thread.id, content: "@#{follower.login_name} 仍可收到关注通知")
 
