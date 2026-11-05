@@ -126,7 +126,7 @@ describe "Stored content HTML" do
     topic = html_topic(user)
     thread = CommentThreadQuery.new.topic_id(topic.id).first
     root = CreateComment.create!(user_id: user.id, comment_thread_id: thread.id, content: "**root**")
-    child = CreateComment.create!(user_id: user.id, parent_id: root.id, content: "**child**")
+    child = ReplyToComment.create!(user_id: user.id, parent_id: root.id, content: "**child**")
     DeleteComment.delete!(child)
     DeleteTopic.delete!(topic)
     topic = TopicQuery.new.only_soft_deleted.id(topic.id).first

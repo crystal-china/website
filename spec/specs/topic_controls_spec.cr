@@ -41,7 +41,7 @@ describe "Topic controls after commenting" do
     topic = CreateTopic.create!(user_id: author.id, node_id: node.id, title: "回复全部删除后可删", content: "正文")
     thread = CommentThreadQuery.new.topic_id(topic.id).first
     root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "根评论")
-    child = CreateComment.create!(user_id: author.id, parent_id: root.id, content: "子评论")
+    child = ReplyToComment.create!(user_id: author.id, parent_id: root.id, content: "子评论")
     last = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "最后一条")
     client = ApiClient.new
     partial_path = "//hx-partial[@hx-target='#topic-#{topic.id}-controls']"

@@ -20,8 +20,8 @@ describe "Administrator comment deletion" do
     doc = DocContent.sync("/docs/delete-operation-guard", "正文")
     thread = CommentThreadQuery.new.doc_id(doc.id).first
     root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "root")
-    child = CreateComment.create!(user_id: author.id, parent_id: root.id, content: "child")
-    grandchild = CreateComment.create!(user_id: author.id, parent_id: child.id, content: "grandchild")
+    child = ReplyToComment.create!(user_id: author.id, parent_id: root.id, content: "child")
+    grandchild = ReplyToComment.create!(user_id: author.id, parent_id: child.id, content: "grandchild")
     notifications_count = NotificationQuery.new.select_count
 
     [root, child].each do |comment|
@@ -62,10 +62,10 @@ describe "Administrator comment deletion" do
       thread = CommentThreadQuery.new.topic_id(topic.id).first
       other_root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "other root")
       root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "cascade root")
-      sibling = CreateComment.create!(user_id: replier.id, parent_id: root.id, content: "sibling")
-      child = CreateComment.create!(user_id: replier.id, parent_id: root.id, content: "cascade child")
-      grandchild = CreateComment.create!(user_id: reader.id, parent_id: child.id, content: "cascade grandchild")
-      great_grandchild = CreateComment.create!(user_id: author.id, parent_id: grandchild.id, content: "cascade great grandchild")
+      sibling = ReplyToComment.create!(user_id: replier.id, parent_id: root.id, content: "sibling")
+      child = ReplyToComment.create!(user_id: replier.id, parent_id: root.id, content: "cascade child")
+      grandchild = ReplyToComment.create!(user_id: reader.id, parent_id: child.id, content: "cascade grandchild")
+      great_grandchild = ReplyToComment.create!(user_id: author.id, parent_id: grandchild.id, content: "cascade great grandchild")
       target = target_kind == "root" ? Comment::SaveOperation.update!(root, withdrawn: true) : child
       affected = target_kind == "root" ? [target, sibling, child, grandchild, great_grandchild] : [target, grandchild, great_grandchild]
       remaining = target_kind == "root" ? [other_root] : [other_root, root, sibling]
@@ -133,10 +133,10 @@ describe "Administrator comment deletion" do
     doc = SaveDoc.create!(path_index: "/docs/cascade-existing-deletions", content: "文档正文")
     thread = CommentThreadQuery.new.doc_id(doc.id).first
     root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "root")
-    target = CreateComment.create!(user_id: author.id, parent_id: root.id, content: "target")
-    deleted_child = CreateComment.create!(user_id: author.id, parent_id: target.id, content: "previously deleted")
-    grandchild = CreateComment.create!(user_id: author.id, parent_id: deleted_child.id, content: "live descendant")
-    sibling = CreateComment.create!(user_id: author.id, parent_id: root.id, content: "sibling")
+    target = ReplyToComment.create!(user_id: author.id, parent_id: root.id, content: "target")
+    deleted_child = ReplyToComment.create!(user_id: author.id, parent_id: target.id, content: "previously deleted")
+    grandchild = ReplyToComment.create!(user_id: author.id, parent_id: deleted_child.id, content: "live descendant")
+    sibling = ReplyToComment.create!(user_id: author.id, parent_id: root.id, content: "sibling")
     earlier = Time.utc
 
     # 故意绕过删除校验，模拟旧数据，确认级联查询仍能穿过已删除的节点。
@@ -172,7 +172,7 @@ describe "Administrator comment deletion" do
     topic = CreateTopic.create!(user_id: author.id, node_id: node.id, title: "级联回滚", content: "正文")
     thread = CommentThreadQuery.new.topic_id(topic.id).first
     root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "root")
-    child = CreateComment.create!(user_id: author.id, parent_id: root.id, content: "child")
+    child = ReplyToComment.create!(user_id: author.id, parent_id: root.id, content: "child")
     notifications_count = NotificationQuery.new.select_count
 
     AppDatabase.transaction do

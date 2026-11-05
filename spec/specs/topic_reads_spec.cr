@@ -147,7 +147,7 @@ describe "Topic reads" do
     another_topic = topic_read_topic(author, node, "另一个主题")
     thread = CommentThreadQuery.new.topic_id(topic.id).first
     root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "根回复")
-    child = CreateComment.create!(user_id: author.id, parent_id: root.id, content: "子回复")
+    child = ReplyToComment.create!(user_id: author.id, parent_id: root.id, content: "子回复")
     doc = SaveDoc.create!(path_index: "/docs/read-notifications", content: "文档")
     doc_thread = CommentThreadQuery.new.doc_id(doc.id).first
     doc_comment = CreateComment.create!(user_id: author.id, comment_thread_id: doc_thread.id, content: "文档评论")
@@ -186,7 +186,7 @@ describe "Topic reads" do
     topic = topic_read_topic(author, topic_read_node)
     thread = CommentThreadQuery.new.topic_id(topic.id).first
     root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "旧回复")
-    child = CreateComment.create!(user_id: author.id, parent_id: root.id, content: "之后新增的回复")
+    child = ReplyToComment.create!(user_id: author.id, parent_id: root.id, content: "之后新增的回复")
     topic_notice = topic_read_notification(reader, author, topic_id: topic.id)
     old_notice = topic_read_notification(reader, author, topic_id: topic.id, comment_id: root.id)
     new_notice = topic_read_notification(reader, author, topic_id: topic.id, comment_id: child.id)
@@ -233,7 +233,7 @@ describe "Topic reads" do
       TopicQuery.new.unread_by(reader.id).id(topic.id).any?.should be_false
       XML.parse_html(response.body).xpath_node("//*[@id='notification-status']//span[@aria-hidden='true']").should be_nil
 
-      child = CreateComment.create!(user_id: author.id, parent_id: root.id, content: "@#{reader.login_name} 新回复")
+      child = ReplyToComment.create!(user_id: author.id, parent_id: root.id, content: "@#{reader.login_name} 新回复")
 
       TopicQuery.new.unread_by(reader.id).id(topic.id).any?.should be_true
       client.post("/notifications/read_all?backdoor_user_id=#{reader.id}").status_code.should eq(200)
@@ -258,7 +258,7 @@ describe "Topic reads" do
     TopicQuery.new.unread_by(reader.id).id(topic.id).any?.should be_true
     TopicQuery.new.unread_by(sender.id).id(topic.id).any?.should be_false
     client.get(path)
-    child = CreateComment.create!(user_id: sender.id, parent_id: root.id, content: "子回复")
+    child = ReplyToComment.create!(user_id: sender.id, parent_id: root.id, content: "子回复")
     topic.reload.last_reply_id.should eq(child.id)
     TopicQuery.new.unread_by(reader.id).id(topic.id).any?.should be_true
     client.get(path)
@@ -276,12 +276,12 @@ describe "Topic reads" do
     TopicQuery.new.unread_by(reader.id).id(topic.id).any?.should be_false
     topic.updated_at.should eq(updated_at)
 
-    grandchild = CreateComment.create!(user_id: sender.id, parent_id: child.id, content: "孙回复")
+    grandchild = ReplyToComment.create!(user_id: sender.id, parent_id: child.id, content: "孙回复")
 
     TopicQuery.new.unread_by(reader.id).id(topic.id).any?.should be_true
 
     AppDatabase.transaction do
-      own_reply = CreateComment.create!(user_id: reader.id, parent_id: grandchild.id, content: "需要回滚的回复")
+      own_reply = ReplyToComment.create!(user_id: reader.id, parent_id: grandchild.id, content: "需要回滚的回复")
 
       TopicReadQuery.new.user_id(reader.id).topic_id(topic.id).first.last_read_reply_id.should eq(own_reply.id)
       AppDatabase.rollback

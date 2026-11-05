@@ -21,8 +21,8 @@ describe "Deleted topic preview" do
     topic = CreateTopic.create!(user_id: author.id, node_id: node.id, title: "已删除主题预览", content: "**topic preview body**")
     thread = CommentThreadQuery.new.topic_id(topic.id).first
     root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "**root preview body**")
-    child = CreateComment.create!(user_id: author.id, parent_id: root.id, content: "visible child preview")
-    deleted_child = CreateComment.create!(user_id: author.id, parent_id: child.id, content: "**deleted reply preview**")
+    child = ReplyToComment.create!(user_id: author.id, parent_id: root.id, content: "visible child preview")
+    deleted_child = ReplyToComment.create!(user_id: author.id, parent_id: child.id, content: "**deleted reply preview**")
     withdrawn = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "withdrawn original body")
 
     DeleteComment.delete!(deleted_child)

@@ -55,7 +55,7 @@ describe Shared::UserName do
     doc = SaveDoc.create!(path_index: "/docs/comment-header", content: "正文")
     thread = CommentThreadQuery.new.doc_id(doc.id).first
     root = CreateComment.create!(user_id: user.id, comment_thread_id: thread.id, content: "root")
-    child = CreateComment.create!(user_id: user.id, parent_id: root.id, content: "child")
+    child = ReplyToComment.create!(user_id: user.id, parent_id: root.id, content: "child")
 
     {
       root  => "/htmx/comments?comment_thread_id=#{thread.id}",

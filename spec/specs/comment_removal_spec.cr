@@ -37,8 +37,8 @@ describe "Comment deletion and withdrawal" do
     doc = DocContent.sync("/docs/withdraw-comment", "文档正文")
     thread = CommentThreadQuery.new.doc_id(doc.id).first
     root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "root")
-    child = CreateComment.create!(user_id: author.id, parent_id: root.id, content: "private original body")
-    reply = CreateComment.create!(user_id: author.id, parent_id: child.id, content: "reply")
+    child = ReplyToComment.create!(user_id: author.id, parent_id: root.id, content: "private original body")
+    reply = ReplyToComment.create!(user_id: author.id, parent_id: child.id, content: "reply")
     notifications_count = NotificationQuery.new.select_count
     client = ApiClient.new
 
@@ -134,7 +134,7 @@ describe "Comment deletion and withdrawal" do
     topic = CreateTopic.create!(user_id: author.id, node_id: node.id, title: "撤回测试", content: "topic")
     thread = CommentThreadQuery.new.topic_id(topic.id).first
     root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "original")
-    reply = CreateComment.create!(user_id: admin.id, parent_id: root.id, content: "reply")
+    reply = ReplyToComment.create!(user_id: admin.id, parent_id: root.id, content: "reply")
     activity = TopicQuery.find(topic.id)
     notifications_count = NotificationQuery.new.select_count
     client = ApiClient.new
@@ -267,7 +267,7 @@ describe "Comment deletion and withdrawal" do
     doc = DocContent.sync("/docs/withdraw-focus", "文档正文")
     thread = CommentThreadQuery.new.doc_id(doc.id).first
     root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "hidden root body")
-    child = CreateComment.create!(user_id: author.id, parent_id: root.id, content: "hidden child body")
+    child = ReplyToComment.create!(user_id: author.id, parent_id: root.id, content: "hidden child body")
     notification = SaveNotification.create!(
       user_id: author.id,
       actor_id: author.id,
@@ -278,7 +278,7 @@ describe "Comment deletion and withdrawal" do
     )
     11.times do
       CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "newer root")
-      CreateComment.create!(user_id: author.id, parent_id: root.id, content: "newer reply")
+      ReplyToComment.create!(user_id: author.id, parent_id: root.id, content: "newer reply")
     end
     Comment::SaveOperation.update!(root, withdrawn: true)
     Comment::SaveOperation.update!(child, withdrawn: true)
@@ -319,9 +319,9 @@ describe "Comment deletion and withdrawal" do
     doc = DocContent.sync("/docs/removal-counters", "文档正文")
     thread = CommentThreadQuery.new.doc_id(doc.id).first
     root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "A")
-    child = CreateComment.create!(user_id: author.id, parent_id: root.id, content: "B")
-    middle = CreateComment.create!(user_id: author.id, parent_id: child.id, content: "C")
-    descendant = CreateComment.create!(user_id: author.id, parent_id: middle.id, content: "D")
+    child = ReplyToComment.create!(user_id: author.id, parent_id: root.id, content: "B")
+    middle = ReplyToComment.create!(user_id: author.id, parent_id: child.id, content: "C")
+    descendant = ReplyToComment.create!(user_id: author.id, parent_id: middle.id, content: "D")
     child.reload.deletable?.should be_false
     root.reload.deletable?.should be_false
     DeleteComment.delete!(middle, delete_descendants: true)
@@ -343,7 +343,7 @@ describe "Comment deletion and withdrawal" do
     doc = DocContent.sync("/docs/removal-locks", "文档正文")
     thread = CommentThreadQuery.new.doc_id(doc.id).first
     root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "root")
-    parent = CreateComment.create!(user_id: author.id, parent_id: root.id, content: "parent")
+    parent = ReplyToComment.create!(user_id: author.id, parent_id: root.id, content: "parent")
     results = Channel(HTTP::Client::Response | Exception).new(1)
 
     Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
@@ -357,14 +357,14 @@ describe "Comment deletion and withdrawal" do
           results.send error
         end
         wait_for_comment_lock
-        CreateComment.create!(user_id: author.id, parent_id: parent.id, content: "new reply")
+        ReplyToComment.create!(user_id: author.id, parent_id: parent.id, content: "new reply")
       end
       response = results.receive
       response.should be_a(HTTP::Client::Response)
       response.as(HTTP::Client::Response).status_code.should eq(409)
       CommentQuery.find(parent.id).children_count.should eq(1)
 
-      leaf = CreateComment.create!(user_id: author.id, parent_id: root.id, content: "leaf")
+      leaf = ReplyToComment.create!(user_id: author.id, parent_id: root.id, content: "leaf")
       # 删除先持有锁：即使回复请求之前通过了检查，加锁后也必须重新检查。
       AppDatabase.transaction do
         CommentQuery.new.id(root.id).for_update.first

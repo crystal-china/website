@@ -57,7 +57,7 @@ class Htmx::Comments::CreateOrUpdate < CommentAction
 
           next unless comment_available?(parent)
 
-          reply = CreateComment.create!(
+          reply = ReplyToComment.create!(
             user_id: me.id,
             parent_id: parent.id,
             content: content
