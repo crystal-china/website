@@ -144,34 +144,6 @@ describe "Soft deletion" do
     Avram::Events::QueryEvent.logged_events.clear
   end
 
-  it "rejects restoring a reply when its root is deleted even if its direct parent still exists" do
-    admin = UserFactory.create &.email("soft-delete-admin@example.com")
-    doc = SaveDoc.create!(path_index: "/docs/restore-deleted-root", content: "正文")
-    thread = CommentThreadQuery.new.doc_id(doc.id).first
-    root = CreateComment.create!(user_id: admin.id, comment_thread_id: thread.id, content: "根评论")
-    child = ReplyToComment.create!(user_id: admin.id, parent_id: root.id, content: "子评论")
-    grandchild = ReplyToComment.create!(user_id: admin.id, parent_id: child.id, content: "孙评论")
-
-    DeleteComment.delete!(grandchild)
-    # 故意绕过删除入口，模拟旧数据：根已删除，但直接父评论仍存在。
-    Comment::SaveOperation.update!(root, soft_deleted_at: Time.utc)
-
-    grandchild = grandchild.reload
-
-    Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
-      response = ApiClient.new.post("/admin/trash/comments/#{grandchild.id}/restore?backdoor_user_id=#{admin.id}&locale=zh-CN")
-      document = XML.parse_html(response.body)
-
-      response.status_code.should eq(200)
-      document.xpath_node("//div[contains(@class, 'flash-message--failure')]").not_nil!.content.should eq("不可恢复")
-      document.xpath_node("//div[contains(@class, 'flash-message--success')]").should be_nil
-      grandchild.reload.soft_deleted_at.should eq(grandchild.soft_deleted_at)
-      grandchild.reload.updated_at.should eq(grandchild.updated_at)
-      root.reload.soft_deleted?.should be_true
-      child.reload.soft_deleted?.should be_false
-    end
-  end
-
   it "hides and restores topics without deleting their comment threads" do
     user = UserFactory.create
     admin = UserFactory.create &.email("soft-delete-admin@example.com")

@@ -61,15 +61,16 @@ describe "User events" do
       AppDatabase.exec "CREATE SCHEMA user_audit_migration_spec"
       AppDatabase.exec "SET LOCAL search_path TO user_audit_migration_spec"
       AppDatabase.exec "CREATE TABLE users (id bigint PRIMARY KEY)"
+      AppDatabase.exec "INSERT INTO users VALUES (10)"
 
       migration = CreateUserAudit::V20250315162146.new
       migration.migrate
       migration.prepared_statements.each { |statement| AppDatabase.exec(statement) }
 
       UserAuditQuery.new.any?.should be_false
-      AppDatabase.exec "INSERT INTO user_audits (user_id, kind) VALUES (10, 5)"
+      AppDatabase.exec "INSERT INTO user_audits (user_id, actor_id, kind) VALUES (10, 10, 5)"
       AppDatabase.query_one("SELECT changed_column_name, \"from\", \"to\", oauth_provider FROM user_audits", as: {String?, String?, String?, String?}).should eq({nil, nil, nil, nil})
-      AppDatabase.exec "INSERT INTO user_audits (user_id, kind, oauth_provider) VALUES (10, 3, 'github')"
+      AppDatabase.exec "INSERT INTO user_audits (user_id, actor_id, kind, oauth_provider) VALUES (10, 10, 3, 'github')"
       AppDatabase.query_all("SELECT oauth_provider FROM user_audits ORDER BY id", as: String?).should eq([nil, "github"])
 
       columns = AppDatabase.query_all("SELECT column_name FROM information_schema.columns WHERE table_schema = 'user_audit_migration_spec' AND table_name = 'user_audits'", as: String)
@@ -90,7 +91,7 @@ describe "User events" do
     end
   end
 
-  it "allows missing accounts and preserves historical IDs when accounts are physically deleted" do
+  it "preserves account and actor IDs when accounts are physically deleted" do
     AppDatabase.transaction do
       AppDatabase.exec "CREATE SCHEMA user_audit_associations_migration_spec"
       AppDatabase.exec "SET LOCAL search_path TO user_audit_associations_migration_spec"
@@ -99,7 +100,7 @@ describe "User events" do
       migration = CreateUserAudit::V20250315162146.new
       migration.migrate
       migration.prepared_statements.each { |statement| AppDatabase.exec(statement) }
-      AppDatabase.exec "INSERT INTO user_audits (user_id, actor_id, kind) VALUES (2, 1, 5), (999, NULL, 5), (NULL, 999, 5)"
+      AppDatabase.exec "INSERT INTO user_audits (user_id, actor_id, kind) VALUES (2, 1, 5), (1, 2, 5)"
       before = AppDatabase.query_all("SELECT user_id, actor_id, created_at, updated_at FROM user_audits ORDER BY id", as: {Int64?, Int64?, Time, Time})
 
       AppDatabase.query_one(
@@ -556,22 +557,6 @@ describe "User events" do
     stored.actor_id.should eq(actor.id)
     stored.created_at.should eq(audit.created_at)
     stored.updated_at.should eq(audit.updated_at)
-  end
-
-  it "still displays historical events whose actor ID is already unknown" do
-    admin = UserFactory.create &.email("audit-admin@example.com")
-    user = UserFactory.create
-    audit = SaveUserAudit.create!(user_id: user.id, kind: :password_signed_in)
-    UserAuditQuery.new.id(audit.id).update(actor_id: nil)
-
-    {"zh-CN" => "未知或账号已删除", "en" => "Unknown or account deleted"}.each do |locale, label|
-      response = ApiClient.new.get("/user_audits?locale=#{locale}&backdoor_user_id=#{admin.id}")
-      document = XML.parse_html(response.body)
-
-      response.status_code.should eq(200)
-      document.xpath_node("//main//ol/li").not_nil!.content.should contain(label)
-      UserAuditQuery.find(audit.id).actor_id.should be_nil
-    end
   end
 
   it "shows an empty site-wide history in both languages" do

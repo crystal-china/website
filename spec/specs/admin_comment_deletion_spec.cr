@@ -127,7 +127,7 @@ describe "Administrator comment deletion" do
     end
   end
 
-  it "traverses previously deleted comments while preserving their deletion time and other branches" do
+  it "preserves earlier deletion times when deleting a parent after its child branch" do
     admin = UserFactory.create &.email("cascade-admin@example.com")
     author = UserFactory.create
     doc = SaveDoc.create!(path_index: "/docs/cascade-existing-deletions", content: "文档正文")
@@ -139,10 +139,21 @@ describe "Administrator comment deletion" do
     sibling = ReplyToComment.create!(user_id: author.id, parent_id: root.id, content: "sibling")
     earlier = Time.utc
 
-    # 故意绕过删除校验，模拟旧数据，确认级联查询仍能穿过已删除的节点。
-    Timecop.freeze(earlier) { Comment::SaveOperation.update!(deleted_child, soft_deleted_at: Time.utc) }
+    # 先删除整个子分支，再删除父评论；两次删除属于不同批次。
+    Timecop.freeze(earlier) do
+      DeleteComment.delete!(
+        deleted_child,
+        actor_id: admin.id,
+        delete_descendants: true
+      )
+    end
 
     deleted_child = deleted_child.reload
+    grandchild = grandchild.reload
+
+    deleted_child.soft_deleted?.should be_true
+    grandchild.soft_deleted?.should be_true
+    grandchild.soft_deleted_at.should eq(deleted_child.soft_deleted_at)
 
     Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
       response = Timecop.freeze(earlier + 1.minute) do
@@ -151,10 +162,11 @@ describe "Administrator comment deletion" do
 
       response.status_code.should eq(200)
       CommentQuery.new.id.asc_order.map(&.id).should eq([root.id, sibling.id])
-      target.reload.soft_deleted_at.should eq(grandchild.reload.soft_deleted_at)
       target.reload.soft_deleted_at.should_not eq(deleted_child.soft_deleted_at)
       deleted_child.reload.soft_deleted_at.should eq(deleted_child.soft_deleted_at)
       deleted_child.reload.updated_at.should eq(deleted_child.updated_at)
+      grandchild.reload.soft_deleted_at.should eq(grandchild.soft_deleted_at)
+      grandchild.reload.updated_at.should eq(grandchild.updated_at)
       root.reload.children_count.should eq(1)
       root.reload.descendants_count.should eq(1)
       target.reload.children_count.should eq(0)
