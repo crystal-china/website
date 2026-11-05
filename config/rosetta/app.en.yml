@@ -18,7 +18,6 @@ en:
     trash:
       restore_comment:
         comment_restored: Comment restored
-        cannot_restore: Cannot restore this comment.
       restore_topic:
         topic_restored: Topic restored
       index_page:

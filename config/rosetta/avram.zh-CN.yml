@@ -98,3 +98,4 @@ zh-CN:
     credentials_incorrect: 不正确，请检查邮箱、用户名或密码
     comment_target_conflict: 不能同时指定评论区和父评论
     comment_has_replies: 有回复的评论不能单独删除
+    comment_cannot_be_restored: 不可恢复

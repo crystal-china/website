@@ -645,8 +645,8 @@ class Db::Seed::SampleData < LuckyTask::Task
       content: "【同批只剩一条】祖先已经恢复，我仍在回收站。不再显示父评论链接；现在可以恢复我，并保持原来的楼层。"
     )
     DeleteComment.delete!(restored_root, actor_id: admin.id, delete_descendants: true)
-    restored_root.reload.restore
-    restored_child.reload.restore
+    RestoreComment.run!(deleted_comment: restored_root)
+    RestoreComment.run!(deleted_comment: restored_child)
 
     withdrawn_leaf = CreateComment.create!(
       comment_thread_id: thread.id,
@@ -681,7 +681,7 @@ class Db::Seed::SampleData < LuckyTask::Task
       content: "【删除后已恢复】这条没有回复的评论曾由作者删除，现在已经恢复。正文、HTML 和楼层都应保留；普通作者现在仍可再次删除或撤回它。"
     )
     DeleteComment.delete!(restored_leaf, actor_id: author.id)
-    restored_leaf.reload.restore
+    RestoreComment.run!(deleted_comment: restored_leaf)
 
     3.times do |index|
       removed = ReplyToComment.create!(

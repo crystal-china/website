@@ -35,6 +35,8 @@
 `DeleteComment` 在未开启级联删除时，会重新读取计数并拒绝删除仍有回复的评论，避免内部 task 使用旧对象绕过限制。
 管理员级联删除和恢复入口仍沿用根评论优先的加锁顺序。
 
+`RestoreComment` 是恢复软删除评论的业务入口，集中检查所属主题／文档、父评论，以及事务内的加锁和复核。回收站 Action 和普通 Task 都应调用它；Task 可用 `RestoreComment.run!(deleted_comment: comment)`，业务校验不通过时会抛出 `Avram::FailedOperation`。成功返回包含 `comment` 和 `deleted_at` 的 NamedTuple，分别表示恢复后的评论和加锁时读取的原删除时间；回收站直接使用返回值识别原删除批次，不再读取 Operation 的内部状态。直接调用底层 `comment.restore` 仍会绕过这些业务检查。
+
 例如 A → B → C：管理员删除 B 时，B 和 C 都标记为已删除，普通查询自然不会返回 C；只恢复 B 不会自动恢复 C。
 旧数据若存在“父评论已删、后代未删”，必须先修复再采用此查询。移除 self JOIN 本身不需要新增 migration 或索引。
 
