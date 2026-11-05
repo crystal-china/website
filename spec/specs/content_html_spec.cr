@@ -121,7 +121,7 @@ describe "Stored content HTML" do
     ApiClient.new.get("/htmx/comments?comment_thread_id=#{thread.id}").body.should contain("<strong>hello</strong>")
   end
 
-  it "rebuilds legacy and deleted records without changing timestamps, notifications or counters" do
+  it "rebuilds outdated HTML, including deleted records, without changing timestamps, notifications or counters" do
     user = UserFactory.create
     topic = html_topic(user)
     thread = CommentThreadQuery.new.topic_id(topic.id).first
@@ -134,9 +134,9 @@ describe "Stored content HTML" do
     child = CommentQuery.new.only_soft_deleted.id(child.id).first
     notifications_count = NotificationQuery.new.select_count
 
-    TopicQuery.new.with_soft_deleted.id(topic.id).update(content_html: nil, updated_at: topic.updated_at)
+    TopicQuery.new.with_soft_deleted.id(topic.id).update(content_html: "<p>old cached topic body</p>", updated_at: topic.updated_at)
     [root, child].each do |comment|
-      CommentQuery.new.with_soft_deleted.id(comment.id).update(content_html: nil, updated_at: comment.updated_at)
+      CommentQuery.new.with_soft_deleted.id(comment.id).update(content_html: "<p>old cached comment body</p>", updated_at: comment.updated_at)
     end
 
     2.times { Db::Rebuild::ContentHtml.new.call }

@@ -743,7 +743,7 @@ describe "Notifications" do
     response.body.should contain("主题已删除或暂不可见")
   end
 
-  it "retains URL snapshots after the target is physically deleted" do
+  it "retains notification snapshots after the target is physically deleted" do
     author = UserFactory.create
     responder = UserFactory.create
     topic = notification_topic(author)
