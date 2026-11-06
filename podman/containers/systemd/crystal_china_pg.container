@@ -1,0 +1,17 @@
+[Unit]
+Description=Crystal China PostgreSQL
+
+[Container]
+Image=docker.io/groonga/pgroonga:4.1.0-debian-18
+Pod=crystal_china.pod
+
+EnvironmentFile=./crystal_china_pg.env
+
+Volume=crystal_china_pgdata.volume:/var/lib/postgresql
+
+Pull=missing
+
+[Service]
+Restart=on-failure
+RestartSec=5
+TimeoutStartSec=900

@@ -1,0 +1,13 @@
+[Unit]
+Description=Crystal China Redis
+
+[Container]
+Image=docker.io/library/redis:8-alpine
+Pod=crystal_china.pod
+
+Pull=missing
+
+[Service]
+Restart=on-failure
+RestartSec=5
+TimeoutStartSec=900
