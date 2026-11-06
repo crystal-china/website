@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# 最多等待 120 秒
-deadline=$((SECONDS + 120))
+# 最多等待 100 秒
+deadline=$((SECONDS + 100))
 
 while (( SECONDS < deadline )); do
     # 检查 PostgreSQL
