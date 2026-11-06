@@ -1,15 +1,22 @@
 [Unit]
 Description=crystal-china
-After=nginx.service
+Requires=crystal_china-pod.service
+After=crystal_china-pod.service
+
+# 不限制自动重试次数
+StartLimitIntervalSec=0
 
 [Service]
 LimitNOFILE=1048576
 Type=simple
-User=crystal_china
-WorkingDirectory=/home/crystal_china/apps/website_production
-Environment="LD_LIBRARY_PATH=/home/crystal_china/apps/website_production/lib"
-ExecStart=/home/crystal_china/apps/website_production/bin/crystal_china
+WorkingDirectory=%h/apps/crystal_china_production
+ExecStartPre=%h/apps/crystal_china_production/script/wait-dependencies.sh
+ExecStart=%h/apps/crystal_china_production/bin/crystal_china
 Restart=on-failure
+# 每次失败后等待 10 秒
+RestartSec=5
+# 整个网站启动阶段最多等待 150 秒
+TimeoutStartSec=150
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target
