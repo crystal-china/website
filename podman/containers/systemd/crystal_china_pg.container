@@ -4,7 +4,7 @@ Description=Crystal China PostgreSQL
 [Container]
 Image=docker.io/groonga/pgroonga:4.1.0-debian-18
 Pod=crystal_china.pod
-
+AutoUpdate=registry
 EnvironmentFile=./crystal_china_pg.env
 
 Volume=crystal_china_pgdata.volume:/var/lib/postgresql
@@ -15,3 +15,14 @@ Pull=missing
 Restart=on-failure
 RestartSec=5
 TimeoutStartSec=900
+
+# 升级 pgroonga 步骤：
+# 1. podman auto-update
+# 2. podman exec systemd-crystal_china_pg psql -U postgres -d crystal_china_production -c "SELECT name, default_version, installed_version FROM pg_available_extensions WHERE name = 'pgroonga';"
+#    default_version 是当前新版本， installed_version 是现在安装的版本。
+# 3. 确保索引兼容性一致的情况下，可以升级扩展：
+#    podman exec systemd-crystal_china_pg psql -v ON_ERROR_STOP=1 -U postgres -d myblog_production -c "ALTER EXTENSION pgroonga UPDATE TO '4.1.0';"
+
+# 注意：PostgreSQL 官方镜像默认允许某些本地连接通过 trust 认证，不需要输入密码，这里没有指定 -h 参数，因此，psql 默认通过容器内的 Unix Domain Socket 连接
+# PostgreSQL 使用 pg_hba.conf 控制客户端认证，Unix Socket 连接无需密码
+
