@@ -1,0 +1,4 @@
+[submodule "build_scripts"]
+	path = build_scripts
+	url = https://github.com/crystal-china/build_scripts.git
+	branch = main
