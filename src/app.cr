@@ -11,14 +11,15 @@ module App
   # - 个人和后台的账户记录列表。
   # 修改此值会同步调整上述分页和定位计算。
   SMALL_PER_PAGE = 10
+  VERSION_JSON   = {
+    rev:   {{`git rev-parse --short HEAD`.chomp.stringify}},
+    build: {{(flag?(:release) ? "release".id : "non-release".id).stringify}},
+  }
+  puts VERSION_JSON
 
   VERSION = {{
               `shards version "#{__DIR__}"`.chomp.stringify +
-              " (rev " +
-              `git rev-parse --short HEAD`.chomp.stringify +
-              ", build: " +
-              (flag?(:release) ? "release" : "non-release").stringify +
-              ")" +
+              "(#{VERSION_JSON})" +
               `date '+ %Y-%m-%d %H:%M:%S'`.chomp.stringify
             }}
 end
