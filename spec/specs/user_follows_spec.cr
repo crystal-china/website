@@ -370,7 +370,7 @@ describe "User follows" do
 
     SaveTopicFollow.create!(topic_id: topic.id, follower_id: topic_follower.id)
     SaveTopicFollow.create!(topic_id: topic.id, follower_id: author.id)
-    child = CreateComment.create!(user_id: author.id, parent_id: root.id, content: "@#{mentioned.login_name} 新回复")
+    child = ReplyToComment.create!(user_id: author.id, parent_id: root.id, content: "@#{mentioned.login_name} 新回复")
     recipients = NotificationQuery.new.for_target(child).results.to_h { |notification| {notification.user_id, notification.kind} }
 
     recipients.should eq({
@@ -382,7 +382,7 @@ describe "User follows" do
     })
     NotificationDelivery.comment_created(child, [mentioned.login_name])
     NotificationQuery.new.for_target(child).select_count.should eq(5)
-    grandchild = CreateComment.create!(user_id: author.id, parent_id: child.id, content: "更深回复")
+    grandchild = ReplyToComment.create!(user_id: author.id, parent_id: child.id, content: "更深回复")
     NotificationQuery.new.user_id(user_follower.id).for_target(grandchild).first.kind.should eq(Notification::Kind::FollowedUserReply)
     doc = SaveDoc.create!(path_index: "/docs/user-follows", content: "文档")
     doc_thread = CommentThreadQuery.new.doc_id(doc.id).first

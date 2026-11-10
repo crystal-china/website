@@ -98,3 +98,4 @@ en:
     credentials_incorrect: are incorrect; check your email, username or password
     comment_target_conflict: must not specify both a comment thread and a parent comment
     comment_has_replies: cannot delete a comment with replies without deleting its descendants
+    comment_cannot_be_restored: Cannot restore this comment.

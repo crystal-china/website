@@ -9,19 +9,19 @@ class Upload < BrowserAction
 
   post "/upload" do
     source = params.from_multipart.last["source"]
-    return json({status: "failed", message: "文件过大"}, HTTP::Status::PAYLOAD_TOO_LARGE) if File.size(source.path) > 5 * 1024 * 1024
+    upload_fiber_owns_file = false
 
-    mime_output = IO::Memory.new
-    mime_status = Process.run(
-      "file",
-      ["--brief", "--mime-type", "--", source.path],
-      output: mime_output
-    )
-    mime_type = mime_output.to_s.strip
+    return json(
+      {status: "failed", message: r(".too_large").t},
+      HTTP::Status::PAYLOAD_TOO_LARGE
+    ) if File.size(source.path) > 5 * 1024 * 1024
 
-    unless mime_status.success? && ALLOWED_IMAGE_TYPES.includes?(mime_type)
+    file = File.open(source.path)
+    mime_type = ImageType.detect(file)
+
+    unless mime_type && ALLOWED_IMAGE_TYPES.includes?(mime_type)
       return json(
-        {status: "failed", message: "只允许上传 JPEG、PNG、GIF、WebP 或 AVIF 图片"},
+        {status: "failed", message: r(".unsupported_type").t},
         HTTP::Status::UNSUPPORTED_MEDIA_TYPE
       )
     end
@@ -33,17 +33,19 @@ class Upload < BrowserAction
     form_data = HTTP::FormData::Builder.new(writer)
 
     spawn do
-      file = File.open(source.path) do |file|
-        form_data.file(
-          "file",
-          file,
-          HTTP::FormData::FileMetadata.new(filename: source.filename)
-        )
-        form_data.finish
-      end
+      form_data.file(
+        "file",
+        file.rewind,
+        HTTP::FormData::FileMetadata.new(filename: source.filename)
+      )
+      form_data.finish
     ensure
+      file.close
       writer.close
     end
+
+    # 开始发送后，文件由上面的 Fiber 在发送结束时关闭。
+    upload_fiber_owns_file = true
 
     headers = HTTP::Headers.new
     headers["Content-Type"] = form_data.content_type
@@ -78,15 +80,20 @@ class Upload < BrowserAction
     end
   rescue JSON::ParseException
     json(
-      {status: "failed", message: "图片上传服务返回了无效响应"},
+      {status: "failed", message: r(".invalid_response").t},
       HTTP::Status::BAD_GATEWAY
     )
   rescue Socket::ConnectError | IO::TimeoutError
     json(
-      {status: "failed", message: "图片上传服务暂时不可用，请稍后重试"},
+      {status: "failed", message: r(".unavailable").t},
       HTTP::Status::SERVICE_UNAVAILABLE
     )
   ensure
     reader.try(&.close)
+
+    unless upload_fiber_owns_file
+      file.try(&.close)
+      writer.try(&.close)
+    end
   end
 end

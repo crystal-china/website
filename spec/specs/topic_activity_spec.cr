@@ -21,8 +21,8 @@ describe "Topic activity" do
     TopicQuery.new.last_active_at.desc_order.id.desc_order.first.id.should eq(newer_topic.id)
 
     root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "根评论", created_at: root_at)
-    child = CreateComment.create!(user_id: replier.id, parent_id: root.id, content: "子评论", created_at: child_at)
-    grandchild = CreateComment.create!(user_id: author.id, parent_id: child.id, content: "后代评论", created_at: grandchild_at)
+    child = ReplyToComment.create!(user_id: replier.id, parent_id: root.id, content: "子评论", created_at: child_at)
+    grandchild = ReplyToComment.create!(user_id: author.id, parent_id: child.id, content: "后代评论", created_at: grandchild_at)
 
     activity.call.should eq({3, author.id, grandchild_at})
     topic.reload.last_reply_id.should eq(grandchild.id)

@@ -1,0 +1,29 @@
+[Unit]
+Description=Crystal China Web
+# 启动 Web 前，先启动 PostgreSQL 和 Redis
+Requires=crystal_china_pg.service crystal_china_redis.service
+After=crystal_china_pg.service crystal_china_redis.service
+
+[Container]
+Image=localhost/crystal-china:latest
+Pod=crystal_china.pod
+Volume=%h/apps/crystal_china_production/public:/app/public:rw
+# 确保写入系统日志文件，也能通过 systemd 改默认
+LogDriver=journald
+
+WorkingDir=/app
+
+# 路径改为你的实际环境变量文件
+EnvironmentFile=%h/apps/crystal_china_production/.env
+
+Tmpfs=/tmp:rw,mode=1777
+
+# 镜像由 SSH 传输到树莓派，不尝试远程拉取
+Pull=never
+
+[Service]
+# 这个脚本在宿主机执行，不在 scratch 容器中执行
+ExecStartPre=%h/.config/containers/systemd/scripts/wait-dependencies.sh
+Restart=on-failure
+RestartSec=5
+TimeoutStartSec=120

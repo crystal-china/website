@@ -7,7 +7,7 @@ describe "Comment replies toolbar" do
     thread = CommentThreadQuery.new.doc_id(doc.id).first
     root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "root")
     replies = Array.new(12) do |index|
-      CreateComment.create!(user_id: author.id, parent_id: root.id, content: "reply #{index}")
+      ReplyToComment.create!(user_id: author.id, parent_id: root.id, content: "reply #{index}")
     end
 
     response = ApiClient.new.get("/htmx/comments?comment_thread_id=#{thread.id}")

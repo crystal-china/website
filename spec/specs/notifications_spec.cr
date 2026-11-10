@@ -274,7 +274,7 @@ describe "Mention notification preferences" do
     UpdateUser.update!(author, mention_notifications_enabled: false)
 
     top = CreateComment.create!(user_id: responder.id, comment_thread_id: thread.id, content: "@#{author.login_name} 普通主题回复")
-    child = CreateComment.create!(user_id: responder.id, parent_id: root.id, content: "@#{author.login_name} 直接回复")
+    child = ReplyToComment.create!(user_id: responder.id, parent_id: root.id, content: "@#{author.login_name} 直接回复")
     NotificationQuery.new.user_id(author.id).for_target(top).first.kind.should eq(Notification::Kind::TopicReply)
     NotificationQuery.new.user_id(author.id).for_target(child).first.kind.should eq(Notification::Kind::CommentReply)
 
@@ -497,16 +497,16 @@ describe "Notifications" do
     root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "自己的主题")
     NotificationQuery.new.select_count.should eq(0)
 
-    child = CreateComment.create!(user_id: responder.id, parent_id: root.id, content: "回复作者")
+    child = ReplyToComment.create!(user_id: responder.id, parent_id: root.id, content: "回复作者")
     notifications = NotificationQuery.new.for_target(child).results
     notifications.size.should eq(1)
     notifications.first.user_id.should eq(author.id)
     notifications.first.kind.should eq(Notification::Kind::CommentReply)
 
-    grandchild = CreateComment.create!(user_id: author.id, parent_id: child.id, content: "再次回复")
+    grandchild = ReplyToComment.create!(user_id: author.id, parent_id: child.id, content: "再次回复")
     NotificationQuery.new.for_target(grandchild).first.user_id.should eq(responder.id)
 
-    mentioned_reply = CreateComment.create!(user_id: responder.id, parent_id: root.id, content: "@#{author.login_name} 明确提及")
+    mentioned_reply = ReplyToComment.create!(user_id: responder.id, parent_id: root.id, content: "@#{author.login_name} 明确提及")
     NotificationQuery.new.for_target(mentioned_reply).select_count.should eq(1)
     NotificationQuery.new.for_target(mentioned_reply).first.kind.should eq(Notification::Kind::Mention)
   end
@@ -516,10 +516,10 @@ describe "Notifications" do
     topic = notification_topic(author)
     thread = CommentThreadQuery.new.topic_id(topic.id).first
     root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "自己的主题")
-    CreateComment.create!(user_id: author.id, parent_id: root.id, content: "回复自己")
+    ReplyToComment.create!(user_id: author.id, parent_id: root.id, content: "回复自己")
     NotificationQuery.new.select_count.should eq(0)
 
-    child = CreateComment.create!(user_id: author.id, parent_id: root.id, content: "@xiaoming 明确提及自己")
+    child = ReplyToComment.create!(user_id: author.id, parent_id: root.id, content: "@xiaoming 明确提及自己")
     notification = NotificationQuery.new.for_target(child).first
     notification.user_id.should eq(author.id)
     notification.kind.should eq(Notification::Kind::Mention)
@@ -538,14 +538,14 @@ describe "Notifications" do
     responder = UserFactory.create
     thread = CommentThreadQuery.new.topic_id(notification_topic(author).id).first
     root = CreateComment.create!(user_id: parent_author.id, comment_thread_id: thread.id, content: "根评论")
-    child = CreateComment.create!(user_id: responder.id, parent_id: root.id, content: "子评论")
+    child = ReplyToComment.create!(user_id: responder.id, parent_id: root.id, content: "子评论")
     NotificationQuery.new.for_target(child).results.map(&.user_id).sort!.should eq([author.id, parent_author.id].sort)
 
     doc = SaveDoc.create!(path_index: "/docs/notifications", content: "文档正文")
     doc_thread = CommentThreadQuery.new.doc_id(doc.id).first
     doc_root = CreateComment.create!(user_id: parent_author.id, comment_thread_id: doc_thread.id, content: "文档评论")
     NotificationQuery.new.for_target(doc_root).any?.should be_false
-    doc_child = CreateComment.create!(user_id: responder.id, parent_id: doc_root.id, content: "文档子评论")
+    doc_child = ReplyToComment.create!(user_id: responder.id, parent_id: doc_root.id, content: "文档子评论")
     notification = NotificationQuery.new.for_target(doc_child).first
     notification.user_id.should eq(parent_author.id)
     notification.source_title.should eq("/docs/notifications")
@@ -710,7 +710,7 @@ describe "Notifications" do
     topic = notification_topic(author)
     thread = CommentThreadQuery.new.topic_id(topic.id).first
     root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "私有根评论")
-    child = CreateComment.create!(user_id: responder.id, parent_id: root.id, content: "隐藏正文不能泄露")
+    child = ReplyToComment.create!(user_id: responder.id, parent_id: root.id, content: "隐藏正文不能泄露")
     DeleteComment.delete!(root, delete_descendants: true)
 
     notification = NotificationQuery.new.for_target(child).first
@@ -743,7 +743,7 @@ describe "Notifications" do
     response.body.should contain("主题已删除或暂不可见")
   end
 
-  it "retains URL snapshots after the target is physically deleted" do
+  it "retains notification snapshots after the target is physically deleted" do
     author = UserFactory.create
     responder = UserFactory.create
     topic = notification_topic(author)
@@ -841,10 +841,10 @@ describe "Notifications" do
     responder = UserFactory.create
     thread = CommentThreadQuery.new.topic_id(notification_topic(author).id).first
     root = CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "要定位的根评论")
-    child = CreateComment.create!(user_id: responder.id, parent_id: root.id, content: "要定位的子评论")
+    child = ReplyToComment.create!(user_id: responder.id, parent_id: root.id, content: "要定位的子评论")
     (App::SMALL_PER_PAGE + 1).times do |index|
       CreateComment.create!(user_id: author.id, comment_thread_id: thread.id, content: "较新根评论#{index}")
-      CreateComment.create!(user_id: author.id, parent_id: root.id, content: "较新子评论#{index}")
+      ReplyToComment.create!(user_id: author.id, parent_id: root.id, content: "较新子评论#{index}")
     end
 
     {"comment_thread_id=#{thread.id}", "root_id=#{root.id}"}.each do |target|

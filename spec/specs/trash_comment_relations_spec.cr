@@ -22,9 +22,9 @@ describe "Trash comment relations" do
     thread = CommentThreadQuery.new.doc_id(doc.id).first
     other_thread = CommentThreadQuery.new.doc_id(other_doc.id).first
     root = CreateComment.create!(user_id: admin.id, comment_thread_id: thread.id, content: "root")
-    child = CreateComment.create!(user_id: admin.id, parent_id: root.id, content: "child")
-    grandchild = CreateComment.create!(user_id: admin.id, parent_id: child.id, content: "grandchild")
-    old_child = CreateComment.create!(user_id: admin.id, parent_id: root.id, content: "previous deletion")
+    child = ReplyToComment.create!(user_id: admin.id, parent_id: root.id, content: "child")
+    grandchild = ReplyToComment.create!(user_id: admin.id, parent_id: child.id, content: "grandchild")
+    old_child = ReplyToComment.create!(user_id: admin.id, parent_id: root.id, content: "previous deletion")
     other = CreateComment.create!(user_id: admin.id, comment_thread_id: other_thread.id, content: "other thread")
     at = Time.utc(2026, 10, 26, 12, 0, 0, nanosecond: 123456000)
 
@@ -115,7 +115,7 @@ describe "Trash comment relations" do
     doc = SaveDoc.create!(path_index: "/docs/trash-restore-flash", content: "正文")
     thread = CommentThreadQuery.new.doc_id(doc.id).first
     root = CreateComment.create!(user_id: admin.id, comment_thread_id: thread.id, content: "root")
-    child = CreateComment.create!(user_id: admin.id, parent_id: root.id, content: "child")
+    child = ReplyToComment.create!(user_id: admin.id, parent_id: root.id, content: "child")
 
     DeleteComment.delete!(root, delete_descendants: true)
 
@@ -160,8 +160,8 @@ describe "Trash comment relations" do
     doc = SaveDoc.create!(path_index: "/docs/trash-restore-siblings", content: "正文")
     thread = CommentThreadQuery.new.doc_id(doc.id).first
     root = CreateComment.create!(user_id: admin.id, comment_thread_id: thread.id, content: "root")
-    first_child = CreateComment.create!(user_id: admin.id, parent_id: root.id, content: "first child")
-    last_child = CreateComment.create!(user_id: admin.id, parent_id: root.id, content: "last child")
+    first_child = ReplyToComment.create!(user_id: admin.id, parent_id: root.id, content: "first child")
+    last_child = ReplyToComment.create!(user_id: admin.id, parent_id: root.id, content: "last child")
 
     DeleteComment.delete!(root, delete_descendants: true)
 
@@ -187,7 +187,7 @@ describe "Trash comment relations" do
     doc = SaveDoc.create!(path_index: "/docs/trash-batch-peers", content: "正文")
     thread = CommentThreadQuery.new.doc_id(doc.id).first
     root = CreateComment.create!(user_id: admin.id, comment_thread_id: thread.id, content: "search target")
-    child = CreateComment.create!(user_id: admin.id, parent_id: root.id, content: "remaining member")
+    child = ReplyToComment.create!(user_id: admin.id, parent_id: root.id, content: "remaining member")
     at = Time.utc
 
     Timecop.freeze(at) { DeleteComment.delete!(root, delete_descendants: true) }
@@ -230,7 +230,7 @@ describe "Trash comment relations" do
     thread = CommentThreadQuery.new.doc_id(doc.id).first
     root = CreateComment.create!(user_id: admin.id, comment_thread_id: thread.id, content: "root")
     replies = Array.new(21) do |index|
-      CreateComment.create!(user_id: admin.id, parent_id: root.id, content: "reply #{index}")
+      ReplyToComment.create!(user_id: admin.id, parent_id: root.id, content: "reply #{index}")
     end
 
     DeleteComment.delete!(root, delete_descendants: true)
@@ -341,7 +341,7 @@ describe "Trash comment relations" do
     doc = SaveDoc.create!(path_index: "/docs/trash-translations", content: "正文")
     thread = CommentThreadQuery.new.doc_id(doc.id).first
     root = CreateComment.create!(user_id: admin.id, comment_thread_id: thread.id, content: "root")
-    child = CreateComment.create!(user_id: admin.id, parent_id: root.id, content: "child")
+    child = ReplyToComment.create!(user_id: admin.id, parent_id: root.id, content: "child")
 
     DeleteComment.delete!(root, delete_descendants: true)
 

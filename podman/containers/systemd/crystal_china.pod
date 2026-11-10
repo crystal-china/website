@@ -1,0 +1,15 @@
+# 默认 pod 名字是文件名 + systemd 前缀，systemd-crystal_china
+[Unit]
+Description=Crystal China Pod
+
+[Pod]
+PublishPort=127.0.0.1:5432:5432
+PublishPort=127.0.0.1:6379:6379
+PublishPort=127.0.0.1:5000:5000
+
+[Service]
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

@@ -264,7 +264,7 @@ class Db::Seed::SampleData < LuckyTask::Task
       reply_content = "@#{reader.login_name} 迁移脚本时还可以练习「#{title}」。建议先列出正常、失败和重复执行三种情况，再逐项验证。你关闭了提及通知，但第一条是对你的直接回复，普通回复通知仍应保留；小明作为主题作者也会收到普通回复通知。"
 
       if index.zero?
-        CreateComment.create!(
+        ReplyToComment.create!(
           parent_id: topic_reader_reply.id,
           user_id: replier.id,
           content: reply_content
@@ -277,7 +277,7 @@ class Db::Seed::SampleData < LuckyTask::Task
         )
       end
 
-      CreateComment.create!(
+      ReplyToComment.create!(
         parent_id: doc_root.id,
         user_id: replier.id,
         content: "关于前言提到的练习，我补充「#{title}」这个方向。可以先覆盖资源释放和异常传播，再验证重复执行不会留下额外任务；这条通知应定位到前言讨论的子分页。"
@@ -324,7 +324,7 @@ class Db::Seed::SampleData < LuckyTask::Task
           user_id: user.id,
           content: "主题删除后，这条评论只因所属主题不可见而隐藏，并没有被单独删除。管理员可以从主题回收站预览它；恢复主题后它会重新可见。"
         )
-        deleted_child = CreateComment.create!(
+        deleted_child = ReplyToComment.create!(
           parent_id: kept_root.id,
           user_id: user.id,
           content: "我先删除了这条重复回复，之后主题才被移入回收站。主题未恢复时不能恢复本条；只恢复主题，也不应把本条一起恢复。"
@@ -341,7 +341,7 @@ class Db::Seed::SampleData < LuckyTask::Task
         actor_id: admin.id
       )
 
-      deleted_comment = CreateComment.create!(
+      deleted_comment = ReplyToComment.create!(
         parent_id: doc_root.id,
         user_id: user.id,
         content: "关于「#{title}」的重复留言，管理员会删除这条评论。可以检查删除通知的摘要，以及跳转到已删除评论时的提示。"
@@ -486,13 +486,13 @@ class Db::Seed::SampleData < LuckyTask::Task
       ```
       MARKDOWN
     )
-    child = CreateComment.create!(
+    child = ReplyToComment.create!(
       parent_id: root.id,
       user_id: replier.id,
       created_at: at + 10.minutes,
       content: "我会先固定输入和输出，再逐步替换解析逻辑。比如明确哪些字段可以缺省、哪些字段缺失时必须报错，并为每种失败准备一个最小配置文件；这样以后修改类型时，也能判断行为是否发生变化。"
     )
-    grandchild = CreateComment.create!(
+    grandchild = ReplyToComment.create!(
       parent_id: child.id,
       user_id: reader.id,
       created_at: at + 20.minutes,
@@ -509,7 +509,7 @@ class Db::Seed::SampleData < LuckyTask::Task
       这条回复的直接父评论是 Ruby 转 Crystal，不是根评论作者，可以检查回复对象和跨页定位。
       MARKDOWN
     )
-    CreateComment.create!(
+    ReplyToComment.create!(
       parent_id: grandchild.id,
       user_id: admin.id,
       created_at: at + 30.minutes,
@@ -527,7 +527,7 @@ class Db::Seed::SampleData < LuckyTask::Task
       "Markdown 报告中的文件名要注意转义；包含下划线、百分号或反斜杠时，不应改变原始路径。",
       "最后把依赖版本和运行命令写进 README，让后来的人不必猜测示例需要什么环境。",
     ].each_with_index do |advice, index|
-      CreateComment.create!(
+      ReplyToComment.create!(
         parent_id: root.id,
         user_id: users[(index + 2) % users.size].id,
         created_at: at + (index + 1).hours,
@@ -547,7 +547,7 @@ class Db::Seed::SampleData < LuckyTask::Task
       user_id: author.id,
       content: "【已撤回的根评论】我最初认为所有配置错误都应该自动填默认值，后来发现这会掩盖输入问题，所以先撤回这段建议。原文仍然保留，恢复后应重新出现，下面的讨论不能因此消失。"
     )
-    CreateComment.create!(
+    ReplyToComment.create!(
       parent_id: withdrawn_root.id,
       user_id: replier.id,
       content: "默认值适合确实可选的字段，不适合强行补齐必填字段。虽然根评论已撤回，我的这条回复仍应能展开、阅读和通过链接访问。"
@@ -559,12 +559,12 @@ class Db::Seed::SampleData < LuckyTask::Task
       user_id: author.id,
       content: "【子评论撤回演示】这一支讨论异常处理的边界。可以先展开，再撤回或恢复中间的评论，检查回复列表是否保持展开，以及加减号、分支线和其他操作图标的位置。"
     )
-    withdrawn_child = CreateComment.create!(
+    withdrawn_child = ReplyToComment.create!(
       parent_id: withdrawal_branch.id,
       user_id: author.id,
       content: "我原先建议捕获所有异常后直接返回空报告，但这会让真正的程序错误也被忽略。先撤回这条建议，保留下面其他人的纠正；恢复时应保留原来的投票和楼层号。"
     )
-    withdraw_child_reply = CreateComment.create!(
+    withdraw_child_reply = ReplyToComment.create!(
       parent_id: withdrawn_child.id,
       user_id: replier.id,
       content: "我更倾向于只捕获预期的文件和解析错误，让意外错误继续暴露。小明可以撤回父评论，但有我这条直接回复时不能单独删除；删除我这条后，父评论应重新出现删除按钮。"
@@ -577,7 +577,7 @@ class Db::Seed::SampleData < LuckyTask::Task
       user_id: author.id,
       content: "【回复已删除，父评论可删除】我曾在这里询问示例的文件编码，唯一的直接回复后来由作者删除了。现在没有可见后代，所以我的删除按钮应该重新出现，而不是继续被历史记录阻止。"
     )
-    removed_reply = CreateComment.create!(
+    removed_reply = ReplyToComment.create!(
       parent_id: delete_ready.id,
       user_id: replier.id,
       content: "这条单独删除的回复曾建议使用本地默认编码，后来发现应明确使用 UTF-8，所以作者删除了它。它不属于任何级联删除批次，回收站不应显示查看同批删除。"
@@ -589,17 +589,17 @@ class Db::Seed::SampleData < LuckyTask::Task
       user_id: author.id,
       content: "【整支级联删除】这一支重复讨论了已经修正的配置格式，管理员将根评论和后代一起删除。恢复时应先恢复根评论，再恢复子评论，不能越过父评论。"
     )
-    deleted_child = CreateComment.create!(
+    deleted_child = ReplyToComment.create!(
       parent_id: deleted_root.id,
       user_id: replier.id,
       content: "这是随根评论一起删除的第二层评论。同批列表中根评论应排在我前面，先恢复根评论再恢复我，不再额外显示父评论链接。"
     )
-    deleted_grandchild = CreateComment.create!(
+    deleted_grandchild = ReplyToComment.create!(
       parent_id: deleted_child.id,
       user_id: reader.id,
       content: "这是随根评论一起删除的第三层评论。展开同批记录可找到祖先，不再额外显示父评论链接。父评论仍被删除时，点击恢复应被拒绝。"
     )
-    earlier_deletion = CreateComment.create!(
+    earlier_deletion = ReplyToComment.create!(
       parent_id: deleted_child.id,
       user_id: replier.id,
       content: "【更早单独删除】我在管理员删除整支之前就删除了这条重复回复。原删除时间不能被覆盖，也不应混入后来的同批删除列表。搜索 100% a_b C:\\temp 时，这些字符应按字面匹配。"
@@ -612,17 +612,17 @@ class Db::Seed::SampleData < LuckyTask::Task
       user_id: author.id,
       content: "【只删除中间分支】这一支同时讨论输入校验和报告格式。管理员只移除了错误的输入校验分支，根评论与另一条讨论报告格式的回复仍然保留。"
     )
-    deleted_branch = CreateComment.create!(
+    deleted_branch = ReplyToComment.create!(
       parent_id: branch_root.id,
       user_id: replier.id,
       content: "这条中间评论以及下面的回复被管理员级联删除。根评论没有删除，回收站不提供父评论或根评论链接。"
     )
-    CreateComment.create!(
+    ReplyToComment.create!(
       parent_id: deleted_branch.id,
       user_id: reader.id,
       content: "这条回复随中间评论一起删除；它与被删父评论属于同一批，但不能连带删除另一条兄弟分支。"
     )
-    CreateComment.create!(
+    ReplyToComment.create!(
       parent_id: branch_root.id,
       user_id: reader.id,
       content: "我是仍然保留的兄弟分支，讨论的是报告格式。其他分支被管理员删除后，我仍然可以阅读、回复和投票，根评论的数量与最后活跃信息也应正确。"
@@ -634,19 +634,19 @@ class Db::Seed::SampleData < LuckyTask::Task
       user_id: author.id,
       content: "【部分恢复】这一支曾经被整支删除，现在已经按顺序恢复了根评论和子评论，孙评论还在回收站。恢复操作不能重排楼层，也不能重新发送回复通知。"
     )
-    restored_child = CreateComment.create!(
+    restored_child = ReplyToComment.create!(
       parent_id: restored_root.id,
       user_id: author.id,
       content: "我已经从回收站恢复，唯一的子评论仍被删除。因此我可以再次删除，也可以撤回；回收站剩下的那条记录不应再显示查看同批删除。"
     )
-    remaining_deleted = CreateComment.create!(
+    remaining_deleted = ReplyToComment.create!(
       parent_id: restored_child.id,
       user_id: replier.id,
       content: "【同批只剩一条】祖先已经恢复，我仍在回收站。不再显示父评论链接；现在可以恢复我，并保持原来的楼层。"
     )
     DeleteComment.delete!(restored_root, actor_id: admin.id, delete_descendants: true)
-    restored_root.reload.restore
-    restored_child.reload.restore
+    RestoreComment.run!(deleted_comment: restored_root)
+    RestoreComment.run!(deleted_comment: restored_child)
 
     withdrawn_leaf = CreateComment.create!(
       comment_thread_id: thread.id,
@@ -681,10 +681,10 @@ class Db::Seed::SampleData < LuckyTask::Task
       content: "【删除后已恢复】这条没有回复的评论曾由作者删除，现在已经恢复。正文、HTML 和楼层都应保留；普通作者现在仍可再次删除或撤回它。"
     )
     DeleteComment.delete!(restored_leaf, actor_id: author.id)
-    restored_leaf.reload.restore
+    RestoreComment.run!(deleted_comment: restored_leaf)
 
     3.times do |index|
-      removed = CreateComment.create!(
+      removed = ReplyToComment.create!(
         parent_id: delete_ready.id,
         user_id: author.id,
         content: "#{source}单独删除示例 #{index + 1}：补充说明已经合入教程，这条重复留言不再保留。它没有后代，不应被错误地归入前后的级联删除批次。"

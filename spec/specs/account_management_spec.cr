@@ -30,7 +30,7 @@ describe "Account management" do
     end
   end
 
-  it "creates nullable actor references and retains events and actor IDs when actors are deleted" do
+  it "retains events and actor IDs when actors are deleted" do
     AppDatabase.transaction do
       AppDatabase.exec "CREATE SCHEMA account_management_migration_spec"
       AppDatabase.exec "SET LOCAL search_path TO account_management_migration_spec"
@@ -41,8 +41,8 @@ describe "Account management" do
       migration.migrate
       migration.prepared_statements.each { |statement| AppDatabase.exec(statement) }
 
-      AppDatabase.exec "INSERT INTO user_audits (user_id, actor_id, kind) VALUES (1, 1, 1), (999, NULL, 3)"
-      AppDatabase.query_all("SELECT actor_id FROM user_audits ORDER BY id", as: Int64?).should eq([1_i64, nil])
+      AppDatabase.exec "INSERT INTO user_audits (user_id, actor_id, kind) VALUES (1, 1, 5), (1, 1, 4)"
+      AppDatabase.query_all("SELECT actor_id FROM user_audits ORDER BY id", as: Int64?).should eq([1_i64, 1_i64])
       AppDatabase.exec "DELETE FROM users WHERE id = 1"
       AppDatabase.query_one("SELECT actor_id FROM user_audits WHERE id = 1", as: Int64?).should eq(1_i64)
       AppDatabase.query_one("SELECT count(*) FROM user_audits", as: Int64).should eq(2)
