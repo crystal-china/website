@@ -13,10 +13,34 @@ class UpdateUser < User::SaveOperation
   before_save do
     validate_user_names
     validate_avatar_is_a_link
+    validate_and_assign_profile
+    validate_profile_edit_permissions
+    validate_and_encrypt_password
+  end
+
+  after_save do |saved_user|
+    record_profile_changes(saved_user)
+    record_password_change(saved_user)
+    hide_online_presence_if_needed(saved_user)
+  end
+
+  private def validate_avatar_is_a_link : Nil
+    avatar.value.try do |avatar_value|
+      if !avatar_value.starts_with?(%r{https?://})
+        avatar.add_error r("validations.avatar_url").t
+      end
+    end
+  end
+
+  private def validate_and_assign_profile : Nil
     validate_size_of tagline, max: User::Profile::MAX_TAGLINE_LENGTH
     validate_size_of bio, max: User::Profile::MAX_BIO_LENGTH
-    profile.value = User::Profile.new(tagline: tagline.value, bio: bio.value)
 
+    profile.value = User::Profile.new(tagline: tagline.value, bio: bio.value)
+  end
+
+  # 检查操作者能否编辑目标用户，以及是否允许修改登录用户名。
+  private def validate_profile_edit_permissions : Nil
     actor = if (id = actor_id.value)
               UserQuery.find(id)
             else
@@ -32,33 +56,23 @@ class UpdateUser < User::SaveOperation
         login_name.add_error r("validations.login_name_change_expired").t
       end
     end
-
-    if !password.value.nil?
-      validate_confirmation_of password, with: password_confirmation
-      validate_size_of(
-        password,
-        min: PasswordValidations::MIN_PASSWORD_LENGTH,
-        max: PasswordValidations::MAX_PASSWORD_LENGTH
-      )
-      Authentic.copy_and_encrypt password, to: encrypted_password if password.valid?
-    end
   end
 
-  after_save user_audit
+  # 提供了新密码时，校验确认值和长度，并生成用于保存的密码哈希。
+  private def validate_and_encrypt_password : Nil
+    return if password.value.nil?
 
-  after_save do |user|
-    ONLINE_PRESENCE.hide(user.id) if hide_online_status.changed? && user.hide_online_status?
+    validate_confirmation_of password, with: password_confirmation
+    validate_size_of(
+      password,
+      min: PasswordValidations::MIN_PASSWORD_LENGTH,
+      max: PasswordValidations::MAX_PASSWORD_LENGTH
+    )
+
+    Authentic.copy_and_encrypt password, to: encrypted_password if password.valid?
   end
 
-  private def validate_avatar_is_a_link : Nil
-    avatar.value.try do |avatar_value|
-      if !avatar_value.starts_with?(%r{https?://})
-        avatar.add_error r("validations.avatar_url").t
-      end
-    end
-  end
-
-  private def user_audit(saved_user : User) : Nil
+  private def record_profile_changes(saved_user : User) : Nil
     attributes.select(&.changed?).each do |attribute|
       column_name = attribute.name.to_s
 
@@ -75,13 +89,19 @@ class UpdateUser < User::SaveOperation
         to: attribute.value.try(&.to_s)
       )
     end
+  end
 
-    if encrypted_password.changed?
-      SaveUserAudit.create!(
-        user_id: saved_user.id,
-        actor_id: actor_id.value || saved_user.id,
-        kind: UserAudit::Kind::PasswordChanged
-      )
-    end
+  private def record_password_change(saved_user : User) : Nil
+    return unless encrypted_password.changed?
+
+    SaveUserAudit.create!(
+      user_id: saved_user.id,
+      actor_id: actor_id.value || saved_user.id,
+      kind: UserAudit::Kind::PasswordChanged
+    )
+  end
+
+  private def hide_online_presence_if_needed(saved_user : User) : Nil
+    ONLINE_PRESENCE.hide(saved_user.id) if hide_online_status.changed? && saved_user.hide_online_status?
   end
 end
