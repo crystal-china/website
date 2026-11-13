@@ -1,0 +1,17 @@
+[Unit]
+Description=myblog
+Requires=crystal_china_pg.service crystal_china_redis.service
+After=crystal_china_pg.service crystal_china_redis.service
+
+[Service]
+LimitNOFILE=1048576
+Type=simple
+WorkingDirectory=%h/apps/myblog_production
+ExecStartPre=%h/.config/containers/systemd/scripts/wait-dependencies.sh
+ExecStart=%h/apps/myblog_production/bin/myblog
+Restart=on-failure
+RestartSec=5
+TimeoutStartSec=120
+
+[Install]
+WantedBy=default.target
