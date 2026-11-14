@@ -111,7 +111,7 @@
     --comment-replies-column-width: 0.75rem;
     --comment-replies-gap: 0.5rem;
     --comment-replies-indent: 1.75rem;
-    --comment-replies-toolbar-height: 2.5rem;
+    --comment-replies-toolbar-height: 2rem;
     display: grid;
     grid-template-columns: var(--comment-replies-column-width) minmax(0, 1fr);
     column-gap: var(--comment-replies-gap);
@@ -189,16 +189,6 @@
     margin-left: auto;
   }
 
-  .comment-replies-sort .segmented-control {
-    height: var(--comment-replies-toolbar-height);
-    padding: 0.125rem;
-  }
-
-  .comment-replies-sort .segmented-option {
-    height: 100%;
-    padding: 0 0.75rem;
-  }
-
   /* 排序在小屏换行时，竖线仍从第一行的加减号中心向下连接列表。 */
   .comment-replies-toolbar:has(~ [id$="-replies-list"]:not(:empty))::before {
     content: "";
@@ -267,5 +257,12 @@
 
   .comment-root > .comment-replies > [id$="-replies-list"] > article {
     margin-left: 0;
+  }
+}
+
+@layer utilities {
+  /* 覆盖第一条子评论的 mt-6，让它靠近工具栏；后续评论保留原有间距。 */
+  .comment-root > .comment-replies > [id$="-replies-list"] > article:first-of-type {
+    margin-top: 0.5rem;
   }
 }

@@ -5,14 +5,14 @@ class Comments::SortOrder < BaseComponent
   needs order_by : String
 
   def render : Nil
-    div class: "segmented-control" do
+    div class: "segmented-control p-0.5" do
       [{r(".oldest").t, "asc"}, {r(".newest").t, "desc"}].each do |title, order|
         classes = order_by == order ? "segmented-option segmented-option-active" : "segmented-option"
         path = "#{url}&order_by=#{order}"
 
         a(
           title,
-          class: classes,
+          class: "#{classes} px-2 py-0.5 text-xs",
           href: path,
           hx_get: path,
           hx_target: "##{target_id}",

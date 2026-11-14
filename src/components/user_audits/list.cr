@@ -4,11 +4,17 @@ class UserAudits::List < BaseComponent
   needs show_account : Bool = false
 
   def render : Nil
-    section id: "user-audits-list" do
+    # 按每条约 3rem、分页约 5rem 预留高度，末页记录不足时分页仍停在底部。
+    section(
+      id: "user-audits-list",
+      class: "flex flex-col",
+      style: "min-height: #{pages.per_page * 3 + 5}rem"
+    ) do
       render_audits
 
       # 只让分页链接继承局部刷新，记录中的用户链接仍走整页导航。
       div(
+        class: "mt-auto",
         "hx-target:inherited": "#user-audits-list",
         "hx-swap:inherited": "outerHTML show:top showTarget:body",
         "hx-sync:inherited": "#user-audits-list:replace"

@@ -113,8 +113,10 @@ describe "Account history filters" do
     document = XML.parse_html(response.body)
     next_path = document.xpath_node("//main//nav/a[.='下一页']").not_nil!["href"]
     query_params = URI.parse(next_path).query_params
+    reserved_height = document.xpath_node("//section[@id='user-audits-list']").not_nil!["style"]
 
     response.status_code.should eq(200)
+    reserved_height.should eq("min-height: #{App::SMALL_PER_PAGE * 3 + 5}rem")
     document.xpath_nodes("//main//ol/li").size.should eq(10)
     response.body.should_not contain("excluded-provider")
     query_params["login_name"].should eq("targetuser")
@@ -126,6 +128,7 @@ describe "Account history filters" do
 
     response.status_code.should eq(200)
     document.xpath_nodes("//main//ol/li").size.should eq(1)
+    document.xpath_node("//section[@id='user-audits-list']").not_nil!["style"].should eq(reserved_height)
     document.xpath_node("//input[@name='login_name']").not_nil!["value"].should eq("targetuser")
     document.xpath_node("//select/option[@selected]").not_nil!["value"].should eq("password_signed_in")
     document.xpath_node("//main//form//input[@name='page']").should be_nil
@@ -139,11 +142,15 @@ describe "Account history filters" do
     response.body.should_not contain("<!DOCTYPE")
     document.xpath_node("//header | //footer | //form").should be_nil
     list.xpath_nodes("./ol/li").size.should eq(1)
+    list["style"].should eq(reserved_height)
+    list["class"].split.should contain("flex")
+    list["class"].split.should contain("flex-col")
     list.xpath_node(".//*[@id='user-audits-scroll']").should be_nil
     list.content.should contain(user.nickname)
     pagination_container["hx-target:inherited"].should eq("#user-audits-list")
     pagination_container["hx-swap:inherited"].should eq("outerHTML show:top showTarget:body")
     pagination_container["hx-sync:inherited"].should eq("#user-audits-list:replace")
+    pagination_container["class"].split.should contain("mt-auto")
     list["hx-target:inherited"]?.should be_nil
     previous_path = pagination_container.xpath_node("./nav/a").not_nil!["href"]
     URI.parse(previous_path).query_params["login_name"].should eq("targetuser")
@@ -177,7 +184,7 @@ describe "Account history filters" do
     document = XML.parse_html(response.body)
 
     response.status_code.should eq(200)
-    document.xpath_node("//section[@id='user-audits-list']").should_not be_nil
+    document.xpath_node("//section[@id='user-audits-list']").not_nil!["style"].should eq("min-height: #{App::SMALL_PER_PAGE * 3 + 5}rem")
     document.xpath_node("//section//ol | //section//nav").should be_nil
     document.xpath_node("//main | //header | //footer").should be_nil
     client.get("/user_audits?user_id=#{other.id}&backdoor_user_id=#{user.id}").status_code.should eq(403)
