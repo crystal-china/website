@@ -1,9 +1,17 @@
-# 社区区域替换后，同步区域外的页面元数据、访问统计和已读通知计数。
-class Forum::PagePartials < BaseComponent
+# 页面主体局部替换后，同步区域外的页面元数据、访问统计和已读通知计数。
+class Shared::PagePartials < BaseComponent
   needs seo : SEO
 
   def render : Nil
     title "Crystal China - #{seo.page_title}"
+
+    tag(
+      "hx-partial",
+      hx_target: "head meta[name='description']",
+      hx_swap: "outerHTML"
+    ) do
+      meta name: "description", content: seo.page_description
+    end
 
     tag(
       "hx-partial",
@@ -27,6 +35,14 @@ class Forum::PagePartials < BaseComponent
 
     tag(
       "hx-partial",
+      hx_target: "head meta[property='og:description']",
+      hx_swap: "outerHTML"
+    ) do
+      meta property: "og:description", content: seo.page_description
+    end
+
+    tag(
+      "hx-partial",
       hx_target: "head meta[property='og:url']",
       hx_swap: "outerHTML"
     ) do
@@ -39,6 +55,14 @@ class Forum::PagePartials < BaseComponent
       hx_swap: "outerHTML"
     ) do
       meta name: "twitter:title", content: seo.page_title
+    end
+
+    tag(
+      "hx-partial",
+      hx_target: "head meta[name='twitter:description']",
+      hx_swap: "outerHTML"
+    ) do
+      meta name: "twitter:description", content: seo.page_description
     end
 
     tag(

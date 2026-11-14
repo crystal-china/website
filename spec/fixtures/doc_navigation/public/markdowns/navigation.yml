@@ -1,0 +1,7 @@
+- path: /docs/index
+  title: 第一篇文档
+  sub_title: 第一篇说明
+  children:
+    - path: /docs/chapter
+      title: 第二篇文档
+      sub_title: 第二篇说明

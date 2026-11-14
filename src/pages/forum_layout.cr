@@ -15,7 +15,7 @@ abstract class ForumLayout < MainLayout
       content
 
       mount(
-        Forum::PagePartials,
+        Shared::PagePartials,
         seo: SEO.new(
           page_title: page_title,
           page_description: page_description,

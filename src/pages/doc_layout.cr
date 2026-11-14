@@ -10,6 +10,24 @@ abstract class DocLayout < MainLayout
   needs markdown_path : String
   needs markdown_source : String
 
+  # 文档之间切换时只返回文档区域；普通访问和刷新仍输出完整页面。
+  def render : Nil
+    if context.request.headers["HX-Request-Type"]? == "partial"
+      render_document_content
+
+      mount(
+        Shared::PagePartials,
+        seo: SEO.new(
+          page_title: page_title,
+          page_description: page_description,
+          canonical_url: canonical_url
+        )
+      )
+    else
+      super
+    end
+  end
+
   def page_title : String
     DocNavigation.pages_by_path[current_path]?.try(&.title) || markdown_page_title
   end
@@ -27,14 +45,31 @@ abstract class DocLayout < MainLayout
   end
 
   private def render_body : Nil
-    if paginated_doc?
-      render_paginated_doc
-    else
-      render_standalone_doc
+    render_navbar_and_flash if paginated_doc?
+
+    render_document_content
+
+    if current_user && paginated_doc?
+      mount(
+        Search::Dialog,
+        scope: search_scope
+      )
     end
 
     mount Shared::Common, page_title: page_title
-    mount Comments::Dialog
+  end
+
+  # 侧栏、正文、上下篇导航和评论一起替换，避免保留上一份文档的内容。
+  private def render_document_content : Nil
+    div id: "doc-content" do
+      if paginated_doc?
+        render_paginated_doc
+      else
+        render_standalone_doc
+      end
+
+      mount Comments::Dialog
+    end
   end
 
   private def paginated_doc? : Bool
@@ -42,8 +77,6 @@ abstract class DocLayout < MainLayout
   end
 
   private def render_paginated_doc : Nil
-    render_navbar_and_flash
-
     main class: "#{page_frame_classes} flex flex-col items-stretch lg:flex-row lg:items-start" do
       aside class: "w-full border-b border-gray-300 bg-[#F2F4F6] lg:w-80 lg:shrink-0 lg:self-stretch lg:border-r lg:border-b-0" do
         header id: "sidebar", class: "desktop-sidebar #{page_gutter_classes} py-2 lg:w-80" do
@@ -57,11 +90,6 @@ abstract class DocLayout < MainLayout
         show_pager: true
       )
     end
-
-    mount(
-      Search::Dialog,
-      scope: search_scope,
-    ) if current_user
   end
 
   private def render_standalone_doc : Nil

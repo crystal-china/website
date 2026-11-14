@@ -43,7 +43,7 @@ describe "Community pagination" do
       response.status_code.should eq(200)
       response.body.should_not contain("<!DOCTYPE")
       document.xpath_node("//main | //footer").should be_nil
-      document.xpath_nodes("//hx-partial").size.should eq(5)
+      document.xpath_nodes("//hx-partial").size.should eq(8)
       community = document.xpath_node("//section[@id='forum-content']").not_nil!
       header = community.xpath_node(".//header[@id='forum-list-header']").not_nil!
       navigation = community.xpath_node(".//aside[nav]/nav").not_nil!
@@ -84,7 +84,7 @@ describe "Community pagination" do
       response.status_code.should eq(200)
       document.xpath_node("//section[@id='forum-topics']/p").should_not be_nil
       document.xpath_node("//main | //footer").should be_nil
-      document.xpath_nodes("//hx-partial").size.should eq(5)
+      document.xpath_nodes("//hx-partial").size.should eq(8)
       document.xpath_node("//section[@id='forum-content']//header[@id='forum-list-header']").should_not be_nil
       document.xpath_node("//section[@id='forum-content']//aside[nav]/nav").should_not be_nil
       document.xpath_node("//section[@id='forum-topics']//nav").should be_nil

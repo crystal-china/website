@@ -53,7 +53,7 @@ describe "Community partial navigation" do
     response.status_code.should eq(200)
     response.body.should_not contain("<!DOCTYPE")
     document.xpath_node("//main | //footer").should be_nil
-    document.xpath_nodes("//hx-partial").size.should eq(6)
+    document.xpath_nodes("//hx-partial").size.should eq(9)
     document.xpath_node("//title").not_nil!.content.should eq("Crystal China - #{expected_title}")
     document.xpath_node("//hx-partial[@hx-target='#page-analytics']/div").not_nil!["data-page-title"].should eq(expected_title)
     document.xpath_node("//hx-partial/link[@rel='canonical']").not_nil!["href"].should eq("#{Lucky::RouteHelper.settings.base_uri}/forum")

@@ -2,7 +2,12 @@ class Docs::PageNavigation < BaseComponent
   include PageHelpers
 
   def render : Nil
-    div class: "flex flex-wrap items-center justify-between gap-4 pt-[3em]" do
+    div(
+      class: "flex flex-wrap items-center justify-between gap-4 pt-[3em]",
+      "hx-target:inherited": "#doc-content",
+      "hx-swap:inherited": "outerHTML show:top showTarget:body",
+      "hx-sync:inherited": "#doc-content:replace"
+    ) do
       pages = DocNavigation.pages
       current_idx = pages.index { |page| page.path == current_path }
 

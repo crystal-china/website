@@ -32,7 +32,11 @@ class Docs::Sidebar < BaseComponent
   def render : Nil
     h1 r(".title").t, class: "my-4 text-[2em] leading-tight font-bold tracking-tight"
 
-    nav do
+    nav(
+      "hx-target:inherited": "#doc-content",
+      "hx-swap:inherited": "outerHTML show:top showTarget:body",
+      "hx-sync:inherited": "#doc-content:replace"
+    ) do
       ul role: "nested-list" do
         DocNavigation.navigation.each do |page|
           children = page.children
