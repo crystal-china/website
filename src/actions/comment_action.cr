@@ -2,11 +2,7 @@ abstract class CommentAction < BrowserAction
   include Lucky::Paginator::BackendHelpers
   include Auth::AllowGuests
   include MarkdownFormatter
-  include CommentLocking
-
-  def comment_available?(comment : Comment) : Bool
-    CommentQuery.new.id(comment.id).publicly_visible_comments.any?
-  end
+  include CommentVisibility
 
   def comments_pagination(
     comment_thread_id : Int64? = nil,
