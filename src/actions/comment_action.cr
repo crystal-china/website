@@ -2,19 +2,10 @@ abstract class CommentAction < BrowserAction
   include Lucky::Paginator::BackendHelpers
   include Auth::AllowGuests
   include MarkdownFormatter
+  include CommentLocking
 
   def comment_available?(comment : Comment) : Bool
     CommentQuery.new.id(comment.id).publicly_visible_comments.any?
-  end
-
-  # 删除或回复子评论时，先锁根评论，再锁这条子评论。
-  # 删除或回复根评论时，只锁这条根评论。
-  private def lock_comment(comment : Comment) : Comment
-    root = CommentQuery.new.id(comment.root_id || comment.id).for_update.first
-
-    return root if comment.root_id.nil?
-
-    CommentQuery.new.id(comment.id).for_update.first
   end
 
   def comments_pagination(

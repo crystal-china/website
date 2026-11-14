@@ -9,7 +9,7 @@ class Htmx::Comments::Delete < CommentAction
     deleted_comment : Comment? = nil
 
     AppDatabase.transaction do
-      comment = lock_comment(CommentQuery.find(id))
+      comment = find_and_lock_comment(CommentQuery.find(id))
 
       next status = 404 unless comment_available?(comment)
       next status = 403 unless comment.user_id == me.id || me.admin?

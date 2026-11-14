@@ -53,7 +53,7 @@ class Htmx::Comments::CreateOrUpdate < CommentAction
         root_id = comment.root_id || comment.id
         reply : Comment? = nil
         AppDatabase.transaction do
-          parent = lock_comment(comment)
+          parent = find_and_lock_comment(comment)
 
           next unless comment_available?(parent)
 
