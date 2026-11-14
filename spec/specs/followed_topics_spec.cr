@@ -222,7 +222,9 @@ describe "Followed topics list" do
     document = XML.parse_html(response.body)
 
     response.status_code.should eq(200)
-    document.xpath_node("//main | //header | //footer | //aside").should be_nil
+    document.xpath_node("//main | //footer").should be_nil
+    document.xpath_node("//section[@id='forum-content']//header[@id='forum-list-header']//h1").not_nil!.content.should eq(node.name)
+    document.xpath_node("//section[@id='forum-content']//aside[nav]/nav").should_not be_nil
     document.xpath_nodes("//section[@id='forum-topics']//article").size.should eq(1)
     document.content.should contain(topics.first.title)
     document.content.should_not contain("未关注的主题")

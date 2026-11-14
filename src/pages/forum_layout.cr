@@ -9,11 +9,35 @@ abstract class ForumLayout < MainLayout
 
   abstract def forum_content : Nil
 
+  # 列表和详情共用社区区域；普通访问仍由 MainLayout 输出完整页面。
+  def render : Nil
+    if context.request.headers["HX-Request-Type"]? == "partial"
+      content
+
+      mount(
+        Forum::PagePartials,
+        seo: SEO.new(
+          page_title: page_title,
+          page_description: page_description,
+          canonical_url: canonical_url
+        )
+      )
+    else
+      super
+    end
+  end
+
   def content : Nil
-    section class: "#{page_container_classes} page-content" do
+    section id: "forum-content", class: "#{page_container_classes} page-content" do
       if show_sidebars?
         div class: "flex flex-col items-start gap-8 lg:flex-row" do
-          render_node_navigation(current_node)
+          mount(
+            Forum::NodeNavigation,
+            nodes: nodes,
+            node: current_node,
+            followed_topics: followed_topics?,
+            only_show_unread: only_show_unread?
+          )
 
           div class: "w-full min-w-0 flex-1" do
             forum_content
@@ -27,48 +51,6 @@ abstract class ForumLayout < MainLayout
         end
       else
         forum_content
-      end
-    end
-  end
-
-  private def render_node_navigation(current_node : Node?) : Nil
-    link_classes = "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium whitespace-nowrap no-underline transition-colors"
-    active_classes = "bg-gray-900 text-white"
-    inactive_classes = "text-gray-700 hover:bg-gray-100 hover:text-gray-950"
-
-    aside class: "w-full min-w-0 shrink-0 lg:w-56" do
-      nav(
-        class: "desktop-sidebar app-panel p-3 lg:w-56",
-        "aria-label": r("forum_layout.nodes").t
-      ) do
-        ul class: "m-0 flex list-none gap-1 overflow-x-auto p-0 lg:flex-col lg:overflow-visible" do
-          li class: "shrink-0" do
-            link(
-              r("forum_layout.all_topics").t,
-              to: Forum::Index.with(
-                following: followed_topics? ? true : nil,
-                only_show_unread: only_show_unread? ? true : nil
-              ),
-              class: "#{link_classes} #{current_node.nil? ? active_classes : inactive_classes}"
-            )
-          end
-
-          nodes.each do |listed_node|
-            li class: "shrink-0" do
-              link(
-                to: Forum::Index.with(
-                  node: listed_node.slug,
-                  following: followed_topics? ? true : nil,
-                  only_show_unread: only_show_unread? ? true : nil
-                ),
-                class: "#{link_classes} #{current_node.try(&.id) == listed_node.id ? active_classes : inactive_classes}"
-              ) do
-                span class: "h-2.5 w-2.5 shrink-0 rounded-sm", style: "background-color: #{listed_node.color}"
-                text listed_node.name
-              end
-            end
-          end
-        end
       end
     end
   end

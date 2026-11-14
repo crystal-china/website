@@ -56,17 +56,6 @@ class Forum::Index < ForumAction
                          end
     end
 
-    if context.request.headers["HX-Request-Type"]? == "partial"
-      return component(
-        Forum::List,
-        topics: topics,
-        pages: pages,
-        followed_topics: following,
-        only_show_unread: only_show_unread,
-        unread_topic_ids: unread_topic_ids
-      )
-    end
-
     html(
       Forum::IndexPage,
       topics: topics,

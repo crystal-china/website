@@ -1,7 +1,7 @@
 require "../spec_helper"
 
 describe "Community pagination" do
-  it "returns just the topic list for guest pagination while preserving filters and topic metadata" do
+  it "returns the topic list and synchronized navigation for guest pagination while preserving filters and topic metadata" do
     author = UserFactory.create
     replier = UserFactory.create
     node = SaveNode.create!(name: "分页节点", slug: "forum-pagination", summary: "分页测试", color: "#16a34a", position: 0)
@@ -29,9 +29,9 @@ describe "Community pagination" do
       list.content.should contain("1 条回复")
       list.content.should contain("编辑于")
       list.content.should_not contain(deleted_topic.title)
-      pagination_container["hx-target:inherited"].should eq("#forum-topics")
+      pagination_container["hx-target:inherited"].should eq("#forum-content")
       pagination_container["hx-swap:inherited"].should eq("outerHTML show:top showTarget:body")
-      pagination_container["hx-sync:inherited"].should eq("#forum-topics:replace")
+      pagination_container["hx-sync:inherited"].should eq("#forum-content:replace")
       list["hx-target:inherited"]?.should be_nil
       document.xpath_node("//main//header//a[@href='/forum/new']").should be_nil
       URI.parse(next_path).query_params["node"]?.should eq(URI.parse(path).query_params["node"]?)
@@ -42,7 +42,15 @@ describe "Community pagination" do
 
       response.status_code.should eq(200)
       response.body.should_not contain("<!DOCTYPE")
-      document.xpath_node("//main | //header | //footer | //aside").should be_nil
+      document.xpath_node("//main | //footer").should be_nil
+      document.xpath_nodes("//hx-partial").size.should eq(5)
+      community = document.xpath_node("//section[@id='forum-content']").not_nil!
+      header = community.xpath_node(".//header[@id='forum-list-header']").not_nil!
+      navigation = community.xpath_node(".//aside[nav]/nav").not_nil!
+
+      header.xpath_node("./div/h1").not_nil!.content.should eq(path == "/forum" ? "社区" : node.name)
+      navigation["hx-target:inherited"].should eq("#forum-content")
+      document.xpath_node("//hx-partial[@hx-target='#page-analytics']/div[@id='page-analytics']").should_not be_nil
       list.xpath_nodes(".//article").size.should eq(last_page_count)
       list.content.should contain(topics.first.title)
       list.content.should contain("第 2 / 2 页")
@@ -75,7 +83,11 @@ describe "Community pagination" do
 
       response.status_code.should eq(200)
       document.xpath_node("//section[@id='forum-topics']/p").should_not be_nil
-      document.xpath_node("//main | //header | //footer | //aside | //nav").should be_nil
+      document.xpath_node("//main | //footer").should be_nil
+      document.xpath_nodes("//hx-partial").size.should eq(5)
+      document.xpath_node("//section[@id='forum-content']//header[@id='forum-list-header']").should_not be_nil
+      document.xpath_node("//section[@id='forum-content']//aside[nav]/nav").should_not be_nil
+      document.xpath_node("//section[@id='forum-topics']//nav").should be_nil
     end
 
     author = UserFactory.create

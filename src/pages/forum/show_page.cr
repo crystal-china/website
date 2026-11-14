@@ -29,6 +29,9 @@ class Forum::ShowPage < ForumLayout
                 following: followed_topics? ? true : nil,
                 only_show_unread: only_show_unread? ? true : nil
               ),
+              hx_target: "#forum-content",
+              hx_swap: "outerHTML show:top showTarget:body",
+              hx_sync: "#forum-content:replace",
               class: "font-medium text-[#145591] no-underline hover:text-[#0f477b] hover:underline"
             )
             text " · "

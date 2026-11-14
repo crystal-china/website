@@ -23,11 +23,11 @@ class Forum::List < BaseComponent
         end
       end
 
-      # 只让分页局部刷新；主题、作者和节点链接仍走整页导航。
+      # 分页、节点和主题链接替换社区区域；作者链接仍走整页导航。
       div(
-        "hx-target:inherited": "#forum-topics",
+        "hx-target:inherited": "#forum-content",
         "hx-swap:inherited": "outerHTML show:top showTarget:body",
-        "hx-sync:inherited": "#forum-topics:replace"
+        "hx-sync:inherited": "#forum-content:replace"
       ) do
         mount Shared::Pagination, pages: pages
       end
@@ -52,6 +52,9 @@ class Forum::List < BaseComponent
               following: followed_topics? ? true : nil,
               only_show_unread: only_show_unread? ? true : nil
             ),
+            hx_target: "#forum-content",
+            hx_swap: "outerHTML show:top showTarget:body",
+            hx_sync: "#forum-content:replace",
             class: "text-[#145591] no-underline hover:underline"
           )
         end
@@ -65,6 +68,9 @@ class Forum::List < BaseComponent
             ),
             title: topic.node.name,
             "aria-label": r(".node_label").t(name: topic.node.name),
+            hx_target: "#forum-content",
+            hx_swap: "outerHTML show:top showTarget:body",
+            hx_sync: "#forum-content:replace",
             class: "inline-flex h-5 w-5 items-center justify-center rounded-full no-underline hover:bg-gray-200"
           ) do
             span class: "h-2.5 w-2.5 rounded-full", style: "background-color: #{topic.node.color}"
