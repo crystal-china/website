@@ -4,7 +4,8 @@ class Shared::LayoutHead < BaseComponent
   def render : Nil
     social_preview_url = "#{Lucky::RouteHelper.settings.base_uri}/social-preview.png"
 
-    head do
+    # 完整页和局部响应共用整个 head；默认追加模式, 合并模式会保留相同资源，更新页面元数据。
+    head "hx-head": "merge" do
       utf8_charset
       title "Crystal China - #{seo.page_title}"
       meta name: "description", content: seo.page_description

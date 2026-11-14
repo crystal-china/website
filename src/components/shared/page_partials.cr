@@ -1,69 +1,9 @@
-# 页面主体局部替换后，同步区域外的页面元数据、访问统计和已读通知计数。
+# 局部导航共用完整 head，由 hx-head 合并；统计和铃铛仍按各自目标更新。
 class Shared::PagePartials < BaseComponent
   needs seo : SEO
 
   def render : Nil
-    title "Crystal China - #{seo.page_title}"
-
-    tag(
-      "hx-partial",
-      hx_target: "head meta[name='description']",
-      hx_swap: "outerHTML"
-    ) do
-      meta name: "description", content: seo.page_description
-    end
-
-    tag(
-      "hx-partial",
-      hx_target: "head link[rel='canonical']",
-      hx_swap: "outerHTML"
-    ) do
-      tag(
-        "link",
-        rel: "canonical",
-        href: seo.canonical_url
-      )
-    end
-
-    tag(
-      "hx-partial",
-      hx_target: "head meta[property='og:title']",
-      hx_swap: "outerHTML"
-    ) do
-      meta property: "og:title", content: seo.page_title
-    end
-
-    tag(
-      "hx-partial",
-      hx_target: "head meta[property='og:description']",
-      hx_swap: "outerHTML"
-    ) do
-      meta property: "og:description", content: seo.page_description
-    end
-
-    tag(
-      "hx-partial",
-      hx_target: "head meta[property='og:url']",
-      hx_swap: "outerHTML"
-    ) do
-      meta property: "og:url", content: seo.canonical_url
-    end
-
-    tag(
-      "hx-partial",
-      hx_target: "head meta[name='twitter:title']",
-      hx_swap: "outerHTML"
-    ) do
-      meta name: "twitter:title", content: seo.page_title
-    end
-
-    tag(
-      "hx-partial",
-      hx_target: "head meta[name='twitter:description']",
-      hx_swap: "outerHTML"
-    ) do
-      meta name: "twitter:description", content: seo.page_description
-    end
+    mount Shared::LayoutHead, seo: seo
 
     tag(
       "hx-partial",

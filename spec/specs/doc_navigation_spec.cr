@@ -64,12 +64,14 @@ describe "Document partial navigation" do
     content.xpath_node(".//footer").should_not be_nil
     form["data-draft-key"].should eq("#{user.id}:thread:#{child_thread.id}")
     URI.parse(comments["hx-get"]).query_params["comment_thread_id"].should eq(child_thread.id.to_s)
-    document.xpath_node("//title").not_nil!.content.should eq("Crystal China - 第二篇文档")
-    document.xpath_node("//hx-partial/link[@rel='canonical']").not_nil!["href"].should eq(canonical_url)
-    document.xpath_node("//hx-partial/meta[@property='og:url']").not_nil!["content"].should eq(canonical_url)
-    document.xpath_node("//hx-partial/meta[@name='description']").not_nil!["content"].should eq(description)
-    document.xpath_node("//hx-partial/meta[@property='og:description']").not_nil!["content"].should eq(description)
-    document.xpath_node("//hx-partial/meta[@name='twitter:description']").not_nil!["content"].should eq(description)
+    document.xpath_node("//head").not_nil!["hx-head"].should eq("merge")
+    document.xpath_node("//head/title").not_nil!.content.should eq("Crystal China - 第二篇文档")
+    document.xpath_node("//head/link[@rel='canonical']").not_nil!["href"].should eq(canonical_url)
+    document.xpath_node("//head/meta[@property='og:url']").not_nil!["content"].should eq(canonical_url)
+    document.xpath_node("//head/meta[@name='description']").not_nil!["content"].should eq(description)
+    document.xpath_node("//head/meta[@property='og:description']").not_nil!["content"].should eq(description)
+    document.xpath_node("//head/meta[@name='twitter:description']").not_nil!["content"].should eq(description)
+    document.xpath_nodes("//hx-partial").size.should eq(2)
     document.xpath_node("//hx-partial[@hx-target='#page-analytics']/div").not_nil!["data-page-title"].should eq("第二篇文档")
     document.xpath_node("//hx-partial[@hx-target='#notification-status']").should_not be_nil
 
@@ -85,7 +87,7 @@ describe "Document partial navigation" do
     content.content.should_not contain("第二篇独有正文")
     content.xpath_node(".//*[@id='sidebar']//a[@class='active']").not_nil!["href"].should eq(previous_path)
     content.xpath_node(".//section[@id='form_with_comments']/form").not_nil!["data-draft-key"].should eq("#{user.id}:thread:#{first_thread.id}")
-    document.xpath_node("//hx-partial/link[@rel='canonical']").not_nil!["href"].should eq("#{Lucky::RouteHelper.settings.base_uri}#{previous_path}")
+    document.xpath_node("//head/link[@rel='canonical']").not_nil!["href"].should eq("#{Lucky::RouteHelper.settings.base_uri}#{previous_path}")
     first_doc.view_count.should eq(1)
     child_doc.view_count.should eq(1)
 

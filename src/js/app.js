@@ -3,6 +3,7 @@
 import htmx from "htmx.org";
 // HTMX 4 将 hx-prompt 移出核心；加载扩展以恢复属性及 HX-Prompt 请求头。
 import "htmx.org/dist/ext/hx-prompt.js";
+import "htmx.org/dist/ext/hx-head.js";
 import "hyperscript.org";
 // import * as AsciinemaPlayer from 'asciinema-player';
 // AsciinemaPlayer.create('/demo.cast', document.getElementById('demo'));

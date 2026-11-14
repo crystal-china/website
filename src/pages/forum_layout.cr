@@ -12,8 +12,6 @@ abstract class ForumLayout < MainLayout
   # 列表和详情共用社区区域；普通访问仍由 MainLayout 输出完整页面。
   def render : Nil
     if context.request.headers["HX-Request-Type"]? == "partial"
-      content
-
       mount(
         Shared::PagePartials,
         seo: SEO.new(
@@ -22,6 +20,8 @@ abstract class ForumLayout < MainLayout
           canonical_url: canonical_url
         )
       )
+
+      content
     else
       super
     end

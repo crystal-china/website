@@ -13,8 +13,6 @@ abstract class DocLayout < MainLayout
   # 文档之间切换时只返回文档区域；普通访问和刷新仍输出完整页面。
   def render : Nil
     if context.request.headers["HX-Request-Type"]? == "partial"
-      render_document_content
-
       mount(
         Shared::PagePartials,
         seo: SEO.new(
@@ -23,6 +21,8 @@ abstract class DocLayout < MainLayout
           canonical_url: canonical_url
         )
       )
+
+      render_document_content
     else
       super
     end

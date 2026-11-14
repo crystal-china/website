@@ -40,6 +40,13 @@ function messageForStatus(status) {
 }
 
 export default function setupHtmxErrorAlert(htmx) {
+    // 错误响应只显示提示，不让 hx-head 提前修改当前页面的标题和元数据。
+    document.addEventListener("htmx:head:before:merge", (event) => {
+        if (event.detail.ctx.response.status >= 400) {
+            event.preventDefault();
+        }
+    });
+
     document.addEventListener("htmx:before:request", (event) => {
         const { ctx } = event.detail;
         const timeout = ctx.request.timeout != null

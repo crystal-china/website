@@ -53,10 +53,16 @@ describe "Community partial navigation" do
     response.status_code.should eq(200)
     response.body.should_not contain("<!DOCTYPE")
     document.xpath_node("//main | //footer").should be_nil
-    document.xpath_nodes("//hx-partial").size.should eq(9)
-    document.xpath_node("//title").not_nil!.content.should eq("Crystal China - #{expected_title}")
+    document.xpath_nodes("//hx-partial").size.should eq(2)
+    document.xpath_node("//head").not_nil!["hx-head"].should eq("merge")
+    document.xpath_node("//head/title").not_nil!.content.should eq("Crystal China - #{expected_title}")
+    document.xpath_node("//head/link[@rel='stylesheet']").should_not be_nil
+    document.xpath_node("//head/script[@src]").should_not be_nil
+    document.xpath_node("//head/script[@id='app-config']").should_not be_nil
+    document.xpath_node("//head/meta[@name='csrf-token']").should_not be_nil
+    document.xpath_node("//hx-partial/meta | //hx-partial/link").should be_nil
     document.xpath_node("//hx-partial[@hx-target='#page-analytics']/div").not_nil!["data-page-title"].should eq(expected_title)
-    document.xpath_node("//hx-partial/link[@rel='canonical']").not_nil!["href"].should eq("#{Lucky::RouteHelper.settings.base_uri}/forum")
+    document.xpath_node("//head/link[@rel='canonical']").not_nil!["href"].should eq("#{Lucky::RouteHelper.settings.base_uri}/forum")
     header.xpath_node(".//h1").not_nil!.content.should eq(node.name)
     header.content.should contain(node.summary)
     list.xpath_nodes(".//article//h2/a").map(&.content).should eq([topic.title])
@@ -177,11 +183,11 @@ describe "Community partial navigation" do
     community.xpath_node(".//aside[not(nav)]").should_not be_nil
     community.xpath_node(".//section[@id='forum-topics']").should be_nil
     community.xpath_node(".//article/header/div/p/a").not_nil!["hx-target"].should eq("#forum-content")
-    document.xpath_node("//title").not_nil!.content.should eq("Crystal China - #{topic.title}")
-    document.xpath_node("//hx-partial/link[@rel='canonical']").not_nil!["href"].should eq(canonical_url)
-    document.xpath_node("//hx-partial/meta[@property='og:url']").not_nil!["content"].should eq(canonical_url)
-    document.xpath_node("//hx-partial/meta[@property='og:title']").not_nil!["content"].should eq(topic.title)
-    document.xpath_node("//hx-partial/meta[@name='twitter:title']").not_nil!["content"].should eq(topic.title)
+    document.xpath_node("//head/title").not_nil!.content.should eq("Crystal China - #{topic.title}")
+    document.xpath_node("//head/link[@rel='canonical']").not_nil!["href"].should eq(canonical_url)
+    document.xpath_node("//head/meta[@property='og:url']").not_nil!["content"].should eq(canonical_url)
+    document.xpath_node("//head/meta[@property='og:title']").not_nil!["content"].should eq(topic.title)
+    document.xpath_node("//head/meta[@name='twitter:title']").not_nil!["content"].should eq(topic.title)
     document.xpath_node("//hx-partial[@hx-target='#page-analytics']/div").not_nil!["data-page-title"].should eq(topic.title)
     bell.xpath_node(".//span[@aria-hidden='true']").should be_nil
     notice.reload.read_at.should_not be_nil
@@ -207,7 +213,7 @@ describe "Community partial navigation" do
     community.xpath_node(".//section[@id='forum-topics']/p").should_not be_nil
     community.xpath_node(".//section[@id='form_with_comments'] | .//dialog[@id='comment-dialog']").should be_nil
     community.xpath_node(".//aside[not(nav)]").should be_nil
-    document.xpath_node("//hx-partial/link[@rel='canonical']").not_nil!["href"].should eq("#{Lucky::RouteHelper.settings.base_uri}/forum")
+    document.xpath_node("//head/link[@rel='canonical']").not_nil!["href"].should eq("#{Lucky::RouteHelper.settings.base_uri}/forum")
 
     {
       ApiClient.new,
