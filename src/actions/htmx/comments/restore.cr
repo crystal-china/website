@@ -6,13 +6,13 @@ class Htmx::Comments::Restore < CommentAction
 
     return head 401 if me.nil?
 
-    AppDatabase.transaction do
-      target = lock_comment(CommentQuery.find(id))
-
-      return head 403 unless target.user_id == me.id || me.admin?
-      return head 404 unless comment_available?(target)
-
-      Comment::SaveOperation.update!(target, withdrawn: false)
+    SetCommentWithdrawal.run(
+      comment_id: id.to_i64,
+      actor: me,
+      withdrawn: false
+    ) do |operation, _comment|
+      return head 403 if operation.rejection_reason.try(&.forbidden?)
+      return head 404 if operation.rejection_reason.try(&.target_unavailable?)
     end
 
     query = CommentQuery.new.id(id).preload_user.preload_parent(&.preload_user)
