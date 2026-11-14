@@ -131,13 +131,13 @@ describe "Management notifications" do
     Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
       response = ApiClient.new.put("/forum/#{topic.id}?backdoor_user_id=#{outsider.id}", topic: {title: "非法修改"}, content: "非法修改")
       response.status_code.should eq(403)
-      response = ApiClient.new.post("/htmx/comments?backdoor_user_id=#{outsider.id}", id: comment.id, op: "edit", content: "非法修改")
+      response = ApiClient.new.post("/htmx/comments/#{comment.id}?backdoor_user_id=#{outsider.id}", content: "非法修改")
       response.status_code.should eq(403)
       NotificationQuery.new.select_count.should eq(0)
 
       response = ApiClient.new.put("/forum/#{topic.id}?backdoor_user_id=#{admin.id}", topic: {title: "新标题", actor_id: outsider.id}, content: "新正文")
       response.status_code.should eq(200)
-      response = ApiClient.new.post("/htmx/comments?backdoor_user_id=#{admin.id}", id: comment.id, op: "edit", content: "新评论", comment: {actor_id: outsider.id})
+      response = ApiClient.new.post("/htmx/comments/#{comment.id}?backdoor_user_id=#{admin.id}", content: "新评论", comment: {actor_id: outsider.id})
       response.status_code.should eq(200)
       ApiClient.new.delete("/htmx/comments/#{comment.id}?backdoor_user_id=#{admin.id}").status_code.should eq(200)
       ApiClient.new.delete("/forum/#{topic.id}?backdoor_user_id=#{admin.id}").status_code.should eq(303)

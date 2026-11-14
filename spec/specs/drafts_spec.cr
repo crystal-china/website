@@ -137,25 +137,33 @@ describe "Local editor drafts" do
     client = drafts_client(user)
 
     {
-      "/forum/#{topic.id}"                             => {"tab", "#comments", {comment_thread_id: thread.id}.to_json},
-      "/htmx/comments/new?id=#{child.id}&order_by=asc" => {"comment", "#comment-#{root.id}-replies", {id: child.id, op: "new"}.to_json},
-      "/htmx/comments/edit/#{root.id}?order_by=desc"   => {"comment", "#comment-#{root.id}-content", {id: root.id, op: "edit"}.to_json},
-    }.each do |path, (html_id, target, values)|
+      "/forum/#{topic.id}"                             => {"tab", "#comments", "/htmx/comments", {comment_thread_id: thread.id}.to_json},
+      "/htmx/comments/new?id=#{child.id}&order_by=asc" => {"comment", "#comment-#{root.id}-replies", "/htmx/comments/#{child.id}/replies", nil},
+      "/htmx/comments/edit/#{root.id}?order_by=desc"   => {"comment", "#comment-#{root.id}-content", "/htmx/comments/#{root.id}", nil},
+    }.each do |path, (html_id, target, action_path, values)|
       document = XML.parse_html(client.get(path).body)
       form = document.xpath_node("//form[@id='#{html_id}-form']").not_nil!
 
       document.xpath_nodes("//*[@id='#{html_id}-form']").size.should eq(1)
       form.xpath_nodes(".//form").should be_empty
-      form["action"].should eq("/htmx/comments")
+      form["action"].should eq(action_path)
       form["method"].should eq("post")
-      form["hx-post"].should eq("/htmx/comments")
+      form["hx-post"].should eq(action_path)
+      form["hx-patch"]?.should be_nil
+      form.xpath_node(".//input[@name='_method']").should be_nil
       form["hx-target"].should eq(target)
       form["hx-swap"].should eq("outerHTML")
       form["hx-push-url"].should eq("false")
       form["hx-disable"].should eq("find button[type=submit]")
-      JSON.parse(form["hx-vals"]).should eq(JSON.parse(values))
+      if values
+        JSON.parse(form["hx-vals"]).should eq(JSON.parse(values))
+      else
+        form["hx-vals"]?.should be_nil
+      end
+
+      form.xpath_node(".//input[@name='op']").should be_nil
       form.xpath_node(".//textarea[@name='content']").should_not be_nil
-      form.xpath_node(".//input[@name='_csrf']").should_not be_nil
+      form.xpath_nodes(".//input[@name='_csrf']").size.should eq(1)
       form.xpath_node(".//button[@type='submit']").should_not be_nil
       form.xpath_nodes(".//button[@hx-post]").should be_empty
       form.xpath_node(".//input[@hx-put='/htmx/docs/markdown_render']").should_not be_nil
@@ -189,14 +197,34 @@ describe "Local editor drafts" do
     response.headers["X-Draft-Saved"].should eq("true")
     comment = CommentQuery.new.comment_thread_id(thread.id).first
 
-    response = client.post("/htmx/comments", id: comment.id, op: "new", content: "子评论")
+    response = client.post("/htmx/comments/#{comment.id}/replies", content: "子评论")
     response.status_code.should eq(200)
     response.headers["X-Draft-Saved"].should eq("true")
-    response = client.post("/htmx/comments", id: comment.id, op: "edit", content: "编辑评论")
+    response = client.post("/htmx/comments/#{comment.id}", content: "编辑评论")
     response.status_code.should eq(200)
     response.headers["X-Draft-Saved"].should eq("true")
+    CommentQuery.find(comment.id).content.should eq("编辑评论")
+
+    response = ApiClient.new.post("/htmx/comments", comment_thread_id: thread.id, content: "未登录评论")
+    response.status_code.should eq(401)
+    response.headers["X-Draft-Saved"]?.should be_nil
+    response = ApiClient.new.post("/htmx/comments/#{comment.id}/replies", content: "未登录回复")
+    response.status_code.should eq(401)
+    response.headers["X-Draft-Saved"]?.should be_nil
+    response = ApiClient.new.post("/htmx/comments/#{comment.id}", content: "未登录编辑")
+    response.status_code.should eq(401)
+    response.headers["X-Draft-Saved"]?.should be_nil
 
     response = client.post("/htmx/comments", comment_thread_id: thread.id, content: "")
+    response.status_code.should eq(400)
+    response.headers["X-Draft-Saved"]?.should be_nil
+    response = client.post("/htmx/comments/#{comment.id}/replies", content: "")
+    response.status_code.should eq(400)
+    response.headers["X-Draft-Saved"]?.should be_nil
+    response = client.post("/htmx/comments/#{comment.id}", content: "")
+    response.status_code.should eq(400)
+    response.headers["X-Draft-Saved"]?.should be_nil
+    response = client.post("/htmx/comments", content: "缺少评论区")
     response.status_code.should eq(400)
     response.headers["X-Draft-Saved"]?.should be_nil
     response = client.put("/htmx/docs/markdown_render", content: "仅预览")

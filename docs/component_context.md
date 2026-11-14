@@ -64,7 +64,9 @@ src/actions/browser_action.cr
 src/actions/forum/follows/create.cr
 src/actions/forum/follows/delete.cr
 src/actions/forum/index.cr
-src/actions/htmx/comments/create_or_update.cr
+src/actions/htmx/comments/create.cr
+src/actions/htmx/comments/reply_to_comment.cr
+src/actions/htmx/comments/update.cr
 src/actions/htmx/comments/delete.cr
 src/actions/htmx/comments/edit.cr
 src/actions/htmx/comments/index.cr

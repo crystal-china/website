@@ -82,7 +82,7 @@ describe "Comment deletion and withdrawal" do
       CommentQuery.find(child.id).vote_counts.👍.should eq(1)
 
       client.get("/htmx/comments/edit/#{child.id}?backdoor_user_id=#{author.id}").status_code.should eq(409)
-      client.post("/htmx/comments?backdoor_user_id=#{author.id}", id: child.id, op: "edit", content: "changed while withdrawn").status_code.should eq(409)
+      client.post("/htmx/comments/#{child.id}?backdoor_user_id=#{author.id}", content: "changed while withdrawn").status_code.should eq(409)
 
       client.post("/htmx/comments/#{child.id}/restore?backdoor_user_id=#{other.id}").status_code.should eq(403)
       ApiClient.new.headers("HX-Request-Type": "partial").post("/htmx/comments/#{child.id}/restore").status_code.should eq(401)
@@ -96,7 +96,7 @@ describe "Comment deletion and withdrawal" do
       restored.vote_counts.👍.should eq(1)
       NotificationQuery.new.select_count.should eq(notifications_count)
 
-      client.post("/htmx/comments?backdoor_user_id=#{author.id}", id: child.id, op: "edit", content: " ").status_code.should eq(400)
+      client.post("/htmx/comments/#{child.id}?backdoor_user_id=#{author.id}", content: " ").status_code.should eq(400)
       client.post("/htmx/comments?backdoor_user_id=#{author.id}", comment_thread_id: thread.id, content: " ").status_code.should eq(400)
       UpdateComment.update(withdrawn, content: "") do |operation, _|
         operation.saved?.should be_false
@@ -114,7 +114,7 @@ describe "Comment deletion and withdrawal" do
       CommentQuery.find(child.id).children_count.should eq(0)
 
       client.post("/htmx/comments/#{child.id}/restore?backdoor_user_id=#{author.id}").status_code.should eq(200)
-      response = client.post("/htmx/comments?backdoor_user_id=#{author.id}", id: child.id, op: "edit", content: "new body")
+      response = client.post("/htmx/comments/#{child.id}?backdoor_user_id=#{author.id}", content: "new body")
       response.status_code.should eq(200)
       CommentQuery.find(child.id).withdrawn?.should be_false
       CommentQuery.find(child.id).content_html.should eq("<p>new body</p>\n")
@@ -234,7 +234,7 @@ describe "Comment deletion and withdrawal" do
       document.xpath_node("//button[@hx-post='/htmx/comments/#{root.id}/withdraw']").should be_nil
       client.post("/htmx/comments/#{root.id}/restore?backdoor_user_id=#{author.id}").status_code.should eq(200)
 
-      response = client.post("/htmx/comments?backdoor_user_id=#{author.id}", id: root.id, op: "new", content: "first reply")
+      response = client.post("/htmx/comments/#{root.id}/replies?backdoor_user_id=#{author.id}", content: "first reply")
       document = XML.parse_html(response.body)
       child = CommentQuery.new.parent_id(root.id).first
 
@@ -370,7 +370,7 @@ describe "Comment deletion and withdrawal" do
         CommentQuery.new.id(root.id).for_update.first
         CommentQuery.new.id(leaf.id).for_update.first
         spawn do
-          results.send ApiClient.new.post("/htmx/comments?backdoor_user_id=#{author.id}", id: leaf.id, op: "new", content: "too late")
+          results.send ApiClient.new.post("/htmx/comments/#{leaf.id}/replies?backdoor_user_id=#{author.id}", content: "too late")
         rescue error
           results.send error
         end

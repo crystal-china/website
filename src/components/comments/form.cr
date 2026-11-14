@@ -10,6 +10,7 @@ class Comments::Form < BaseComponent
     me = current_user
     text = r("common.reply").t
     order_by_input_id = "#{html_id}_order_by"
+    route = Htmx::Comments::Create.route
 
     reset_comment_editor_and_close_dialog_after_save_script = htmx_success <<-HEREDOC
 set textarea to ##{html_id}_text_area
@@ -29,7 +30,6 @@ HEREDOC
 
     opts = {
       hx_target:   "#comments",
-      hx_post:     Htmx::Comments::CreateOrUpdate.path_without_query_params,
       hx_swap:     "outerHTML",
       hx_push_url: "false",
       hx_disable:  "find button[type=submit]",
@@ -43,7 +43,7 @@ HEREDOC
     end
 
     unless me.nil?
-      if !comment_id.nil?
+      if (comment_id = self.comment_id)
         # comment_id 不为空，说明当前表单针对的是一条已有评论。
         # 然后再用 content 是否为空区分表单模式：
         # - 空：这是“回复这条评论”，即新建子评论
@@ -51,16 +51,18 @@ HEREDOC
         if content.blank?
           # 为评论新增评论
           target_id = target_comment_id || comment_id
+          route = Htmx::Comments::ReplyToComment.with(id: comment_id)
+
           opts = opts.merge(
-            hx_vals: %({"id": #{comment_id}, "op": "new"}),
             hx_target: "#comment-#{target_id}-replies"
           )
         else
+          route = Htmx::Comments::Update.with(id: comment_id)
+          text = r("common.update").t
+
           opts = opts.merge(
-            hx_vals: %({"id": #{comment_id}, "op": "edit"}),
             hx_target: "#comment-#{comment_id}-content",
           )
-          text = r("common.update").t
         end
       else
         # 为 CommentThread 新建顶级评论
@@ -70,6 +72,8 @@ HEREDOC
         )
       end
     end
+
+    opts = opts.merge(hx_post: route.path)
 
     submit_opts = {
       type:    "submit",
@@ -81,7 +85,7 @@ HEREDOC
     form(
       opts,
       id: "#{html_id}-form",
-      action: Htmx::Comments::CreateOrUpdate.path_without_query_params,
+      action: route.path,
       method: "post"
     ) do
       csrf_hidden_input
