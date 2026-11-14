@@ -12,6 +12,38 @@ private def comment_for_vote_operation : Comment
 end
 
 describe ToggleVote do
+  it "returns bad request for invalid targets and invalid comment reactions" do
+    user = UserFactory.create
+    comment = comment_for_vote_operation
+    doc = comment.comment_thread!.doc.not_nil!
+    path = "/htmx/vote?backdoor_user_id=#{user.id}"
+    client = ApiClient.new
+
+    Lucky::ProtectFromForgery.temp_config(allow_forgery_protection: false) do
+      client.patch(path, vote_type: "👍").status_code.should eq(400)
+      response = client.patch(
+        path,
+        comment_id: comment.id,
+        doc_id: doc.id,
+        vote_type: "👍"
+      )
+
+      response.status_code.should eq(400)
+
+      response = client.patch(
+        path,
+        comment_id: comment.id,
+        vote_type: "invalid"
+      )
+
+      response.status_code.should eq(400)
+    end
+
+    VoteQuery.new.any?.should be_false
+    comment.reload.vote_counts.to_json.should eq(comment.vote_counts.to_json)
+    doc.reload.vote_counts.to_json.should eq(doc.vote_counts.to_json)
+  end
+
   it "requires exactly one target without changing votes or counts" do
     user = UserFactory.create
     comment = comment_for_vote_operation

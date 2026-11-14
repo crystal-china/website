@@ -10,12 +10,13 @@ class Htmx::Vote < BrowserAction
       user_id: current_user.id,
       vote_type: vote_type
     ) do |operation, result|
-      if result.nil?
-        return head 404 if operation.rejection_reason.try(&.target_unavailable?)
-        return head 409 if operation.rejection_reason.try(&.withdrawn?)
-
-        return head 400
+      if (reason = operation.rejection_reason)
+        return head 404 if reason.target_unavailable?
+        return head 409 if reason.withdrawn?
+        return head 400 if reason.invalid_target? || reason.invalid_vote_type?
       end
+
+      return head 500 if result.nil?
 
       component(
         Shared::VoteButton,
