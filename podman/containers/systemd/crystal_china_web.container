@@ -23,7 +23,7 @@ Pull=never
 
 [Service]
 # 这个脚本在宿主机执行，不在 scratch 容器中执行
-ExecStartPre=%h/.config/containers/systemd/scripts/wait-dependencies.sh
+ExecStartPre=%h/apps/crystal_china_production/script/wait-dependencies.sh
 Restart=on-failure
 RestartSec=5
 TimeoutStartSec=120

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-redis_config="$(dirname -- "${BASH_SOURCE[0]}")/../crystal_china_redis.container"
+redis_config="$HOME/.config/containers/systemd/crystal_china_redis.container"
 
 # 最多等待 100 秒
 deadline=$((SECONDS + 100))
