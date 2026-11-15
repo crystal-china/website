@@ -7,7 +7,16 @@
 ROOT=$(dirname "$0")
 ROOT=$(cd "$ROOT/.." &>/dev/null && pwd)
 
-pod_name=${1-crystal_china}
+remove=false
+
+if [[ "${1-}" == "--remove" ]]; then
+    remove=true
+    shift
+fi
+
+project_name=${1-crystal_china}
+# 与 Quadlet 默认生成的 Pod 和容器名称一致。
+pod_name="systemd-${project_name}"
 
 [ -f .env ] && source .env
 
@@ -18,6 +27,13 @@ DB_PASSWORD=${DB_PASSWORD-$(echo $common_part |cut -d : -f2)}
 
 set -eu
 
+# --remove 重建依赖容器，保留数据库 volume。
+if [[ "$remove" == true ]] && podman pod exists "$pod_name"; then
+    podman pod stop "$pod_name"
+    podman pod rm -f "$pod_name"
+    exit 0
+fi
+
 if podman volume exists crystal_china_pgdata; then
     echo "crystal_china_pgdata volume exists"
 else
@@ -25,7 +41,7 @@ else
 fi
 
 if podman pod exists $pod_name; then
-    if [ "$(podman inspect --format '{{.Config.Image}}' "${pod_name}_pg")" != "docker.io/groonga/pgroonga:4.0.9-debian-18" ]; then
+    if [ "$(podman inspect --format '{{.Config.Image}}' "${pod_name}_pg")" != "docker.io/groonga/pgroonga:4.1.0-debian-18" ]; then
         echo "${pod_name}_pg 仍是旧镜像；请先备份数据库并重建 pod（不要删除 crystal_china_pgdata volume）" >&2
         exit 1
     fi
@@ -39,15 +55,15 @@ else
            --pod $pod_name \
            --name ${pod_name}_pg \
            -e POSTGRES_USER=${DB_USERNAME:-postgres} \
-           -e POSTGRES_DB=${DB_NAME:-${pod_name}_development} \
+           -e POSTGRES_DB=${DB_NAME:-${project_name}_development} \
            -e POSTGRES_PASSWORD=${DB_PASSWORD:-postgres} \
            -v crystal_china_pgdata:/var/lib/postgresql \
-           -d docker.io/groonga/pgroonga:4.0.9-debian-18
+           -d docker.io/groonga/pgroonga:4.1.0-debian-18
 
     podman run \
            --pod ${pod_name} \
            --name ${pod_name}_redis \
-           -d redis
+           -d docker.io/library/redis:8-alpine
 fi
 
 for _ in {1..30}; do
@@ -62,11 +78,9 @@ podman ps --pod
 
 # clean up
 
-# podman pod stop crystal_china && podman pod rm -f crystal_china
-
-# podman generate kube crystal_china > crystal_china_pod.yml
+# podman generate kube "$pod_name" > crystal_china_pod.yml
 # podman play kube crystal_china_pod.yaml
 
-# podman generate systemd  --name crystal_china_pod --new  --file
+# podman generate systemd --name "$pod_name" --new --file
 
 # sudo loginctl enable-linger $(whoami)
