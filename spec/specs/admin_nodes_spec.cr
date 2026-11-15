@@ -80,6 +80,31 @@ describe "Admin node saves" do
     refreshed.body.should_not contain("flash-message--success")
   end
 
+  it "shows topic counts for populated and empty nodes in both locales" do
+    admin = UserFactory.create &.email("node-actions-admin@example.com")
+    populated = SaveNode.create!(name: "有主题", slug: "populated-node", summary: "简介", color: "#16a34a", position: 0)
+    empty = SaveNode.create!(name: "无主题", slug: "empty-node", summary: "简介", color: "#0284c7", position: 1)
+
+    CreateTopic.create!(
+      user_id: admin.id,
+      node_id: populated.id,
+      title: "测试主题",
+      content: "正文"
+    )
+
+    {"zh-CN" => "主题数", "en" => "Topics"}.each do |locale, label|
+      response = ApiClient.new.get("/admin/nodes?backdoor_user_id=#{admin.id}&locale=#{locale}")
+      document = XML.parse_html(response.body)
+      headers = document.xpath_nodes("//main//thead/tr/th").to_a
+      rows = document.xpath_nodes("//main//tbody/tr").to_a
+
+      response.status_code.should eq(200)
+      headers[3].content.should eq(label)
+      rows.map { |row| row.xpath_node("./td[2]").not_nil!.content }.should eq([populated.slug, empty.slug])
+      rows.map { |row| row.xpath_node("./td[4]").not_nil!.content }.should eq(["1", "0"])
+    end
+  end
+
   it "keeps invalid submissions on their forms without changing data or the browser URL" do
     admin = UserFactory.create &.email("node-actions-admin@example.com")
     client = ApiClient.new.headers("HX-Request-Type": "full")

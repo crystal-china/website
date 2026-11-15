@@ -22,6 +22,7 @@ class Admin::Nodes::IndexPage < AdminLayout
               th r("common.node").t, class: "px-5 py-3"
               th r("fields.slug").t, class: "px-5 py-3"
               th r("fields.summary").t, class: "px-5 py-3"
+              th r(".topics_count").t, class: "px-5 py-3 text-right"
               th r(".order").t, class: "px-5 py-3 text-right"
               th r(".actions").t, class: "px-5 py-3 text-right"
             end
@@ -42,6 +43,7 @@ class Admin::Nodes::IndexPage < AdminLayout
                 end
                 td node.slug, class: "px-5 py-4 font-mono text-xs text-gray-600"
                 td node.summary, class: "max-w-md px-5 py-4 text-gray-600"
+                td node.topics_count.to_s, class: "px-5 py-4 text-right tabular-nums text-gray-700"
                 td node.position.to_s, class: "px-5 py-4 text-right tabular-nums text-gray-700"
                 td class: "px-5 py-4 text-right" do
                   link(

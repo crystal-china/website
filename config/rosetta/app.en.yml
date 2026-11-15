@@ -11,6 +11,7 @@ en:
       edit_page:
         page_title: Edit node
       index_page:
+        topics_count: Topics
         order: Order
         actions: Actions
       new_page:

@@ -11,6 +11,7 @@ zh-CN:
       edit_page:
         page_title: 编辑节点
       index_page:
+        topics_count: 主题数
         order: 排序
         actions: 操作
       new_page:
