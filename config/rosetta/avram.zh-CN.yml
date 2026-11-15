@@ -89,6 +89,8 @@ zh-CN:
     validate_url_format: 必须是以 %{scheme} 开头的合法网址
 
   validations:
+    node_has_topics: 节点下仍有主题，请先选择迁移节点。
+    node_destination_invalid: 请选择另一个存在的节点。
     cannot_follow_self: 不能关注自己
     admin_required: 需要管理员权限
     login_name_change_expired: 仅能在注册后 7 天内修改

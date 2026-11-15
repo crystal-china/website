@@ -6,12 +6,22 @@ en:
         node_created: Node created
       update:
         node_updated: Node updated
+      delete:
+        node_deleted: Node deleted
+      delete_page:
+        page_title: Delete node
+        description: 'Move all topics in "%{name}", including trashed topics, to another node before deleting it.'
+        no_destination_nodes: Create another node before moving these topics.
+        destination_node: Move topics to
+        choose_node: Choose a node
+        move_and_delete: Move topics and delete node
       fields:
         slug_placeholder: 'For example: help'
       edit_page:
         page_title: Edit node
       index_page:
         topics_count: Topics
+        confirm_delete: Delete this node? This cannot be undone.
         order: Order
         actions: Actions
       new_page:

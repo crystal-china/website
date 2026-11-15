@@ -46,11 +46,25 @@ class Admin::Nodes::IndexPage < AdminLayout
                 td node.topics_count.to_s, class: "px-5 py-4 text-right tabular-nums text-gray-700"
                 td node.position.to_s, class: "px-5 py-4 text-right tabular-nums text-gray-700"
                 td class: "px-5 py-4 text-right" do
-                  link(
-                    r("common.edit").t,
-                    to: Admin::Nodes::Edit.with(id: node.id),
-                    class: "form-secondary px-3 py-1.5"
-                  )
+                  div class: "flex justify-end gap-2" do
+                    link(
+                      r("common.edit").t,
+                      to: Admin::Nodes::Edit.with(id: node.id),
+                      class: "form-secondary px-3 py-1.5"
+                    )
+
+                    button(
+                      r("common.delete").t,
+                      type: "button",
+                      class: "form-secondary px-3 py-1.5 text-red-700",
+                      hx_delete: Admin::Nodes::Delete.with(id: node.id).path,
+                      hx_confirm: r(".confirm_delete").t,
+                      hx_target: "body",
+                      hx_swap: "innerHTML show:none",
+                      hx_push_url: "false",
+                      hx_disable: "this"
+                    )
+                  end
                 end
               end
             end

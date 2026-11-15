@@ -6,12 +6,22 @@ zh-CN:
         node_created: 节点已创建
       update:
         node_updated: 节点已更新
+      delete:
+        node_deleted: 节点已删除
+      delete_page:
+        page_title: 删除节点
+        description: 将「%{name}」下的全部主题（包括回收站中的主题）迁移到其他节点，再删除此节点。
+        no_destination_nodes: 请先创建另一个节点，用于接收这些主题。
+        destination_node: 迁移到
+        choose_node: 请选择节点
+        move_and_delete: 迁移并删除节点
       fields:
         slug_placeholder: 例如：help
       edit_page:
         page_title: 编辑节点
       index_page:
         topics_count: 主题数
+        confirm_delete: 确定删除此节点？删除后无法恢复。
         order: 排序
         actions: 操作
       new_page:
