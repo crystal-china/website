@@ -1,7 +1,7 @@
 [Unit]
 Description=Crystal China Web
-# 启动 Web 前，先启动 PostgreSQL 和 Redis
-Requires=crystal_china_pg.service crystal_china_redis.service
+# 启动 Web 前先启动 PostgreSQL；Redis 已部署时也等待其启动。
+Requires=crystal_china_pg.service
 After=crystal_china_pg.service crystal_china_redis.service
 
 [Container]
