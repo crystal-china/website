@@ -37,6 +37,14 @@ class Admin::Sidebar < BaseComponent
               class: admin_nav_link_classes(active: current_path.starts_with?("/admin/trash"))
             )
           end
+
+          li do
+            link(
+              r("common.site_settings").t,
+              to: Admin::Settings::Edit,
+              class: admin_nav_link_classes(active: current_path == Admin::Settings::Edit.path)
+            )
+          end
         end
       end
     end

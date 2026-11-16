@@ -30,6 +30,8 @@ class DeleteNode < Node::DeleteOperation
   end
 
   private def move_topics_to(destination : Node) : Nil
+    # 迁移全部主题，再增加目标节点的主题计数
+
     # 一次迁移全部主题，只把其中未软删除的主题加入目标计数；原节点随后删除。
     # 不经过普通编辑 callback，保留正文、删除状态和时间，也不逐条发送移动通知。
     AppDatabase.exec(
