@@ -4,7 +4,15 @@ class PasswordResetRequests::Create < BrowserAction
   post "/password_reset_requests" do
     RequestPasswordReset.run(params) do |operation, user|
       if user
-        PasswordResetRequestEmail.new(user).deliver
+        begin
+          PasswordResetRequestEmail.new(user).deliver
+        rescue BaseEmail::NotConfigured
+          context.response.headers["HX-Push-Url"] = "false"
+          flash.failure = r(".mail_not_configured").t
+
+          return html NewPage, operation: operation
+        end
+
         flash.success = r(".check_email").t
         redirect SignIns::New
       else
