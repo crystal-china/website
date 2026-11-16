@@ -1,6 +1,23 @@
 ---
 en:
   admin:
+    settings:
+      update:
+        settings_updated: Site settings saved
+      edit_page:
+        branding: Site information
+        mail: Outgoing email
+        mail_help: Enter the SMTP host, port and sender address to enable email. The server must support STARTTLS.
+        password_help: Leave blank to keep the saved password.
+        password_saved: An SMTP password is saved.
+        clear_password: Clear saved SMTP password
+        defaults_help: Defaults are filled in until you save. Clear a field to hide it.
+        links_help: One link per row, in display order. Leave all rows blank or remove them to hide all icons.
+        add_link: Add link
+      footer_link_fields:
+        title: Name
+        url: Link URL
+        icon: Icon URL
     nodes:
       create:
         node_created: Node created
@@ -120,6 +137,7 @@ en:
       newest: Newest
 
   common:
+    site_settings: Site settings
     comment_withdrawn: This comment has been withdrawn
     unknown: "unknown"
     discard_changes: "You have unsaved changes. Discard them?"
@@ -377,6 +395,7 @@ en:
 
   password_reset_requests:
     create:
+      mail_not_configured: Email delivery is not configured. Please contact the administrator.
       check_email: Please check your email for the password reset link
     new_page:
       description: Enter your registered email address to receive a password reset link.

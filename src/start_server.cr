@@ -12,6 +12,10 @@ if LuckyEnv.development?
   # Avram::Migrator::Runner.new.run_pending_migrations
 end
 
+if LuckyEnv.production?
+  BaseEmail.configure_smtp(Space::BaseQuery.new.id(Space::DEFAULT_ID).first?)
+end
+
 app_server = AppServer.new
 
 Process.on_terminate do

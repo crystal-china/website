@@ -138,15 +138,13 @@ This example builds on AMD64 Arch Linux and deploys to an ARM64 Raspberry Pi 5 r
    DATABASE_URL=postgres://postgres:CHANGE_ME@127.0.0.1:5432/crystal_china_production
    ADMIN_EMAILS=admin@example.com
    TZ=Asia/Shanghai
-   CARBON_SMTP_SERVER=smtp.example.com
-   CARBON_SMTP_PORT=587
-   CARBON_SMTP_USER=your-smtp-user
-   CARBON_SMTP_PASSWORD=your-smtp-password
    ```
 
    From `~/apps/crystal_china_production` on the Pi, generate a new `SECRET_KEY_BASE` with `bin/tasks gen.secret_key`.
 
    Replace the example values. The database password must match `POSTGRES_PASSWORD` in `~/.config/containers/systemd/crystal_china_pg.env`.
+
+   Configure SMTP and the sender address in **Admin > Site settings** after deployment.
 
 9. On the Pi, start the pod and initialize the database before allowing public access. PostgreSQL creates `crystal_china_production` automatically from `POSTGRES_DB` on its first start:
 

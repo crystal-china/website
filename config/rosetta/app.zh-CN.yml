@@ -1,6 +1,23 @@
 ---
 zh-CN:
   admin:
+    settings:
+      update:
+        settings_updated: 站点设置已保存
+      edit_page:
+        branding: 站点信息
+        mail: 邮件发送
+        mail_help: 填写 SMTP 服务器、端口和发件邮箱后启用；服务器需支持 STARTTLS。
+        password_help: 留空保留已保存的密码。
+        password_saved: 已保存 SMTP 密码。
+        clear_password: 清除已保存的 SMTP 密码
+        defaults_help: 未设置时填入默认值，保存后生效；清空后保存则隐藏对应内容。
+        links_help: 每行一个链接，按行的顺序显示；全部留空或移除可隐藏所有图标。
+        add_link: 添加链接
+      footer_link_fields:
+        title: 名称
+        url: 跳转地址
+        icon: 图标地址
     nodes:
       create:
         node_created: 节点已创建
@@ -119,6 +136,7 @@ zh-CN:
       newest: 最新
 
   common:
+    site_settings: 站点设置
     comment_withdrawn: 此评论内容已撤回
     unknown: "未知"
     discard_changes: "内容尚未保存，确定放弃修改吗？"
@@ -373,6 +391,7 @@ zh-CN:
 
   password_reset_requests:
     create:
+      mail_not_configured: 邮件服务尚未配置，请联系管理员。
       check_email: 请仔细检查你的邮箱获取重置密码的链接
     new_page:
       description: 输入注册邮箱，我们会向你发送一封包含重置链接的邮件。
