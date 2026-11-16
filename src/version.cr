@@ -1,7 +1,8 @@
 module App
   VERSION_JSON = {
-    rev:   {{`git rev-parse --short HEAD`.chomp.stringify}},
-    build: {{(flag?(:release) ? "release".id : "non-release".id).stringify}},
+    rev:    {{`git rev-parse --short HEAD`.chomp.stringify}},
+    build:  {{(flag?(:release) ? "release".id : "non-release".id).stringify}},
+    assets: {{read_file("#{__DIR__}/../public/bun-manifest.json").includes?("\"js/app-") ? "production" : "development"}},
   }.to_json
   puts VERSION_JSON
 

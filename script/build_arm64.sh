@@ -2,6 +2,7 @@
 
 set -euo pipefail
 
+podman run --rm -v "$PWD:/app" -w /app docker.io/oven/bun:1 bun run prod
 build_folder=build_scripts/bin
 script=build_scripts/bin/crystal_build_arm64_binary
 
