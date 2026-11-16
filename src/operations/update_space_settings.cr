@@ -32,15 +32,15 @@ class UpdateSpaceSettings < Space::SaveOperation
   end
 
   private def validate_site_fields : Nil
-    if (url = logo_url.value) && !url.empty? && !image_url?(url)
+    if (url = logo_url.value) && !url.blank? && !image_url?(url)
       logo_url.add_error r("validations.site_image_url").t
     end
 
-    if (url = source_url.value) && !url.empty? && !http_url?(url)
+    if (url = source_url.value) && !url.blank? && !http_url?(url)
       source_url.add_error r("validations.site_http_url").t
     end
 
-    unless contact_email.value.to_s.empty?
+    unless contact_email.value.to_s.blank?
       validate_format_of(
         contact_email,
         with: /\A[^\s@]+@[^\s@]+\.[^\s@]+\z/,
@@ -57,11 +57,11 @@ class UpdateSpaceSettings < Space::SaveOperation
           url: row["url"]?.to_s.strip,
           icon: row["icon"]?.to_s.strip
         )
-      end.reject { |link| link.title.empty? && link.url.empty? && link.icon.empty? }
+      end.reject { |link| link.title.blank? && link.url.blank? && link.icon.blank? }
     end
 
     footer_link_rows.each_with_index do |link, index|
-      if link.title.empty? || !http_url?(link.url) || !image_url?(link.icon)
+      if link.title.blank? || !http_url?(link.url) || !image_url?(link.icon)
         footer_links.add_error r("validations.site_footer_link").t(row: (index + 1).to_s)
       end
     end
@@ -74,7 +74,7 @@ class UpdateSpaceSettings < Space::SaveOperation
   private def http_url?(value : String) : Bool
     uri = URI.parse(value)
 
-    uri.scheme.in?({"http", "https"}) && !uri.host.to_s.empty?
+    uri.scheme.in?({"http", "https"}) && !uri.host.to_s.blank?
   rescue URI::Error
     false
   end

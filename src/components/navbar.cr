@@ -3,19 +3,21 @@ class Navbar < BaseComponent
 
   def render : Nil
     space = context.site_space
-    logo_url = space.try(&.logo_url) || asset("svgs/crystal-china.svg")
-    source_url = space.try(&.source_url)
+    logo_url = space.try(&.logo_url) || Space::DEFAULT_LOGO_PATH
+    source_url = space.try(&.source_url) || Space::DEFAULT_SOURCE_URL
 
     header class: "site-navbar" do
       div class: "flex translate-y-px flex-col items-center gap-3 border-b border-gray-300/80 bg-[#F2F4F6] pt-3 pb-3 shadow-[0_1px_2px_rgb(15_23_42/0.06)] md:flex-row md:justify-between md:pt-4 lg:h-[var(--navbar-height)] lg:translate-y-0 lg:py-0 #{page_frame_classes} #{page_gutter_classes}" do
-        a href: "/", class: "inline-flex shrink-0 items-center" do
-          img(
-            src: logo_url,
-            alt: r(".logo").t,
-            width: "270",
-            height: "33",
-            class: "h-[26px] w-[210px] object-contain sm:h-[33px] sm:w-[270px]"
-          )
+        unless logo_url.blank?
+          a href: "/", class: "inline-flex shrink-0 items-center" do
+            img(
+              src: Space.image_url(logo_url),
+              alt: r(".logo").t,
+              width: "270",
+              height: "33",
+              class: "h-[26px] w-[210px] object-contain sm:h-[33px] sm:w-[270px]"
+            )
+          end
         end
 
         nav class: "w-full md:ml-auto md:w-auto" do
@@ -44,7 +46,7 @@ class Navbar < BaseComponent
               end
             end
 
-            if source_url
+            unless source_url.blank?
               li do
                 a(
                   r(".source").t,
