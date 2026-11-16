@@ -31,7 +31,7 @@ class Forum::Index < ForumAction
       # 关注可以按照节点过滤，未读会受七天窗口影响，所以，不使用 counter
       pages, topics = paginate(query, per_page: App::DEFAULT_PER_PAGE)
     else
-      item_count = current_node ? current_node.topics_count : Space::BaseQuery.find(Space::DEFAULT_ID).topics_count
+      item_count = current_node ? current_node.topics_count : context.site_space.not_nil!.topics_count
       pages = Lucky::Paginator.new(
         page: paginator_page,
         per_page: App::DEFAULT_PER_PAGE,
