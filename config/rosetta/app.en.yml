@@ -8,8 +8,7 @@ en:
         branding: Site information
         mail: Outgoing email
         mail_help: Enter the SMTP host, port and sender address to enable email. The server must support STARTTLS.
-        password_help: Leave blank to keep the saved password.
-        password_saved: An SMTP password is saved.
+        password_help: SMTP password is set. Leave blank to keep it unchanged.
         clear_password: Clear saved SMTP password
         defaults_help: Defaults are filled in until you save. Clear a field to hide it.
         links_help: One link per row, in display order. Leave all rows blank or remove them to hide all icons.

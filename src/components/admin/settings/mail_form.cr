@@ -34,7 +34,7 @@ class Admin::Settings::MailForm < BaseComponent
     section class: "space-y-4" do
       para r(".mail_help").t, class: "m-0 text-sm text-gray-600"
 
-      div class: "grid gap-4 pt-3 sm:grid-cols-[8rem_minmax(0,1fr)_7rem]" do
+      div class: "grid gap-4 pt-3 sm:grid-cols-2 lg:grid-cols-[8rem_minmax(0,1fr)_6rem_minmax(0,1fr)]" do
         div class: "form-field" do
           label_for(
             operation.smtp_tls_mode,
@@ -67,46 +67,52 @@ class Admin::Settings::MailForm < BaseComponent
           label_text: r("fields.smtp_port").t,
           &.number_input(min: "1", max: "65535")
         )
-      end
-
-      div class: "grid gap-4 sm:grid-cols-2" do
         mount(
           Shared::Field,
           attribute: operation.email_from,
           label_text: r("fields.email_from").t,
           &.email_input
         )
+      end
+
+      div class: "grid gap-4 sm:grid-cols-2" do
         mount(
           Shared::Field,
           attribute: operation.smtp_username,
           label_text: r("fields.smtp_username").t,
           &.text_input(autocomplete: "off")
         )
-      end
 
-      div class: "grid gap-4 sm:grid-cols-2" do
-        div class: "space-y-2" do
-          mount(
-            Shared::Field,
-            attribute: operation.smtp_password,
-            label_text: r("fields.smtp_password").t,
-            &.password_input(autocomplete: "new-password")
-          )
-          para r(".password_help").t, class: "m-0 text-xs text-gray-500"
-        end
+        div class: "form-field" do
+          div class: "flex flex-wrap items-center justify-between gap-x-3 gap-y-2" do
+            label_for(
+              operation.smtp_password,
+              r("fields.smtp_password").t,
+              class: "form-label"
+            )
 
-        div class: "flex flex-col justify-center gap-2" do
+            label_for(
+              operation.clear_smtp_password,
+              class: "inline-flex items-center gap-2 text-xs text-gray-500"
+            ) do
+              checkbox operation.clear_smtp_password, class: "h-4 w-4 accent-sky-600"
+              text r(".clear_password").t
+            end
+          end
+
+          password_placeholder = ""
+
           if (space = operation.record) && space.encrypted_smtp_password
-            para r(".password_saved").t, class: "m-0 text-xs text-gray-500"
+            password_placeholder = r(".password_help").t
           end
 
-          label_for(
-            operation.clear_smtp_password,
-            class: "flex items-center gap-3 text-sm"
-          ) do
-            checkbox operation.clear_smtp_password, class: "h-4 w-4 accent-sky-600"
-            text r(".clear_password").t
-          end
+          password_input(
+            operation.smtp_password,
+            class: "form-input",
+            placeholder: password_placeholder,
+            autocomplete: "new-password"
+          )
+          mount Shared::FieldErrors, operation.smtp_password
         end
       end
     end

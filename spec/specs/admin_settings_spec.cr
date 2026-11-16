@@ -70,6 +70,8 @@ describe "Admin site settings" do
         mail_form.xpath_node(".//input[@name='space:#{field}']").not_nil!["value"].should eq("")
       end
 
+      mail_form.xpath_node(".//input[@name='space:smtp_password']").not_nil!["placeholder"].should eq("")
+
       form.xpath_node(".//input[@type='checkbox']").should be_nil
       form.xpath_node(".//fieldset[@id='footer-link-fields'][@disabled]").should be_nil
       form.xpath_node(".//template[@id='footer-link-template']").should_not be_nil
@@ -355,6 +357,7 @@ describe "Admin site settings" do
     document.xpath_node("//form[@id='site-settings-form']").should be_nil
     document.xpath_node("//hx-partial[@hx-target='#page-flash']").not_nil!.content.should contain("站点设置已保存")
     document.xpath_node("//input[@name='space:smtp_password']").not_nil!["value"].should eq("")
+    document.xpath_node("//input[@name='space:smtp_password']").not_nil!["placeholder"].should eq("已设定 SMTP 密码，留空会保留密码不变。")
     document.xpath_node("//input[@name='space:clear_smtp_password'][@type='checkbox'][@checked]").should be_nil
     space.smtp_host.should eq("smtp.example.com")
     space.smtp_port.should eq(587)
@@ -374,6 +377,7 @@ describe "Admin site settings" do
     response.body.should_not contain("secret-smtp-password")
     response.body.should_not contain(space.encrypted_smtp_password.not_nil!)
     document.xpath_node("//input[@name='space:smtp_password']").not_nil!["value"].should eq("")
+    document.xpath_node("//input[@name='space:smtp_password']").not_nil!["placeholder"].should eq("已设定 SMTP 密码，留空会保留密码不变。")
     document.xpath_node("//input[@name='space:smtp_host']").not_nil!["value"].should eq("smtp.example.com")
     document.xpath_node("//input[@name='space:smtp_port']").not_nil!["value"].should eq("587")
     document.xpath_node("//main//form/ancestor::section[contains(@class, 'max-w-3xl')]").should_not be_nil
