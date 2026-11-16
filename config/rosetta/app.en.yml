@@ -323,6 +323,7 @@ en:
       auth_guides: Check out the authentication guides
 
   navbar:
+    logo: Site logo
     source: Source code
     notification_button:
       unread_count:

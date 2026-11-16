@@ -320,6 +320,7 @@ zh-CN:
       auth_guides: 查看身份验证指南
 
   navbar:
+    logo: 站点标志
     source: 本站源码
     notification_button:
       unread_count:
