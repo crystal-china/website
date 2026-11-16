@@ -2,6 +2,18 @@
 ---
 zh-CN:
   fields: &fields
+    smtp_host: SMTP 服务器
+    smtp_port: SMTP 端口
+    smtp_tls_mode: 连接加密方式
+    smtp_username: SMTP 用户名
+    smtp_password: SMTP 密码／授权码
+    clear_smtp_password: 清除 SMTP 密码
+    encrypted_smtp_password: 已保存的 SMTP 密码
+    email_from: 发件邮箱
+    logo_url: 站点图片地址
+    contact_email: 联系邮箱
+    source_url: 本站源码地址
+    footer_links: Footer 链接
     account: 邮箱或登录用户名
     actor_id: 操作用户
     available: 是否可用
@@ -89,6 +101,11 @@ zh-CN:
     validate_url_format: 必须是以 %{scheme} 开头的合法网址
 
   validations:
+    smtp_port: 必须在 1 到 65535 之间
+    smtp_password_required: 请填写 SMTP 密码，或清空用户名以停用认证
+    site_http_url: 必须是包含主机名的 http 或 https 地址
+    site_image_url: 必须是 http 或 https 地址，或已存在的本站资源路径
+    site_footer_link: 第 %{row} 行需要填写名称、http 或 https 跳转地址，以及图片地址或本站资源路径。
     node_has_topics: 节点下仍有主题，请先选择迁移节点。
     node_destination_invalid: 请选择另一个存在的节点。
     cannot_follow_self: 不能关注自己

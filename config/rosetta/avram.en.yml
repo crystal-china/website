@@ -2,6 +2,18 @@
 ---
 en:
   fields: &fields
+    smtp_host: SMTP server
+    smtp_port: SMTP port
+    smtp_tls_mode: Encryption
+    smtp_username: SMTP username
+    smtp_password: SMTP password / app password
+    clear_smtp_password: Clear SMTP password
+    encrypted_smtp_password: Saved SMTP password
+    email_from: Sender email
+    logo_url: Site logo URL
+    contact_email: Contact email
+    source_url: Source code URL
+    footer_links: Footer links
     account: Email or login name
     actor_id: Actor
     available: Available
@@ -89,6 +101,11 @@ en:
     validate_url_format: must be a valid URL beginning with %{scheme}
 
   validations:
+    smtp_port: must be between 1 and 65535
+    smtp_password_required: enter an SMTP password or clear the username to disable authentication
+    site_http_url: must be an http or https URL with a hostname
+    site_image_url: must be an http or https URL or an existing bundled asset path
+    site_footer_link: 'Link %{row} needs a name, an http or https URL, and an image URL or bundled asset path.'
     node_has_topics: This node contains topics. Select another node to move them to before deleting it.
     node_destination_invalid: Choose another existing node.
     cannot_follow_self: cannot follow yourself
