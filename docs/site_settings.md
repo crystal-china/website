@@ -35,4 +35,5 @@ SMTP 服务器、端口、用户名、密码／授权码及发件邮箱也保存
 后台保存只更新处理该请求的进程；多进程部署时应重启所有 Web 进程，以统一配置。
 SMTP 密码加密依赖 `SECRET_KEY_BASE`，备份数据库时应同时保管此密钥；更换密钥后，需要重新保存 SMTP 密码。
 
-部署时先运行 `bin/tasks db.migrate`，再重启应用。首次部署的默认 Space 仍由 `db.seed.required_data` 创建，重复运行 seed 不会覆盖管理员保存的设置。
+站点设置字段已合并进 `CreateSpaces` 建表 migration，不再保留独立的 `AddSpaceSettings`。
+全新环境运行 `bin/tasks db.migrate` 后，再运行 `bin/tasks db.seed.required_data` 创建默认 Space；重复运行 seed 不会覆盖管理员保存的设置。
